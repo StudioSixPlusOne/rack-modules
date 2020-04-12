@@ -1,0 +1,16 @@
+{
+  "slug": "StudioSixPlusOne",
+  "name": "StudioSixPlusOne",
+  "version": "1.0.0",
+  "license": "GPL-3.0-or-later",
+  "brand": "StudioSixPlusOne",
+  "author": "Curlymorphic",
+  "authorEmail": "dave.french3@googlemail.com",
+  "authorUrl": "github.com/curlymorphic",
+  "pluginUrl": "github.com/curlymorphic/StudioSixPlusOne",
+  "manualUrl": "github.com/curlymorphic/StudioSixPlusOne",
+  "sourceUrl": "github.com/curlymorphic/StudioSixPlusOne",
+  "donateUrl": "",
+  "changelogUrl": "",
+  "modules": []
+}
