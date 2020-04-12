@@ -1,0 +1,109 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Build application and add to Rack plugin folder",
+        "type": "shell",
+        "command": "make install",
+        "options": {
+          "cwd": "${workspaceRoot}",
+          "env":{
+              "PATH": "/bin",
+              "RACK_DIR": "/home/curlymorphic/dev/Rack",
+          }
+        },
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        },
+        "problemMatcher": {
+          "owner": "cpp",
+          "fileLocation": ["absolute"],
+          "pattern": {
+              "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+              "file": 1,
+              "line": 2,
+              "column": 3,
+              "severity": 4,
+              "message": 5
+          }
+        }
+      },
+           {
+               "label": "Build application without stripping symbols and add to Rack plugin folder",
+               "type": "shell",
+               "command": "make ARGS=\"no-strip\" install",
+               "options": {
+                 "cwd": "${workspaceRoot}",
+                 "env":{
+                  "PATH": "/bin",
+                  "RACK_DIR": "/home/curlymorphic/dev/Rack",
+                 }
+               },
+               "group": {
+                "kind": "build",
+                "isDefault": true
+              },
+               "presentation": {
+                 "echo": true,
+                 "reveal": "always",
+                 "focus": false,
+                 "panel": "shared"
+               },
+               "problemMatcher": {
+                 "owner": "cpp",
+                 "fileLocation": ["absolute"],
+                 "pattern": {
+                     "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+                     "file": 1,
+                     "line": 2,
+                     "column": 3,
+                     "severity": 4,
+                     "message": 5
+                 }
+               }
+             },
+      {
+        "label": "Clean project directories",
+        "type": "shell",
+        "command": "make clean",
+        "options": {
+          "cwd": "${workspaceRoot}",
+          "env":{
+              "PATH": "/bin",
+              "RACK_DIR": "/home/curlymorphic/dev/Rack",
+          }
+        },
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        },
+        "problemMatcher": {
+          "owner": "cpp",
+          "fileLocation": ["absolute"],
+          "pattern": {
+              "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+              "file": 1,
+              "line": 2,
+              "column": 3,
+              "severity": 4,
+              "message": 5
+          }
+        }
+      }
+    ]
+  }

@@ -9,8 +9,29 @@
   "authorUrl": "github.com/curlymorphic",
   "pluginUrl": "github.com/curlymorphic/StudioSixPlusOne",
   "manualUrl": "github.com/curlymorphic/StudioSixPlusOne",
-  "sourceUrl": "github.com/curlymorphic/StudioSixPlusOne",
+  "sourceUrl": "github.com/curlymorphic/StudioSixPlusOne.git",
   "donateUrl": "",
   "changelogUrl": "",
-  "modules": []
+  "modules": [
+    {
+      "slug": "KSDelay",
+      "name": "KSDelay",
+      "description": "Karplus\u2013Strong Delay",
+      "tags": [
+        "Polyphonic",
+        "Delay",
+        "VCO",
+        "Physical modeling"
+      ]
+    },
+    {
+      "slug": "Maccomo",
+      "name": "Maccomo",
+      "description": "Moog Ladder Filter",
+      "tags": [
+        "Polyphonic",
+        "VCF"
+      ]
+    }
+  ]
 }
