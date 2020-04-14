@@ -53,12 +53,12 @@ struct KSDelay : Module
 	};
 
 	static constexpr int maxChannels = 16;
-	constexpr static float maxCutoff = 2.65f;
+	constexpr static float maxCutoff = 20000.0f;
 
 	std::vector<CircularBuffer<float> > buffers;
-	std::vector<dsp::RCFilter>  lowpassFilters;
+	std::vector<dsp::BiquadFilter>  lowpassFilters;
 	std::vector<float> lastWets;
-	std::vector<float> delays; 
+	std::vector<float> delayTimes; 
 	unsigned int frame = 0;
 	
 
@@ -74,15 +74,15 @@ struct KSDelay : Module
 		for (auto& lw : lastWets)
 			lw = 0;
 
-		delays.resize (maxChannels);
-		for (auto& d :delays)
+		delayTimes.resize (maxChannels);
+		for (auto& d :delayTimes)
 			d = 0;
 
 		config (NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
 		configParam (OCTAVE_PARAM, -4.0f, 4.0f, 0.0f, "Tune", " octave");
 		configParam (TUNE_PARAM, -7.0f, 7.0f, 0.0f, "Tune", " semitones");
 		configParam (FEEDBACK_PARAM, 0.8f, 1.0f, 0.99f, "Feedback", "%", 0, 100);
-		configParam (FILTER_PARAM, 1.0f, maxCutoff, maxCutoff, "Color");
+		configParam (FILTER_PARAM, 0.0f, 1.125f, 1.125f, "Frequency", " Hz", std::pow (2, 10.f), dsp::FREQ_C4 / std::pow (2, 5.f), -8.1758);
 		configParam (MIX_PARAM, 0.0f, 1.0f, 1.0f, "Mix", "%", 0, 100);
 	}
 
@@ -95,7 +95,7 @@ struct KSDelay : Module
 		auto octaveParam = params[OCTAVE_PARAM].getValue();
 		auto tuneParam = params[TUNE_PARAM].getValue();
 		auto feedbackParam = params[FEEDBACK_PARAM].getValue();
-		auto filterParam = params[FILTER_PARAM].getValue();
+		auto filterParam = (paramQuantities[FILTER_PARAM])->getDisplayValue();
 		auto mixParam = params[MIX_PARAM].getValue();
 
 		frame++;
@@ -108,24 +108,25 @@ struct KSDelay : Module
 			auto feedback = feedbackParam + inputs[FEEDBACK_INPUT].getPolyVoltage (i) / 10.0f;
 			feedback = clamp (feedback, 0.0f, 1.0f);
 			
-			if (frame == 0)
+			if (frame == 1)
 			{
-				delays[i] =  1.0f / (dsp::FREQ_C4 * std::pow(2.0f, inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
-				auto color = filterParam + inputs[FILTER_INPUT].getPolyVoltage (i) / 10.0f;
+				delayTimes[i] =  1.0f / (dsp::FREQ_C4 * std::pow(2.0f, inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
+
+				auto color = filterParam;
+				if (inputs[FILTER_INPUT].isConnected())
+					color += std::pow (2, inputs[FILTER_INPUT].getPolyVoltage (i)) * dsp::FREQ_C4;	
 				color = clamp (color, 1.0f, maxCutoff);
-				auto lowpassFreq = color * color * color * color * color * color * color * color * color * color;
-				lowpassFilters[i].setCutoff (lowpassFreq / args.sampleRate);
+				lowpassFilters[i].setParameters (rack::dsp::BiquadFilter::LOWPASS, color / args.sampleRate, 0.707f, 1.0f);
 			}
 
-			auto index = delays[i] * args.sampleRate - 1;
+			auto index = delayTimes[i] * args.sampleRate - 1;
 			auto wet = buffers[i].readBuffer (index);
 			auto dry = in + lastWets[i] * feedback;
 			buffers[i].writeBuffer (dry);
 
 			wet = std::abs (wet) > 17.0f ? 0 : wet;
-			lowpassFilters[i].process (wet);
-			wet = lowpassFilters[i].lowpass();
-		
+			wet = lowpassFilters[i].process (wet);
+			
 			lastWets[i] = wet;
 
 			auto mix = mixParam + inputs[MIX_INPUT].getPolyVoltage (i) / 10.0f;
