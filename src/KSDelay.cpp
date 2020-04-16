@@ -52,11 +52,13 @@ struct KSDelay : Module
 		NUM_OUTPUTS
 	};
 
-	static constexpr int maxChannels = 16;
+	constexpr static int maxChannels = 16;
 	constexpr static float maxCutoff = 20000.0f;
+	constexpr static float dcFilterCutoff = 5.5f;
 
 	std::vector<CircularBuffer<float> > buffers;
 	std::vector<dsp::BiquadFilter>  lowpassFilters;
+	std::vector<dsp::BiquadFilter> dcFilters;
 	std::vector<float> lastWets;
 	std::vector<float> delayTimes; 
 	unsigned int frame = 0;
@@ -69,6 +71,10 @@ struct KSDelay : Module
 			b.reset (4096);
 
 		lowpassFilters.resize (maxChannels);
+
+		dcFilters.resize (maxChannels);
+		for (auto &dc : dcFilters)
+			dc.setParameters( rack::dsp::BiquadFilter::HIGHPASS, dcFilterCutoff / APP->engine->getSampleRate(), 0.141f, 1.0f);
 
 		lastWets.resize (maxChannels);
 		for (auto& lw : lastWets)
@@ -89,6 +95,12 @@ struct KSDelay : Module
 	~KSDelay() {
 	}
 
+	void onSampleRateChange() override
+	{
+		for (auto &dc : dcFilters)
+			dc.setParameters( rack::dsp::BiquadFilter::HIGHPASS, dcFilterCutoff / APP->engine->getSampleRate(), 0.141f, 1.0f);
+	}
+
 	void process(const ProcessArgs& args) override 
 	{
 		auto channels = inputs[IN_INPUT].getChannels();
@@ -105,6 +117,7 @@ struct KSDelay : Module
 		{
 			// Get input to delay block
 			auto in = inputs[IN_INPUT].getVoltage (i);
+			in = dcFilters[i].process (in);
 			auto feedback = feedbackParam + inputs[FEEDBACK_INPUT].getPolyVoltage (i) / 10.0f;
 			feedback = clamp (feedback, 0.0f, 1.0f);
 			
