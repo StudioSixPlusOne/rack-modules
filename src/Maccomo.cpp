@@ -74,7 +74,7 @@ struct Maccomo : Module
 	{
 		typeCount = sspo::MoogLadderFilter::types().size();
 		config (NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam (FREQUENCY_PARAM, 0.0f, 1.125f, 0.0f, "Frequency", " Hz", std::pow (2, 10.f), dsp::FREQ_C4 / std::pow (2, 5.f), -8.1758);
+		configParam (FREQUENCY_PARAM, 0.0f, 1.125f, 0.0f, "Frequency", " Hz", std::pow (2, 10.0f), dsp::FREQ_C4 / std::pow (2, 5.f));
 		configParam (FREQUENCY_CV_ATTENUVERTER_PARAM, -1.0f, 1.0f, 0.0f, "Frequency CV");
 		configParam (RESONANCE_CV_ATTENUVERTER_PARAM, -1.0f, 1.0f, 0.0f, "Resonance CV");
 		configParam (RESONANCE_PARAM, 0.0f, maxRes, 0.0f, "Resonance");
@@ -97,13 +97,15 @@ struct Maccomo : Module
 	void process(const ProcessArgs& args) override {
 
 		auto channels = std::max (inputs[MAIN_INPUT].getChannels(), 1);
-		auto freqParam = (paramQuantities[FREQUENCY_PARAM])->getDisplayValue();
+		auto freqParam = params[FREQUENCY_PARAM].getValue();
 		auto resParam = params[RESONANCE_PARAM].getValue();
 		auto saturationParam = params[SATURATION_PARAM].getValue();
 		auto modeParam = static_cast<int> (params[MODE_PARAM].getValue());
 		auto freqAttenuverterParam = params[FREQUENCY_CV_ATTENUVERTER_PARAM].getValue();
 		auto resAttenuverterParam = params[RESONANCE_CV_ATTENUVERTER_PARAM].getValue();
 		auto satAttenuverterParam = params[SATURATION_CV_ATTENUVERTER_PARAM].getValue();
+
+		freqParam = freqParam * 10.0f - 5.0f;
 
 		for (auto i = 0; i < channels; ++i)
 		{
@@ -113,9 +115,11 @@ struct Maccomo : Module
 
 			auto frequency = freqParam;
 			if (inputs[VOCT_INPUT].isConnected())
-				frequency += std::pow (2, inputs[VOCT_INPUT].getPolyVoltage (i)) * dsp::FREQ_C4;
+				frequency += inputs[VOCT_INPUT].getPolyVoltage (i);
 			if (inputs[FREQ_CV_INPUT].isConnected())
-				frequency += std::pow (2, inputs[FREQ_CV_INPUT].getPolyVoltage (i)) * dsp::FREQ_C4 * freqAttenuverterParam; 
+				frequency += (inputs[FREQ_CV_INPUT].getPolyVoltage (i) * freqAttenuverterParam); 
+			frequency = dsp::FREQ_C4 * std::pow (2.0f, frequency);
+
 			frequency = clamp(frequency, 0.0f, maxFreq);
 
 			auto resonance = resParam;
