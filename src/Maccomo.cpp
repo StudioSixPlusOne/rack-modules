@@ -31,8 +31,8 @@ struct Maccomo : Module
 		FREQUENCY_CV_ATTENUVERTER_PARAM,
 		RESONANCE_CV_ATTENUVERTER_PARAM,
 		RESONANCE_PARAM,
-		SATURATION_CV_ATTENUVERTER_PARAM,
-		SATURATION_PARAM,
+		DRIVE_CV_ATTENUVERTER_PARAM,
+		DRIVE_PARAM,
 		MODE_PARAM,
 		NUM_PARAMS
 	};
@@ -41,7 +41,7 @@ struct Maccomo : Module
 	{
 		VOCT_INPUT,
 		RESONANCE_CV_INPUT,
-		SATURATION_CV_INPUT,
+		DRIVE_CV_INPUT,
 		MODE_CV_INPUT,
 		MAIN_INPUT,
 		FREQ_CV_INPUT,
@@ -62,7 +62,7 @@ struct Maccomo : Module
 	static constexpr float minFreq = 0.0f;
 	static constexpr float maxFreq = 20000.0f;
 	static constexpr float maxRes = 10.0f;
-	static constexpr float maxSaturation = 2.0f;
+	static constexpr float maxDrive = 2.0f;
 	static constexpr int maxChannels = 16;
 	
 	int typeCount = 0;
@@ -74,12 +74,14 @@ struct Maccomo : Module
 	{
 		typeCount = sspo::MoogLadderFilter::types().size();
 		config (NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam (FREQUENCY_PARAM, 0.0f, 1.125f, 0.0f, "Frequency", " Hz", std::pow (2, 10.0f), dsp::FREQ_C4 / std::pow (2, 5.f));
+
+		configParam (FREQUENCY_PARAM, 0.0f, 1.125f, 0.5f, "Frequency", " Hz", std::pow (2, 10.0f), dsp::FREQ_C4 / std::pow (2, 5.f));
+
 		configParam (FREQUENCY_CV_ATTENUVERTER_PARAM, -1.0f, 1.0f, 0.0f, "Frequency CV");
 		configParam (RESONANCE_CV_ATTENUVERTER_PARAM, -1.0f, 1.0f, 0.0f, "Resonance CV");
 		configParam (RESONANCE_PARAM, 0.0f, maxRes, 0.0f, "Resonance");
-		configParam (SATURATION_CV_ATTENUVERTER_PARAM, -1.0f, 1.0f, 0.0f, "Saturation CV");
-		configParam (SATURATION_PARAM, 0.0f, maxSaturation, 0.6f, "Saturation");
+		configParam (DRIVE_CV_ATTENUVERTER_PARAM, -1.0f, 1.0f, 0.0f, "Drive CV");
+		configParam (DRIVE_PARAM, 0.0f, maxDrive, 0.6f, "Drive");
 		configParam (MODE_PARAM, 0.0f, typeCount - 1, 0.0f, "Type");
 
 		currentTypes.resize (maxChannels);
@@ -99,11 +101,11 @@ struct Maccomo : Module
 		auto channels = std::max (inputs[MAIN_INPUT].getChannels(), 1);
 		auto freqParam = params[FREQUENCY_PARAM].getValue();
 		auto resParam = params[RESONANCE_PARAM].getValue();
-		auto saturationParam = params[SATURATION_PARAM].getValue();
+		auto driveParam = params[DRIVE_PARAM].getValue();
 		auto modeParam = static_cast<int> (params[MODE_PARAM].getValue());
 		auto freqAttenuverterParam = params[FREQUENCY_CV_ATTENUVERTER_PARAM].getValue();
 		auto resAttenuverterParam = params[RESONANCE_CV_ATTENUVERTER_PARAM].getValue();
-		auto satAttenuverterParam = params[SATURATION_CV_ATTENUVERTER_PARAM].getValue();
+		auto driveAttenuverterParam = params[DRIVE_CV_ATTENUVERTER_PARAM].getValue();
 
 		freqParam = freqParam * 10.0f - 5.0f;
 
@@ -126,9 +128,9 @@ struct Maccomo : Module
 			resonance += (inputs[RESONANCE_CV_INPUT].getPolyVoltage (i) / 5.0f) * resAttenuverterParam * maxRes;
 			resonance = clamp (resonance, 0.0f, maxRes);
 
-			auto saturation = saturationParam;
-			saturation += (inputs[SATURATION_CV_INPUT].getPolyVoltage (i) / 5.0f) * satAttenuverterParam * maxSaturation;
-			saturation = clamp (saturation, 0.0f, maxSaturation);
+			auto drive = driveParam;
+			drive += (inputs[DRIVE_CV_INPUT].getPolyVoltage (i) / 5.0f) * driveAttenuverterParam * maxDrive;
+			drive = clamp (drive, 0.0f, maxDrive);
 			
 			if (currentTypes.at (i) != modeParam  + static_cast<int>(inputs[MODE_CV_INPUT].getPolyVoltage (i)))
 			{
@@ -138,7 +140,7 @@ struct Maccomo : Module
 
 			filters[i].setParameters (frequency
 			, resonance
-			, saturation
+			, drive
 			, 0
 			, args.sampleRate);
 
@@ -179,13 +181,13 @@ struct MaccomoWidget : ModuleWidget
 		addParam (createParamCentered<RoundBlackKnob> (mm2px (Vec (25.135, 29.10)), module, Maccomo::FREQUENCY_CV_ATTENUVERTER_PARAM));
 		addParam (createParamCentered<RoundBlackKnob> (mm2px (Vec (25.135, 47.802)), module, Maccomo::RESONANCE_CV_ATTENUVERTER_PARAM));
 		addParam (createParamCentered<RoundLargeBlackKnob> (mm2px (Vec(41.01, 47.802)), module, Maccomo::RESONANCE_PARAM));
-		addParam (createParamCentered<RoundBlackKnob> (mm2px (Vec (25.135, 70.292)), module, Maccomo::SATURATION_CV_ATTENUVERTER_PARAM));
-		addParam (createParamCentered<RoundLargeBlackKnob> (mm2px (Vec (41.01, 70.292)), module, Maccomo::SATURATION_PARAM));
+		addParam (createParamCentered<RoundBlackKnob> (mm2px (Vec (25.135, 70.292)), module, Maccomo::DRIVE_CV_ATTENUVERTER_PARAM));
+		addParam (createParamCentered<RoundLargeBlackKnob> (mm2px (Vec (41.01, 70.292)), module, Maccomo::DRIVE_PARAM));
 		addParam (createParamCentered<RoundSmallBlackSnapKnob> (mm2px (Vec (41.01, 92.781)), module, Maccomo::MODE_PARAM));
 
 		addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 21.344)), module, Maccomo::VOCT_INPUT));
 		addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 47.802)), module, Maccomo::RESONANCE_CV_INPUT));
-		addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 70.292)), module, Maccomo::SATURATION_CV_INPUT));
+		addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 70.292)), module, Maccomo::DRIVE_CV_INPUT));
 		addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 92.781)), module, Maccomo::MODE_CV_INPUT));
 		addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 112.625)), module, Maccomo::MAIN_INPUT));
 		addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 29.50)), module, Maccomo::FREQ_CV_INPUT));
