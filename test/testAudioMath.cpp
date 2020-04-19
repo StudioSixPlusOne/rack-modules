@@ -24,7 +24,7 @@
 
 #include <assert.h>
 #include <stdio.h>
-#include "../src/AudioMath.h"
+#include "AudioMath.h"
 
 using namespace sspo;
 
