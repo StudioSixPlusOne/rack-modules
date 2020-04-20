@@ -1,10 +1,11 @@
 #include "plugin.hpp"
+#include "ctrl/SqHelper.h"
 
 
-Plugin* pluginInstance;
+Plugin* pluginInstance = nullptr;
 
 
-void init(Plugin* p) {
+void init(::rack::Plugin* p) {
 	pluginInstance = p;
 
 	p->addModel (modelKSDelay);
