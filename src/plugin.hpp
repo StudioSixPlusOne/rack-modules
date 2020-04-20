@@ -2,10 +2,10 @@
 #include <rack.hpp>
 
 
-using namespace rack;
+using namespace ::rack;
 
 
-extern Plugin* pluginInstance;
+extern plugin::Plugin* pluginInstance;
 
 extern Model* modelKSDelay;
 extern Model* modelMaccomo;

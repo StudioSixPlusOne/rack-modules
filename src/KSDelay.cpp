@@ -20,135 +20,43 @@
  */
 
 #include "plugin.hpp"
-#include "CircularBuffer.h"
+#include "KSDelay.h"
+#include "WidgetComposite.h"
+#include "ctrl/SqMenuItem.h"
+
+using Comp = KSDelayComp<WidgetComposite>;
 
 
 struct KSDelay : Module 
 {
 
-	enum ParamIds 
-	{
-		OCTAVE_PARAM,
-		TUNE_PARAM,
-		FEEDBACK_PARAM,
-		FILTER_PARAM,
-		MIX_PARAM,
-		NUM_PARAMS
-	};
-
-	enum InputIds 
-	{
-		VOCT,
-		FILTER_INPUT,
-		FEEDBACK_INPUT,
-		MIX_INPUT,
-		IN_INPUT,
-		NUM_INPUTS
-	};
-
-	enum OutputIds 
-	{
-		OUT_OUTPUT,
-		NUM_OUTPUTS
-	};
-
-	constexpr static int maxChannels = 16;
-	constexpr static float maxCutoff = 20000.0f;
-	constexpr static float dcFilterCutoff = 5.5f;
-
-	std::vector<CircularBuffer<float> > buffers;
-	std::vector<dsp::BiquadFilter>  lowpassFilters;
-	std::vector<dsp::BiquadFilter> dcFilters;
-	std::vector<float> lastWets;
-	std::vector<float> delayTimes; 
-	unsigned int frame = 0;
-	
+	std::shared_ptr<Comp> ks;
 
 	KSDelay() 
 	{
-		buffers.resize (maxChannels);
-		for (auto& b : buffers)
-			b.reset (4096);
 
-		lowpassFilters.resize (maxChannels);
 
-		dcFilters.resize (maxChannels);
-		for (auto &dc : dcFilters)
-			dc.setParameters( rack::dsp::BiquadFilter::HIGHPASS, dcFilterCutoff / APP->engine->getSampleRate(), 0.141f, 1.0f);
+		config(Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
+    	ks = std::make_shared<Comp>(this);
+    	std::shared_ptr<IComposite> icomp = Comp::getDescription();
+    	SqHelper::setupParams(icomp, this);
 
-		lastWets.resize (maxChannels);
-		for (auto& lw : lastWets)
-			lw = 0;
-
-		delayTimes.resize (maxChannels);
-		for (auto& d :delayTimes)
-			d = 0;
-
-		config (NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
-		configParam (OCTAVE_PARAM, -4.0f, 4.0f, 0.0f, "Tune", " octave");
-		configParam (TUNE_PARAM, -7.0f, 7.0f, 0.0f, "Tune", " semitones");
-		configParam (FEEDBACK_PARAM, 0.8f, 1.0f, 0.99f, "Feedback", "%", 0, 100);
-		configParam (FILTER_PARAM, 0.0f, 1.125f, 1.125f, "Frequency", " Hz", std::pow (2, 10.f), dsp::FREQ_C4 / std::pow (2, 5.f), -8.1758);
-		configParam (MIX_PARAM, 0.0f, 1.0f, 1.0f, "Mix", "%", 0, 100);
+		onSampleRateChange();
+		ks->init();	
 	}
 
-	~KSDelay() {
-	}
+	 ~KSDelay() {
+	} 
 
 	void onSampleRateChange() override
 	{
-		for (auto &dc : dcFilters)
-			dc.setParameters( rack::dsp::BiquadFilter::HIGHPASS, dcFilterCutoff / APP->engine->getSampleRate(), 0.141f, 1.0f);
+		float rate = SqHelper::engineGetSampleRate();
+		ks->setSampleRate (rate);
 	}
 
 	void process(const ProcessArgs& args) override 
 	{
-		auto channels = inputs[IN_INPUT].getChannels();
-		auto octaveParam = params[OCTAVE_PARAM].getValue();
-		auto tuneParam = params[TUNE_PARAM].getValue();
-		auto feedbackParam = params[FEEDBACK_PARAM].getValue();
-		auto filterParam = (paramQuantities[FILTER_PARAM])->getDisplayValue();
-		auto mixParam = params[MIX_PARAM].getValue();
-
-		frame++;
-		frame &= 7;
-
-		for (auto i = 0; i < channels; ++i)
-		{
-			// Get input to delay block
-			auto in = inputs[IN_INPUT].getVoltage (i);
-			in = dcFilters[i].process (in);
-			auto feedback = feedbackParam + inputs[FEEDBACK_INPUT].getPolyVoltage (i) / 10.0f;
-			feedback = clamp (feedback, 0.0f, 1.0f);
-			
-			if (frame == 1)
-			{
-				delayTimes[i] =  1.0f / (dsp::FREQ_C4 * std::pow(2.0f, inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
-
-				auto color = filterParam;
-				if (inputs[FILTER_INPUT].isConnected())
-					color += std::pow (2, inputs[FILTER_INPUT].getPolyVoltage (i)) * dsp::FREQ_C4;	
-				color = clamp (color, 1.0f, maxCutoff);
-				lowpassFilters[i].setParameters (rack::dsp::BiquadFilter::LOWPASS, color / args.sampleRate, 0.707f, 1.0f);
-			}
-
-			auto index = delayTimes[i] * args.sampleRate - 1;
-			auto wet = buffers[i].readBuffer (index);
-			auto dry = in + lastWets[i] * feedback;
-			buffers[i].writeBuffer (dry);
-
-			wet = std::abs (wet) > 17.0f ? 0 : wet;
-			wet = lowpassFilters[i].process (wet);
-			
-			lastWets[i] = wet;
-
-			auto mix = mixParam + inputs[MIX_INPUT].getPolyVoltage (i) / 10.0f;
-			mix = clamp (mix, 0.0f, 1.0f);
-			float out = crossfade (in, wet, mix);
-			
-			outputs[OUT_OUTPUT].setVoltage (out, i);
-		}
-		outputs[OUT_OUTPUT].setChannels (channels);
+		ks->step();
 	}
 };
 
@@ -169,25 +77,28 @@ struct KSDelayWidget : ModuleWidget
 	KSDelayWidget(KSDelay* module) 
 	{
 		setModule (module);
-		setPanel (APP->window->loadSvg (asset::plugin (pluginInstance, "res/KSDelay.svg")));
+		std::shared_ptr<IComposite> icomp = Comp::getDescription();
+		//setPanel (APP->window->loadSvg (asset::plugin (pluginInstance, "res/KSDelay.svg")));
+		box.size = Vec(8 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
+    	SqHelper::setPanel(this, "res/KSDelay.svg");
 
 		addChild (createWidget<ScrewSilver> (Vec (15, 0)));
 		addChild (createWidget<ScrewSilver> (Vec (box.size.x - 30, 0)));
 		addChild (createWidget<ScrewSilver> (Vec (0, 365)));
 		addChild (createWidget<ScrewSilver> (Vec (box.size.x - 15, 365)));
 
-		addParam (createParam<RoundLargeBlackSnapKnob> (Vec (67, 57), module, KSDelay::OCTAVE_PARAM));
-		addParam (createParam<RoundSmallBlackKnob> (Vec (40, 80), module, KSDelay::TUNE_PARAM));
-		addParam (createParam<RoundLargeBlackKnob> (Vec (67, 123), module, KSDelay::FEEDBACK_PARAM));
-		addParam (createParam<RoundLargeBlackKnob> (Vec (67, 193), module, KSDelay::FILTER_PARAM));
-		addParam (createParam<RoundLargeBlackKnob> (Vec (67, 257), module, KSDelay::MIX_PARAM));
+		addParam (SqHelper::createParam<RoundLargeBlackSnapKnob> (icomp, Vec (67, 57), module, Comp::OCTAVE_PARAM));
+		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (40, 80), module, Comp::TUNE_PARAM));
+		addParam (SqHelper::createParam<RoundLargeBlackKnob> (icomp, Vec (67, 123), module, Comp::FEEDBACK_PARAM));
+		addParam (SqHelper::createParam<RoundLargeBlackKnob> (icomp, Vec (67, 193), module, Comp::FILTER_PARAM));
+		addParam (SqHelper::createParam<RoundLargeBlackKnob> (icomp, Vec (67, 257), module, Comp::MIX_PARAM));
 
-		addInput (createInput<PJ301MPort> (Vec (14, 63), module, KSDelay::VOCT));
-		addInput (createInput<PJ301MPort> (Vec (14, 129), module, KSDelay::FEEDBACK_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (14, 196), module, KSDelay::FILTER_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (14, 263), module, KSDelay::MIX_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (14, 320), module, KSDelay::IN_INPUT));
-		addOutput (createOutput<PJ301MPort> (Vec (73, 320), module, KSDelay::OUT_OUTPUT));
+		addInput (createInput<PJ301MPort> (Vec (14, 63), module, Comp::VOCT));
+		addInput (createInput<PJ301MPort> (Vec (14, 129), module, Comp::FEEDBACK_INPUT));
+		addInput (createInput<PJ301MPort> (Vec (14, 196), module, Comp::FILTER_INPUT));
+		addInput (createInput<PJ301MPort> (Vec (14, 263), module, Comp::MIX_INPUT));
+		addInput (createInput<PJ301MPort> (Vec (14, 320), module, Comp::IN_INPUT));
+		addOutput (createOutput<PJ301MPort> (Vec (73, 320), module, Comp::OUT_OUTPUT));
 	}
 };
 

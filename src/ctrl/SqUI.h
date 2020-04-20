@@ -24,41 +24,15 @@ SOFTWARE.
 
 #pragma once
 
-/**
- * Interface that must be implemented by all composites.
- * Enables compiling for v1
- */
-class IComposite
-{
-public:
-    class Config
+#include "rack.hpp"
+
+namespace sq {
+  
+    using EventAction = ::rack::event::Action;
+    using EventChange = ::rack::event::Change;
+
+    inline void consumeEvent(const ::rack::event::Base* evt, ::rack::Widget* widget)
     {
-    public:
-        Config(float a, float b, float c, const char* n, const char* u 
-        , const float base = 0.0f, const float dm = 1.0f, const float offset = 0.0f)
-        {
-            min=a;
-            max=b;
-            def=c;
-            name=n;
-            unit=u;
-            displayBase = base;
-            displayMultiplier = dm;
-            displayOffset = offset;
-        }
-        float min=0;
-        float max=0;
-        float def=0;
-        const char* name=nullptr; 
-        const char* unit = nullptr;
-        float displayBase = 0.0f;
-        float displayMultiplier = 1.0f;
-        float displayOffset = 0.0f;
-        // When you add more fields here, make sure 
-        // to add them to testIComposite.cpp
-        bool active = true;
-    };
-    virtual Config getParam(int i)=0;
-    virtual int getNumParams()=0;
-    virtual ~IComposite() {};
-};
+        evt->consume(widget);
+    }
+}

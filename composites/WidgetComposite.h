@@ -46,7 +46,8 @@ public:
         inputs(parent->inputs),
         outputs(parent->outputs),
         params(parent->params),
-        lights(parent->lights)
+        lights(parent->lights),
+        paramQuantities(parent->paramQuantities)
     {
     }
     virtual ~WidgetComposite() {}
@@ -67,5 +68,7 @@ protected:
     std::vector<Output>& outputs;
     std::vector<Param>& params;
     std::vector<Light>& lights;
+    std::vector<ParamQuantity*>& paramQuantities;
+
 private:
 };
