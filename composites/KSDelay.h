@@ -180,7 +180,8 @@ private:
 template <class TBase>
 inline void KSDelayComp<TBase>::step()
 {
-    	auto channels = TBase::inputs[IN_INPUT].getChannels();
+
+    auto channels = TBase::inputs[IN_INPUT].getChannels();
 		auto octaveParam = TBase::params[OCTAVE_PARAM].getValue();
 		auto tuneParam = TBase::params[TUNE_PARAM].getValue();
 		auto feedbackParam = TBase::params[FEEDBACK_PARAM].getValue();
@@ -198,16 +199,15 @@ inline void KSDelayComp<TBase>::step()
 			auto feedback = feedbackParam + TBase::inputs[FEEDBACK_INPUT].getPolyVoltage (i) / 10.0f;
 			feedback = clamp (feedback, 0.0f, 1.0f);
 			
-			if (frame == 1)
-			{
-				delayTimes[i] =  1.0f / (dsp::FREQ_C4 * std::pow(2.0f, TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
+			
+			
+			delayTimes[i] =  1.0f / (dsp::FREQ_C4 * std::pow(2.0f, TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
 
-				auto color = filterParam;
-				if (TBase::inputs[FILTER_INPUT].isConnected())
-					color += std::pow (2, TBase::inputs[FILTER_INPUT].getPolyVoltage (i)) * dsp::FREQ_C4;	
-				color = clamp (color, 1.0f, maxCutoff);
-				lowpassFilters[i].setParameters (rack::dsp::BiquadFilter::LOWPASS, color / sampleRate, 0.707f, 1.0f);
-			}
+			auto color = filterParam;
+			if (TBase::inputs[FILTER_INPUT].isConnected())
+				color += std::pow (2, TBase::inputs[FILTER_INPUT].getPolyVoltage (i)) * dsp::FREQ_C4;	
+			color = clamp (color, 1.0f, maxCutoff);
+			lowpassFilters[i].setParameters (rack::dsp::BiquadFilter::LOWPASS, color / sampleRate, 0.707f, 1.0f);
 
 			auto index = delayTimes[i] * sampleRate - 1;
 			auto wet = buffers[i].readBuffer (index);
@@ -216,18 +216,21 @@ inline void KSDelayComp<TBase>::step()
 
 			wet =  5.0f * limiters[i].process (wet / 5.0f);
 			wet = lowpassFilters[i].process (wet);
+
 			
-			lastWets[i] = wet;
+		  lastWets[i] = wet;
+
 
 			auto mix = mixParam + TBase::inputs[MIX_INPUT].getPolyVoltage (i) / 10.0f;
 			mix = clamp (mix, 0.0f, 1.0f);
 			float out = crossfade (in, wet, mix);
 
 			out = dcOutFilters[i].process (out);
+
 			
-			TBase::outputs[OUT_OUTPUT].setVoltage (out, i);
-		}
-		TBase::outputs[OUT_OUTPUT].setChannels (channels);
+		  TBase::outputs[OUT_OUTPUT].setVoltage (out, i);
+	  }
+	TBase::outputs[OUT_OUTPUT].setChannels (channels);
 }
 
 template <class TBase>
@@ -235,12 +238,7 @@ int KSDelayDescription<TBase>::getNumParams()
 {
     return KSDelayComp<TBase>::NUM_PARAMS;
 }
-/*
-		configParam (Comp::OCTAVE_PARAM, -4.0f, 4.0f, 0.0f, "Tune", " octave");
-		configParam (Comp::TUNE_PARAM, -7.0f, 7.0f, 0.0f, "Tune", " semitones");
-		configParam (Comp::FEEDBACK_PARAM, 0.8f, 1.0f, 0.99f, "Feedback", "%", 0, 100);
-		configParam (Comp::FILTER_PARAM, 0.0f, 1.125f, 1.125f, "Frequency", " Hz", std::pow (2, 10.f), dsp::FREQ_C4 / std::pow (2, 5.f), -8.1758);
-		configParam (Comp::MIX_PARAM, 0.0f, 1.0f, 1.0f, "Mix", "%", 0, 100); */
+
 
 template <class TBase>
 IComposite::Config KSDelayDescription<TBase>::getParam(int i)
