@@ -23,6 +23,7 @@
 
 #include "IComposite.h"
 #include "CircularBuffer.h"
+#include "HardLimiter.h"
 
 namespace rack {
     namespace engine {
@@ -74,8 +75,11 @@ public:
         reciprocalSampleRate = 1 / rate;
         sampleRate = rate;
 
-        for (auto &dc : dcFilters)
-			dc.setParameters( rack::dsp::BiquadFilter::HIGHPASS, dcFilterCutoff / rate, 0.141f, 1.0f);
+        for (auto &dc : dcInFilters)
+			dc.setParameters (rack::dsp::BiquadFilter::HIGHPASS, dcInFilterCutoff / rate, 0.141f, 1.0f);
+
+		for (auto&l : limiters)
+			l.setSampleRate (rate);
     }
 
     // must be called after setSampleRate
@@ -87,9 +91,13 @@ public:
 
 		lowpassFilters.resize (maxChannels);
 
-		dcFilters.resize (maxChannels);
-		for (auto &dc : dcFilters)
-			dc.setParameters( rack::dsp::BiquadFilter::HIGHPASS, dcFilterCutoff / sampleRate, 0.141f, 1.0f);
+		dcInFilters.resize (maxChannels);
+		for (auto &dc : dcInFilters)
+			dc.setParameters( rack::dsp::BiquadFilter::HIGHPASS, dcInFilterCutoff / sampleRate, 0.141f, 1.0f);
+
+		dcOutFilters.resize (maxChannels);
+		for (auto &dc : dcOutFilters)
+			dc.setParameters( rack::dsp::BiquadFilter::HIGHPASS, dcOutFilterCutoff / sampleRate, 0.141f, 1.0f);
 
 		lastWets.resize (maxChannels);
 		for (auto& lw : lastWets)
@@ -98,6 +106,14 @@ public:
 		delayTimes.resize (maxChannels);
 		for (auto& d :delayTimes)
 			d = 0;
+
+		limiters.resize (maxChannels);
+		for (auto&l : limiters)
+		{
+			l.setTimes (0.01f, 0.25f);
+			l.setSampleRate (sampleRate);
+		}
+
     }
 
     // Define all the enums here. This will let the tests and the widget access them.
@@ -142,11 +158,14 @@ public:
 
 	constexpr static int maxChannels = 16;
 	constexpr static float maxCutoff = 20000.0f;
-	constexpr static float dcFilterCutoff = 5.5f;
+	constexpr static float dcInFilterCutoff = 5.5f;
+	constexpr static float dcOutFilterCutoff = 20.0f;
 
 	std::vector<CircularBuffer<float> > buffers;
 	std::vector<rack::dsp::BiquadFilter>  lowpassFilters;
-	std::vector<rack::dsp::BiquadFilter> dcFilters;
+	std::vector<rack::dsp::BiquadFilter> dcInFilters;
+	std::vector<rack::dsp::BiquadFilter> dcOutFilters;
+	std::vector<sspo::Limiter> limiters;
 	std::vector<float> lastWets;
 	std::vector<float> delayTimes; 
 	unsigned int frame = 0;
@@ -175,7 +194,7 @@ inline void KSDelayComp<TBase>::step()
 		{
 			// Get input to delay block
 			auto in = TBase::inputs[IN_INPUT].getVoltage (i);
-			in = dcFilters[i].process (in);
+			in = dcInFilters[i].process (in);
 			auto feedback = feedbackParam + TBase::inputs[FEEDBACK_INPUT].getPolyVoltage (i) / 10.0f;
 			feedback = clamp (feedback, 0.0f, 1.0f);
 			
@@ -195,7 +214,7 @@ inline void KSDelayComp<TBase>::step()
 			auto dry = in + lastWets[i] * feedback;
 			buffers[i].writeBuffer (dry);
 
-			wet = std::abs (wet) > 17.0f ? 0 : wet;
+			wet =  5.0f * limiters[i].process (wet / 5.0f);
 			wet = lowpassFilters[i].process (wet);
 			
 			lastWets[i] = wet;
@@ -203,6 +222,8 @@ inline void KSDelayComp<TBase>::step()
 			auto mix = mixParam + TBase::inputs[MIX_INPUT].getPolyVoltage (i) / 10.0f;
 			mix = clamp (mix, 0.0f, 1.0f);
 			float out = crossfade (in, wet, mix);
+
+			out = dcOutFilters[i].process (out);
 			
 			TBase::outputs[OUT_OUTPUT].setVoltage (out, i);
 		}
