@@ -168,7 +168,6 @@ public:
 	std::vector<sspo::Limiter> limiters;
 	std::vector<float> lastWets;
 	std::vector<float> delayTimes; 
-	unsigned int frame = 0;
 
 private:
 
@@ -188,16 +187,13 @@ inline void KSDelayComp<TBase>::step()
 		auto filterParam = (TBase::paramQuantities[FILTER_PARAM])->getDisplayValue();
 		auto mixParam = TBase::params[MIX_PARAM].getValue();
 
-		frame++;
-		frame &= 7;
-
 		for (auto i = 0; i < channels; ++i)
 		{
 			// Get input to delay block
 			auto in = TBase::inputs[IN_INPUT].getVoltage (i);
 			in = dcInFilters[i].process (in);
 			auto feedback = feedbackParam + TBase::inputs[FEEDBACK_INPUT].getPolyVoltage (i) / 10.0f;
-			feedback = clamp (feedback, 0.0f, 1.0f);
+			feedback = clamp (feedback, 0.0f, 0.5f);
 			
 			
 			
@@ -208,17 +204,16 @@ inline void KSDelayComp<TBase>::step()
 				color += std::pow (2, TBase::inputs[FILTER_INPUT].getPolyVoltage (i)) * dsp::FREQ_C4;	
 			color = clamp (color, 1.0f, maxCutoff);
 			lowpassFilters[i].setParameters (rack::dsp::BiquadFilter::LOWPASS, color / sampleRate, 0.707f, 1.0f);
+			in = lowpassFilters[i].process (in);
 
-			auto index = delayTimes[i] * sampleRate - 1;
+			auto index = delayTimes[i] * sampleRate - 0.5f;
 			auto wet = buffers[i].readBuffer (index);
-			auto dry = in + lastWets[i] * feedback;
+			auto dry = in + lastWets[i] * feedback + 0.5f * wet;
 			buffers[i].writeBuffer (dry);
 
 			wet =  5.0f * limiters[i].process (wet / 5.0f);
-			wet = lowpassFilters[i].process (wet);
-
 			
-		  lastWets[i] = wet;
+			  lastWets[i] = wet;
 
 
 			auto mix = mixParam + TBase::inputs[MIX_INPUT].getPolyVoltage (i) / 10.0f;
@@ -253,7 +248,7 @@ IComposite::Config KSDelayDescription<TBase>::getParam(int i)
             ret = {-7.0f, 7.0f, 0.0f, "Tune", " semitones", 0.0f, 1.0f, 0.0f};
             break;
         case KSDelayComp<TBase>::FEEDBACK_PARAM:      
-            ret = {0.8f, 1.0f, 0.99f, "Feedback", "%", 0, 100, 0.0f};
+            ret = {0.0f, 0.5f, 0.5f, "Feedback", "%", 0, 100, 0.0f};
             break;
         case KSDelayComp<TBase>::FILTER_PARAM:      
             ret = {0.0f, 1.125f, 1.125f, "Frequency", " Hz", std::pow (2, 10.f), dsp::FREQ_C4 / std::pow (2, 5.f), 0.0f};
