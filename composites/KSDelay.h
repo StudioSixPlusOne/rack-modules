@@ -206,7 +206,7 @@ inline void KSDelayComp<TBase>::step()
 			lowpassFilters[i].setParameters (rack::dsp::BiquadFilter::LOWPASS, color / sampleRate, 0.707f, 1.0f);
 			in = lowpassFilters[i].process (in);
 
-			auto index = delayTimes[i] * sampleRate - 0.5f;
+			auto index = delayTimes[i] * sampleRate - 1.5f;
 			auto wet = buffers[i].readBuffer (index);
 			auto dry = in + lastWets[i] * feedback + 0.5f * wet;
 			buffers[i].writeBuffer (dry);
