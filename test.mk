@@ -27,8 +27,6 @@ include $(RACK_DIR)/arch.mk
 
 TEST_SOURCES = $(wildcard test/*.cpp)
 # DONT USE src/.cpp files
-#TEST_SOURCES += $(wildcard src/plugin.cpp)
-#TEST_SOURCES += $(wildcard src/KSDelay.cpp)
 
 ## This is a list of full paths to the .o files we want to build
 TEST_OBJECTS = $(patsubst %, build_test/%.o, $(TEST_SOURCES))

@@ -19,12 +19,11 @@
  *
  */
 
-// An empty test, can be used as a template
-
 
 #include <assert.h>
 #include <stdio.h>
 #include "AudioMath.h"
+
 
 using namespace sspo;
 
@@ -68,9 +67,16 @@ static void testFastTanh()
     }
 }
 
+static void testlinearInterpolate()
+{
+    assert (AudioMath::linearInterpolate (0.0f, 2.0f, 0.5f) == 1.0f && "linearInterpolate");
+    assert (AudioMath::linearInterpolate (-4.0f, 10.0f, 0.5f) == 3.0f && "linearInteroplate");
+} 
+
 void testAudioMath()
 {
     printf ("AudioMath\n");
     testAreSame();
     testFastTanh();
+    testlinearInterpolate();
 }

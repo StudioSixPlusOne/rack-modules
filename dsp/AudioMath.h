@@ -61,5 +61,11 @@ namespace sspo
              : false;
         }
 
+        template<typename T>
+        inline T linearInterpolate (const T v0, const T v1, const T frac) noexcept
+        {
+            return frac * (v1 - v0) + v0;
+        }
+
     } // namespace AudioMath
 } // namespace sspo

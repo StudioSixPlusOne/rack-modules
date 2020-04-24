@@ -1,9 +1,9 @@
 
 
 # FLAGS will be passed to both the C and C++ compiler
-FLAGS += -I./sqsrc/util -I./composites -I./src -I./dsp
+FLAGS += 
 CFLAGS +=
-CXXFLAGS +=
+CXXFLAGS += -I./sqsrc/util -I./composites -I./src -I./dsp 
 
 # compile for V1 vs 0.6
 FLAGS += -D __V1x
