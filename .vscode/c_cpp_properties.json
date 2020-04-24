@@ -5,8 +5,11 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/src/**",
+                "${workspaceFolder}/dsp/**",
                 "~/dev/Rack/dep/**",
-                "~/dev/Rack/include/**"
+                "~/dev/Rack/include/**",
+                "${workspaceFolder}/dsp",
+                "${workspaceFolder}/sqsrc/util"
             ],
             "defines": [
                 "_DEBUG",

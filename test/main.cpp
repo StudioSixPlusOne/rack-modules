@@ -29,6 +29,7 @@
 // external tests
 extern void testEmpty();
 extern void testAudioMath();
+extern void testCircularBuffer();
 
 
 //external performance tests
@@ -73,6 +74,7 @@ int main(int argc, char ** argv)
 
     testEmpty();
     testAudioMath();
+    testCircularBuffer();
  
     printf("Tests passed.\n");
 

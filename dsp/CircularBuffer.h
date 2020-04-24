@@ -24,11 +24,7 @@
 #include <memory>
 #include <cmath>
 
-template<typename T>
-inline T linearInterpolate (const T v0, const T v1, const T frac) noexcept
-{
-    return frac * (v1 - v0) + v0;
-}
+#include "AudioMath.h"
 
 template <typename T>
 class CircularBuffer
@@ -62,9 +58,9 @@ public:
 
     void writeBuffer(const T newValue) 
     {
-        buffer[writeIndex] = std::isnan (newValue) || std::isinf (newValue) ? 0 : newValue;
         writeIndex++;
         writeIndex &= wrapBits;
+        buffer[writeIndex] = std::isnan (newValue) || std::isinf (newValue) ? 0 : newValue;
     }
 
     T readBuffer(const int delaySamples) const 
@@ -81,7 +77,12 @@ public:
         }
         auto y2 = readBuffer(static_cast<int> (delaySamples) + 1);
         auto fract = delaySamples - static_cast<int> (delaySamples);
-        return linearInterpolate (y1, y2, fract);
+        return sspo::AudioMath::linearInterpolate (y1, y2, fract);
+    }
+
+    int size()
+    {
+        return static_cast<int> (bufferLength);
     }
 
 private:
