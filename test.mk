@@ -25,6 +25,8 @@
 #include "../../arch.mk"
 include $(RACK_DIR)/arch.mk
 
+CXXFLAGS += -I../../include/dsp 
+
 TEST_SOURCES = $(wildcard test/*.cpp)
 # DONT USE src/.cpp files
 

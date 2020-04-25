@@ -28,14 +28,21 @@ SOFTWARE.
 #include <limits>
 #include <random>
 
+#include "filter.hpp"
+
 
 extern double overheadInOut;
 extern double overheadOutOnly;
 
 
 #include "MeasureTime.h"
+#include "TestComposite.h"
 
 #include "AudioMath.h"
+#include "CircularBuffer.h"
+#include "HardLimiter.h"
+
+#include "KSDelay.h"
 
 #ifdef _USE_WINDOWS_PERFTIME
 double SqTime::frequency = 0;
@@ -198,6 +205,56 @@ static void testFastApprox()
         }, 1);
 }
 
+static void testCircularBuffer()
+{
+    CircularBuffer<float> c;
+
+
+    //initial run with inf and ana checks 0.297870
+    MeasureTime<double>::run(overheadInOut, "Circular Buffer Write", [&c]()  {
+    c.writeBuffer(TestBuffers<float>::get());
+    return 0;
+    }, 1);
+
+    //initial run with linear interpolate check 0.56
+    MeasureTime<double>::run(overheadInOut, "Circular Buffer read interpolate", [&c]()  {
+    float x = c.readBuffer(TestBuffers<float>::get() * 1000.0f);
+    return x;
+    }, 1);
+}
+
+static void testHardLimiter()
+{
+    sspo::Limiter l;
+    l.setSampleRate(44100);
+
+    //initial run 8.30
+    MeasureTime<double>::run(overheadInOut, "Circular Buffer read interpolate", [&l]()  {
+        float x = l.process(TestBuffers<float>::get() * 2.0f);
+        return x;
+    }, 1);
+}
+
+
+using KSDelay = KSDelayComp<TestComposite>;
+
+static void testKSDelay()
+{
+    KSDelay ks;
+
+    ks.setSampleRate(44100);
+    ks.init();
+
+    ks.inputs[KSDelay::IN_INPUT].setVoltage(0, 0);
+    ks.inputs[KSDelay::IN_INPUT].setChannels(1);
+
+    //first run 33.16 of one percent
+    MeasureTime<double>::run(overheadInOut, "KS Delay", [&ks]()  {
+        ks.step();
+        return ks.outputs[KSDelay::OUT_OUTPUT].getVoltage(0);
+    }, 1);
+}
+
 
 
 void perfTest()
@@ -208,8 +265,11 @@ void perfTest()
     assert(overheadInOut > 0);
     assert(overheadOutOnly > 0);
 
-    test1();
-    testNoise (true);
-    testNormal();
-    testFastApprox();
+    //test1();
+    //testNoise (true);
+    //testNormal();
+    //testFastApprox();
+    testCircularBuffer();
+    testHardLimiter();
+    testKSDelay();
 }

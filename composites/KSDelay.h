@@ -211,7 +211,7 @@ inline void KSDelayComp<TBase>::step()
 			auto dry = in + lastWets[i] * feedback + 0.5f * wet;
 			buffers[i].writeBuffer (dry);
 
-			wet =  5.0f * limiters[i].process (wet / 5.0f);
+		//	wet =  5.0f * limiters[i].process (wet / 5.0f);
 			
 			  lastWets[i] = wet;
 

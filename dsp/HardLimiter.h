@@ -69,7 +69,7 @@ namespace sspo
             //Hard knee compression
             auto yndB = dn <= threshold ? dn : threshold + ((dn - threshold) / ratio);
             auto gndB = yndB - dn;
-            auto G = std::pow (10.0f, gndB / 20);
+            auto G = std::pow (10.0f, gndB / 20.0f);
 
             return in * G;
         }
