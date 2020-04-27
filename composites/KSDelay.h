@@ -192,6 +192,10 @@ public:
 		MIX_INPUT,
 		IN_INPUT,
 		TRIGGER_INPUT,
+		UNISON_INPUT,
+		UNISON_SPREAD_INPUT,
+		UNISON_MIX_INPUT,
+		GLIDE_INPUT,
 		NUM_INPUTS
 	};
 
@@ -261,13 +265,14 @@ inline void KSDelayComp<TBase>::step()
 		auto unisonMix = TBase::params[UNISON_MIX_PARAM].getValue();
 		auto glideParam = TBase::params[GLIDE_PARAM].getValue();
 
-		auto unisonSpreadCoefficient = unisonSpreadScalar (unisonSpread);
-		auto unisonSideLevelCoefficient = unisonSideLevel (unisonMix);
-		auto unisonCentreLevelCoefficient = unisonCentreLevel (unisonMix);
 
 
 		for (auto i = 0; i < channels; ++i)
 		{	
+			auto unisonSpreadCoefficient = unisonSpreadScalar (unisonSpread + std::abs(TBase::inputs[UNISON_SPREAD_INPUT].getPolyVoltage (i) / 10.f));
+			auto unisonSideLevelCoefficient = unisonSideLevel (unisonMix + std::abs(TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.f));
+			auto unisonCentreLevelCoefficient = unisonCentreLevel (unisonMix + std::abs(TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.f));
+
 			if (triggers[i].process (TBase::inputs[TRIGGER_INPUT].getPolyVoltage (i)))
 				resetPending[i] = true;
 
@@ -277,8 +282,9 @@ inline void KSDelayComp<TBase>::step()
 			auto feedback = feedbackParam + TBase::inputs[FEEDBACK_INPUT].getPolyVoltage (i) / 10.0f;
 			feedback = clamp (feedback, 0.0f, 0.5f);
 			
-			
-			glide[i].setRiseFall (glideParam, glideParam);
+			auto glideTime = glideParam + TBase::inputs[GLIDE_INPUT].getPolyVoltage (i) * 0.005f;
+			glideTime = clamp(glideTime, 0.000001, 0.1f);
+			glide[i].setRiseFall (glideTime, glideTime);
 			delayTimes[i] =  1.0f / glide[i].process (10.0f, dsp::FREQ_C4 * std::pow(2.0f, TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
 
 			auto color = filterParam;
@@ -322,7 +328,10 @@ inline void KSDelayComp<TBase>::step()
 
 			// calc phases 
 			auto mixedOsc = 0.0f;
-			for (int osc = 0; osc < unisonCount; ++osc)
+			auto unison = std::abs( std::min (static_cast<int>(unisonCount + TBase::inputs[UNISON_INPUT].getPolyVoltage(i)),7));
+			if (unisonCount == 1)
+				unisonCentreLevelCoefficient = 1.0f;
+			for (int osc = 0; osc < unison; ++osc)
 			{	
 				oscphases[i][osc] += (unisonTunings[osc] * unisonSpreadCoefficient) / index; 
 				if (oscphases[i][osc] >= 1.0f)
@@ -332,7 +341,7 @@ inline void KSDelayComp<TBase>::step()
 
 				auto phaseoffset = index - oscphases[i][osc] * index;
 				if (osc == 0)
-					mixedOsc += buffers[i].readBuffer (phaseoffset) * unisonCentreLevelCoefficient;
+					mixedOsc += buffers[i].readBuffer (phaseoffset) * unisonCentreLevelCoefficient;			
 				else
 					mixedOsc += buffers[i].readBuffer (phaseoffset) * unisonSideLevelCoefficient;	
 				
