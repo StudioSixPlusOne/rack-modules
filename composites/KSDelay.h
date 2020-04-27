@@ -390,7 +390,7 @@ IComposite::Config KSDelayDescription<TBase>::getParam(int i)
 			ret = {0.0f, 1.0f, 1.0f, "Unison Mix", "  ", 0, 1, 0.0f};
 			break;
 		case KSDelayComp<TBase>::GLIDE_PARAM:
-			ret = {0.0001f, 1.0f, 1.0f, "Glide", " ", 0, 1, 0.0f};
+			ret = {0.0001f, 0.05f, 0.05f, "Glide", " ", 0, 1, 0.0f};
 			break;
         default:
             assert(false);
