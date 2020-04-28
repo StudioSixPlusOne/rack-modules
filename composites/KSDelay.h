@@ -143,6 +143,10 @@ public:
 		for (auto& g : glide)
 			g.setRiseFall (0.01f, 0.01f);
 
+		framesToSample.resize (maxChannels);
+		for (auto& f : framesToSample)
+		 f = 0;
+
 		unisonTunings = { 0.0f, -0.01952356f, 0.01991221f, -0.06288439f, 0.06216538f, -0.11002313f, 0.10745242f};
 		unisonLevels = {0.55f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f};
     }
@@ -242,6 +246,7 @@ public:
 	std::vector<float> lastDelayTimes;
 	std::vector<float> fadeLevels;
 	std::vector<dsp::SlewLimiter> glide;
+	std::vector<int> framesToSample;
 
 private:
 
@@ -254,7 +259,7 @@ template <class TBase>
 inline void KSDelayComp<TBase>::step()
 {
 
-    auto channels = TBase::inputs[IN_INPUT].getChannels();
+    auto channels = std::max(TBase::inputs[IN_INPUT].getChannels(), TBase::inputs[TRIGGER_INPUT].getChannels());
 		auto octaveParam = TBase::params[OCTAVE_PARAM].getValue();
 		auto tuneParam = TBase::params[TUNE_PARAM].getValue();
 		auto feedbackParam = TBase::params[FEEDBACK_PARAM].getValue();
@@ -276,8 +281,32 @@ inline void KSDelayComp<TBase>::step()
 			if (triggers[i].process (TBase::inputs[TRIGGER_INPUT].getPolyVoltage (i)))
 				resetPending[i] = true;
 
+			float in = 0.0f;
+
 			// Get input to delay block
-			auto in = TBase::inputs[IN_INPUT].getVoltage (i);
+			if (TBase::inputs[TRIGGER_INPUT].isConnected())
+			{
+				if (framesToSample[i] > 0)
+				{
+					if (TBase::inputs[IN_INPUT].isConnected())
+					{
+						in = TBase::inputs[IN_INPUT].getVoltage (i);
+					}
+					else
+					{
+						in = static_cast<float>(drand48()) * 10.0f - 5.0f;
+					}
+					framesToSample[i]--;
+				}
+
+			}
+			else
+			{
+				in = TBase::inputs[IN_INPUT].getVoltage (i);
+				
+			}
+
+			
 			in = dcInFilters[i].process (in);
 			auto feedback = feedbackParam + TBase::inputs[FEEDBACK_INPUT].getPolyVoltage (i) / 10.0f;
 			feedback = clamp (feedback, 0.0f, 0.5f);
@@ -290,9 +319,10 @@ inline void KSDelayComp<TBase>::step()
 			auto color = filterParam;
 			if (TBase::inputs[FILTER_INPUT].isConnected())
 				color += std::pow (2, TBase::inputs[FILTER_INPUT].getPolyVoltage (i)) * dsp::FREQ_C4;	
-			color = clamp (color, 1.0f, maxCutoff);
+			color = clamp (color, 40.0f, maxCutoff);
 			lowpassFilters[i].setParameters (rack::dsp::BiquadFilter::LOWPASS, color / sampleRate, 0.707f, 1.0f);
 			in = lowpassFilters[i].process (in);
+
 
 			// zero crossing reset
 			auto index = delayTimes[i] * sampleRate - 1.5f;
@@ -305,6 +335,7 @@ inline void KSDelayComp<TBase>::step()
 					resetPending[i] = false;
 					lastDelayTimes[i] = delayTimes[i];
 					fadeLevels[i] = 1.0f;
+					framesToSample[i] = 2000;
 				}
 				else
 				{
@@ -319,6 +350,8 @@ inline void KSDelayComp<TBase>::step()
 			
 			// update buffer
 			auto wet = buffers[i].readBuffer (index);
+			// Add -noise
+			in += 1e-3f * (2.0f * random::uniform() - 1.0f);
 			auto dry = in + lastWets[i] * feedback + 0.5f * wet;
 			buffers[i].writeBuffer (dry);
 			wet =  5.0f * limiters[i].process (wet / 5.0f);

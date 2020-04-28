@@ -114,7 +114,7 @@ struct KSDelayWidget : ModuleWidget
 		addInput (createInput<PJ301MPort> (Vec (14 +121, 153),module, Comp::UNISON_INPUT));
 		addInput (createInput<PJ301MPort> (Vec (50 +121, 153),module, Comp::UNISON_SPREAD_INPUT));
 		addInput (createInput<PJ301MPort> (Vec (87 +121, 153),module, Comp::UNISON_MIX_INPUT));
-		//addInput (createInput<PJ301MPort> (Vec (14, 290), module, Comp::TRIGGER_INPUT));
+		addInput (createInput<PJ301MPort> (Vec (14 + 121, 196), module, Comp::TRIGGER_INPUT));
 
 		addOutput (createOutput<PJ301MPort> (Vec (73, 320), module, Comp::OUT_OUTPUT));
 	}
