@@ -408,7 +408,7 @@ IComposite::Config KSDelayDescription<TBase>::getParam(int i)
     IComposite::Config ret = {0.0f, 1.0f, 0.0f, "Code type", "unit", 0.0f, 1.0f, 0.0f};
     switch (i) {
         case KSDelayComp<TBase>::OCTAVE_PARAM:      
-            ret = {-4.0f, 4.0f, 0.0f, "Octave", " octave", 0.0f, 1.0f, 0.0f};
+            ret = {-4.0f, 0.0f, 0.0f, "Octave", " octave", 0.0f, 1.0f, 0.0f};
             break;
         case KSDelayComp<TBase>::TUNE_PARAM:      
             ret = {-7.0f, 7.0f, 0.0f, "Tune", " semitones", 0.0f, 1.0f, 0.0f};

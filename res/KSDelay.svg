@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="7.919596"
-     inkscape:cx="222.95602"
-     inkscape:cy="245.73973"
+     inkscape:zoom="0.70000001"
+     inkscape:cx="661.16307"
+     inkscape:cy="250.08139"
      inkscape:document-units="mm"
      inkscape:current-layer="g13224"
      showgrid="true"
@@ -85,8 +85,8 @@
              inkscape:export-filename="/home/vortico/src/cpp/VCV/Rack/plugins/Fundamental/res/Delay.png"
              inkscape:connector-curvature="0"
              id="path25061"
-             d="m -993.65643,41.22092 h 294.27161 v 465.18323 h -294.27161 z m 0,0"
-             style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.52945399" />
+             d="m -993.65643,36.513742 h 295.67865 V 501.78256 h -295.67865 z m 0,0"
+             style="fill:#f0f0f0;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.53324723" />
           <path
              inkscape:connector-curvature="0"
              id="path25971"
