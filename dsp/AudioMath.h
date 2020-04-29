@@ -26,6 +26,9 @@
 #include <vector>
 #include <float.h>
 
+//#include "LookupTable.h"
+//#include "lookupTables/SineTable.h"
+
 namespace sspo
 {
     namespace AudioMath
@@ -66,6 +69,8 @@ namespace sspo
         {
             return frac * (v1 - v0) + v0;
         }
+
+
 
     } // namespace AudioMath
 } // namespace sspo

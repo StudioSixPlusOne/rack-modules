@@ -197,11 +197,11 @@ inline void KSDelayComp<TBase>::step()
 			
 			
 			
-			delayTimes[i] =  1.0f / (dsp::FREQ_C4 * std::pow(2.0f, TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
+			delayTimes[i] =  1.0f / (dsp::FREQ_C4 * lookup.pow2 (TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
 
 			auto color = filterParam;
 			if (TBase::inputs[FILTER_INPUT].isConnected())
-				color += std::pow (2, TBase::inputs[FILTER_INPUT].getPolyVoltage (i)) * dsp::FREQ_C4;	
+				color += lookup.pow2 (TBase::inputs[FILTER_INPUT].getPolyVoltage (i)) * dsp::FREQ_C4;	
 			color = clamp (color, 1.0f, maxCutoff);
 			lowpassFilters[i].setParameters (rack::dsp::BiquadFilter::LOWPASS, color / sampleRate, 0.707f, 1.0f);
 			in = lowpassFilters[i].process (in);
@@ -211,7 +211,7 @@ inline void KSDelayComp<TBase>::step()
 			auto dry = in + lastWets[i] * feedback + 0.5f * wet;
 			buffers[i].writeBuffer (dry);
 
-		//	wet =  5.0f * limiters[i].process (wet / 5.0f);
+			wet =  5.0f * limiters[i].process (wet / 5.0f);
 			
 			  lastWets[i] = wet;
 

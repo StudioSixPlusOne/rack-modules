@@ -25,6 +25,8 @@
 #include <utility>
 #include <algorithm>
 
+#include "LookupTable.h"
+
 namespace sspo
 {
     ///
@@ -64,12 +66,12 @@ namespace sspo
             currentEnv = std::max (currentEnv, 0.00000000001f);
             lastEnv = currentEnv;
 
-            auto dn = 20.0f * std::log10 (currentEnv);
+            auto dn = 20.0f * lookup.log10 (currentEnv);
 
             //Hard knee compression
             auto yndB = dn <= threshold ? dn : threshold + ((dn - threshold) / ratio);
             auto gndB = yndB - dn;
-            auto G = std::pow (10.0f, gndB / 20.0f);
+            auto G = lookup.pow10 ( gndB / 20.0f);
 
             return in * G;
         }

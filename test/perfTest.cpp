@@ -41,6 +41,7 @@ extern double overheadOutOnly;
 #include "AudioMath.h"
 #include "CircularBuffer.h"
 #include "HardLimiter.h"
+#include "LookupTable.h"
 
 #include "KSDelay.h"
 
@@ -205,6 +206,54 @@ static void testFastApprox()
         }, 1);
 }
 
+static void testLookupTable()
+{
+        MeasureTime<float>::run(overheadInOut, "std::sin", []() {
+        float x = std::sin(TestBuffers<float>::get());
+        return x;
+        }, 1);
+
+        sspo::AudioMath::LookupTable::Table<float> sineTable = sspo::AudioMath::LookupTable::makeTable<float>(2.0f, 5.0f, 0.001f,  [](const float x) -> float { return std::sin(x);});
+        MeasureTime<float>::run(overheadInOut, "LookupTable sin", [&sineTable]() {
+            float x = sspo::AudioMath::LookupTable::process<float>(sineTable, TestBuffers<float>::get());
+        return x;
+        }, 1);
+
+        MeasureTime<float>::run(overheadInOut, "std::pow2", []() {
+        float x = std::pow(2.0f, TestBuffers<float>::get());
+        return x;
+        }, 1);
+
+        sspo::AudioMath::LookupTable::Table<float> pow2Table = sspo::AudioMath::LookupTable::makeTable<float>(2.0f, 5.0f, 0.001f,  [](const float x) -> float { return std::pow(2.0f, x);});
+        MeasureTime<float>::run(overheadInOut, "LookupTable pow2", [&pow2Table]() {
+            float x = sspo::AudioMath::LookupTable::process<float>(pow2Table, TestBuffers<float>::get());
+        return x;
+        }, 1);
+
+        MeasureTime<float>::run(overheadInOut, "std::pow10", []() {
+        float x = std::pow(10.0f, TestBuffers<float>::get());
+        return x;
+        }, 1);
+
+
+        sspo::AudioMath::LookupTable::Table<float> pow10Table = sspo::AudioMath::LookupTable::makeTable<float>(-10.1f, 10.1f, 0.001f,  [](const float x) -> float { return std::pow (10.0f, x);});
+        MeasureTime<float>::run(overheadInOut, "LookupTable pow10", [&pow10Table]() {
+            float x = sspo::AudioMath::LookupTable::process<float>(pow10Table, TestBuffers<float>::get());
+        return x;
+        }, 1);
+
+        MeasureTime<float>::run(overheadInOut, "std::log10", []() {
+        float x = std::log10 ( TestBuffers<float>::get());
+        return x;
+        }, 1);
+
+        sspo::AudioMath::LookupTable::Table<float> log10Table = sspo::AudioMath::LookupTable::makeTable<float>(0.00001f, 10.1f, 0.001f,  [](const float x) -> float { return std::log10 (x);});
+        MeasureTime<float>::run(overheadInOut, "LookupTable log10", [&log10Table]() {
+            float x = sspo::AudioMath::LookupTable::process<float>(log10Table, TestBuffers<float>::get());
+        return x;
+        }, 1);
+}
+
 static void testCircularBuffer()
 {
     CircularBuffer<float> c;
@@ -229,7 +278,7 @@ static void testHardLimiter()
     l.setSampleRate(44100);
 
     //initial run 8.30
-    MeasureTime<double>::run(overheadInOut, "Circular Buffer read interpolate", [&l]()  {
+    MeasureTime<double>::run(overheadInOut, "Hard Limiter process", [&l]()  {
         float x = l.process(TestBuffers<float>::get() * 2.0f);
         return x;
     }, 1);
@@ -272,4 +321,5 @@ void perfTest()
     testCircularBuffer();
     testHardLimiter();
     testKSDelay();
+    //testLookupTable();
 }
