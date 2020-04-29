@@ -24,6 +24,7 @@
 #include "IComposite.h"
 #include "CircularBuffer.h"
 #include "HardLimiter.h"
+#include "AD.h"
 
 #include <cstdlib>
 #include <vector>
@@ -83,11 +84,15 @@ public:
 
 		for (auto&l : limiters)
 			l.setSampleRate (rate);
+
+		for (auto& a : ads)
+			a.setSampleRate (rate);
     }
 
     // must be called after setSampleRate
     void init()
     {
+		random::init();
 		buffers.resize (maxChannels);
 		for (auto& b : buffers)
 			b.reset (4096);
@@ -147,6 +152,10 @@ public:
 		for (auto& f : framesToSample)
 		 f = 0;
 
+		ads.resize (maxChannels);
+		for (auto& ad : ads)
+			ad.setParameters(0.1f, 0.1f);
+
 		unisonTunings = { 0.0f, -0.01952356f, 0.01991221f, -0.06288439f, 0.06216538f, -0.11002313f, 0.10745242f};
 		unisonLevels = {0.55f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f};
     }
@@ -185,6 +194,9 @@ public:
 		UNISON_SPREAD_PARAM,
 		UNISON_MIX_PARAM,
 		GLIDE_PARAM,
+		ATTACK_PARAM,
+		DECAY_PARAM,
+		TRIGGER_PARAM,
 		NUM_PARAMS
 	};
 
@@ -200,6 +212,8 @@ public:
 		UNISON_SPREAD_INPUT,
 		UNISON_MIX_INPUT,
 		GLIDE_INPUT,
+		ATTACK_INPUT,
+		DECAY_INPUT,
 		NUM_INPUTS
 	};
 
@@ -224,9 +238,9 @@ public:
 	constexpr static int maxChannels = 16;
 	constexpr static float maxCutoff = 20000.0f;
 	constexpr static float dcInFilterCutoff = 5.5f;
-	constexpr static float dcOutFilterCutoff = 20.0f;
+	constexpr static float dcOutFilterCutoff = 10.0f;
 	constexpr static int maxOscCount = 7;
-	constexpr static float fadeDecay = 0.8f;
+	constexpr static float fadeDecay = 0.05f;
 
 	//Oscillator detunings for unisson from "How to emulate the super saw, Adam Szabo"
 	//
@@ -247,6 +261,7 @@ public:
 	std::vector<float> fadeLevels;
 	std::vector<dsp::SlewLimiter> glide;
 	std::vector<int> framesToSample;
+	std::vector<sspo::AttackDecay<float> > ads;
 
 private:
 
@@ -269,6 +284,11 @@ inline void KSDelayComp<TBase>::step()
 		auto unisonSpread = TBase::params[UNISON_SPREAD_PARAM].getValue();
 		auto unisonMix = TBase::params[UNISON_MIX_PARAM].getValue();
 		auto glideParam = TBase::params[GLIDE_PARAM].getValue();
+		auto triggerParam = TBase::params[TRIGGER_PARAM].getValue();
+		auto attackParam = TBase::params[ATTACK_PARAM].getValue();
+		auto decayParam = TBase::params[DECAY_PARAM].getValue();
+
+		channels = std::max(channels, 1);
 
 
 
@@ -277,16 +297,28 @@ inline void KSDelayComp<TBase>::step()
 			auto unisonSpreadCoefficient = unisonSpreadScalar (unisonSpread + std::abs(TBase::inputs[UNISON_SPREAD_INPUT].getPolyVoltage (i) / 10.f));
 			auto unisonSideLevelCoefficient = unisonSideLevel (unisonMix + std::abs(TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.f));
 			auto unisonCentreLevelCoefficient = unisonCentreLevel (unisonMix + std::abs(TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.f));
+			auto triggerSignal = TBase::inputs[TRIGGER_INPUT].isConnected() ?
+				TBase::inputs[TRIGGER_INPUT].getPolyVoltage (i) + triggerParam :
+				triggerParam;
 
-			if (triggers[i].process (TBase::inputs[TRIGGER_INPUT].getPolyVoltage (i)))
+			if (triggers[i].process (triggerSignal))
 				resetPending[i] = true;
+
+			//set trigger attack delay
+			auto aTime = attackParam + TBase::inputs[ATTACK_INPUT].getPolyVoltage (i) * 0.1f;
+			auto dTime = decayParam + TBase::inputs[DECAY_INPUT].getPolyVoltage (i) * 0.1f;
+
+			aTime = clamp (aTime, 0.001f, 0.5f);
+			dTime = clamp (dTime, 0.01f, 0.5f);
+
+			ads[i].setParameters(aTime, dTime);
 
 			float in = 0.0f;
 
 			// Get input to delay block
-			if (TBase::inputs[TRIGGER_INPUT].isConnected())
-			{
-				if (framesToSample[i] > 0)
+
+			auto l = ads[i].tick();
+			if (l > 0)
 				{
 					if (TBase::inputs[IN_INPUT].isConnected())
 					{
@@ -296,14 +328,13 @@ inline void KSDelayComp<TBase>::step()
 					{
 						in = static_cast<float>(drand48()) * 10.0f - 5.0f;
 					}
-					framesToSample[i]--;
+					in *= l;
 				}
 
-			}
-			else
+			
+			if ((! TBase::inputs[TRIGGER_INPUT].isConnected()) && TBase::inputs[IN_INPUT].isConnected())
 			{
-				in = TBase::inputs[IN_INPUT].getVoltage (i);
-				
+				in += TBase::inputs[IN_INPUT].getVoltage (i);
 			}
 
 			
@@ -335,7 +366,7 @@ inline void KSDelayComp<TBase>::step()
 					resetPending[i] = false;
 					lastDelayTimes[i] = delayTimes[i];
 					fadeLevels[i] = 1.0f;
-					framesToSample[i] = 2000;
+					ads[i].noteOn();
 				}
 				else
 				{
@@ -348,10 +379,12 @@ inline void KSDelayComp<TBase>::step()
 				lastDelayTimes[i] = delayTimes[i];
 			}
 			
+
+
 			// update buffer
 			auto wet = buffers[i].readBuffer (index);
 			// Add -noise
-			in += 1e-3f * (2.0f * random::uniform() - 1.0f);
+			in += 1e-3f * (2.0f * drand48() - 1.0f);
 			auto dry = in + lastWets[i] * feedback + 0.5f * wet;
 			buffers[i].writeBuffer (dry);
 			wet =  5.0f * limiters[i].process (wet / 5.0f);
@@ -390,7 +423,7 @@ inline void KSDelayComp<TBase>::step()
 
 			
 		  TBase::outputs[OUT_OUTPUT].setVoltage (out, i);
-	  }
+	  	}
 	TBase::outputs[OUT_OUTPUT].setChannels (channels);
 }
 
@@ -433,6 +466,15 @@ IComposite::Config KSDelayDescription<TBase>::getParam(int i)
 			break;
 		case KSDelayComp<TBase>::GLIDE_PARAM:
 			ret = {0.0001f, 0.05f, 0.05f, "Glide", " ", 0, 1, 0.0f};
+			break;
+		case KSDelayComp<TBase>::ATTACK_PARAM:
+			ret = {0.0f, 0.5f, 0.01f, "Attack", " ", 0, 1, 0.0f};
+			break;
+		case KSDelayComp<TBase>::DECAY_PARAM:
+			ret = {0.0f, 2.0f, 0.5f, "Decay", " ", 0, 1, 0.0f};
+			break;
+		case KSDelayComp<TBase>::TRIGGER_PARAM:
+			ret = {0.0f, 10.0f, 0.0f, "Trigger", " ", 0, 1, 0.0f};
 			break;
         default:
             assert(false);
