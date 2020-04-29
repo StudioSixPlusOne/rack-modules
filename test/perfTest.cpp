@@ -252,6 +252,22 @@ static void testLookupTable()
             float x = sspo::AudioMath::LookupTable::process<float>(log10Table, TestBuffers<float>::get());
         return x;
         }, 1);
+
+        MeasureTime<float>::run(overheadInOut, "unison scaler 11th order polynomial", []() {
+             float x = sspo::AudioMath::LookupTable::unisonSpreadScalar ( TestBuffers<float>::get());
+             return x;
+        }, 1);
+
+        sspo::AudioMath::LookupTable::Table<float> usTable = sspo::AudioMath::LookupTable::makeTable<float>(0.00001f, 10.1f, 0.001f,  [](const float x) -> float { return sspo::AudioMath::LookupTable::unisonSpreadScalar(x);});
+        MeasureTime<float>::run(overheadInOut, "LookupTable unison scalar", [&usTable]() {
+            float x = sspo::AudioMath::LookupTable::process<float>(usTable, TestBuffers<float>::get());
+        return x;
+        }, 1);
+
+        MeasureTime<float>::run(overheadInOut, "unison scaler lookup::unison", []() {
+             float x = lookup.unisonSpread( TestBuffers<float>::get());
+             return x;
+        }, 1);
 }
 
 static void testCircularBuffer()
@@ -321,5 +337,5 @@ void perfTest()
     testCircularBuffer();
     testHardLimiter();
     testKSDelay();
-    //testLookupTable();
+    testLookupTable();
 }

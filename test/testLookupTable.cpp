@@ -74,6 +74,14 @@ using namespace sspo::AudioMath;
                 assertClose (lookup.log10(i), std::log10 (i), 0.05f);
             }
 
+            //unison scalar
+            sspo::AudioMath::LookupTable::Table<float> usTable = LookupTable::makeTable<float>(0.00001f, 10.1f, 0.001f,  [](const float x) -> float { return sspo::AudioMath::LookupTable::unisonSpreadScalar(x);});
+            for (float i = 0.001f; i < 1.0f ; i += 0.001f)
+            {
+                assertClose (LookupTable::process<float>(usTable, i), LookupTable::unisonSpreadScalar (i), 0.05f);
+                assertClose (lookup.unisonSpread (i), LookupTable::unisonSpreadScalar (i), 0.05f);
+            }            
+
             //std::cout << sspo::AudioMath::LookupTable::makeHeader(sineTable, "SineTable") << "\n\n";
         }
 

@@ -119,6 +119,13 @@ namespace sspo
 
             }
 
+            inline float unisonSpreadScalar (const float x)
+            {
+                return (10028.7312891634*std::pow(x,11))-(50818.8652045924*std::pow(x,10))+(111363.4808729368*std::pow(x,9))-
+                    (138150.6761080548*std::pow(x,8))+(106649.6679158292*std::pow(x,7))-(53046.9642751875*std::pow(x,6))+(17019.9518580080*std::pow(x,5))-
+                    (3425.0836591318*std::pow(x,4))+(404.2703938388*std::pow(x,3))-(24.1878824391*std::pow(x,2))+(0.6717417634*x)+0.0030115596;
+            }
+
             struct Lookup
             {
 
@@ -129,12 +136,14 @@ namespace sspo
                     pow2Table = LookupTable::makeTable<float>(-10.1f, 10.1f, 0.001f,  [](const float x) -> float { return std::pow (2.0f, x);});
                     pow10Table = LookupTable::makeTable<float>(-10.1f, 10.1f, 0.001f,  [](const float x) -> float { return std::pow (10.0f, x);});
                     log10Table = LookupTable::makeTable<float>(0.00001f, 10.1f, 0.001f,  [](const float x) -> float { return std::log10 (x);});
+                    unisonSpreadTable = LookupTable::makeTable<float>(0.0f, 1.1f, 0.01f, [](const float x) -> float { return unisonSpreadScalar(x);});
                 }
                 
                 sspo::AudioMath::LookupTable::Table<float> sineTable; 
                 sspo::AudioMath::LookupTable::Table<float> pow2Table; 
                 sspo::AudioMath::LookupTable::Table<float> pow10Table;  
                 sspo::AudioMath::LookupTable::Table<float> log10Table; 
+                sspo::AudioMath::LookupTable::Table<float> unisonSpreadTable;
 
 
 
@@ -142,6 +151,7 @@ namespace sspo
                 float pow2(const float x)            {return sspo::AudioMath::LookupTable::process(pow2Table, x);}
                 float pow10(const float x)           {return sspo::AudioMath::LookupTable::process(pow10Table, x);}
                 float log10(const float x)           {return sspo::AudioMath::LookupTable::process(log10Table, x);}
+                float unisonSpread(const float x)    {return sspo::AudioMath::LookupTable::process(unisonSpreadTable, x);}
             };
  
         }
