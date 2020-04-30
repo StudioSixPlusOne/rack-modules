@@ -162,6 +162,10 @@ public:
 		for (auto& lo : lastOut)
 			lo = 0.000f;
 
+		pitches.resize (maxChannels);
+		for (auto& p : pitches)
+			p = dsp::FREQ_C4;
+
 		unisonTunings = { 0.0f, -0.01952356f, 0.01991221f, -0.06288439f, 0.06216538f, -0.11002313f, 0.10745242f};
     }
 
@@ -202,6 +206,7 @@ public:
 		ATTACK_PARAM,
 		DECAY_PARAM,
 		TRIGGER_PARAM,
+		PITCH_LOCK_PARAM,
 		NUM_PARAMS
 	};
 
@@ -268,6 +273,7 @@ public:
 	std::vector<int> framesToSample;
 	std::vector<sspo::AttackDecay<float> > ads;
 	std::vector<float> lastOut;
+	std::vector<float> pitches;
 
 private:
 
@@ -293,6 +299,7 @@ inline void KSDelayComp<TBase>::step()
 		auto triggerParam = TBase::params[TRIGGER_PARAM].getValue();
 		auto attackParam = TBase::params[ATTACK_PARAM].getValue();
 		auto decayParam = TBase::params[DECAY_PARAM].getValue();
+		auto pitchLockParam = TBase::params[PITCH_LOCK_PARAM].getValue();
 
 		channels = std::max(channels, 1);
 
@@ -310,6 +317,7 @@ inline void KSDelayComp<TBase>::step()
 			if (triggers[i].process (triggerSignal))
 			{
 				resetPending[i] = true;
+				pitches[i] = dsp::FREQ_C4 * std::pow(2.0f, TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f);
 			}
 
 			//set trigger attack delay
@@ -353,7 +361,9 @@ inline void KSDelayComp<TBase>::step()
 			auto glideTime = glideParam + TBase::inputs[GLIDE_INPUT].getPolyVoltage (i) * 0.005f;
 			glideTime = clamp(glideTime, 0.000001, 0.1f);
 			glide[i].setRiseFall (glideTime, glideTime);
-			auto glideFreq = glide[i].process (10.0f, dsp::FREQ_C4 * std::pow(2.0f, TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
+			auto glideFreq = (pitchLockParam > 0.1f) && TBase::inputs[TRIGGER_INPUT].isConnected() 
+				 ? glide[i].process (10.0f, pitches[i])
+				 : glide[i].process (10.0f, dsp::FREQ_C4 * std::pow(2.0f, TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
 			glideFreq = clamp (glideFreq, 20.0f, 20000.0f);
 			delayTimes[i] =  1.0f / glideFreq;
 
@@ -489,6 +499,9 @@ IComposite::Config KSDelayDescription<TBase>::getParam(int i)
 			break;
 		case KSDelayComp<TBase>::TRIGGER_PARAM:
 			ret = {0.0f, 10.0f, 0.0f, "Trigger", " ", 0, 1, 0.0f};
+			break;
+		case KSDelayComp<TBase>::PITCH_LOCK_PARAM:
+			ret = {0.0f, 1.0f, 0.0f, "Pitch Lock", " ", 0, 1, 0.0f};
 			break;
         default:
             assert(false);

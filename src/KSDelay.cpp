@@ -107,6 +107,7 @@ struct KSDelayWidget : ModuleWidget
 		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (50 + 121, 196), module, Comp::ATTACK_PARAM));
 		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (87 + 121, 196), module, Comp::DECAY_PARAM));
 		addParam (SqHelper::createParam<BefacoPush> (icomp, Vec (14 + 121, 196), module, Comp::TRIGGER_PARAM));
+		addParam (SqHelper::createParam<CKSS> (icomp, Vec (20 + 121, 263), module, Comp::PITCH_LOCK_PARAM));
 
 
 		addInput (createInput<PJ301MPort> (Vec (14, 63), module, Comp::VOCT));
