@@ -92,8 +92,8 @@ struct KSDelayWidget : ModuleWidget
 
 		addChild (createWidget<ScrewSilver> (Vec (15, 0)));
 		addChild (createWidget<ScrewSilver> (Vec (box.size.x - 30, 0)));
-		addChild (createWidget<ScrewSilver> (Vec (0, 365)));
-		addChild (createWidget<ScrewSilver> (Vec (box.size.x - 15, 365)));
+		addChild (createWidget<ScrewSilver> (Vec (15, 365)));
+		addChild (createWidget<ScrewSilver> (Vec (box.size.x - 30, 365)));
 
 		addParam (SqHelper::createParam<RoundLargeBlackSnapKnob> (icomp, Vec (67, 57), module, Comp::OCTAVE_PARAM));
 		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (40, 80), module, Comp::TUNE_PARAM));

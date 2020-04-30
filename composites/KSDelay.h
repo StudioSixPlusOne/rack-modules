@@ -138,7 +138,6 @@ public:
 		for (auto i = 0; i < maxChannels; ++ i)
 			resetPending[i] = false;
 
-		crossings.resize (maxChannels);
 		lastDelayTimes.resize (maxChannels);
 		fadeLevels.resize (maxChannels);
 		for (auto& fl : fadeLevels)
@@ -154,10 +153,16 @@ public:
 
 		ads.resize (maxChannels);
 		for (auto& ad : ads)
+		{
+			ad.setSampleRate (sampleRate);
 			ad.setParameters(0.1f, 0.1f);
+		}
+
+		lastOut.resize (maxChannels);
+		for (auto& lo : lastOut)
+			lo = 0.000f;
 
 		unisonTunings = { 0.0f, -0.01952356f, 0.01991221f, -0.06288439f, 0.06216538f, -0.11002313f, 0.10745242f};
-		unisonLevels = {0.55f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f};
     }
 
 	//supersaw curves from "How to emulate the supersaw, Adam Szabo"
@@ -240,7 +245,8 @@ public:
 	constexpr static float dcInFilterCutoff = 5.5f;
 	constexpr static float dcOutFilterCutoff = 10.0f;
 	constexpr static int maxOscCount = 7;
-	constexpr static float fadeDecay = 0.05f;
+	constexpr static float fadeDecay = 0.9f; //changed to try to remove pop
+	constexpr static float fadeMin = 0.05;
 
 	//Oscillator detunings for unisson from "How to emulate the super saw, Adam Szabo"
 	//
@@ -256,12 +262,12 @@ public:
 	std::vector<std::vector<float> >  oscphases;
 	std::vector<dsp::SchmittTrigger> triggers;
 	std::vector<bool> resetPending;
-	std::vector<sspo::AudioMath::ZeroCrossing<float>> crossings;
 	std::vector<float> lastDelayTimes;
 	std::vector<float> fadeLevels;
 	std::vector<dsp::SlewLimiter> glide;
 	std::vector<int> framesToSample;
 	std::vector<sspo::AttackDecay<float> > ads;
+	std::vector<float> lastOut;
 
 private:
 
@@ -302,7 +308,9 @@ inline void KSDelayComp<TBase>::step()
 				triggerParam;
 
 			if (triggers[i].process (triggerSignal))
+			{
 				resetPending[i] = true;
+			}
 
 			//set trigger attack delay
 			auto aTime = attackParam + TBase::inputs[ATTACK_INPUT].getPolyVoltage (i) * 0.1f;
@@ -318,18 +326,18 @@ inline void KSDelayComp<TBase>::step()
 			// Get input to delay block
 
 			auto l = ads[i].tick();
-			if (l > 0)
+			if (l > 0.0) 
+			{
+				if (TBase::inputs[IN_INPUT].isConnected())
 				{
-					if (TBase::inputs[IN_INPUT].isConnected())
-					{
-						in = TBase::inputs[IN_INPUT].getVoltage (i);
-					}
-					else
-					{
-						in = static_cast<float>(drand48()) * 10.0f - 5.0f;
-					}
-					in *= l;
+					in += TBase::inputs[IN_INPUT].getVoltage (i);
 				}
+				else
+				{
+					in += static_cast<float>(drand48()) * 10.0f - 5.0f;
+				}
+				in *= l;
+			}
 
 			
 			if ((! TBase::inputs[TRIGGER_INPUT].isConnected()) && TBase::inputs[IN_INPUT].isConnected())
@@ -345,7 +353,9 @@ inline void KSDelayComp<TBase>::step()
 			auto glideTime = glideParam + TBase::inputs[GLIDE_INPUT].getPolyVoltage (i) * 0.005f;
 			glideTime = clamp(glideTime, 0.000001, 0.1f);
 			glide[i].setRiseFall (glideTime, glideTime);
-			delayTimes[i] =  1.0f / glide[i].process (10.0f, dsp::FREQ_C4 * std::pow(2.0f, TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
+			auto glideFreq = glide[i].process (10.0f, dsp::FREQ_C4 * std::pow(2.0f, TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
+			glideFreq = clamp (glideFreq, 20.0f, 20000.0f);
+			delayTimes[i] =  1.0f / glideFreq;
 
 			auto color = filterParam;
 			if (TBase::inputs[FILTER_INPUT].isConnected())
@@ -355,12 +365,12 @@ inline void KSDelayComp<TBase>::step()
 			in = lowpassFilters[i].process (in);
 
 
-			// zero crossing reset
+			// trigger reset execution
 			auto index = delayTimes[i] * sampleRate - 1.5f;
 			if (resetPending[i])
 			{
-				fadeLevels[i] *= fadeDecay;
-				if  (crossings[i].process(lastWets[i]))
+				in = 0.0f; 
+				if  (fadeLevels[i] < fadeMin) 
 				{
 					buffers[i].clear();
 					resetPending[i] = false;
@@ -370,8 +380,10 @@ inline void KSDelayComp<TBase>::step()
 				}
 				else
 				{
-					index = lastDelayTimes[i] * sampleRate - 1.5f;
+					index = lastDelayTimes[i] * sampleRate - 1.5f; 
 					fadeLevels[i] *= fadeDecay;
+					ads[i].reset(); 
+					lastWets[i]=buffers[i].readBuffer (index) * fadeLevels[i]; 
 				}
 			}
 			else
@@ -387,7 +399,7 @@ inline void KSDelayComp<TBase>::step()
 			in += 1e-3f * (2.0f * drand48() - 1.0f);
 			auto dry = in + lastWets[i] * feedback + 0.5f * wet;
 			buffers[i].writeBuffer (dry);
-			wet =  5.0f * limiters[i].process (wet / 5.0f);
+			wet =  5.0f * limiters[i].process (wet / 5.0f); 
 			lastWets[i] = wet;
 
 
@@ -412,15 +424,17 @@ inline void KSDelayComp<TBase>::step()
 					mixedOsc += buffers[i].readBuffer (phaseoffset) * unisonSideLevelCoefficient;	
 				
 			}
-			wet = mixedOsc * fadeLevels[i];
+			wet = mixedOsc;
 
 
 			auto mix = mixParam + TBase::inputs[MIX_INPUT].getPolyVoltage (i) / 10.0f;
 			mix = clamp (mix, 0.0f, 1.0f);
+			if (resetPending[i]) in = 0.0f; 
 			float out = crossfade (in, wet, mix);
 
 			out = dcOutFilters[i].process (out);
-
+			out = out * fadeLevels[i];
+			lastOut[i] = out;
 			
 		  TBase::outputs[OUT_OUTPUT].setVoltage (out, i);
 	  	}

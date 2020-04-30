@@ -135,6 +135,7 @@ namespace sspo
         void reset ()
         {
             state = State::off;
+            lastSample = 0.0f;
         }
 
         void shutDown ()
