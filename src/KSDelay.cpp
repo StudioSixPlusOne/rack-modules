@@ -98,29 +98,16 @@ struct KSDelayWidget : ModuleWidget
 		addParam (SqHelper::createParam<RoundLargeBlackSnapKnob> (icomp, Vec (67, 57), module, Comp::OCTAVE_PARAM));
 		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (40, 80), module, Comp::TUNE_PARAM));
 		addParam (SqHelper::createParam<RoundLargeBlackKnob> (icomp, Vec (67, 123), module, Comp::FEEDBACK_PARAM));
-		addParam (SqHelper::createParam<RoundLargeBlackKnob> (icomp, Vec (67, 193), module, Comp::FILTER_PARAM));
-		addParam (SqHelper::createParam<RoundLargeBlackKnob> (icomp, Vec (67, 257), module, Comp::MIX_PARAM));
-		addParam (SqHelper::createParam<RoundLargeBlackKnob> (icomp, Vec (67 + 121, 57), module, Comp::GLIDE_PARAM));
-		addParam (SqHelper::createParam<RoundSmallBlackSnapKnob> (icomp, Vec (14 + 121, 123), module, Comp::UNISON_PARAM));
-		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (50 + 121, 123), module, Comp::UNISON_SPREAD_PARAM));
-		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (87 + 121, 123), module, Comp::UNISON_MIX_PARAM));
-		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (50 + 121, 290), module, Comp::ATTACK_PARAM));
-		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (87 + 121, 290), module, Comp::DECAY_PARAM));
-		addParam (SqHelper::createParam<CKSS> (icomp, Vec (20 + 121, 263), module, Comp::PITCH_LOCK_PARAM));
-
-
+		addParam (SqHelper::createParam<RoundSmallBlackSnapKnob> (icomp, Vec (14, 203), module, Comp::UNISON_PARAM));
+		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (50, 203), module, Comp::UNISON_SPREAD_PARAM));
+		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (87, 203), module, Comp::UNISON_MIX_PARAM));
+		
 		addInput (createInput<PJ301MPort> (Vec (14, 63), module, Comp::VOCT));
 		addInput (createInput<PJ301MPort> (Vec (14, 129), module, Comp::FEEDBACK_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (14, 196), module, Comp::FILTER_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (14, 263), module, Comp::MIX_INPUT));
 		addInput (createInput<PJ301MPort> (Vec (14, 320), module, Comp::IN_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (14 + 121, 63), module, Comp::GLIDE_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (14 +121, 153),module, Comp::UNISON_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (50 +121, 153),module, Comp::UNISON_SPREAD_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (87 +121, 153),module, Comp::UNISON_MIX_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (14 + 121, 320), module, Comp::TRIGGER_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (50 + 121, 320), module, Comp::ATTACK_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (87 + 121, 320), module, Comp::DECAY_INPUT));
+		addInput (createInput<PJ301MPort> (Vec (14, 233),module, Comp::UNISON_INPUT));
+		addInput (createInput<PJ301MPort> (Vec (50, 233),module, Comp::UNISON_SPREAD_INPUT));
+		addInput (createInput<PJ301MPort> (Vec (87, 233),module, Comp::UNISON_MIX_INPUT));
 
 		addOutput (createOutput<PJ301MPort> (Vec (73, 320), module, Comp::OUT_OUTPUT));
 	}

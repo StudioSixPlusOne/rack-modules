@@ -24,7 +24,6 @@
 #include "IComposite.h"
 #include "CircularBuffer.h"
 #include "HardLimiter.h"
-#include "AD.h"
 
 #include <cstdlib>
 #include <vector>
@@ -84,9 +83,6 @@ public:
 
 		for (auto&l : limiters)
 			l.setSampleRate (rate);
-
-		for (auto& a : ads)
-			a.setSampleRate (rate);
     }
 
     // must be called after setSampleRate
@@ -96,8 +92,6 @@ public:
 		buffers.resize (maxChannels);
 		for (auto& b : buffers)
 			b.reset (4096);
-
-		lowpassFilters.resize (maxChannels);
 
 		dcInFilters.resize (maxChannels);
 		for (auto &dc : dcInFilters)
@@ -133,31 +127,9 @@ public:
 			}	
 		}
 
-		triggers.resize(maxChannels);
-
-		resetPending.resize(maxChannels);
-		for (auto i = 0; i < maxChannels; ++ i)
-			resetPending[i] = false;
-
-		lastDelayTimes.resize (maxChannels);
-		fadeLevels.resize (maxChannels);
-		for (auto& fl : fadeLevels)
-			fl = 1.0f;
-
 		glide.resize (maxChannels);
 		for (auto& g : glide)
 			g.setRiseFall (0.01f, 0.01f);
-
-		framesToSample.resize (maxChannels);
-		for (auto& f : framesToSample)
-		 f = 0;
-
-		ads.resize (maxChannels);
-		for (auto& ad : ads)
-		{
-			ad.setSampleRate (sampleRate);
-			ad.setParameters(0.1f, 0.1f);
-		}
 
 		lastOut.resize (maxChannels);
 		for (auto& lo : lastOut)
@@ -198,32 +170,20 @@ public:
 		OCTAVE_PARAM,
 		TUNE_PARAM,
 		FEEDBACK_PARAM,
-		FILTER_PARAM,
-		MIX_PARAM,
 		UNISON_PARAM,
 		UNISON_SPREAD_PARAM,
 		UNISON_MIX_PARAM,
-		GLIDE_PARAM,
-		ATTACK_PARAM,
-		DECAY_PARAM,
-		PITCH_LOCK_PARAM,
 		NUM_PARAMS
 	};
 
 	enum InputIds 
 	{
 		VOCT,
-		FILTER_INPUT,
 		FEEDBACK_INPUT,
-		MIX_INPUT,
 		IN_INPUT,
-		TRIGGER_INPUT,
 		UNISON_INPUT,
 		UNISON_SPREAD_INPUT,
 		UNISON_MIX_INPUT,
-		GLIDE_INPUT,
-		ATTACK_INPUT,
-		DECAY_INPUT,
 		NUM_INPUTS
 	};
 
@@ -250,28 +210,20 @@ public:
 	constexpr static float dcInFilterCutoff = 5.5f;
 	constexpr static float dcOutFilterCutoff = 10.0f;
 	constexpr static int maxOscCount = 7;
-	constexpr static float fadeDecay = 0.9f; //changed to try to remove pop
-	constexpr static float fadeMin = 0.05;
 
 	//Oscillator detunings for unisson from "How to emulate the super saw, Adam Szabo"
 	//
 	std::vector<float> unisonTunings;  
 	std::vector<float> unisonLevels;
 	std::vector<CircularBuffer<float> > buffers;
-	std::vector<rack::dsp::BiquadFilter>  lowpassFilters;
 	std::vector<rack::dsp::BiquadFilter> dcInFilters;
 	std::vector<rack::dsp::BiquadFilter> dcOutFilters;
 	std::vector<sspo::Limiter> limiters;
 	std::vector<float> lastWets;
 	std::vector<float> delayTimes; 
 	std::vector<std::vector<float> >  oscphases;
-	std::vector<dsp::SchmittTrigger> triggers;
-	std::vector<bool> resetPending;
-	std::vector<float> lastDelayTimes;
-	std::vector<float> fadeLevels;
 	std::vector<dsp::SlewLimiter> glide;
 	std::vector<int> framesToSample;
-	std::vector<sspo::AttackDecay<float> > ads;
 	std::vector<float> lastOut;
 	std::vector<float> pitches;
 
@@ -286,126 +238,41 @@ template <class TBase>
 inline void KSDelayComp<TBase>::step()
 {
 
-    auto channels = std::max(TBase::inputs[IN_INPUT].getChannels(), TBase::inputs[TRIGGER_INPUT].getChannels());
+    auto channels = TBase::inputs[IN_INPUT].getChannels();
 		auto octaveParam = TBase::params[OCTAVE_PARAM].getValue();
 		auto tuneParam = TBase::params[TUNE_PARAM].getValue();
 		auto feedbackParam = TBase::params[FEEDBACK_PARAM].getValue();
-		auto filterParam = (TBase::paramQuantities[FILTER_PARAM])->getDisplayValue();
-		auto mixParam = TBase::params[MIX_PARAM].getValue();
 		auto unisonCount = TBase::params[UNISON_PARAM].getValue();
 		auto unisonSpread = TBase::params[UNISON_SPREAD_PARAM].getValue();
 		auto unisonMix = TBase::params[UNISON_MIX_PARAM].getValue();
-		auto glideParam = TBase::params[GLIDE_PARAM].getValue();
-		auto attackParam = TBase::params[ATTACK_PARAM].getValue();
-		auto decayParam = TBase::params[DECAY_PARAM].getValue();
-		auto pitchLockParam = TBase::params[PITCH_LOCK_PARAM].getValue();
+		auto glideParam = 0.05f;
 
 		channels = std::max(channels, 1);
-
-
 
 		for (auto i = 0; i < channels; ++i)
 		{	
 			auto unisonSpreadCoefficient = unisonSpreadScalar (unisonSpread + std::abs(TBase::inputs[UNISON_SPREAD_INPUT].getPolyVoltage (i) / 10.f));
 			auto unisonSideLevelCoefficient = unisonSideLevel (unisonMix + std::abs(TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.f));
 			auto unisonCentreLevelCoefficient = unisonCentreLevel (unisonMix + std::abs(TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.f));
-			auto triggerSignal = TBase::inputs[TRIGGER_INPUT].isConnected() 
-				? TBase::inputs[TRIGGER_INPUT].getPolyVoltage (i)
-				: 0;
 
-			if (triggers[i].process (triggerSignal))
-			{
-				resetPending[i] = true;
-				pitches[i] = dsp::FREQ_C4 * std::pow(2.0f, TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f);
-			}
+			auto in = TBase::inputs[IN_INPUT].getVoltage (i);
 
-			//set trigger attack delay
-			auto aTime = attackParam + TBase::inputs[ATTACK_INPUT].getPolyVoltage (i) * 0.1f;
-			auto dTime = decayParam + TBase::inputs[DECAY_INPUT].getPolyVoltage (i) * 0.1f;
-
-			aTime = clamp (aTime, 0.001f, 0.5f);
-			dTime = clamp (dTime, 0.01f, 0.5f);
-
-			ads[i].setParameters(aTime, dTime);
-
-			float in = 0.0f;
-
-			// Get input to delay block
-
-			auto l = ads[i].tick();
-			if (l > 0.0) 
-			{
-				if (TBase::inputs[IN_INPUT].isConnected())
-				{
-					in += TBase::inputs[IN_INPUT].getVoltage (i);
-				}
-				else
-				{
-					in += static_cast<float>(drand48()) * 10.0f - 5.0f;
-				}
-				in *= l;
-			}
-
-			
-			if ((! TBase::inputs[TRIGGER_INPUT].isConnected()) && TBase::inputs[IN_INPUT].isConnected())
-			{
-				in += TBase::inputs[IN_INPUT].getVoltage (i);
-			}
-
-			
 			in = dcInFilters[i].process (in);
 			auto feedback = feedbackParam + TBase::inputs[FEEDBACK_INPUT].getPolyVoltage (i) / 10.0f;
 			feedback = clamp (feedback, 0.0f, 0.5f);
 			
-			auto glideTime = glideParam + TBase::inputs[GLIDE_INPUT].getPolyVoltage (i) * 0.005f;
-			glideTime = clamp(glideTime, 0.000001, 0.1f);
+			auto glideTime = glideParam;
 			glide[i].setRiseFall (glideTime, glideTime);
-			auto glideFreq = (pitchLockParam > 0.1f) && TBase::inputs[TRIGGER_INPUT].isConnected() 
-				 ? glide[i].process (10.0f, pitches[i])
-				 : glide[i].process (10.0f, dsp::FREQ_C4 * std::pow(2.0f, TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
+			auto glideFreq =  glide[i].process (10.0f, dsp::FREQ_C4 * std::pow(2.0f, TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
 			glideFreq = clamp (glideFreq, 20.0f, 20000.0f);
 			delayTimes[i] =  1.0f / glideFreq;
 
-			auto color = filterParam;
-			if (TBase::inputs[FILTER_INPUT].isConnected())
-				color += std::pow (2, TBase::inputs[FILTER_INPUT].getPolyVoltage (i)) * dsp::FREQ_C4;	
-			color = clamp (color, 40.0f, maxCutoff);
-			lowpassFilters[i].setParameters (rack::dsp::BiquadFilter::LOWPASS, color / sampleRate, 0.707f, 1.0f);
-			in = lowpassFilters[i].process (in);
-
-
-			// trigger reset execution
 			auto index = delayTimes[i] * sampleRate - 1.5f;
-			if (resetPending[i])
-			{
-				in = 0.0f; 
-				if  (fadeLevels[i] < fadeMin) 
-				{
-					buffers[i].clear();
-					resetPending[i] = false;
-					lastDelayTimes[i] = delayTimes[i];
-					fadeLevels[i] = 1.0f;
-					ads[i].noteOn();
-				}
-				else
-				{
-					index = lastDelayTimes[i] * sampleRate - 1.5f; 
-					fadeLevels[i] *= fadeDecay;
-					ads[i].reset(); 
-					lastWets[i]=buffers[i].readBuffer (index) * fadeLevels[i]; 
-				}
-			}
-			else
-			{
-				lastDelayTimes[i] = delayTimes[i];
-			}
-			
-
 
 			// update buffer
 			auto wet = buffers[i].readBuffer (index);
 			// Add -noise
-			in += 1e-3f * (2.0f * drand48() - 1.0f);
+			//in += 1e-3f * (2.0f * drand48() - 1.0f);
 			auto dry = 0.5f * in + lastWets[i] * feedback + 0.5f * wet;
 			dry =  5.0f * limiters[i].process (dry / 5.0f); 
 			buffers[i].writeBuffer (dry);
@@ -436,14 +303,11 @@ inline void KSDelayComp<TBase>::step()
 			}
 			wet = mixedOsc;
 
-
-			auto mix = mixParam + TBase::inputs[MIX_INPUT].getPolyVoltage (i) / 10.0f;
+			auto mix = 1.0f;
 			mix = clamp (mix, 0.0f, 1.0f);
-			if (resetPending[i]) in = 0.0f; 
 			float out = crossfade (in, wet, mix);
 
 			out = dcOutFilters[i].process (out);
-			out = out * fadeLevels[i];
 			lastOut[i] = out;
 			
 		  TBase::outputs[OUT_OUTPUT].setVoltage (out, i);
@@ -473,12 +337,6 @@ IComposite::Config KSDelayDescription<TBase>::getParam(int i)
         case KSDelayComp<TBase>::FEEDBACK_PARAM:      
             ret = {0.0f, 0.5f, 0.5f, "Feedback", "%", 0, 100, 0.0f};
             break;
-        case KSDelayComp<TBase>::FILTER_PARAM:      
-            ret = {0.0f, 1.125f, 1.125f, "Frequency", " Hz", std::pow (2, 10.f), dsp::FREQ_C4 / std::pow (2, 5.f), 0.0f};
-            break;
-        case KSDelayComp<TBase>::MIX_PARAM:      
-            ret = {0.0f, 1.0f, 1.0f, "Mix", "%", 0, 100, 0.0f};
-            break;
 		case KSDelayComp<TBase>::UNISON_PARAM:
 			ret = {1.0f, 7.0f, 1.0f, "Unison count" ," ", 0, 1 , 0.0f};
 			break;
@@ -487,18 +345,6 @@ IComposite::Config KSDelayDescription<TBase>::getParam(int i)
 			break;
 		case KSDelayComp<TBase>::UNISON_MIX_PARAM:
 			ret = {0.0f, 1.0f, 1.0f, "Unison Mix", "  ", 0, 1, 0.0f};
-			break;
-		case KSDelayComp<TBase>::GLIDE_PARAM:
-			ret = {0.0001f, 0.05f, 0.05f, "Glide", " ", 0, 1, 0.0f};
-			break;
-		case KSDelayComp<TBase>::ATTACK_PARAM:
-			ret = {0.0f, 0.5f, 0.01f, "Attack", " ", 0, 1, 0.0f};
-			break;
-		case KSDelayComp<TBase>::DECAY_PARAM:
-			ret = {0.0f, 2.0f, 0.5f, "Decay", " ", 0, 1, 0.0f};
-			break;
-		case KSDelayComp<TBase>::PITCH_LOCK_PARAM:
-			ret = {0.0f, 1.0f, 0.0f, "Pitch Lock", " ", 0, 1, 0.0f};
 			break;
         default:
             assert(false);
