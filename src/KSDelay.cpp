@@ -104,9 +104,8 @@ struct KSDelayWidget : ModuleWidget
 		addParam (SqHelper::createParam<RoundSmallBlackSnapKnob> (icomp, Vec (14 + 121, 123), module, Comp::UNISON_PARAM));
 		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (50 + 121, 123), module, Comp::UNISON_SPREAD_PARAM));
 		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (87 + 121, 123), module, Comp::UNISON_MIX_PARAM));
-		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (50 + 121, 196), module, Comp::ATTACK_PARAM));
-		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (87 + 121, 196), module, Comp::DECAY_PARAM));
-		addParam (SqHelper::createParam<BefacoPush> (icomp, Vec (14 + 121, 196), module, Comp::TRIGGER_PARAM));
+		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (50 + 121, 290), module, Comp::ATTACK_PARAM));
+		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (87 + 121, 290), module, Comp::DECAY_PARAM));
 		addParam (SqHelper::createParam<CKSS> (icomp, Vec (20 + 121, 263), module, Comp::PITCH_LOCK_PARAM));
 
 
@@ -119,9 +118,9 @@ struct KSDelayWidget : ModuleWidget
 		addInput (createInput<PJ301MPort> (Vec (14 +121, 153),module, Comp::UNISON_INPUT));
 		addInput (createInput<PJ301MPort> (Vec (50 +121, 153),module, Comp::UNISON_SPREAD_INPUT));
 		addInput (createInput<PJ301MPort> (Vec (87 +121, 153),module, Comp::UNISON_MIX_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (14 + 121, 226), module, Comp::TRIGGER_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (50 + 121, 226), module, Comp::ATTACK_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (87 + 121, 226), module, Comp::DECAY_INPUT));
+		addInput (createInput<PJ301MPort> (Vec (14 + 121, 320), module, Comp::TRIGGER_INPUT));
+		addInput (createInput<PJ301MPort> (Vec (50 + 121, 320), module, Comp::ATTACK_INPUT));
+		addInput (createInput<PJ301MPort> (Vec (87 + 121, 320), module, Comp::DECAY_INPUT));
 
 		addOutput (createOutput<PJ301MPort> (Vec (73, 320), module, Comp::OUT_OUTPUT));
 	}

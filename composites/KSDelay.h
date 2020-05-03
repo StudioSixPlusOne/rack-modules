@@ -205,7 +205,6 @@ public:
 		GLIDE_PARAM,
 		ATTACK_PARAM,
 		DECAY_PARAM,
-		TRIGGER_PARAM,
 		PITCH_LOCK_PARAM,
 		NUM_PARAMS
 	};
@@ -296,7 +295,6 @@ inline void KSDelayComp<TBase>::step()
 		auto unisonSpread = TBase::params[UNISON_SPREAD_PARAM].getValue();
 		auto unisonMix = TBase::params[UNISON_MIX_PARAM].getValue();
 		auto glideParam = TBase::params[GLIDE_PARAM].getValue();
-		auto triggerParam = TBase::params[TRIGGER_PARAM].getValue();
 		auto attackParam = TBase::params[ATTACK_PARAM].getValue();
 		auto decayParam = TBase::params[DECAY_PARAM].getValue();
 		auto pitchLockParam = TBase::params[PITCH_LOCK_PARAM].getValue();
@@ -310,9 +308,9 @@ inline void KSDelayComp<TBase>::step()
 			auto unisonSpreadCoefficient = unisonSpreadScalar (unisonSpread + std::abs(TBase::inputs[UNISON_SPREAD_INPUT].getPolyVoltage (i) / 10.f));
 			auto unisonSideLevelCoefficient = unisonSideLevel (unisonMix + std::abs(TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.f));
 			auto unisonCentreLevelCoefficient = unisonCentreLevel (unisonMix + std::abs(TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.f));
-			auto triggerSignal = TBase::inputs[TRIGGER_INPUT].isConnected() ?
-				TBase::inputs[TRIGGER_INPUT].getPolyVoltage (i) + triggerParam :
-				triggerParam;
+			auto triggerSignal = TBase::inputs[TRIGGER_INPUT].isConnected() 
+				? TBase::inputs[TRIGGER_INPUT].getPolyVoltage (i)
+				: 0;
 
 			if (triggers[i].process (triggerSignal))
 			{
@@ -496,9 +494,6 @@ IComposite::Config KSDelayDescription<TBase>::getParam(int i)
 			break;
 		case KSDelayComp<TBase>::DECAY_PARAM:
 			ret = {0.0f, 2.0f, 0.5f, "Decay", " ", 0, 1, 0.0f};
-			break;
-		case KSDelayComp<TBase>::TRIGGER_PARAM:
-			ret = {0.0f, 10.0f, 0.0f, "Trigger", " ", 0, 1, 0.0f};
 			break;
 		case KSDelayComp<TBase>::PITCH_LOCK_PARAM:
 			ret = {0.0f, 1.0f, 0.0f, "Pitch Lock", " ", 0, 1, 0.0f};
