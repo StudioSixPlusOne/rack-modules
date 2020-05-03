@@ -120,6 +120,7 @@ public:
 		{
 			l.setTimes (0.01f, 0.25f);
 			l.setSampleRate (sampleRate);
+			l.threshold = -6.0f;
 		}
 
 		oscphases.resize (maxChannels);
@@ -405,9 +406,10 @@ inline void KSDelayComp<TBase>::step()
 			auto wet = buffers[i].readBuffer (index);
 			// Add -noise
 			in += 1e-3f * (2.0f * drand48() - 1.0f);
-			auto dry = in + lastWets[i] * feedback + 0.5f * wet;
+			auto dry = 0.5f * in + lastWets[i] * feedback + 0.5f * wet;
+			dry =  5.0f * limiters[i].process (dry / 5.0f); 
 			buffers[i].writeBuffer (dry);
-			wet =  5.0f * limiters[i].process (wet / 5.0f); 
+			//wet =  5.0f * limiters[i].process (wet / 5.0f); 
 			lastWets[i] = wet;
 
 
