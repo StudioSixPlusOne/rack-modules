@@ -112,9 +112,9 @@ public:
 		limiters.resize (maxChannels);
 		for (auto&l : limiters)
 		{
-			l.setTimes (0.01f, 0.25f);
+			l.setTimes (0.00f, 0.0025f);
 			l.setSampleRate (sampleRate);
-			l.threshold = -6.0f;
+			l.threshold = -0.50f;
 		}
 
 		oscphases.resize (maxChannels);
@@ -173,6 +173,8 @@ public:
 		UNISON_PARAM,
 		UNISON_SPREAD_PARAM,
 		UNISON_MIX_PARAM,
+		STRETCH_PARAM,
+		STRETCH_LOCK_PARAM,
 		NUM_PARAMS
 	};
 
@@ -184,6 +186,7 @@ public:
 		UNISON_INPUT,
 		UNISON_SPREAD_INPUT,
 		UNISON_MIX_INPUT,
+		STRETCH_INPUT,
 		NUM_INPUTS
 	};
 
@@ -245,6 +248,9 @@ inline void KSDelayComp<TBase>::step()
 		auto unisonCount = TBase::params[UNISON_PARAM].getValue();
 		auto unisonSpread = TBase::params[UNISON_SPREAD_PARAM].getValue();
 		auto unisonMix = TBase::params[UNISON_MIX_PARAM].getValue();
+		auto stretchParam = TBase::params[STRETCH_PARAM].getValue();
+		auto stretchLockParam = TBase::params[STRETCH_LOCK_PARAM].getValue();
+
 		auto glideParam = 0.05f;
 
 		channels = std::max(channels, 1);
@@ -271,14 +277,25 @@ inline void KSDelayComp<TBase>::step()
 
 			// update buffer
 			auto wet = buffers[i].readBuffer (index);
-			// Add -noise
-			//in += 1e-3f * (2.0f * drand48() - 1.0f);
-			auto dry = 0.5f * in + lastWets[i] * feedback + 0.5f * wet;
+			
+			auto stretch = stretchParam;
+			if (TBase::inputs[STRETCH_INPUT].isConnected())
+			{
+				stretch += TBase::inputs[STRETCH_INPUT].getPolyVoltage(i) / 10.0;
+			}
+			stretch =  stretch * 0.0003f * glideFreq * glideFreq;  //is locked need adjusting for freq
+			
+			
+			auto nonStretchProbabilty = 1.0f / stretch;
+			auto useStretch =  (1.0f - nonStretchProbabilty) > drand48();
+
+			auto dry = useStretch 
+				? in +  wet
+				: in + lastWets[i] * feedback + 0.5f * wet;
 			dry =  5.0f * limiters[i].process (dry / 5.0f); 
 			buffers[i].writeBuffer (dry);
 			//wet =  5.0f * limiters[i].process (wet / 5.0f); 
 			lastWets[i] = wet;
-
 
 
 			// calc phases 
@@ -329,7 +346,7 @@ IComposite::Config KSDelayDescription<TBase>::getParam(int i)
     IComposite::Config ret = {0.0f, 1.0f, 0.0f, "Code type", "unit", 0.0f, 1.0f, 0.0f};
     switch (i) {
         case KSDelayComp<TBase>::OCTAVE_PARAM:      
-            ret = {-4.0f, 0.0f, 0.0f, "Octave", " octave", 0.0f, 1.0f, 0.0f};
+            ret = {-4.0f, 4.0f, 0.0f, "Octave", " octave", 0.0f, 1.0f, 0.0f};
             break;
         case KSDelayComp<TBase>::TUNE_PARAM:      
             ret = {-7.0f, 7.0f, 0.0f, "Tune", " semitones", 0.0f, 1.0f, 0.0f};
@@ -345,6 +362,12 @@ IComposite::Config KSDelayDescription<TBase>::getParam(int i)
 			break;
 		case KSDelayComp<TBase>::UNISON_MIX_PARAM:
 			ret = {0.0f, 1.0f, 1.0f, "Unison Mix", "  ", 0, 1, 0.0f};
+			break;
+		case KSDelayComp<TBase>::STRETCH_PARAM:
+			ret = {0.0f, 1.0f, 0.0f, "Stretch", " ", 0, 1, 0.0f};
+			break;
+		case KSDelayComp<TBase>::STRETCH_LOCK_PARAM:
+			ret = {0.0f, 1.0f, 1.0f, "Stretch Lock", " ", 0, 1, 0.0f};
 			break;
         default:
             assert(false);
