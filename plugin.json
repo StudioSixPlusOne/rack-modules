@@ -51,6 +51,15 @@
         "Polyphonic",
         "Filter"
       ]
+    },
+    {
+      "slug": "Mix",
+      "name": "Mix",
+      "description": "Mixer",
+      "tags": [
+        "Polyphonic",
+        "Mixer"
+      ]
     }
   ]
 }
