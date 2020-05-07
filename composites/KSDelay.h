@@ -370,6 +370,7 @@ inline void KSDelayComp<TBase>::step()
 			if (TBase::inputs[FILTER_INPUT].isConnected())
 				color += std::pow (2, TBase::inputs[FILTER_INPUT].getPolyVoltage (i)) * dsp::FREQ_C4;	
 			color = clamp (color, 40.0f, maxCutoff);
+
 			lowpassFilters[i].setParameters (rack::dsp::BiquadFilter::LOWPASS, color / sampleRate, 0.707f, 1.0f);
 			in = lowpassFilters[i].process (in);
 
