@@ -70,7 +70,27 @@ namespace sspo
             return frac * (v1 - v0) + v0;
         }
 
+        template<typename T>
+        class ZeroCrossing
+        {
+            public:
+                ZeroCrossing()
+                {
 
+                }
+
+                bool process(const T x)
+                {
+                    auto positive = x > 0;
+                    auto ret = (positive != lastPositive);
+                    lastPositive = positive;
+                    return ret;
+                }
+
+            private:
+
+                bool lastPositive = false;
+        };
 
     } // namespace AudioMath
 } // namespace sspo
