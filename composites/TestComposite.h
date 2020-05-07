@@ -27,6 +27,11 @@ SOFTWARE.
 #include <vector>
 #include <cstdint>
 
+#include "common.hpp"
+#include "random.hpp"
+#include "filter.hpp"
+#include "digital.hpp"
+
 struct Light
 {
     /** The square of the brightness value */
@@ -251,11 +256,6 @@ inline T clamp(T x, T a, T b) {
 
 inline float crossfade(float a, float b, float p) {
 	return a + (b - a) * p;
-}
-
-namespace dsp
-{
-	static const float FREQ_C4 = 261.6256f;
 }
 
 

@@ -29,6 +29,8 @@ SOFTWARE.
 #include <random>
 
 #include "filter.hpp"
+#include "digital.hpp"
+#include "random.hpp"
 
 
 extern double overheadInOut;
@@ -45,12 +47,15 @@ extern double overheadOutOnly;
 
 #include "KSDelay.h"
 
+#include "common.hpp"
+#include "filter.hpp"
+#include "digital.hpp"
+
 #ifdef _USE_WINDOWS_PERFTIME
 double SqTime::frequency = 0;
 #endif
 
-// There are many tests that are disabled with #if 0.
-// In most cases they still work, but don't need to be run regularly
+using namespace rack;
 
 
 static void test1()
