@@ -38,13 +38,14 @@ struct CombFilter : Module
 	};
 
 	static constexpr int maxChannels = 16;
+	static constexpr float dcOutCutoff = 40.0f;
 	float maxFreq = 20000;
 	float sampleRate = 1;
 	float samplePeriod = 1;
 
 	std::vector<CircularBuffer<float>> buffers;
-	std::vector<sspo::Limiter> limiters;
-	std::vector<float> lastOuts;
+	sspo::Saturator saturate;
+	std::vector<dsp::RCFilter> dcOutFilters;
 
 	CombFilter()
 	 {
@@ -66,18 +67,12 @@ struct CombFilter : Module
 		for (auto& b : buffers)
 			b.reset(4096);
 
-		limiters.resize (maxChannels);
-		for (auto&l : limiters)
-		{
-			l.setTimes (0.0001f, 0.025f);
-			l.setSampleRate (sampleRate);
-			l.threshold = -1.0f;
-			l.ratio = 20.0f;
-		}
+		saturate.max = 0.86f;
+		saturate.kneeWidth = 0.005f;
 
-		lastOuts.resize (maxChannels);
-		for (auto& l : lastOuts)
-			l = 0.0f;
+		dcOutFilters.resize (maxChannels);
+		for (auto &d : dcOutFilters)
+			d.setCutoffFreq (dcOutCutoff / sampleRate);
 	}
 
 	void onSampleRateChange() override
@@ -85,8 +80,10 @@ struct CombFilter : Module
 		sampleRate = SqHelper::engineGetSampleRate();
 		samplePeriod = 1.0f / sampleRate;
 
-		for (auto&l : limiters)
-			l.setSampleRate (sampleRate);
+		maxFreq = std::min (20000.0f, sampleRate / 2.0f);
+
+		for (auto &d : dcOutFilters)
+			d.setCutoffFreq (dcOutCutoff / sampleRate);
 	}
 
 	void process(const ProcessArgs& args) override 
@@ -102,14 +99,12 @@ struct CombFilter : Module
 		for (auto c = 0; c < channels; ++c)
 		{
 			auto in = inputs[MAIN_INPUT].getPolyVoltage (c) / 5.0f;
-			in += 1e-6f * (2.0f * drand48() - 1.0f);
+			//in += 1e-6f * (2.0f * drand48() - 1.0f);
 			
 
 			auto frequency = freqParam;
-			if (inputs[VOCT_INPUT].isConnected())
-				frequency += inputs[VOCT_INPUT].getPolyVoltage (c);
-			if (inputs[FREQ_CV_INPUT].isConnected())
-				frequency += (inputs[FREQ_CV_INPUT].getPolyVoltage (c) * freqAttenuverterParam); 
+			frequency += inputs[VOCT_INPUT].getPolyVoltage (c);
+			frequency += (inputs[FREQ_CV_INPUT].getPolyVoltage (c) * freqAttenuverterParam); 
 			frequency = dsp::FREQ_C4 * lookup.pow2 (frequency);
 			frequency = clamp(frequency, 0.1f, maxFreq);
 
@@ -126,8 +121,10 @@ struct CombFilter : Module
 			buffers[c].writeBuffer (in);
 
 			auto out = in + buffers[c].readBuffer (index) * comb;
-			out = limiters[c].process (out);
-			lastOuts[c] = out;
+
+			dcOutFilters[c].process (out);
+			out = dcOutFilters[c].highpass();
+			out = saturate.process (out);
 
 			outputs[MAIN_OUTPUT].setVoltage (out * 5.0f, c);
 		}
