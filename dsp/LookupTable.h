@@ -54,6 +54,7 @@ namespace sspo
 
 
                 auto index = static_cast<int>((x / source.interval) - source.minX / source.interval);
+                index = clamp (index, 0, source.table.size() - 2);
                 T fraction = ((x / source.interval) - source.minX / source.interval) - index;
                 T ret = linearInterpolate(static_cast<T>(source.table[index]), static_cast<T> (source.table[index + 1]), fraction);
                 return ret;
