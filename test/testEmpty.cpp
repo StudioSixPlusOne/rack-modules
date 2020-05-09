@@ -21,24 +21,22 @@
 
 // An empty test, can be used as a template
 
-
 #include <assert.h>
 #include <stdio.h>
 
-        static void testTrue()
-        {
-            assert (true && "Test true");
-        }
+static void testTrue()
+{
+    assert (true && "Test true");
+}
 
-        static void testFalse()
-        {
-            assert (!false && "Test false");
-        }
+static void testFalse()
+{
+    assert (! false && "Test false");
+}
 
-        void testEmpty()
-        {
-            printf ("testEmpty\n");
-            testTrue();
-            testFalse();
-        }
-
+void testEmpty()
+{
+    printf ("testEmpty\n");
+    testTrue();
+    testFalse();
+}

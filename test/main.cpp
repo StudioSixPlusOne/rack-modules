@@ -21,10 +21,9 @@
 
 //UNIT TEST entry
 
-#include <stdio.h>
 #include <assert.h>
+#include <stdio.h>
 #include <string>
-
 
 // external tests
 extern void testEmpty();
@@ -32,26 +31,24 @@ extern void testAudioMath();
 extern void testCircularBuffer();
 extern void testLookupTable();
 
-
 //external performance tests
 extern void initPerf();
 extern void perfTest();
 
-
-int main(int argc, char ** argv)
+int main (int argc, char** argv)
 {
     bool runPerf = false;
 
-    if (argc > 1) 
+    if (argc > 1)
     {
         std::string arg = argv[1];
         if (arg == "--perf")
         {
             runPerf = true;
-
-        } else 
+        }
+        else
         {
-            printf("%s is not a valid command line argument\n", arg.c_str());
+            printf ("%s is not a valid command line argument\n", arg.c_str());
         }
     }
 #ifdef _PERF
@@ -62,14 +59,14 @@ int main(int argc, char ** argv)
 #endif
 
     //dont run 32bit
-    assert(sizeof(size_t) == 8);
+    assert (sizeof (size_t) == 8);
 
-    if (runPerf) {
+    if (runPerf)
+    {
         initPerf();
         perfTest();
         return 0;
     }
- 
 
     // run external tests defined above
 
@@ -77,13 +74,11 @@ int main(int argc, char ** argv)
     testAudioMath();
     testCircularBuffer();
     testLookupTable();
- 
-    printf("Tests passed.\n");
 
+    printf ("Tests passed.\n");
 }
 
 // TODO is this needed
 void sequencerHelp()
 {
-
 }

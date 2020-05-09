@@ -21,18 +21,20 @@
 
 #pragma once
 
-#include "IComposite.h"
 #include "CircularBuffer.h"
 #include "HardLimiter.h"
+#include "IComposite.h"
 
 #include <cstdlib>
 #include <vector>
 
-namespace rack {
-    namespace engine {
+namespace rack
+{
+    namespace engine
+    {
         struct Module;
     }
-}
+} // namespace rack
 using Module = ::rack::engine::Module;
 using namespace rack;
 
@@ -40,7 +42,7 @@ template <class TBase>
 class KSDelayDescription : public IComposite
 {
 public:
-    Config getParam(int i) override;
+    Config getParam (int i) override;
     int getNumParams() override;
 };
 
@@ -54,7 +56,7 @@ template <class TBase>
 class KSDelayComp : public TBase
 {
 public:
-    KSDelayComp(Module * module) : TBase(module)
+    KSDelayComp (Module* module) : TBase (module)
     {
     }
 
@@ -66,7 +68,6 @@ public:
     {
     }
 
-
     /** Implement IComposite
      */
     static std::shared_ptr<IComposite> getDescription()
@@ -74,127 +75,124 @@ public:
         return std::make_shared<KSDelayDescription<TBase>>();
     }
 
-    void setSampleRate(float rate)
+    void setSampleRate (float rate)
     {
         reciprocalSampleRate = 1 / rate;
         sampleRate = rate;
 
-        for (auto &dc : dcInFilters)
-			dc.setParameters (rack::dsp::BiquadFilter::HIGHPASS, dcInFilterCutoff / rate, 0.141f, 1.0f);
+        for (auto& dc : dcInFilters)
+            dc.setParameters (rack::dsp::BiquadFilter::HIGHPASS, dcInFilterCutoff / rate, 0.141f, 1.0f);
 
-		for (auto&l : limiters)
-			l.setSampleRate (rate);
+        for (auto& l : limiters)
+            l.setSampleRate (rate);
     }
 
     // must be called after setSampleRate
     void init()
     {
-		buffers.resize (maxChannels);
-		for (auto& b : buffers)
-			b.reset (4096);
+        buffers.resize (maxChannels);
+        for (auto& b : buffers)
+            b.reset (4096);
 
-		dcInFilters.resize (maxChannels);
-		for (auto &dc : dcInFilters)
-			dc.setParameters( rack::dsp::BiquadFilter::HIGHPASS, dcInFilterCutoff / sampleRate, 0.141f, 1.0f);
+        dcInFilters.resize (maxChannels);
+        for (auto& dc : dcInFilters)
+            dc.setParameters (rack::dsp::BiquadFilter::HIGHPASS, dcInFilterCutoff / sampleRate, 0.141f, 1.0f);
 
-		dcOutFilters.resize (maxChannels);
-		for (auto &dc : dcOutFilters)
-			dc.setParameters( rack::dsp::BiquadFilter::HIGHPASS, dcOutFilterCutoff / sampleRate, 0.141f, 1.0f);
+        dcOutFilters.resize (maxChannels);
+        for (auto& dc : dcOutFilters)
+            dc.setParameters (rack::dsp::BiquadFilter::HIGHPASS, dcOutFilterCutoff / sampleRate, 0.141f, 1.0f);
 
-		lastWets.resize (maxChannels);
-		for (auto& lw : lastWets)
-			lw = 0;
+        lastWets.resize (maxChannels);
+        for (auto& lw : lastWets)
+            lw = 0;
 
-		delayTimes.resize (maxChannels);
-		for (auto& d :delayTimes)
-			d = 0;
+        delayTimes.resize (maxChannels);
+        for (auto& d : delayTimes)
+            d = 0;
 
-		limiters.resize (maxChannels);
-		for (auto&l : limiters)
-		{
-			l.setTimes (0.00f, 0.0025f);
-			l.setSampleRate (sampleRate);
-			l.threshold = -0.50f;
-		}
+        limiters.resize (maxChannels);
+        for (auto& l : limiters)
+        {
+            l.setTimes (0.00f, 0.0025f);
+            l.setSampleRate (sampleRate);
+            l.threshold = -0.50f;
+        }
 
-		oscphases.resize (maxChannels);
-		for (auto& perChannel : oscphases)
-		{
-			perChannel.resize (maxOscCount);
-			for (auto& phase : perChannel)
-			{
-				phase = static_cast<float> (std::rand()) / RAND_MAX;
-			}	
-		}
+        oscphases.resize (maxChannels);
+        for (auto& perChannel : oscphases)
+        {
+            perChannel.resize (maxOscCount);
+            for (auto& phase : perChannel)
+            {
+                phase = static_cast<float> (std::rand()) / RAND_MAX;
+            }
+        }
 
-		glide.resize (maxChannels);
-		for (auto& g : glide)
-			g.setRiseFall (0.01f, 0.01f);
+        glide.resize (maxChannels);
+        for (auto& g : glide)
+            g.setRiseFall (0.01f, 0.01f);
 
-		lastOut.resize (maxChannels);
-		for (auto& lo : lastOut)
-			lo = 0.000f;
+        lastOut.resize (maxChannels);
+        for (auto& lo : lastOut)
+            lo = 0.000f;
 
-		pitches.resize (maxChannels);
-		for (auto& p : pitches)
-			p = dsp::FREQ_C4;
+        pitches.resize (maxChannels);
+        for (auto& p : pitches)
+            p = dsp::FREQ_C4;
 
-		unisonTunings = { 0.0f, -0.01952356f, 0.01991221f, -0.06288439f, 0.06216538f, -0.11002313f, 0.10745242f};
+        unisonTunings = { 0.0f, -0.01952356f, 0.01991221f, -0.06288439f, 0.06216538f, -0.11002313f, 0.10745242f };
     }
 
-	//supersaw curves from "How to emulate the supersaw, Adam Szabo"
-	// 0.0f <= x <= 1
+    //supersaw curves from "How to emulate the supersaw, Adam Szabo"
+    // 0.0f <= x <= 1
 
-	float unisonCentreLevel(const float x)
-	{
-		return -0.55366 * x + 0.99785;
-	}
+    float unisonCentreLevel (const float x)
+    {
+        return -0.55366 * x + 0.99785;
+    }
 
-	float unisonSideLevel(const float x)
-	{
-		return -0.73764 * x * x + 1.2841 * x +0.044372;
-	}
+    float unisonSideLevel (const float x)
+    {
+        return -0.73764 * x * x + 1.2841 * x + 0.044372;
+    }
 
-	float unisonSpreadScalar (const float x)
-	{
-		return (10028.7312891634*std::pow(x,11))-(50818.8652045924*std::pow(x,10))+(111363.4808729368*std::pow(x,9))-
-			(138150.6761080548*std::pow(x,8))+(106649.6679158292*std::pow(x,7))-(53046.9642751875*std::pow(x,6))+(17019.9518580080*std::pow(x,5))-
-			(3425.0836591318*std::pow(x,4))+(404.2703938388*std::pow(x,3))-(24.1878824391*std::pow(x,2))+(0.6717417634*x)+0.0030115596;
-	}
-	
+    float unisonSpreadScalar (const float x)
+    {
+        return (10028.7312891634 * std::pow (x, 11)) - (50818.8652045924 * std::pow (x, 10)) + (111363.4808729368 * std::pow (x, 9)) - (138150.6761080548 * std::pow (x, 8)) + (106649.6679158292 * std::pow (x, 7)) - (53046.9642751875 * std::pow (x, 6)) + (17019.9518580080 * std::pow (x, 5)) - (3425.0836591318 * std::pow (x, 4)) + (404.2703938388 * std::pow (x, 3)) - (24.1878824391 * std::pow (x, 2)) + (0.6717417634 * x) + 0.0030115596;
+    }
 
     // Define all the enums here. This will let the tests and the widget access them.
-	
-    enum ParamIds 
-	{
-		OCTAVE_PARAM,
-		TUNE_PARAM,
-		FEEDBACK_PARAM,
-		UNISON_PARAM,
-		UNISON_SPREAD_PARAM,
-		UNISON_MIX_PARAM,
-		STRETCH_PARAM,
-		STRETCH_LOCK_PARAM,
-		NUM_PARAMS
-	};
 
-	enum InputIds 
-	{
-		VOCT,
-		FEEDBACK_INPUT,
-		IN_INPUT,
-		UNISON_INPUT,
-		UNISON_SPREAD_INPUT,
-		UNISON_MIX_INPUT,
-		STRETCH_INPUT,
-		NUM_INPUTS
-	};
+    enum ParamIds
+    {
+        OCTAVE_PARAM,
+        TUNE_PARAM,
+        FEEDBACK_PARAM,
+        UNISON_PARAM,
+        UNISON_SPREAD_PARAM,
+        UNISON_MIX_PARAM,
+        STRETCH_PARAM,
+        STRETCH_LOCK_PARAM,
+        NUM_PARAMS
+    };
 
-	enum OutputIds 
-	{
-		OUT_OUTPUT,
-		NUM_OUTPUTS
-	};
+    enum InputIds
+    {
+        VOCT,
+        FEEDBACK_INPUT,
+        IN_INPUT,
+        UNISON_INPUT,
+        UNISON_SPREAD_INPUT,
+        UNISON_MIX_INPUT,
+        STRETCH_INPUT,
+        NUM_INPUTS
+    };
+
+    enum OutputIds
+    {
+        OUT_OUTPUT,
+        NUM_OUTPUTS
+    };
 
     enum LightIds
     {
@@ -206,33 +204,31 @@ public:
      */
     void step() override;
 
-    typedef float T;        // use floats for all signals
+    typedef float T; // use floats for all signals
 
-	constexpr static int maxChannels = 16;
-	constexpr static float maxCutoff = 20000.0f;
-	constexpr static float dcInFilterCutoff = 5.5f;
-	constexpr static float dcOutFilterCutoff = 10.0f;
-	constexpr static int maxOscCount = 7;
+    constexpr static int maxChannels = 16;
+    constexpr static float maxCutoff = 20000.0f;
+    constexpr static float dcInFilterCutoff = 5.5f;
+    constexpr static float dcOutFilterCutoff = 10.0f;
+    constexpr static int maxOscCount = 7;
 
-	//Oscillator detunings for unisson from "How to emulate the super saw, Adam Szabo"
-	//
-	std::vector<float> unisonTunings;  
-	std::vector<float> unisonLevels;
-	std::vector<CircularBuffer<float> > buffers;
-	std::vector<rack::dsp::BiquadFilter> dcInFilters;
-	std::vector<rack::dsp::BiquadFilter> dcOutFilters;
-	std::vector<sspo::Limiter> limiters;
-	std::vector<float> lastWets;
-	std::vector<float> delayTimes; 
-	std::vector<std::vector<float> >  oscphases;
-	std::vector<dsp::SlewLimiter> glide;
-	std::vector<int> framesToSample;
-	std::vector<float> lastOut;
-	std::vector<float> pitches;
+    //Oscillator detunings for unisson from "How to emulate the super saw, Adam Szabo"
+    //
+    std::vector<float> unisonTunings;
+    std::vector<float> unisonLevels;
+    std::vector<CircularBuffer<float>> buffers;
+    std::vector<rack::dsp::BiquadFilter> dcInFilters;
+    std::vector<rack::dsp::BiquadFilter> dcOutFilters;
+    std::vector<sspo::Limiter> limiters;
+    std::vector<float> lastWets;
+    std::vector<float> delayTimes;
+    std::vector<std::vector<float>> oscphases;
+    std::vector<dsp::SlewLimiter> glide;
+    std::vector<int> framesToSample;
+    std::vector<float> lastOut;
+    std::vector<float> pitches;
 
 private:
-
-
     float reciprocalSampleRate = 1.0f;
     float sampleRate = 1.0f;
 };
@@ -240,98 +236,93 @@ private:
 template <class TBase>
 inline void KSDelayComp<TBase>::step()
 {
-
     auto channels = TBase::inputs[IN_INPUT].getChannels();
-		auto octaveParam = TBase::params[OCTAVE_PARAM].getValue();
-		auto tuneParam = TBase::params[TUNE_PARAM].getValue();
-		auto feedbackParam = TBase::params[FEEDBACK_PARAM].getValue();
-		auto unisonCount = TBase::params[UNISON_PARAM].getValue();
-		auto unisonSpread = TBase::params[UNISON_SPREAD_PARAM].getValue();
-		auto unisonMix = TBase::params[UNISON_MIX_PARAM].getValue();
-		auto stretchParam = TBase::params[STRETCH_PARAM].getValue();
-		auto stretchLockParam = TBase::params[STRETCH_LOCK_PARAM].getValue();
+    auto octaveParam = TBase::params[OCTAVE_PARAM].getValue();
+    auto tuneParam = TBase::params[TUNE_PARAM].getValue();
+    auto feedbackParam = TBase::params[FEEDBACK_PARAM].getValue();
+    auto unisonCount = TBase::params[UNISON_PARAM].getValue();
+    auto unisonSpread = TBase::params[UNISON_SPREAD_PARAM].getValue();
+    auto unisonMix = TBase::params[UNISON_MIX_PARAM].getValue();
+    auto stretchParam = TBase::params[STRETCH_PARAM].getValue();
+    auto stretchLockParam = TBase::params[STRETCH_LOCK_PARAM].getValue();
 
-		auto glideParam = 0.05f;
+    auto glideParam = 0.05f;
 
-		channels = std::max(channels, 1);
+    channels = std::max (channels, 1);
 
-		for (auto i = 0; i < channels; ++i)
-		{	
-			auto unisonSpreadCoefficient = unisonSpreadScalar (unisonSpread + std::abs(TBase::inputs[UNISON_SPREAD_INPUT].getPolyVoltage (i) / 10.f));
-			auto unisonSideLevelCoefficient = unisonSideLevel (unisonMix + std::abs(TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.f));
-			auto unisonCentreLevelCoefficient = unisonCentreLevel (unisonMix + std::abs(TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.f));
+    for (auto i = 0; i < channels; ++i)
+    {
+        auto unisonSpreadCoefficient = unisonSpreadScalar (unisonSpread + std::abs (TBase::inputs[UNISON_SPREAD_INPUT].getPolyVoltage (i) / 10.f));
+        auto unisonSideLevelCoefficient = unisonSideLevel (unisonMix + std::abs (TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.f));
+        auto unisonCentreLevelCoefficient = unisonCentreLevel (unisonMix + std::abs (TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.f));
 
-			auto in = TBase::inputs[IN_INPUT].getVoltage (i);
+        auto in = TBase::inputs[IN_INPUT].getVoltage (i);
 
-			in = dcInFilters[i].process (in);
-			auto feedback = feedbackParam + TBase::inputs[FEEDBACK_INPUT].getPolyVoltage (i) / 10.0f;
-			feedback = clamp (feedback, 0.0f, 0.5f);
-			
+        in = dcInFilters[i].process (in);
+        auto feedback = feedbackParam + TBase::inputs[FEEDBACK_INPUT].getPolyVoltage (i) / 10.0f;
+        feedback = clamp (feedback, 0.0f, 0.5f);
 
-			auto glideTime = glideParam;
+        auto glideTime = glideParam;
 
-			glide[i].setRiseFall (glideTime, glideTime);
-			auto glideFreq =  glide[i].process (10.0f, dsp::FREQ_C4 * std::pow(2.0f, TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
-			glideFreq = clamp (glideFreq, 20.0f, 20000.0f);
-			delayTimes[i] =  1.0f / glideFreq;
+        glide[i].setRiseFall (glideTime, glideTime);
+        auto glideFreq = glide[i].process (10.0f, dsp::FREQ_C4 * std::pow (2.0f, TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
+        glideFreq = clamp (glideFreq, 20.0f, 20000.0f);
+        delayTimes[i] = 1.0f / glideFreq;
 
-			auto index = delayTimes[i] * sampleRate - 1.5f;
+        auto index = delayTimes[i] * sampleRate - 1.5f;
 
-			// update buffer
-			auto wet = buffers[i].readBuffer (index);
-			
-			auto stretch = stretchParam;
-			if (TBase::inputs[STRETCH_INPUT].isConnected())
-			{
-				stretch += TBase::inputs[STRETCH_INPUT].getPolyVoltage(i) / 10.0;
-			}
-			stretch =  stretch * 0.0003f * glideFreq * glideFreq;  //is locked need adjusting for freq
-			
-			
-			auto nonStretchProbabilty = 1.0f / stretch;
-			auto useStretch =  (1.0f - nonStretchProbabilty) > drand48();
+        // update buffer
+        auto wet = buffers[i].readBuffer (index);
 
-			auto dry = useStretch 
-				? in +  wet
-				: in + lastWets[i] * feedback + 0.5f * wet;
-			dry =  5.0f * limiters[i].process (dry / 5.0f); 
-			buffers[i].writeBuffer (dry);
-			//wet =  5.0f * limiters[i].process (wet / 5.0f); 
-			lastWets[i] = wet;
+        auto stretch = stretchParam;
+        if (TBase::inputs[STRETCH_INPUT].isConnected())
+        {
+            stretch += TBase::inputs[STRETCH_INPUT].getPolyVoltage (i) / 10.0;
+        }
+        stretch = stretch * 0.0003f * glideFreq * glideFreq; //is locked need adjusting for freq
 
+        auto nonStretchProbabilty = 1.0f / stretch;
+        auto useStretch = (1.0f - nonStretchProbabilty) > drand48();
 
-			// calc phases 
-			auto mixedOsc = 0.0f;
-			auto unison = std::abs( std::min (static_cast<int>(unisonCount + TBase::inputs[UNISON_INPUT].getPolyVoltage(i)),7));
-			if (unisonCount == 1)
-				unisonCentreLevelCoefficient = 1.0f;
-			for (int osc = 0; osc < unison; ++osc)
-			{	
-				oscphases[i][osc] += (unisonTunings[osc] * unisonSpreadCoefficient) / index; 
-				if (oscphases[i][osc] >= 1.0f)
-					oscphases[i][osc] -= 1.0f;
-				if (oscphases[i][osc] < 0.0f)
-					oscphases[i][osc] += 1.0f;
+        auto dry = useStretch
+                       ? in + wet
+                       : in + lastWets[i] * feedback + 0.5f * wet;
+        dry = 5.0f * limiters[i].process (dry / 5.0f);
+        buffers[i].writeBuffer (dry);
+        //wet =  5.0f * limiters[i].process (wet / 5.0f);
+        lastWets[i] = wet;
 
-				auto phaseoffset = index - oscphases[i][osc] * index;
-				if (osc == 0)
-					mixedOsc += buffers[i].readBuffer (phaseoffset) * unisonCentreLevelCoefficient;			
-				else
-					mixedOsc += buffers[i].readBuffer (phaseoffset) * unisonSideLevelCoefficient;	
-				
-			}
-			wet = mixedOsc;
+        // calc phases
+        auto mixedOsc = 0.0f;
+        auto unison = std::abs (std::min (static_cast<int> (unisonCount + TBase::inputs[UNISON_INPUT].getPolyVoltage (i)), 7));
+        if (unisonCount == 1)
+            unisonCentreLevelCoefficient = 1.0f;
+        for (int osc = 0; osc < unison; ++osc)
+        {
+            oscphases[i][osc] += (unisonTunings[osc] * unisonSpreadCoefficient) / index;
+            if (oscphases[i][osc] >= 1.0f)
+                oscphases[i][osc] -= 1.0f;
+            if (oscphases[i][osc] < 0.0f)
+                oscphases[i][osc] += 1.0f;
 
-			auto mix = 1.0f;
-			mix = clamp (mix, 0.0f, 1.0f);
-			float out = crossfade (in, wet, mix);
+            auto phaseoffset = index - oscphases[i][osc] * index;
+            if (osc == 0)
+                mixedOsc += buffers[i].readBuffer (phaseoffset) * unisonCentreLevelCoefficient;
+            else
+                mixedOsc += buffers[i].readBuffer (phaseoffset) * unisonSideLevelCoefficient;
+        }
+        wet = mixedOsc;
 
-			out = dcOutFilters[i].process (out);
-			lastOut[i] = out;
-			
-		  TBase::outputs[OUT_OUTPUT].setVoltage (out, i);
-	  	}
-	TBase::outputs[OUT_OUTPUT].setChannels (channels);
+        auto mix = 1.0f;
+        mix = clamp (mix, 0.0f, 1.0f);
+        float out = crossfade (in, wet, mix);
+
+        out = dcOutFilters[i].process (out);
+        lastOut[i] = out;
+
+        TBase::outputs[OUT_OUTPUT].setVoltage (out, i);
+    }
+    TBase::outputs[OUT_OUTPUT].setChannels (channels);
 }
 
 template <class TBase>
@@ -340,41 +331,38 @@ int KSDelayDescription<TBase>::getNumParams()
     return KSDelayComp<TBase>::NUM_PARAMS;
 }
 
-
 template <class TBase>
-IComposite::Config KSDelayDescription<TBase>::getParam(int i)
+IComposite::Config KSDelayDescription<TBase>::getParam (int i)
 {
-   
-    IComposite::Config ret = {0.0f, 1.0f, 0.0f, "Code type", "unit", 0.0f, 1.0f, 0.0f};
-    switch (i) {
-        case KSDelayComp<TBase>::OCTAVE_PARAM:      
-            ret = {-4.0f, 4.0f, 0.0f, "Octave", " octave", 0.0f, 1.0f, 0.0f};
+    IComposite::Config ret = { 0.0f, 1.0f, 0.0f, "Code type", "unit", 0.0f, 1.0f, 0.0f };
+    switch (i)
+    {
+        case KSDelayComp<TBase>::OCTAVE_PARAM:
+            ret = { -4.0f, 4.0f, 0.0f, "Octave", " octave", 0.0f, 1.0f, 0.0f };
             break;
-        case KSDelayComp<TBase>::TUNE_PARAM:      
-            ret = {-7.0f, 7.0f, 0.0f, "Tune", " semitones", 0.0f, 1.0f, 0.0f};
+        case KSDelayComp<TBase>::TUNE_PARAM:
+            ret = { -7.0f, 7.0f, 0.0f, "Tune", " semitones", 0.0f, 1.0f, 0.0f };
             break;
-        case KSDelayComp<TBase>::FEEDBACK_PARAM:      
-            ret = {0.0f, 0.5f, 0.5f, "Feedback", "%", 0, 100, 0.0f};
+        case KSDelayComp<TBase>::FEEDBACK_PARAM:
+            ret = { 0.0f, 0.5f, 0.5f, "Feedback", "%", 0, 100, 0.0f };
             break;
-		case KSDelayComp<TBase>::UNISON_PARAM:
-			ret = {1.0f, 7.0f, 1.0f, "Unison count" ," ", 0, 1 , 0.0f};
-			break;
-		case KSDelayComp<TBase>::UNISON_SPREAD_PARAM:
-			ret ={0.0f, 1.0f, 0.5f, "Unison Spread", " ", 0, 1, 0.0f};
-			break;
-		case KSDelayComp<TBase>::UNISON_MIX_PARAM:
-			ret = {0.0f, 1.0f, 1.0f, "Unison Mix", "  ", 0, 1, 0.0f};
-			break;
-		case KSDelayComp<TBase>::STRETCH_PARAM:
-			ret = {0.0f, 1.0f, 0.0f, "Stretch", " ", 0, 1, 0.0f};
-			break;
-		case KSDelayComp<TBase>::STRETCH_LOCK_PARAM:
-			ret = {0.0f, 1.0f, 1.0f, "Stretch Lock", " ", 0, 1, 0.0f};
-			break;
+        case KSDelayComp<TBase>::UNISON_PARAM:
+            ret = { 1.0f, 7.0f, 1.0f, "Unison count", " ", 0, 1, 0.0f };
+            break;
+        case KSDelayComp<TBase>::UNISON_SPREAD_PARAM:
+            ret = { 0.0f, 1.0f, 0.5f, "Unison Spread", " ", 0, 1, 0.0f };
+            break;
+        case KSDelayComp<TBase>::UNISON_MIX_PARAM:
+            ret = { 0.0f, 1.0f, 1.0f, "Unison Mix", "  ", 0, 1, 0.0f };
+            break;
+        case KSDelayComp<TBase>::STRETCH_PARAM:
+            ret = { 0.0f, 1.0f, 0.0f, "Stretch", " ", 0, 1, 0.0f };
+            break;
+        case KSDelayComp<TBase>::STRETCH_LOCK_PARAM:
+            ret = { 0.0f, 1.0f, 1.0f, "Stretch Lock", " ", 0, 1, 0.0f };
+            break;
         default:
-            assert(false);
+            assert (false);
     }
     return ret;
-
 }
-

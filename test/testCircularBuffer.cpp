@@ -19,13 +19,10 @@
  *
  */
 
-
-
-
-#include <assert.h>
-#include <stdio.h>
 #include "CircularBuffer.h"
 #include "asserts.h"
+#include <assert.h>
+#include <stdio.h>
 
 using namespace sspo;
 
@@ -49,19 +46,18 @@ static void testSizePow2()
     CircularBuffer<int> d (500);
     assert (d.size() == 512);
 
-    CircularBuffer<long long>e (4000);
+    CircularBuffer<long long> e (4000);
     assert (e.size() == 4096);
 }
-
 
 static void testResetEmpty()
 {
     CircularBuffer<float> c;
     for (int i = 0; i < c.size(); ++i)
-        c.writeBuffer (std::rand() * 0.5  + 1); // all non zero
+        c.writeBuffer (std::rand() * 0.5 + 1); // all non zero
     for (int i = 0; i < c.size(); ++i)
         assert (c.readBuffer (i) != 0.0f);
-    c.reset(512);
+    c.reset (512);
     for (int i = 0; i < c.size(); ++i)
         assert (c.readBuffer (i) == 0.0f);
 }
@@ -88,7 +84,7 @@ static void testReadFloatSampleDelay()
     CircularBuffer<float> c;
     c.writeBuffer (0.5f);
     c.writeBuffer (1.0f);
-    assert (AudioMath::areSame (c.readBuffer(0.5f), 0.75f));      
+    assert (AudioMath::areSame (c.readBuffer (0.5f), 0.75f));
 }
 
 static void testReadBufferWrap()
