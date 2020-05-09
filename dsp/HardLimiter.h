@@ -91,4 +91,34 @@ namespace sspo
 
         static constexpr float TC{ -0.9996723408f }; // { std::log (0.368f); } //capacitor discharge to 36.8%
     };
+
+    struct Saturator
+    {
+        float max = 1.0f;
+        float kneeWidth = 0.05f;
+
+        float process(float in) const
+        {
+            auto ret = 0.0f;
+            if (std::abs(in) < (max - kneeWidth))
+            {
+                ret = in;
+            }
+            else 
+            {
+                if (std::abs(in) < max)
+                {
+                    ret = in - ((std::pow (in - max + (kneeWidth / 2.0f), 2.0f)) / (2.0f * kneeWidth));
+                    ret = clamp(ret, -max, max);
+                }
+                else 
+                    ret = in > 0.0f
+                        ? max
+                        : -max;
+            }
+
+            return ret; 
+        }
+
+    };
 }

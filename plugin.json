@@ -42,6 +42,15 @@
         "Dual",
         "Sample and Hold"
       ]
+    },
+    {
+      "slug": "CombFilter",
+      "name": "CombFilter",
+      "description": "Comb Filter",
+      "tags": [
+        "Polyphonic",
+        "Filter"
+      ]
     }
   ]
 }
