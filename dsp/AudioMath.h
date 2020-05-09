@@ -23,8 +23,8 @@
 
 #include <algorithm>
 #include <cmath>
-#include <vector>
 #include <float.h>
+#include <vector>
 
 //#include "LookupTable.h"
 //#include "lookupTables/SineTable.h"
@@ -34,7 +34,7 @@ namespace sspo
     namespace AudioMath
     {
         constexpr auto LD_PI = 3.14159265358979323846264338327950288419716939937510L;
-        constexpr auto k_pi = static_cast<float>(LD_PI);
+        constexpr auto k_pi = static_cast<float> (LD_PI);
         constexpr auto k_2pi = k_pi + k_pi;
         constexpr auto base_a4 = 440.0f;
         constexpr auto base_a4Midi = 69.0f;
@@ -42,54 +42,50 @@ namespace sspo
 
         //* accurate to 0.032f when -5.0 < x < 5.0
         template <typename T>
-        inline T fastTanh(T x)
+        inline T fastTanh (T x)
         {
             return x * (27 + x * x) / (27 + 9 * x * x);
         }
 
         template <typename T>
-        inline bool areSame(T a, T b, T delta = FLT_EPSILON) noexcept
+        inline bool areSame (T a, T b, T delta = FLT_EPSILON) noexcept
         {
-            return std::abs(a - b) <= delta;
+            return std::abs (a - b) <= delta;
         }
 
         template <typename T>
-        inline bool areSame(const std::vector<T> &a, const std::vector<T> &b, const T delta = FLT_EPSILON)
+        inline bool areSame (const std::vector<T>& a, const std::vector<T>& b, const T delta = FLT_EPSILON)
         {
-            return a.size() == b.size() ? std::equal (a.begin(), a.end(), b.begin(), [=](const T &l, const T &r) 
-            -> bool 
-            {
-                return areSame(l, r, delta);
+            return a.size() == b.size() ? std::equal (a.begin(), a.end(), b.begin(), [=] (const T& l, const T& r) -> bool {
+                return areSame (l, r, delta);
             })
-             : false;
+                                        : false;
         }
 
-        template<typename T>
+        template <typename T>
         inline T linearInterpolate (const T v0, const T v1, const T frac) noexcept
         {
             return frac * (v1 - v0) + v0;
         }
 
-        template<typename T>
+        template <typename T>
         class ZeroCrossing
         {
-            public:
-                ZeroCrossing()
-                {
+        public:
+            ZeroCrossing()
+            {
+            }
 
-                }
+            bool process (const T x)
+            {
+                auto positive = x > 0;
+                auto ret = (positive != lastPositive);
+                lastPositive = positive;
+                return ret;
+            }
 
-                bool process(const T x)
-                {
-                    auto positive = x > 0;
-                    auto ret = (positive != lastPositive);
-                    lastPositive = positive;
-                    return ret;
-                }
-
-            private:
-
-                bool lastPositive = false;
+        private:
+            bool lastPositive = false;
         };
 
     } // namespace AudioMath

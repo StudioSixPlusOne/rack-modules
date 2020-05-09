@@ -26,7 +26,6 @@
 
 #include <rack.hpp>
 
-
 namespace sspo
 {
     inline float fastTanh (float x)
@@ -42,11 +41,21 @@ namespace sspo
         constexpr static float cutoffDefault = 20000.0f;
         constexpr static float QDefault = 0.707f;
         constexpr static auto LD_PI = 3.14159265358979323846264338327950288419716939937510L;
-        constexpr static auto k_pi = static_cast<float>(LD_PI);
+        constexpr static auto k_pi = static_cast<float> (LD_PI);
         constexpr static auto k_2pi = k_pi + k_pi;
 
-
-        enum class Type  { LPF1, HPF1, LPF2, HPF2, BPF2, BSF2, LPF4, HPF4, BPF4 };
+        enum class Type
+        {
+            LPF1,
+            HPF1,
+            LPF2,
+            HPF2,
+            BPF2,
+            BSF2,
+            LPF4,
+            HPF4,
+            BPF4
+        };
 
         SynthFilter() = default;
 
@@ -56,7 +65,6 @@ namespace sspo
         }
 
     protected:
-
         float cutoff{ cutoffDefault };
         float Q{ QDefault };
         float sampleRate{ 1.0f };
@@ -69,7 +77,6 @@ namespace sspo
     class OnePoleFilter : public SynthFilter
     {
     public:
-
         OnePoleFilter()
         {
             type = Type::LPF1;
@@ -96,12 +103,12 @@ namespace sspo
             return beta * (z1 + feedback * feedbackIn);
         }
 
-        void setFeedForward(float x)
+        void setFeedForward (float x)
         {
             feedforward = x;
         }
-        
-        float process(const float in)
+
+        float process (const float in)
         {
             if (type != Type::LPF1 && type != Type::HPF1)
                 return in;
@@ -129,15 +136,15 @@ namespace sspo
             calcCoeffs();
         }
 
-        void setType(Type newType)
+        void setType (Type newType)
         {
             type = newType;
         }
 
         void reset()
         {
-                z1 = 0.0f;
-                feedback = 0.0f;
+            z1 = 0.0f;
+            feedback = 0.0f;
         }
 
     private:
@@ -164,7 +171,6 @@ namespace sspo
     class MoogLadderFilter : public SynthFilter
     {
     public:
-
         static std::vector<Type> types()
         {
             return { Type::LPF2, Type::LPF4, Type::HPF2, Type::HPF4, Type::BPF2, Type::BPF4 };
@@ -172,18 +178,19 @@ namespace sspo
 
         MoogLadderFilter()
         {
-            lpf1.setType(Type::LPF1);
-            lpf2.setType(Type::LPF1);
-            lpf3.setType(Type::LPF1);
-            lpf4.setType(Type::LPF1);
+            lpf1.setType (Type::LPF1);
+            lpf2.setType (Type::LPF1);
+            lpf3.setType (Type::LPF1);
+            lpf4.setType (Type::LPF1);
 
             type = Type::LPF4;
 
-            reset();   
+            reset();
         }
 
         ~MoogLadderFilter()
-        {}
+        {
+        }
 
         void setParameters (const float newCutoff, const float newQ, const float newSaturation, const float newAux, const float newSampleRate)
         {
@@ -201,17 +208,17 @@ namespace sspo
             lpf4.setParameters (cutoff, 0, 0, sampleRate);
 
             K = (4.0f) * (Q - 1.0f) / (10.0f - 1.0f);
-            calcCoeffs();  
+            calcCoeffs();
         }
 
-        float process(const float in)
+        float process (const float in)
         {
-            if (type == Type::BSF2 || type == Type::LPF1 || type == Type :: HPF1)
+            if (type == Type::BSF2 || type == Type::LPF1 || type == Type ::HPF1)
                 return in;
             auto sigma = lpf1.getFeedbackOut()
-                + lpf2.getFeedbackOut()
-                + lpf3.getFeedbackOut()
-                + lpf4.getFeedbackOut();
+                         + lpf2.getFeedbackOut()
+                         + lpf3.getFeedbackOut()
+                         + lpf4.getFeedbackOut();
             auto xn = in;
             xn *= 1.0f + aux * K;
             auto U = (xn - K * sigma) * alpha;
@@ -225,24 +232,24 @@ namespace sspo
             auto f4 = lpf4.process (f3);
 
             return typeCoeffs.A * U
-                + typeCoeffs.B * f1
-                + typeCoeffs.C * f2
-                + typeCoeffs.D * f3
-                + typeCoeffs.E * f4;    
+                   + typeCoeffs.B * f1
+                   + typeCoeffs.C * f2
+                   + typeCoeffs.D * f3
+                   + typeCoeffs.E * f4;
         }
 
-        void setType(Type newType)
+        void setType (Type newType)
         {
             type = newType;
             calcCoeffs();
         }
-  
-    private:
 
+    private:
         struct OberheimXpander
         {
             OberheimXpander()
-            {}
+            {
+            }
 
             OberheimXpander (const float a, const float b, const float c, const float d, const float e)
             {
@@ -265,7 +272,7 @@ namespace sspo
             lpf1.reset();
             lpf2.reset();
             lpf3.reset();
-            lpf4.reset();   
+            lpf4.reset();
         }
 
         void calcCoeffs()
@@ -292,27 +299,27 @@ namespace sspo
 
             switch (type)
             {
-            case Type::LPF4:
-                typeCoeffs = { 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
-                break;
-            case Type::LPF2:
-                typeCoeffs = { 0.0f, 0.0f, 1.0f, 0.0f, 0.0f };
-                break;
-            case Type::BPF4:
-                typeCoeffs = { 0.0f, 0.0f, 4.0f, -8.0f, 4.0f };
-                break;
-            case Type::BPF2:
-                typeCoeffs = { 0.0f, 2.0f, -2.0f, 0.0f, 0.0f };
-                break;
-            case Type::HPF4:
-                typeCoeffs = { 1.0f, -4.0f, 6.0f, -4.0f, 1.0f };
-                break;
-            case Type::HPF2:
-                typeCoeffs = { 1.0f, -2.0f, 1.0f, 0.0f, 0.0f };
-                break;
-            default: //lpf4
-                typeCoeffs = { 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
-                break;
+                case Type::LPF4:
+                    typeCoeffs = { 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
+                    break;
+                case Type::LPF2:
+                    typeCoeffs = { 0.0f, 0.0f, 1.0f, 0.0f, 0.0f };
+                    break;
+                case Type::BPF4:
+                    typeCoeffs = { 0.0f, 0.0f, 4.0f, -8.0f, 4.0f };
+                    break;
+                case Type::BPF2:
+                    typeCoeffs = { 0.0f, 2.0f, -2.0f, 0.0f, 0.0f };
+                    break;
+                case Type::HPF4:
+                    typeCoeffs = { 1.0f, -4.0f, 6.0f, -4.0f, 1.0f };
+                    break;
+                case Type::HPF2:
+                    typeCoeffs = { 1.0f, -2.0f, 1.0f, 0.0f, 0.0f };
+                    break;
+                default: //lpf4
+                    typeCoeffs = { 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
+                    break;
             }
         }
 
@@ -325,4 +332,4 @@ namespace sspo
         float gamma{ 0.0f };
         float alpha{ 1.0f };
     };
-}
+} // namespace sspo

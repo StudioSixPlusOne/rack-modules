@@ -21,19 +21,19 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 #include <utility>
-#include <algorithm>
 
 #include "LookupTable.h"
 
 namespace sspo
 {
     ///
-    /// !A fixed parameter limiter 
+    /// !A fixed parameter limiter
     /// Based on description given in Prikle, Designing Audio Effects 2nd
     ///
-    struct Limiter 
+    struct Limiter
     {
         Limiter() = default;
 
@@ -43,26 +43,26 @@ namespace sspo
             releaseCoeff = std::exp (TC / (sampleRate * releaseTimes));
         }
 
-        void setSampleRate(const float sr)
+        void setSampleRate (const float sr)
         {
             sampleRate = sr;
             calcCoeffs();
         }
 
-        void setTimes(const float attack, const float release)
+        void setTimes (const float attack, const float release)
         {
             attackTime = attack;
             releaseTimes = release;
             calcCoeffs();
         }
 
-        float process(const float in)
+        float process (const float in)
         {
             //envelope follower
             auto rectIn = std::abs (in);
-            currentEnv = rectIn > lastEnv 
-                ? attackCoeff * (lastEnv - rectIn) + rectIn
-                : releaseCoeff * (lastEnv - rectIn) + rectIn;
+            currentEnv = rectIn > lastEnv
+                             ? attackCoeff * (lastEnv - rectIn) + rectIn
+                             : releaseCoeff * (lastEnv - rectIn) + rectIn;
             currentEnv = std::max (currentEnv, 0.00000000001f);
             lastEnv = currentEnv;
 
@@ -71,18 +71,17 @@ namespace sspo
             //Hard knee compression
             auto yndB = dn <= threshold ? dn : threshold + ((dn - threshold) / ratio);
             auto gndB = yndB - dn;
-            auto G = lookup.pow10 ( gndB / 20.0f);
+            auto G = lookup.pow10 (gndB / 20.0f);
 
             return in * G;
         }
-        
+
         float attackTime{ 0.0001f };
         float releaseTimes{ 0.0025f };
         float ratio{ 10.5f };
         float threshold{ -0.0f }; //dB
 
-        private:
-
+    private:
         float attackCoeff{ 0.0f };
         float releaseCoeff{ 0.0f };
         float lastEnv{ 0.0f };
@@ -97,28 +96,27 @@ namespace sspo
         float max = 1.0f;
         float kneeWidth = 0.05f;
 
-        float process(float in) const
+        float process (float in) const
         {
             auto ret = 0.0f;
-            if (std::abs(in) < (max - kneeWidth))
+            if (std::abs (in) < (max - kneeWidth))
             {
                 ret = in;
             }
-            else 
+            else
             {
-                if (std::abs(in) < max)
+                if (std::abs (in) < max)
                 {
                     ret = in - ((std::pow (in - max + (kneeWidth / 2.0f), 2.0f)) / (2.0f * kneeWidth));
-                    ret = clamp(ret, -max, max);
+                    ret = clamp (ret, -max, max);
                 }
-                else 
+                else
                     ret = in > 0.0f
-                        ? max
-                        : -max;
+                              ? max
+                              : -max;
             }
 
-            return ret; 
+            return ret;
         }
-
     };
-}
+} // namespace sspo

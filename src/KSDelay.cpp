@@ -19,102 +19,98 @@
  *
  */
 
-#include "plugin.hpp"
 #include "KSDelay.h"
 #include "WidgetComposite.h"
 #include "ctrl/SqMenuItem.h"
+#include "plugin.hpp"
 
 using Comp = KSDelayComp<WidgetComposite>;
 
-
-struct KSDelay : Module 
+struct KSDelay : Module
 {
+    std::shared_ptr<Comp> ks;
 
-	std::shared_ptr<Comp> ks;
+    KSDelay()
+    {
+        config (Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
+        ks = std::make_shared<Comp> (this);
+        std::shared_ptr<IComposite> icomp = Comp::getDescription();
+        SqHelper::setupParams (icomp, this);
 
-	KSDelay() 
-	{
+        onSampleRateChange();
+        ks->init();
+    }
 
+    ~KSDelay()
+    {
+    }
 
-		config(Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
-    	ks = std::make_shared<Comp>(this);
-    	std::shared_ptr<IComposite> icomp = Comp::getDescription();
-    	SqHelper::setupParams(icomp, this);
+    void onSampleRateChange() override
+    {
+        float rate = SqHelper::engineGetSampleRate();
+        ks->setSampleRate (rate);
+    }
 
-		onSampleRateChange();
-		ks->init();	
-	}
-
-	 ~KSDelay() {
-	} 
-
-	void onSampleRateChange() override
-	{
-		float rate = SqHelper::engineGetSampleRate();
-		ks->setSampleRate (rate);
-	}
-
-	void process(const ProcessArgs& args) override 
-	{
-		ks->step();
-	}
+    void process (const ProcessArgs& args) override
+    {
+        ks->step();
+    }
 };
 
 /*****************************************************
 User Interface
 *****************************************************/
 
-struct RoundLargeBlackSnapKnob : RoundLargeBlackKnob 
+struct RoundLargeBlackSnapKnob : RoundLargeBlackKnob
 {
-	RoundLargeBlackSnapKnob() 
-	{
-		snap = true;
-	}
+    RoundLargeBlackSnapKnob()
+    {
+        snap = true;
+    }
 };
 
-struct RoundSmallBlackSnapKnob : RoundSmallBlackKnob 
+struct RoundSmallBlackSnapKnob : RoundSmallBlackKnob
 {
-	RoundSmallBlackSnapKnob() 
-	{
-		snap = true;
-	}
+    RoundSmallBlackSnapKnob()
+    {
+        snap = true;
+    }
 };
 
-struct KSDelayWidget : ModuleWidget 
+struct KSDelayWidget : ModuleWidget
 {
-	KSDelayWidget(KSDelay* module) 
-	{
-		setModule (module);
-		std::shared_ptr<IComposite> icomp = Comp::getDescription();
-		//setPanel (APP->window->loadSvg (asset::plugin (pluginInstance, "res/KSDelay.svg")));
-		box.size = Vec(8 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-    	SqHelper::setPanel(this, "res/KSDelay.svg");
+    KSDelayWidget (KSDelay* module)
+    {
+        setModule (module);
+        std::shared_ptr<IComposite> icomp = Comp::getDescription();
+        //setPanel (APP->window->loadSvg (asset::plugin (pluginInstance, "res/KSDelay.svg")));
+        box.size = Vec (8 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
+        SqHelper::setPanel (this, "res/KSDelay.svg");
 
-		addChild (createWidget<ScrewSilver> (Vec (15, 0)));
-		addChild (createWidget<ScrewSilver> (Vec (box.size.x - 30, 0)));
-		addChild (createWidget<ScrewSilver> (Vec (15, 365)));
-		addChild (createWidget<ScrewSilver> (Vec (box.size.x - 30, 365)));
+        addChild (createWidget<ScrewSilver> (Vec (15, 0)));
+        addChild (createWidget<ScrewSilver> (Vec (box.size.x - 30, 0)));
+        addChild (createWidget<ScrewSilver> (Vec (15, 365)));
+        addChild (createWidget<ScrewSilver> (Vec (box.size.x - 30, 365)));
 
-		addParam (SqHelper::createParam<RoundLargeBlackSnapKnob> (icomp, Vec (67, 57), module, Comp::OCTAVE_PARAM));
-		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (40, 80), module, Comp::TUNE_PARAM));
-		addParam (SqHelper::createParam<RoundLargeBlackKnob> (icomp, Vec (67, 123), module, Comp::FEEDBACK_PARAM));
-		addParam (SqHelper::createParam<RoundSmallBlackSnapKnob> (icomp, Vec (14, 193), module, Comp::UNISON_PARAM));
-		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (50, 193), module, Comp::UNISON_SPREAD_PARAM));
-		addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (87, 193), module, Comp::UNISON_MIX_PARAM));
-		addParam (SqHelper::createParam<RoundLargeBlackKnob> (icomp, Vec (67, 260), module, Comp::STRETCH_PARAM));
-		//addParam (SqHelper::createParam<CKSS> (icomp, Vec (37, 260), module, Comp::STRETCH_LOCK_PARAM));
-		
-		addInput (createInput<PJ301MPort> (Vec (14, 63), module, Comp::VOCT));
-		addInput (createInput<PJ301MPort> (Vec (14, 129), module, Comp::FEEDBACK_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (14, 320), module, Comp::IN_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (14, 223),module, Comp::UNISON_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (50, 223),module, Comp::UNISON_SPREAD_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (87, 223),module, Comp::UNISON_MIX_INPUT));
-		addInput (createInput<PJ301MPort> (Vec (14, 266),module, Comp::STRETCH_INPUT));
+        addParam (SqHelper::createParam<RoundLargeBlackSnapKnob> (icomp, Vec (67, 57), module, Comp::OCTAVE_PARAM));
+        addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (40, 80), module, Comp::TUNE_PARAM));
+        addParam (SqHelper::createParam<RoundLargeBlackKnob> (icomp, Vec (67, 123), module, Comp::FEEDBACK_PARAM));
+        addParam (SqHelper::createParam<RoundSmallBlackSnapKnob> (icomp, Vec (14, 193), module, Comp::UNISON_PARAM));
+        addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (50, 193), module, Comp::UNISON_SPREAD_PARAM));
+        addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (87, 193), module, Comp::UNISON_MIX_PARAM));
+        addParam (SqHelper::createParam<RoundLargeBlackKnob> (icomp, Vec (67, 260), module, Comp::STRETCH_PARAM));
+        //addParam (SqHelper::createParam<CKSS> (icomp, Vec (37, 260), module, Comp::STRETCH_LOCK_PARAM));
 
-		addOutput (createOutput<PJ301MPort> (Vec (73, 320), module, Comp::OUT_OUTPUT));
-	}
+        addInput (createInput<PJ301MPort> (Vec (14, 63), module, Comp::VOCT));
+        addInput (createInput<PJ301MPort> (Vec (14, 129), module, Comp::FEEDBACK_INPUT));
+        addInput (createInput<PJ301MPort> (Vec (14, 320), module, Comp::IN_INPUT));
+        addInput (createInput<PJ301MPort> (Vec (14, 223), module, Comp::UNISON_INPUT));
+        addInput (createInput<PJ301MPort> (Vec (50, 223), module, Comp::UNISON_SPREAD_INPUT));
+        addInput (createInput<PJ301MPort> (Vec (87, 223), module, Comp::UNISON_MIX_INPUT));
+        addInput (createInput<PJ301MPort> (Vec (14, 266), module, Comp::STRETCH_INPUT));
+
+        addOutput (createOutput<PJ301MPort> (Vec (73, 320), module, Comp::OUT_OUTPUT));
+    }
 };
-
 
 Model* modelKSDelay = createModel<KSDelay, KSDelayWidget> ("KSDelay");

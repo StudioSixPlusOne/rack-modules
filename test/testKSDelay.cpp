@@ -24,7 +24,6 @@
 
 #include <assert.h>
 #include <stdio.h>
-
 #include "filter.hpp"
 #include "digital.hpp"
 

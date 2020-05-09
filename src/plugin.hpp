@@ -1,9 +1,7 @@
 #pragma once
 #include <rack.hpp>
 
-
 using namespace ::rack;
-
 
 extern plugin::Plugin* pluginInstance;
 
