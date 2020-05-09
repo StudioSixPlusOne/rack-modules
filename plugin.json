@@ -34,6 +34,16 @@
       ]
     },
     {
+      "slug": "PolyShiftRegister",
+      "name": "PolyShiftRegister",
+      "description": "Polyphonic Shift Register",
+      "tags": [
+        "Polyphonic",
+        "Dual",
+        "Sample and Hold"
+      ]
+    },
+    {
       "slug": "CombFilter",
       "name": "CombFilter",
       "description": "Comb Filter",
