@@ -32,6 +32,16 @@
         "Polyphonic",
         "VCF"
       ]
+    },
+    {
+      "slug": "PolyShiftRegister",
+      "name": "PolyShiftRegister",
+      "description": "Polyphonic Shift Register",
+      "tags": [
+        "Polyphonic",
+        "Dual",
+        "Sample and Hold"
+      ]
     }
   ]
 }

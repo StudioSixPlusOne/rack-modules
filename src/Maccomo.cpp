@@ -98,7 +98,7 @@ struct Maccomo : Module
 
 	void process(const ProcessArgs& args) override {
 
-		auto channels = std::max (inputs[MAIN_INPUT].getChannels(), 1);
+		auto channels = std::max (inputs[MAIN_INPUT].getChannels(), inputs[VOCT_INPUT].getChannels());
 		auto freqParam = params[FREQUENCY_PARAM].getValue();
 		auto resParam = params[RESONANCE_PARAM].getValue();
 		auto driveParam = params[DRIVE_PARAM].getValue();

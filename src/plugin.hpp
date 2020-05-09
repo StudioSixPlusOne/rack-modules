@@ -9,4 +9,4 @@ extern plugin::Plugin* pluginInstance;
 
 extern Model* modelKSDelay;
 extern Model* modelMaccomo;
-
+extern Model* modelPolyShiftRegister;
