@@ -19,10 +19,10 @@
  *
  */
 
+#include "plugin.hpp"
 #include "KSDelay.h"
 #include "WidgetComposite.h"
 #include "ctrl/SqMenuItem.h"
-#include "plugin.hpp"
 
 using Comp = KSDelayComp<WidgetComposite>;
 

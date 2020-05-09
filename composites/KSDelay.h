@@ -244,7 +244,6 @@ inline void KSDelayComp<TBase>::step()
     auto unisonSpread = TBase::params[UNISON_SPREAD_PARAM].getValue();
     auto unisonMix = TBase::params[UNISON_MIX_PARAM].getValue();
     auto stretchParam = TBase::params[STRETCH_PARAM].getValue();
-    auto stretchLockParam = TBase::params[STRETCH_LOCK_PARAM].getValue();
 
     auto glideParam = 0.05f;
 
