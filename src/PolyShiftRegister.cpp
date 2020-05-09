@@ -84,9 +84,9 @@ struct PolyShiftRegister : Module
 
 	void process(const ProcessArgs& args) override 
 	{
-		if (trigger1.process (inputs[TRIGGER1_INPUT].getVoltageSum()))
+		if (trigger1.process (inputs[TRIGGER1_INPUT].getVoltage()))
 			doShift (inputs[IN1_INPUT].getVoltageSum(), channel1Values);
-		if (trigger2.process (inputs[TRIGGER2_INPUT].getVoltageSum()))
+		if (trigger2.process (inputs[TRIGGER2_INPUT].getVoltage()))
 			doShift (inputs[IN2_INPUT].getVoltageSum(), channel2Values);
 
 		outputs[OUT1_OUTPUT].setChannels (params[CHANNELS1_PARAM].getValue());
