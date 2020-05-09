@@ -51,7 +51,7 @@ extern int _mdb;        // MIDI reverence count
 
 #define assertNE(actual, expected) assertNEEx(actual, expected, "")
 
-#define assertClose(actual, expected, diff) if (!AudioMath::closeTo(actual, expected, diff)) { \
+#define assertClose(actual, expected, diff) if (!sspo::AudioMath::areSame(actual, expected, diff)) { \
     std::cout << "assertClose failed actual value =" << \
     actual << " expected=" << expected << std::endl << std::flush; \
     assert(false); }

@@ -26,6 +26,9 @@
 #include <vector>
 #include <float.h>
 
+//#include "LookupTable.h"
+//#include "lookupTables/SineTable.h"
+
 namespace sspo
 {
     namespace AudioMath
@@ -87,7 +90,6 @@ namespace sspo
             private:
 
                 bool lastPositive = false;
-
         };
 
     } // namespace AudioMath

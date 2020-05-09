@@ -25,20 +25,23 @@
 #include <assert.h>
 #include <stdio.h>
 
-        static void testTrue()
+#include "filter.hpp"
+#include "digital.hpp"
+
+        static void testKSTrue()
         {
             assert (true && "Test true");
         }
 
-        static void testFalse()
+        static void testKSFalse()
         {
             assert (!false && "Test false");
         }
 
-        void testEmpty()
+        void testKSDelay()
         {
             printf ("testKSDelay\n");
-            testTrue();
-            testFalse();
+            testKSTrue();
+            testKSFalse();
         }
 

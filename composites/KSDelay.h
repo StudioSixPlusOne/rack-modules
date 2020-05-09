@@ -34,6 +34,7 @@ namespace rack {
     }
 }
 using Module = ::rack::engine::Module;
+using namespace rack;
 
 template <class TBase>
 class KSDelayDescription : public IComposite
@@ -88,7 +89,6 @@ public:
     // must be called after setSampleRate
     void init()
     {
-		random::init();
 		buffers.resize (maxChannels);
 		for (auto& b : buffers)
 			b.reset (4096);
@@ -267,7 +267,9 @@ inline void KSDelayComp<TBase>::step()
 			auto feedback = feedbackParam + TBase::inputs[FEEDBACK_INPUT].getPolyVoltage (i) / 10.0f;
 			feedback = clamp (feedback, 0.0f, 0.5f);
 			
+
 			auto glideTime = glideParam;
+
 			glide[i].setRiseFall (glideTime, glideTime);
 			auto glideFreq =  glide[i].process (10.0f, dsp::FREQ_C4 * std::pow(2.0f, TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
 			glideFreq = clamp (glideFreq, 20.0f, 20000.0f);

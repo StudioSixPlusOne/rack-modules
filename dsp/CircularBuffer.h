@@ -56,25 +56,21 @@ public:
         }
     }
 
-    void writeBuffer(const T newValue) 
+    inline void writeBuffer(const T newValue) noexcept
     {
         writeIndex++;
         writeIndex &= wrapBits;
         buffer[writeIndex] = std::isnan (newValue) || std::isinf (newValue) ? 0 : newValue;
     }
 
-    T readBuffer(const int delaySamples) const 
+    inline T readBuffer(const int delaySamples) const noexcept
     {
         return buffer[(writeIndex - delaySamples) & wrapBits];
     }
 
-    T readBuffer(const float delaySamples, const bool interpolate = true) const
+    inline T readBuffer(const float delaySamples, const bool interpolate = true) const noexcept
     {
         auto y1 = readBuffer(static_cast<int> (delaySamples));
-        if (!interpolate)
-        {
-            return y1;
-        }
         auto y2 = readBuffer(static_cast<int> (delaySamples) + 1);
         auto fract = delaySamples - static_cast<int> (delaySamples);
         return sspo::AudioMath::linearInterpolate (y1, y2, fract);

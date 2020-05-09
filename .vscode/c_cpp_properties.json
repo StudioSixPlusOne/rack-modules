@@ -9,7 +9,9 @@
                 "~/dev/Rack/dep/**",
                 "~/dev/Rack/include/**",
                 "${workspaceFolder}/dsp",
-                "${workspaceFolder}/sqsrc/util"
+                "${workspaceFolder}/sqsrc/util",
+                "${workspaceFolder}/composites",
+                "/home/curlymorphic/dev/Rack/include/dsp"
             ],
             "defines": [
                 "_DEBUG",

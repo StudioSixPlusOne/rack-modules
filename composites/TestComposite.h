@@ -27,6 +27,11 @@ SOFTWARE.
 #include <vector>
 #include <cstdint>
 
+#include "common.hpp"
+#include "random.hpp"
+#include "filter.hpp"
+#include "digital.hpp"
+
 struct Light
 {
     /** The square of the brightness value */
@@ -165,7 +170,7 @@ struct alignas(32) Port {
 	void setChannels(int channels) {
 		// If disconnected, keep the number of channels at 0.
 		if (this->channels == 0) {
-			return;
+			//return;
 		}
 		// Set higher channel voltages to 0
 		for (int c = channels; c < this->channels; c++) {
@@ -222,7 +227,36 @@ struct Output : Port
 struct Param
 {
     float value = 0.0;
+
+	void setValue (const float x)
+	{
+		value = x;
+	}
+
+	float getValue()
+	{
+		return value;
+	}
 };
+
+struct ParamQuantities
+{
+	float getDisplayValue()
+	{
+		return 50.0f;
+	}
+};
+
+// Rack functions added, only compiled for tests
+
+template<typename T>
+inline T clamp(T x, T a, T b) {
+	return fmin(fmax(x, a), b);
+}
+
+inline float crossfade(float a, float b, float p) {
+	return a + (b - a) * p;
+}
 
 
 /**
@@ -241,6 +275,7 @@ public:
         inputs(40),
         outputs(40),
         params(60),
+		paramQuantities(60),
         lights(20)
     {
 
@@ -255,6 +290,7 @@ public:
     std::vector<Output> outputs;
     std::vector<Param> params;
     std::vector<Light> lights;
+	std::vector<ParamQuantities*> paramQuantities;
 
     float engineGetSampleTime()
     {

@@ -25,6 +25,8 @@
 #include <utility>
 #include <algorithm>
 
+#include "LookupTable.h"
+
 namespace sspo
 {
     ///
@@ -64,12 +66,12 @@ namespace sspo
             currentEnv = std::max (currentEnv, 0.00000000001f);
             lastEnv = currentEnv;
 
-            auto dn = 20.0f * std::log10 (currentEnv);
+            auto dn = 20.0f * lookup.log10 (currentEnv);
 
             //Hard knee compression
             auto yndB = dn <= threshold ? dn : threshold + ((dn - threshold) / ratio);
             auto gndB = yndB - dn;
-            auto G = std::pow (10.0f, gndB / 20);
+            auto G = lookup.pow10 ( gndB / 20.0f);
 
             return in * G;
         }
@@ -88,5 +90,35 @@ namespace sspo
         float sampleRate{ 1.0f };
 
         static constexpr float TC{ -0.9996723408f }; // { std::log (0.368f); } //capacitor discharge to 36.8%
+    };
+
+    struct Saturator
+    {
+        float max = 1.0f;
+        float kneeWidth = 0.05f;
+
+        float process(float in) const
+        {
+            auto ret = 0.0f;
+            if (std::abs(in) < (max - kneeWidth))
+            {
+                ret = in;
+            }
+            else 
+            {
+                if (std::abs(in) < max)
+                {
+                    ret = in - ((std::pow (in - max + (kneeWidth / 2.0f), 2.0f)) / (2.0f * kneeWidth));
+                    ret = clamp(ret, -max, max);
+                }
+                else 
+                    ret = in > 0.0f
+                        ? max
+                        : -max;
+            }
+
+            return ret; 
+        }
+
     };
 }

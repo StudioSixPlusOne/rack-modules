@@ -32,6 +32,15 @@
         "Polyphonic",
         "VCF"
       ]
+    },
+    {
+      "slug": "CombFilter",
+      "name": "CombFilter",
+      "description": "Comb Filter",
+      "tags": [
+        "Polyphonic",
+        "Filter"
+      ]
     }
   ]
 }
