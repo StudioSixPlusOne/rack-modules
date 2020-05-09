@@ -119,7 +119,6 @@ struct CombFilter : Module
         for (auto c = 0; c < channels; ++c)
         {
             auto in = inputs[MAIN_INPUT].getPolyVoltage (c) / 5.0f;
-            //in += 1e-6f * (2.0f * drand48() - 1.0f);
 
             auto frequency = freqParam;
             frequency += inputs[VOCT_INPUT].getPolyVoltage (c);
