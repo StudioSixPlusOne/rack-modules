@@ -41,10 +41,6 @@ struct KSDelay : Module
         ks->init();
     }
 
-    ~KSDelay()
-    {
-    }
-
     void onSampleRateChange() override
     {
         float rate = SqHelper::engineGetSampleRate();
