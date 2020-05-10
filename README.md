@@ -11,6 +11,16 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
   
  ## Modules
  
+ [Wallenda](#wallenda)
+ 
+ [Maccomo](#maccomo)
+
+ [Massarti](#massarti)
+ 
+ [Tyrant](#tyrant)
+ 
+ [Eva](#eva)
+ 
  ### Wallenda
  
  ![Wallenda screenshot](images/Wallenda.png)
