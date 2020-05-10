@@ -21,9 +21,9 @@
 
 #pragma once
 
+#include "IComposite.h"
 #include "CircularBuffer.h"
 #include "HardLimiter.h"
-#include "IComposite.h"
 
 #include <cstdlib>
 #include <vector>
@@ -281,7 +281,7 @@ inline void KSDelayComp<TBase>::step()
         stretch = stretch * 0.0003f * glideFreq * glideFreq; //is locked need adjusting for freq
 
         auto nonStretchProbabilty = 1.0f / stretch;
-        auto useStretch = (1.0f - nonStretchProbabilty) > drand48();
+        auto useStretch = (1.0f - nonStretchProbabilty) > sspo::AudioMath::rand01();
 
         auto dry = useStretch
                        ? in + wet

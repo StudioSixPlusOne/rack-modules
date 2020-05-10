@@ -18,7 +18,7 @@
  * Boston, MA 02110-1301 USA.
  *
  */
-
+#include "math.hpp"
 #include "LookupTable.h"
 
 #include <asserts.h>

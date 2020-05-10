@@ -25,6 +25,7 @@
 #include <cmath>
 #include <float.h>
 #include <vector>
+#include <random>
 
 //#include "LookupTable.h"
 //#include "lookupTables/SineTable.h"
@@ -87,6 +88,14 @@ namespace sspo
         private:
             bool lastPositive = false;
         };
+
+        static std::default_random_engine defaultGenerator{99};
+        static std::normal_distribution<double> distribution{0, 1.0};
+
+        inline float rand01()
+        {
+            return distribution (defaultGenerator);
+        }
 
     } // namespace AudioMath
 } // namespace sspo
