@@ -3,4 +3,5 @@
 /plugin.so
 /plugin.dylib
 /plugin.dll
+/.vscode
 .DS_Store
