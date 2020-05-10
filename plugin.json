@@ -6,59 +6,60 @@
   "brand": "StudioSixPlusOne",
   "author": "Curlymorphic",
   "authorEmail": "dave.french3@googlemail.com",
-  "authorUrl": "github.com/curlymorphic",
-  "pluginUrl": "github.com/curlymorphic/StudioSixPlusOne",
-  "manualUrl": "github.com/curlymorphic/StudioSixPlusOne",
-  "sourceUrl": "github.com/curlymorphic/StudioSixPlusOne.git",
+  "authorUrl": "github.com/StudioSixPlusOne",
+  "pluginUrl": "github.com/StudioSixPlusOne/rack-modules",
+  "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md",
+  "sourceUrl": "github.com/StudioSixPlusOne/rack-modules.git",
   "donateUrl": "",
-  "changelogUrl": "",
+  "changelogUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/CHANGELOG.md",
   "modules": [
     {
       "slug": "KSDelay",
-      "name": "KSDelay",
-      "description": "Karplus\u2013Strong Delay",
+      "name": "Wallenda",
+      "description": "Karplus\u2013Strong Delay with unison",
       "tags": [
         "Polyphonic",
         "Delay",
-        "VCO",
+        "Effect",
         "Physical modeling"
       ]
     },
     {
       "slug": "Maccomo",
       "name": "Maccomo",
-      "description": "Moog Ladder Filter",
-      "tags": [
-        "Polyphonic",
-        "VCF"
-      ]
-    },
-    {
-      "slug": "PolyShiftRegister",
-      "name": "PolyShiftRegister",
-      "description": "Polyphonic Shift Register",
-      "tags": [
-        "Polyphonic",
-        "Dual",
-        "Sample and Hold"
-      ]
-    },
-    {
-      "slug": "CombFilter",
-      "name": "CombFilter",
-      "description": "Comb Filter",
+      "description": "Ladder Filter self oscillating vcf",
       "tags": [
         "Polyphonic",
         "Filter"
       ]
     },
     {
-      "slug": "Mix",
-      "name": "Mix",
-      "description": "Mixer",
+      "slug": "PolyShiftRegister",
+      "name": "Tyrant",
+      "description": "Polyphonic Shift Register",
       "tags": [
         "Polyphonic",
-        "Mixer"
+        "Sample and Hold"
+      ]
+    },
+    {
+      "slug": "CombFilter",
+      "name": "Massarti",
+      "description": "Comb Filter",
+      "tags": [
+        "Polyphonic",
+        "Filter",
+        "Effect"
+      ]
+    },
+    {
+      "slug": "Mix",
+      "name": "Eva",
+      "description": "Mini Mixer",
+      "tags": [
+        "Polyphonic",
+        "Mixer",
+        "Attenuator"
       ]
     }
   ]
