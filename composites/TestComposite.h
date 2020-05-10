@@ -250,14 +250,14 @@ struct ParamQuantities
 
 // Rack functions added, only compiled for tests
 
-/* template<typename T>
+ template<typename T>
 inline T clamp(T x, T a, T b) {
-	return fmin(fmax(x, a), b);
+	return std::min(std::max(x, a), b);
 }
 
 inline float crossfade(float a, float b, float p) {
 	return a + (b - a) * p;
-} */
+} 
 
 
 /**
