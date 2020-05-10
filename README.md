@@ -21,24 +21,23 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  - Feedback control, focusing on the area required for the string delay
  - Seven voice unison per polyphonic channel
  - Stretch, the nature of strings gives a natural decay, this controls the length
- - Polyphonic, the number of channels is defined by the audio input.
+ - Polyphonic, the number of channels is defined by the audio input
  
- The main audio input should be triggered with noise, the color and duration of this has a large impact on the resulting sound. Try experimenting with short bursts, such as snare sounds, longer noise sounds with automated frequency can be used to emulate a bowed sound. All varations of sound input can be used to create sounds not envisaged by the author
- 
+ The main audio input should be triggered with noise, the color and duration of this has a large impact on the resulting sound. Try experimenting with short bursts, such as snare sounds, longer noise sounds with automated frequency can be used to emulate a bowed sound. All varations of sound input can be used to create sounds. 
 
 ### Maccomo
 
 ![Maccomo screenshot](images/Maccomo.png)
 
-An emulation of a ladder filter, based on the descriptions and block diagrams in Will Pirkles book "Designing software synthesizers plugins in c++" featuring
+An emulation of a ladder filter, based on the descriptions and block diagrams in Will Pirkles book "Designing Software Synthesizers Plugins in C++" featuring:
 
 - Six modes, selectable via CV and the knob, allowing for automatiom between lp12, lp24, hp12, hp24, bp12 and bp24
 - Frequency contols are summed, for accurate pitch tracking set the knob to C4 261Hz and use the V/oct input
 - Resonance that allows for self oscillation
 - Drive to add colour and dirt to the sound, works well when self oscillating
-- Polyphonic, the number of channels is defined by the audio input or the V/oct input for use as an oscillator.
+- Polyphonic, the number of channels is defined by the audio input or the V/oct input for use as an oscillator
 
-If the audio input is disconnected, the filter will still run in monophonic mode or with the channel count of the V/oct input, allowing for self oscillation and use as a VCO
+If the audio input is disconnected, the filter will still run in monophonic mode or with the channel count of the V/oct input, allowing for self oscillation and use as a VCO.
 
 ### Massarti
 
@@ -57,15 +56,15 @@ A feedfoward comb filter with added feeback loop, can be used to create pitched 
 
 A monophonic in, polyphonic out shift register
 
-This is still in an early beta phase, following recent interal discussions the dual function will be removed to be replaced with probability controls
+This is still in an early beta phase, following recent interal discussions the dual function will be removed to be replaced with probability controls.
 
 ### Eva
 
 ![Eva screenshot](images/Eva.png)
 
-A utility mixer with attenuverter
+A utility mixer with attenuverter.
 
-This is still in beta, with additions planned
+This is still in beta, with additions planned.
 
 
 
