@@ -58,7 +58,8 @@ namespace sspo
         template <typename T>
         inline bool areSame (const std::vector<T>& a, const std::vector<T>& b, const T delta = FLT_EPSILON)
         {
-            return a.size() == b.size() ? std::equal (a.begin(), a.end(), b.begin(), [=] (const T& l, const T& r) -> bool {
+            return a.size() == b.size() 
+            ? std::equal (a.begin(), a.end(), b.begin(), [=] (const T& l, const T& r) -> bool {
                 return areSame (l, r, delta);
             })
                                         : false;
@@ -91,11 +92,11 @@ namespace sspo
         };
 
         static std::default_random_engine defaultGenerator{99};
-        static std::normal_distribution<double> distribution{0, 1.0};
+        static std::uniform_real_distribution<float> distribution{0.0, 1.0};
 
         inline float rand01()
         {
-            return distribution (defaultGenerator);
+            return clamp (std::abs(distribution (defaultGenerator)), 0.0f, 1.0f - FLT_EPSILON);
         }
 
         inline float db(float g)
