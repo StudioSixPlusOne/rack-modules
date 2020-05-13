@@ -92,11 +92,11 @@ namespace sspo
         };
 
         static std::default_random_engine defaultGenerator{99};
-        static std::uniform_real_distribution<float> distribution{0.0, 1.0};
+        static std::uniform_real_distribution<float> distribution{0.0, 1.0 - FLT_EPSILON};
 
         inline float rand01()
         {
-            return clamp (std::abs(distribution (defaultGenerator)), 0.0f, 1.0f - FLT_EPSILON);
+            return distribution (defaultGenerator);
         }
 
         inline float db(float g)
