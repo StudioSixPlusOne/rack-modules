@@ -28,6 +28,7 @@
 #include <cstdlib>
 #include <vector>
 #include <memory>
+#include <time.h>
 
 using namespace sspo::AudioMath;
 
