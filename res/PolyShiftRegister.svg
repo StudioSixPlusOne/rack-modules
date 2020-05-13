@@ -290,7 +290,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="2.8284271"
      inkscape:cx="-9.0918769"
-     inkscape:cy="236.3831"
+     inkscape:cy="123.24602"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -1148,7 +1148,7 @@ probability">
        transform="translate(6.6477068,63.816955)" />
   </g>
   <g
-     style="display:inline"
+     style="display:none"
      inkscape:label="layout components"
      id="layer3"
      inkscape:groupmode="layer">

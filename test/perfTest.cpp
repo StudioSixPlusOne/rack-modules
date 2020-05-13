@@ -46,6 +46,7 @@ extern double overheadOutOnly;
 #include "LookupTable.h"
 
 #include "KSDelay.h"
+#include "PolyShiftRegister.h"
 
 #include "common.hpp"
 #include "filter.hpp"
@@ -325,7 +326,22 @@ static void testKSDelay()
     }, 1);
 }
 
+using PolyShiftRegister = PolyShiftRegisterComp<TestComposite>;
 
+static void testPolyShiftRegister()
+{
+    PolyShiftRegister psr;
+    psr.init();
+
+    psr.inputs[PolyShiftRegister::MAIN_INPUT].setVoltage (1.5f, 0);
+    psr.inputs[PolyShiftRegister::TRIGGER_INPUT].setVoltage (10.0f, 0);
+    psr.params[PolyShiftRegister::ACCENT_RNG_PROB_PARAM].setValue (0.9f);
+
+        MeasureTime<double>::run(overheadInOut, "PolyShiftRegister Tyrant", [&psr]()  {
+        psr.step();
+        return psr.outputs[KSDelay::OUT_OUTPUT].getVoltage(0);
+    }, 1);
+}
 
 void perfTest()
 {
@@ -342,5 +358,6 @@ void perfTest()
     testCircularBuffer();
     testHardLimiter();
     testKSDelay();
+    testPolyShiftRegister();
     testLookupTable();
 }

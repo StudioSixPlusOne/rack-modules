@@ -64,9 +64,21 @@ A feedfoward comb filter with added feeback loop, can be used to create pitched 
 
 ![Tyrant screenshot](images/Tyrant.png)
 
-A monophonic in, polyphonic out shift register
+A monophonic in, polyphonic out shift register, with many probability options.
 
-This is still in an early beta phase, following recent interal discussions the dual function will be removed to be replaced with probability controls.
+- Variable number of polyphonic channels for 1 - 16
+- Trigger Probability controls the chance of triggers being skipped
+- Shuffle Probability controls the values in the buffer being reordered
+- Three accent controls
+- Accent A & B apply a fixed offset, Accent RNG applies a random offset with the maximum value defined by the offset controls
+- If Accent CV's have no input or a monophonic input all channels are affected simultaneously, If the probability cv inputs have polyphonic inputs the channels are effected independently
+- The Reset input sets the current channel count to 1 and samples the input, the channel count is increased on each trigger input, until the desired channel count is reached
+
+Youtube Tutorial
+
+[![Tutorial](https://img.youtube.com/vi/OJSy8fOxI5I/0.jpg)](https://www.youtube.com/watch?v=OJSy8fOxI5I)
+
+
 
 ### Eva
 

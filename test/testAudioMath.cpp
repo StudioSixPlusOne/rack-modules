@@ -20,8 +20,10 @@
  */
 
 #include "AudioMath.h"
+#include "asserts.h"
 #include <assert.h>
 #include <stdio.h>
+#include <map>
 
 using namespace sspo;
 
@@ -71,10 +73,28 @@ static void testlinearInterpolate()
     assert (AudioMath::linearInterpolate (-4.0f, 10.0f, 0.5f) == 3.0f && "linearInteroplate");
 }
 
+static void testRand01()
+{
+    //map used to check spread of results
+    std::map<int, bool> bands;
+
+    for (auto i = 0; i < 1000000; ++i)
+    {
+        auto x = AudioMath::rand01();
+        assertLT (x, 1.0f);
+        assertGE (x, 0.0f);
+        bands[static_cast<int> (x * 100)] = true;
+    }
+
+    assertGT (bands.size(), 99);
+    //printf ("rand01 %d \n", static_cast<int>(bands.size()));
+}
+
 void testAudioMath()
 {
     printf ("AudioMath\n");
     testAreSame();
     testFastTanh();
     testlinearInterpolate();
+    testRand01();
 }

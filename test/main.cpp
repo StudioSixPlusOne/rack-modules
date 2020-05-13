@@ -31,6 +31,8 @@ extern void testAudioMath();
 extern void testCircularBuffer();
 extern void testLookupTable();
 extern void testAnalyzer();
+extern void testPolyShiftRegister();
+extern void testTestSignal();
 
 //external performance tests
 extern void initPerf();
@@ -72,10 +74,12 @@ int main (int argc, char** argv)
     // run external tests defined above
 
     testEmpty();
+    testTestSignal();
     testAudioMath();
     testCircularBuffer();
     testLookupTable();
     testAnalyzer();
+    testPolyShiftRegister();
 
     printf ("Tests passed.\n");
 }
