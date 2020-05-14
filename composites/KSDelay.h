@@ -22,6 +22,7 @@
 #pragma once
 
 #include "IComposite.h"
+#include "LookupTable.h"
 #include "CircularBuffer.h"
 #include "HardLimiter.h"
 
@@ -79,6 +80,7 @@ public:
     {
         reciprocalSampleRate = 1 / rate;
         sampleRate = rate;
+        maxCutoff = std::min (rate / 2.0f, 20000.0f);
 
         for (auto& dc : dcInFilters)
             dc.setParameters (rack::dsp::BiquadFilter::HIGHPASS, dcInFilterCutoff / rate, 0.141f, 1.0f);
@@ -156,11 +158,6 @@ public:
         return -0.73764 * x * x + 1.2841 * x + 0.044372;
     }
 
-    float unisonSpreadScalar (const float x)
-    {
-        return (10028.7312891634 * std::pow (x, 11)) - (50818.8652045924 * std::pow (x, 10)) + (111363.4808729368 * std::pow (x, 9)) - (138150.6761080548 * std::pow (x, 8)) + (106649.6679158292 * std::pow (x, 7)) - (53046.9642751875 * std::pow (x, 6)) + (17019.9518580080 * std::pow (x, 5)) - (3425.0836591318 * std::pow (x, 4)) + (404.2703938388 * std::pow (x, 3)) - (24.1878824391 * std::pow (x, 2)) + (0.6717417634 * x) + 0.0030115596;
-    }
-
     // Define all the enums here. This will let the tests and the widget access them.
 
     enum ParamIds
@@ -205,9 +202,9 @@ public:
     void step() override;
 
     typedef float T; // use floats for all signals
+    float maxCutoff = 20000.0f;
 
     constexpr static int maxChannels = 16;
-    constexpr static float maxCutoff = 20000.0f;
     constexpr static float dcInFilterCutoff = 5.5f;
     constexpr static float dcOutFilterCutoff = 10.0f;
     constexpr static int maxOscCount = 7;
@@ -251,9 +248,9 @@ inline void KSDelayComp<TBase>::step()
 
     for (auto i = 0; i < channels; ++i)
     {
-        auto unisonSpreadCoefficient = unisonSpreadScalar (unisonSpread + std::abs (TBase::inputs[UNISON_SPREAD_INPUT].getPolyVoltage (i) / 10.f));
-        auto unisonSideLevelCoefficient = unisonSideLevel (unisonMix + std::abs (TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.f));
-        auto unisonCentreLevelCoefficient = unisonCentreLevel (unisonMix + std::abs (TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.f));
+        auto unisonSpreadCoefficient = lookup.unisonSpread (unisonSpread + std::abs (TBase::inputs[UNISON_SPREAD_INPUT].getPolyVoltage (i) / 10.0f));
+        auto unisonSideLevelCoefficient = unisonSideLevel (unisonMix + std::abs (TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.0f));
+        auto unisonCentreLevelCoefficient = unisonCentreLevel (unisonMix + std::abs (TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.0f));
 
         auto in = TBase::inputs[IN_INPUT].getVoltage (i);
 
@@ -264,8 +261,8 @@ inline void KSDelayComp<TBase>::step()
         auto glideTime = glideParam;
 
         glide[i].setRiseFall (glideTime, glideTime);
-        auto glideFreq = glide[i].process (10.0f, dsp::FREQ_C4 * std::pow (2.0f, TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
-        glideFreq = clamp (glideFreq, 20.0f, 20000.0f);
+        auto glideFreq = glide[i].process (10.0f, dsp::FREQ_C4 * lookup.pow2 (TBase::inputs[VOCT].getPolyVoltage (i) + octaveParam + tuneParam / 12.0f));
+        glideFreq = clamp (glideFreq, 20.0f, maxCutoff);
         delayTimes[i] = 1.0f / glideFreq;
 
         auto index = delayTimes[i] * sampleRate - 1.5f;
@@ -278,7 +275,7 @@ inline void KSDelayComp<TBase>::step()
         {
             stretch += TBase::inputs[STRETCH_INPUT].getPolyVoltage (i) / 10.0;
         }
-        stretch = stretch * 0.0003f * glideFreq * glideFreq; //is locked need adjusting for freq
+        stretch = stretch * 0.0003f * glideFreq * glideFreq; 
 
         auto nonStretchProbabilty = 1.0f / stretch;
         auto useStretch = (1.0f - nonStretchProbabilty) > sspo::AudioMath::rand01();
@@ -288,7 +285,6 @@ inline void KSDelayComp<TBase>::step()
                        : in + lastWets[i] * feedback + 0.5f * wet;
         dry = 5.0f * limiters[i].process (dry / 5.0f);
         buffers[i].writeBuffer (dry);
-        //wet =  5.0f * limiters[i].process (wet / 5.0f);
         lastWets[i] = wet;
 
         // calc phases

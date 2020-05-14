@@ -49,12 +49,12 @@ namespace sspo
                 assert(source.minX != source.maxX && "Lookup table min equal max");
                 assert(source.interval != 0 && "Lokkup interval 0");
 
-                assert(x >= source.minX && "Lookuptable index too low");
-                assert(x <= source.maxX && "Lookuptable index too greate"); 
+                //assert(x >= source.minX && "Lookuptable index too low");
+                //assert(x <= source.maxX && "Lookuptable index too greate"); 
 
                 auto index = static_cast<int> ((x / source.interval) - source.minX / source.interval);
                 // commented out due to incressing time of lookup by 60%
-                //index = rack::math::clamp (index, 0, static_cast<int> (source.table.size() - 2));
+                index = rack::math::clamp (index, 0, static_cast<int> (source.table.size() - 2));
                 T fraction = ((x / source.interval) - source.minX / source.interval) - index;
                 T ret = linearInterpolate (static_cast<T> (source.table[index]), static_cast<T> (source.table[index + 1]), fraction);
                 return ret;

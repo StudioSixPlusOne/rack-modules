@@ -33,6 +33,7 @@ extern void testLookupTable();
 extern void testAnalyzer();
 extern void testPolyShiftRegister();
 extern void testTestSignal();
+extern void testKSDelay();
 
 //external performance tests
 extern void initPerf();
@@ -80,6 +81,7 @@ int main (int argc, char** argv)
     testLookupTable();
     testAnalyzer();
     testPolyShiftRegister();
+    testKSDelay();
 
     printf ("Tests passed.\n");
 }

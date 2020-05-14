@@ -21,26 +21,50 @@
 
 // An empty test, can be used as a template
 
-
+#include "digital.hpp"
+#include "filter.hpp"
+#include "TestComposite.h"
+#include "asserts.h"
+#include "KSDelay.h"
 #include <assert.h>
 #include <stdio.h>
-#include "filter.hpp"
-#include "digital.hpp"
+#include "ExtremeTester.h"
 
-        static void testKSTrue()
-        {
-            assert (true && "Test true");
-        }
+using KSD = KSDelayComp<TestComposite>;
 
-        static void testKSFalse()
-        {
-            assert (!false && "Test false");
-        }
+static void test01()
+{
+    KSD ksd;
+    ksd.setSampleRate (44100);
+    ksd.init();
+    ksd.step();
+}
 
-        void testKSDelay()
-        {
-            printf ("testKSDelay\n");
-            testKSTrue();
-            testKSFalse();
-        }
+static void testExtreme()
+{
+    KSD ksd;
+    std::vector<std::pair<float, float>> paramLimits;
+    ksd.setSampleRate (44100);
+    ksd.init();
 
+    paramLimits.resize(ksd.NUM_PARAMS);
+    using fp = std::pair<float, float>;
+
+
+    auto iComp = KSD::getDescription();
+    for (int i = 0; i < iComp->getNumParams(); ++i) {
+        auto desc = iComp->getParam(i);
+        fp t(desc.min, desc.max);
+        paramLimits[i] = t;
+    }
+
+    ExtremeTester<KSD>::test(ksd, paramLimits, true, "KS Delay Wallenda ");
+
+}
+
+void testKSDelay()
+{
+    printf ("testKSDelay\n");
+    test01();
+    testExtreme();
+}
