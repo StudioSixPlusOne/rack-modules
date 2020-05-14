@@ -157,8 +157,11 @@ public:
                     for (int j = 0; j < numOutputs; ++j) {
                         const float out = dut.outputs[j].getVoltage(0);
                         if (checkOutput) {
-                            assertGE(out, -150);
-                            assertLE(out, 150);
+                            assertGE(out, -FLT_MAX);
+                            assertLE(out, FLT_MAX);
+                            // added checks for infinite and nan, as these cause real problems in feedback loops
+                            assert (! std::isinf (out));
+                            assert (! std::isnan (out));
                         }
                     }
                 }

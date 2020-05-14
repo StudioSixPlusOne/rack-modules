@@ -35,7 +35,7 @@ static void testCreate()
     assert (sineTable.interval = 0.001f);
 
     auto index = 0;
-    for (float i = 0.0f; i < 5.0f; i += 0.001f)
+    for (float i = 0.000f; i < 5.0f; i += 0.001f)
     {
         assertEQ (sineTable.table[index], std::sin (i));
         index++;
@@ -65,7 +65,7 @@ static void testConsume()
         assertClose (lookup.pow10 (i), std::pow (10.0f, i), std::pow (10.0f, i) * 0.01f);
     }
 
-    sspo::AudioMath::LookupTable::Table<float> log10Table = LookupTable::makeTable<float> (0.00001f, 10.1f, 0.001f, [] (const float x) -> float { return std::log10 (x); });
+    sspo::AudioMath::LookupTable::Table<float> log10Table = LookupTable::makeTable<float> (0.00001f, 10.1f, 0.00001f, [] (const float x) -> float { return std::log10 (x); });
     for (float i = 0.001f; i < 10.0f; i += 0.001f)
     {
         assertClose (LookupTable::process<float> (log10Table, i), std::log10 (i), 0.05f);
@@ -73,12 +73,12 @@ static void testConsume()
     }
 
     //unison scalar
-    sspo::AudioMath::LookupTable::Table<float> usTable = LookupTable::makeTable<float> (0.00001f, 10.1f, 0.001f, [] (const float x) -> float { return sspo::AudioMath::LookupTable::unisonSpreadScalar (x); });
+    sspo::AudioMath::LookupTable::Table<float> usTable = LookupTable::makeTable<float> (0.00001f, 10.1f, 0.00001f, [] (const float x) -> float { return sspo::AudioMath::LookupTable::unisonSpreadScalar (x); });
     for (float i = 0.001f; i < 1.0f; i += 0.001f)
     {
         assertClose (LookupTable::process<float> (usTable, i), LookupTable::unisonSpreadScalar (i), 0.05f);
         assertClose (lookup.unisonSpread (i), LookupTable::unisonSpreadScalar (i), 0.05f);
-    }
+    } 
 
     //std::cout << sspo::AudioMath::LookupTable::makeHeader(sineTable, "SineTable") << "\n\n";
 }
