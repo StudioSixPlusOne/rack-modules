@@ -40,6 +40,7 @@ namespace sspo
         constexpr auto base_a4 = 440.0f;
         constexpr auto base_a4Midi = 69.0f;
         constexpr auto semitonesPerOctave = 12.0f;
+        constexpr double Ln10 = 2.30258509299404568402;
 
         //* accurate to 0.032f when -5.0 < x < 5.0
         template <typename T>
@@ -95,6 +96,16 @@ namespace sspo
         inline float rand01()
         {
             return distribution (defaultGenerator);
+        }
+
+        inline float db(float g)
+        {
+            return 20 * log(g) / Ln10;
+        }
+
+        inline float gainFromDb (float db)
+        {
+            return std::exp(Ln10 * db / 20.0);
         }
 
     } // namespace AudioMath
