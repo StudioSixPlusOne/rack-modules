@@ -47,6 +47,7 @@ extern double overheadOutOnly;
 
 #include "KSDelay.h"
 #include "PolyShiftRegister.h"
+#include "CombFilter.h"
 
 #include "common.hpp"
 #include "filter.hpp"
@@ -327,6 +328,25 @@ static void testKSDelay()
 }
 
 using PolyShiftRegister = PolyShiftRegisterComp<TestComposite>;
+using CombFilter = CombFilterComp<TestComposite>;
+
+static void testCombFilter()
+{
+    CombFilter cf;
+
+    cf.setSampleRate(44100);
+    cf.init();
+
+    cf.inputs[KSDelay::IN_INPUT].setVoltage(0, 0);
+    cf.inputs[KSDelay::IN_INPUT].setChannels(1);
+
+    //first run 33.16 of one percent
+    MeasureTime<double>::run(overheadInOut, "Comb Filter Massarti", [&cf]()  {
+        cf.step();
+        return cf.outputs[KSDelay::OUT_OUTPUT].getVoltage(0);
+    }, 1);
+}
+
 
 static void testPolyShiftRegister()
 {
@@ -352,7 +372,7 @@ void perfTest()
     assert(overheadOutOnly > 0);
 
     //test1();
-    //testNoise (true);
+    testNoise (true);
     //testNormal();
     //testFastApprox();
     testCircularBuffer();
@@ -360,4 +380,5 @@ void perfTest()
     testKSDelay();
     testPolyShiftRegister();
     testLookupTable();
+    testCombFilter();
 }
