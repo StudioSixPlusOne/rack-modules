@@ -34,6 +34,7 @@ extern void testAnalyzer();
 extern void testPolyShiftRegister();
 extern void testTestSignal();
 extern void testKSDelay();
+extern void testCombFilter();
 
 //external performance tests
 extern void initPerf();
@@ -82,6 +83,7 @@ int main (int argc, char** argv)
     testAnalyzer();
     testPolyShiftRegister();
     testKSDelay();
+    testCombFilter();
 
     printf ("Tests passed.\n");
 }
