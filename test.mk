@@ -25,9 +25,15 @@
 #include "../../arch.mk"
 include $(RACK_DIR)/arch.mk
 
-CXXFLAGS += -I../../include/dsp 
+CXXFLAGS += -I../../include/dsp/ -I./test/fft 
+CXXFLAGS += -I./test/kiss_fft130 
+CXXFLAGS += -I./test/kiss_fft130/tools
 
 TEST_SOURCES = $(wildcard test/*.cpp)
+TEST_SOURCES += $(wildcard test/fft/*.cpp)
+TEST_SOURCES += test/kiss_fft130/kiss_fft.c
+TEST_SOURCES += test/kiss_fft130/tools/kiss_fftr.c
+
 # DONT USE src/.cpp files
 
 ## This is a list of full paths to the .o files we want to build
