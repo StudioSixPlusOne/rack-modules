@@ -171,20 +171,20 @@ struct MaccomoWidget : ModuleWidget
         addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
         addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-        addParam (createParamCentered<RoundLargeBlackKnob> (mm2px (Vec (41.01, 25.14)), module, Maccomo::FREQUENCY_PARAM));
-        addParam (createParamCentered<RoundBlackKnob> (mm2px (Vec (25.135, 29.10)), module, Maccomo::FREQUENCY_CV_ATTENUVERTER_PARAM));
-        addParam (createParamCentered<RoundBlackKnob> (mm2px (Vec (25.135, 47.802)), module, Maccomo::RESONANCE_CV_ATTENUVERTER_PARAM));
-        addParam (createParamCentered<RoundLargeBlackKnob> (mm2px (Vec (41.01, 47.802)), module, Maccomo::RESONANCE_PARAM));
-        addParam (createParamCentered<RoundBlackKnob> (mm2px (Vec (25.135, 70.292)), module, Maccomo::DRIVE_CV_ATTENUVERTER_PARAM));
-        addParam (createParamCentered<RoundLargeBlackKnob> (mm2px (Vec (41.01, 70.292)), module, Maccomo::DRIVE_PARAM));
-        addParam (createParamCentered<RoundSmallBlackSnapKnob> (mm2px (Vec (41.01, 92.781)), module, Maccomo::MODE_PARAM));
+        addParam (createParamCentered<RoundLargeBlackKnob> (mm2px (Vec (41.01, 25.14 + 1.25)), module, Maccomo::FREQUENCY_PARAM));
+        addParam (createParamCentered<RoundBlackKnob> (mm2px (Vec (25.135, 29.10 + 2.5)), module, Maccomo::FREQUENCY_CV_ATTENUVERTER_PARAM));
+        addParam (createParamCentered<RoundBlackKnob> (mm2px (Vec (25.135, 47.802 + 2.5)), module, Maccomo::RESONANCE_CV_ATTENUVERTER_PARAM));
+        addParam (createParamCentered<RoundLargeBlackKnob> (mm2px (Vec (41.01, 47.802 + 2.5)), module, Maccomo::RESONANCE_PARAM));
+        addParam (createParamCentered<RoundBlackKnob> (mm2px (Vec (25.135, 70.292 + 2.5)), module, Maccomo::DRIVE_CV_ATTENUVERTER_PARAM));
+        addParam (createParamCentered<RoundLargeBlackKnob> (mm2px (Vec (41.01, 70.292 + 2.5)), module, Maccomo::DRIVE_PARAM));
+        addParam (createParamCentered<RoundSmallBlackSnapKnob> (mm2px (Vec (25.135, 92.781)), module, Maccomo::MODE_PARAM));
 
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 21.344)), module, Maccomo::VOCT_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 47.802)), module, Maccomo::RESONANCE_CV_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 70.292)), module, Maccomo::DRIVE_CV_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 92.781)), module, Maccomo::MODE_CV_INPUT));
+        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 47.802 + 2.5)), module, Maccomo::RESONANCE_CV_INPUT));
+        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 70.292 + 2.5)), module, Maccomo::DRIVE_CV_INPUT));
+        //addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 92.781 + 2.5)), module, Maccomo::MODE_CV_INPUT));
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 112.625)), module, Maccomo::MAIN_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 29.50)), module, Maccomo::FREQ_CV_INPUT));
+        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 29.50 + 2.5)), module, Maccomo::FREQ_CV_INPUT));
 
         addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (41.01, 112.625)), module, Maccomo::MAIN_OUTPUT));
     }
