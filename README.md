@@ -19,8 +19,6 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  
  [Tyrant](#tyrant)
  
- [Eva](#eva)
- 
  ### Wallenda
  
  ![Wallenda screenshot](images/Wallenda.png)
@@ -80,13 +78,7 @@ Youtube Tutorial
 
 
 
-### Eva
 
-![Eva screenshot](images/Eva.png)
-
-A utility mixer with attenuverter.
-
-This is still in beta, with additions planned.
 
 
 
