@@ -19,8 +19,6 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  
  [Tyrant](#tyrant)
  
- [Eva](#eva)
- 
  ### Wallenda
  
  ![Wallenda screenshot](images/Wallenda.png)
@@ -68,13 +66,7 @@ A monophonic in, polyphonic out shift register
 
 This is still in an early beta phase, following recent interal discussions the dual function will be removed to be replaced with probability controls.
 
-### Eva
 
-![Eva screenshot](images/Eva.png)
-
-A utility mixer with attenuverter.
-
-This is still in beta, with additions planned.
 
 
 

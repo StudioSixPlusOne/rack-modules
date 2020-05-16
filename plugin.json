@@ -51,16 +51,6 @@
         "Filter",
         "Effect"
       ]
-    },
-    {
-      "slug": "Mix",
-      "name": "Eva",
-      "description": "Mini Mixer",
-      "tags": [
-        "Polyphonic",
-        "Mixer",
-        "Attenuator"
-      ]
     }
   ]
 }
