@@ -19,10 +19,13 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  
  [Tyrant](#tyrant)
  
+
+  
+
  ### Wallenda
  
- ![Wallenda screenshot](images/Wallenda.png)
- 
+  <img align="left" src="images/Wallenda.png">
+
  A delay plugin designed for use when using [Karplus–Strong string synthesis](https://en.wikipedia.org/wiki/Karplus%E2%80%93Strong_string_synthesis) featuring:
  
  - Delay time tuned to pitch, via the V/oct input and the two tune knobs, Octave selector and fine tune in semitones
@@ -33,9 +36,16 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  
  The main audio input should be triggered with noise, the color and duration of this has a large impact on the resulting sound. Try experimenting with short bursts, such as snare sounds, longer noise sounds with automated frequency can be used to emulate a bowed sound. All varations of sound input can be used to create sounds. 
 
-### Maccomo
 
-![Maccomo screenshot](images/Maccomo.png)
+<br>
+<br>
+<br>
+<br>
+<br>
+
+### Maccomo  
+
+ <img align="left" src="images/Maccomo.png">
 
 An emulation of a ladder filter, based on the descriptions and block diagrams in Will Pirkles book "Designing Software Synthesizers Plugins in C++" featuring:
 
@@ -47,9 +57,17 @@ An emulation of a ladder filter, based on the descriptions and block diagrams in
 
 If the audio input is disconnected, the filter will still run in monophonic mode or with the channel count of the V/oct input, allowing for self oscillation and use as a VCO.
 
+
+<br>
+<br>
+<br>
+<br>
+
+
 ### Massarti
 
-![Massarti screenshot](images/Massarti.png)
+ <img align="left" src="images/Massarti.png">
+
 
 A feedfoward comb filter with added feeback loop, can be used to create pitched sounds from noise, or for the adding of overtones
 
@@ -58,9 +76,22 @@ A feedfoward comb filter with added feeback loop, can be used to create pitched 
 - Feedback adds warmth, and reverb like effect
 - Polyphonic, the number of channels is defined by the audio input
 
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
 ### Tyrant
 
-![Tyrant screenshot](images/Tyrant.png)
+<img align="left" src="images/Tyrant.png">
+
 
 A monophonic in, polyphonic out shift register, with many probability options.
 
@@ -72,9 +103,13 @@ A monophonic in, polyphonic out shift register, with many probability options.
 - If Accent CV's have no input or a monophonic input all channels are affected simultaneously, If the probability cv inputs have polyphonic inputs the channels are effected independently
 - The Reset input sets the current channel count to 1 and samples the input, the channel count is increased on each trigger input, until the desired channel count is reached
 
+<br>
+<br>
+<br>
+
 Youtube Tutorial
 
-[![Tutorial](https://img.youtube.com/vi/OJSy8fOxI5I/0.jpg)](https://www.youtube.com/watch?v=OJSy8fOxI5I)
+[YouTubeTutorial](https://www.youtube.com/watch?v=OJSy8fOxI5I)
 
 
 
