@@ -233,7 +233,7 @@ private:
 template <class TBase>
 inline void KSDelayComp<TBase>::step()
 {
-    auto channels = TBase::inputs[IN_INPUT].getChannels();
+    auto channels = std::max (TBase::inputs[IN_INPUT].getChannels(), TBase::inputs[VOCT].getChannels());
     auto octaveParam = TBase::params[OCTAVE_PARAM].getValue();
     auto tuneParam = TBase::params[TUNE_PARAM].getValue();
     auto feedbackParam = TBase::params[FEEDBACK_PARAM].getValue();
@@ -252,7 +252,7 @@ inline void KSDelayComp<TBase>::step()
         auto unisonSideLevelCoefficient = unisonSideLevel (unisonMix + std::abs (TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.0f));
         auto unisonCentreLevelCoefficient = unisonCentreLevel (unisonMix + std::abs (TBase::inputs[UNISON_MIX_INPUT].getPolyVoltage (i) / 10.0f));
 
-        auto in = TBase::inputs[IN_INPUT].getVoltage (i);
+        auto in = TBase::inputs[IN_INPUT].getPolyVoltage (i);
 
         in = dcInFilters[i].process (in);
         auto feedback = feedbackParam + TBase::inputs[FEEDBACK_INPUT].getPolyVoltage (i) / 10.0f;
