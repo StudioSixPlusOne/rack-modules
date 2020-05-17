@@ -199,7 +199,7 @@ IComposite::Config CombFilterDescription<TBase>::getParam (int i)
     switch (i)
     {
         case CombFilterComp<TBase>::FREQUENCY_PARAM:
-            ret = { -4.0f, 4.0f, 0.0f, "Frequency", " Hz ", 0, 1, 0.0f };
+            ret = { -4.0f, 4.0f, 0.0f, "Frequency", " ", 0, 1, 0.0f };
             break;
         case CombFilterComp<TBase>::FREQUENCY_CV_ATTENUVERTER_PARAM:
             ret = { -1.0f, 1.0f, 0.0f, "Frequency Attenuverter", " ", 0, 1, 0.0f };
