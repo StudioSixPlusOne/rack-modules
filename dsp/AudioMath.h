@@ -58,11 +58,11 @@ namespace sspo
         template <typename T>
         inline bool areSame (const std::vector<T>& a, const std::vector<T>& b, const T delta = FLT_EPSILON)
         {
-            return a.size() == b.size() 
-            ? std::equal (a.begin(), a.end(), b.begin(), [=] (const T& l, const T& r) -> bool {
-                return areSame (l, r, delta);
-            })
-                                        : false;
+            return a.size() == b.size()
+                       ? std::equal (a.begin(), a.end(), b.begin(), [=] (const T& l, const T& r) -> bool {
+                             return areSame (l, r, delta);
+                         })
+                       : false;
         }
 
         template <typename T>
@@ -91,22 +91,22 @@ namespace sspo
             bool lastPositive = false;
         };
 
-        static std::default_random_engine defaultGenerator{99};
-        static std::uniform_real_distribution<float> distribution{0.0, 1.0 - FLT_EPSILON};
+        static std::default_random_engine defaultGenerator{ 99 };
+        static std::uniform_real_distribution<float> distribution{ 0.0, 1.0 - FLT_EPSILON };
 
         inline float rand01()
         {
             return distribution (defaultGenerator);
         }
 
-        inline float db(float g)
+        inline float db (float g)
         {
-            return 20 * log(g) / Ln10;
+            return 20 * log (g) / Ln10;
         }
 
         inline float gainFromDb (float db)
         {
-            return std::exp(Ln10 * db / 20.0);
+            return std::exp (Ln10 * db / 20.0);
         }
 
     } // namespace AudioMath

@@ -26,7 +26,6 @@
 
 using Comp = PolyShiftRegisterComp<WidgetComposite>;
 
-
 struct PolyShiftRegister : Module
 {
     std::shared_ptr<Comp> psr;
@@ -39,7 +38,6 @@ struct PolyShiftRegister : Module
         SqHelper::setupParams (icomp, this);
         psr->init();
     }
-
 
     void process (const ProcessArgs& args) override
     {

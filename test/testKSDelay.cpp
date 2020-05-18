@@ -47,19 +47,18 @@ static void testExtreme()
     ksd.setSampleRate (44100);
     ksd.init();
 
-    paramLimits.resize(ksd.NUM_PARAMS);
+    paramLimits.resize (ksd.NUM_PARAMS);
     using fp = std::pair<float, float>;
 
-
     auto iComp = KSD::getDescription();
-    for (int i = 0; i < iComp->getNumParams(); ++i) {
-        auto desc = iComp->getParam(i);
-        fp t(desc.min, desc.max);
+    for (int i = 0; i < iComp->getNumParams(); ++i)
+    {
+        auto desc = iComp->getParam (i);
+        fp t (desc.min, desc.max);
         paramLimits[i] = t;
     }
 
-    ExtremeTester<KSD>::test(ksd, paramLimits, true, "KS Delay Wallenda ");
-
+    ExtremeTester<KSD>::test (ksd, paramLimits, true, "KS Delay Wallenda ");
 }
 
 void testKSDelay()

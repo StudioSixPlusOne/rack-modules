@@ -78,7 +78,7 @@ static void testConsume()
     {
         assertClose (LookupTable::process<float> (usTable, i), LookupTable::unisonSpreadScalar (i), 0.05f);
         assertClose (lookup.unisonSpread (i), LookupTable::unisonSpreadScalar (i), 0.05f);
-    } 
+    }
 
     //std::cout << sspo::AudioMath::LookupTable::makeHeader(sineTable, "SineTable") << "\n\n";
 }

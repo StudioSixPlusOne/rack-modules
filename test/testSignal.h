@@ -182,6 +182,6 @@ namespace sspo
             std::string filename (".//test//signal//noise500000.dat");
             return fromFile (filename);
         }
-        
+
     } // namespace TestSignal
 } // namespace sspo

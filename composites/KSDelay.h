@@ -275,7 +275,7 @@ inline void KSDelayComp<TBase>::step()
         {
             stretch += TBase::inputs[STRETCH_INPUT].getPolyVoltage (i) / 10.0;
         }
-        stretch = stretch * 0.0003f * glideFreq * glideFreq; 
+        stretch = stretch * 0.0003f * glideFreq * glideFreq;
 
         auto nonStretchProbabilty = 1.0f / stretch;
         auto useStretch = (1.0f - nonStretchProbabilty) > sspo::AudioMath::rand01();
