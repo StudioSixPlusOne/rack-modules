@@ -80,12 +80,12 @@ void testPositiveCombPeaks (float voct, float sr)
     FFTDataCpx fftOut (size);
     FFT::forward (&fftOut, fftIn);
     auto peaks = Analyzer::getPeaks (fftOut, sr, -48.0f);
-    
+
     printf ("Comb peaks: freq %f  sr %f peak count %d\n", freq, sr, static_cast<int> (peaks.size()));
 
     for (auto i = 0; i < peaks.size(); ++i)
     {
-        if (peaks[i].freq >= freq * 0.75f )
+        if (peaks[i].freq >= freq * 0.75f)
         {
             //expect to see many values clustered about harmonic of freq
             //printf ("%f\n", peaks[i].freq);
