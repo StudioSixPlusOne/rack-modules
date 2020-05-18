@@ -1,8 +1,6 @@
 on:
   push:
-    branches:
-    - develop
-name: Develop
+name: Push
 env:
   RACK_SDK_VERSION: 1.1.6
 jobs:
@@ -13,3 +11,18 @@ jobs:
     - uses: actions/checkout@master
     - name: Build Linux
       uses: ./.github/actions/build_linux
+  buildWindows:
+    name: Build Windows
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Build Windows
+      uses: ./.github/actions/build_win
+  buildOsx:
+    name: Build OSX
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Build OSX
+      uses: ./.github/actions/build_osx
+

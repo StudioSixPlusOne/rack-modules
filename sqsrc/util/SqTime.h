@@ -36,9 +36,11 @@ SOFTWARE.
   * Typically this is accurate to 1/3 microsecond. Can be made more
   * accurate by tinkering with your bios
   */
+
+
+
 #if defined(_MSC_VER) || defined(ARCH_WIN)
 //#if defined(_MSC_VER)
-
 #define _USE_WINDOWS_PERFTIME
 #include <Windows.h>
 class SqTime
@@ -59,9 +61,10 @@ public:
     }
 private:
     static double frequency;
-};
+}; 
 
 #else
+
 #include <time.h>
 class SqTime
 {
