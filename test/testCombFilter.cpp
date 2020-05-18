@@ -64,8 +64,8 @@ void testPositiveCombPeaks (float voct, float sr)
     freq = Analyzer::makeEvenPeriod (freq, sr, size);
     CF cf;
     cf.setSampleRate (sr);
-    cf.init(); 
-    auto noise = ts::makeNoise (size);
+    cf.init();
+    auto noise = ts::noiseFromFile();
 
     cf.params[cf.COMB_PARAM].setValue (1.0f);
     cf.params[cf.FREQUENCY_PARAM].setValue (voct);
@@ -92,7 +92,7 @@ void testPositiveCombPeaks (float voct, float sr)
             auto error = std::fmod (peaks[i].freq, freq) > freq / 2.0f
                              ? freq - std::fmod (peaks[i].freq, freq)
                              : std::fmod (peaks[i].freq, freq);
-            assertClose (error, 0.0f, peaks[i].freq * 0.15f);
+            assertClose (error, 0.0f, peaks[i].freq * 0.10f);
         }
     }
 }

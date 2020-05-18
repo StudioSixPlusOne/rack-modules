@@ -66,7 +66,7 @@ static void testMakeFixed()
     assertEQ (x.size(), 101);
     for (auto s : x)
     {
-        assertClose (s, 0.25f , FLT_EPSILON);
+        assertClose (s, 0.25f, FLT_EPSILON);
     }
 }
 
@@ -77,7 +77,7 @@ static void testMultiply()
     assertEQ (y.size(), 101);
     for (auto s : y)
     {
-        assertClose (s, 1.00f , FLT_EPSILON);
+        assertClose (s, 1.00f, FLT_EPSILON);
     }
 }
 
@@ -88,6 +88,22 @@ static void testMakeNoise()
 
     auto x = ts::makeNoise (1000000);
     assertEQ (x.size(), 1000000);
+    for (auto s : x)
+    {
+        assertLE (s, 1.0f);
+        assertGE (s, -1.0f);
+        bands[static_cast<int> (s * 100)] = true;
+    }
+    assertGT (bands.size(), 198);
+}
+
+static void testNoiseFromFile()
+{
+    //map used to check spread of results
+    std::map<int, bool> bands;
+
+    auto x = ts::noiseFromFile();
+    assertEQ (x.size(), 500000);
     for (auto s : x)
     {
         assertLE (s, 1.0f);
@@ -142,6 +158,7 @@ void testTestSignal()
     testMakeFixed();
     testMultiply();
     testMakeNoise();
+    testNoiseFromFile();
     testMakeDriac();
     testMakeTrigger();
     testMakeClockTrigger();

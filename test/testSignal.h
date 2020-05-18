@@ -26,6 +26,9 @@
 #include <random>
 #include <time.h>
 #include <vector>
+#include <iostream>
+#include <iomanip>
+#include <fstream>
 
 namespace am = sspo::AudioMath;
 
@@ -150,5 +153,35 @@ namespace sspo
             return ret;
         }
 
+        inline bool toFile (const Signal& s1, const std::string filename)
+        {
+            std::ofstream outStream{ filename };
+            if (! outStream)
+                return false;
+
+            outStream << std::setprecision (14);
+            for (auto x : s1)
+                outStream << x << "\n";
+            return true;
+        }
+
+        inline Signal fromFile (const std::string filename)
+        {
+            Signal ret;
+            std::ifstream inStream{ filename };
+            if (inStream)
+            {
+                for (float x; inStream >> x;)
+                    ret.push_back (x);
+            }
+            return ret;
+        }
+
+        inline Signal noiseFromFile()
+        {
+            std::string filename (".//test//signal//noise500000.dat");
+            return fromFile (filename);
+        }
+        
     } // namespace TestSignal
 } // namespace sspo
