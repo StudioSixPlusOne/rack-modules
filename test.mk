@@ -25,7 +25,7 @@
 #include "../../arch.mk"
 include $(RACK_DIR)/arch.mk
 
-CXXFLAGS += -I../../include/dsp/ -I./test/fft 
+CXXFLAGS += -I$(RACK_DIR)/include/dsp/ -I./test/fft 
 CXXFLAGS += -I./test/kiss_fft130 
 CXXFLAGS += -I./test/kiss_fft130/tools
 
