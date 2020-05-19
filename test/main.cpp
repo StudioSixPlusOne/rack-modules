@@ -35,6 +35,7 @@ extern void testPolyShiftRegister();
 extern void testTestSignal();
 extern void testKSDelay();
 extern void testCombFilter();
+extern void testSynthFilter();
 
 //external performance tests
 extern void initPerf();
@@ -84,11 +85,12 @@ int main (int argc, char** argv)
     testPolyShiftRegister();
     testKSDelay();
     testCombFilter();
+    testSynthFilter();
 
     printf ("Tests passed.\n");
 }
-
+/* 
 // TODO is this needed
 void sequencerHelp()
 {
-}
+} */
