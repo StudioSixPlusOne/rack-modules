@@ -24,7 +24,8 @@
 
 #pragma once
 
-#include <rack.hpp>
+#include <cmath>
+#include <vector>
 
 namespace sspo
 {
@@ -192,7 +193,11 @@ namespace sspo
         {
         }
 
-        void setParameters (const float newCutoff, const float newQ, const float newSaturation, const float newAux, const float newSampleRate)
+        void setParameters (const float newCutoff,
+                            const float newQ,
+                            const float newSaturation,
+                            const float newAux,
+                            const float newSampleRate)
         {
             if ((newCutoff == cutoff) && (newQ == Q) && (newSaturation == saturation) && (newSampleRate == sampleRate))
                 return;
@@ -244,6 +249,14 @@ namespace sspo
             calcCoeffs();
         }
 
+        void reset()
+        {
+            lpf1.reset();
+            lpf2.reset();
+            lpf3.reset();
+            lpf4.reset();
+        }
+
     private:
         struct OberheimXpander
         {
@@ -267,19 +280,11 @@ namespace sspo
             float E{ 0.0f };
         } typeCoeffs;
 
-        void reset()
-        {
-            lpf1.reset();
-            lpf2.reset();
-            lpf3.reset();
-            lpf4.reset();
-        }
-
         void calcCoeffs()
         {
             auto wd = k_2pi * cutoff;
             auto T = 1.0f / static_cast<float> (sampleRate);
-            auto wa = (2 / T) * tan (wd * T / 2);
+            auto wa = (2 / T) * std::tan (wd * T / 2);
             auto g = wa * T / 2;
 
             auto G = g / (1.0f + g);

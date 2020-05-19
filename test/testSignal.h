@@ -23,6 +23,9 @@
 
 #include "AudioMath.h"
 #include <assert.h>
+#include "FFT.h"
+#include "FFTData.h"
+#include "Analyzer.h"
 #include <random>
 #include <time.h>
 #include <vector>
@@ -84,10 +87,10 @@ namespace sspo
             return ret;
         }
 
+        static std::default_random_engine defaultGenerator;
         inline Signal makeNoise (int length)
         {
             Signal ret;
-            std::default_random_engine defaultGenerator{ time (NULL) };
             std::uniform_real_distribution<float> distribution{ -1.0f, 1.0 - FLT_EPSILON };
             for (auto i = 0; i < length; ++i)
                 ret.push_back (distribution (defaultGenerator));
@@ -181,6 +184,25 @@ namespace sspo
         {
             std::string filename (".//test//signal//noise500000.dat");
             return fromFile (filename);
+        }
+
+        inline bool areSame (Signal& s1, Signal& s2, float delta = FLT_EPSILON)
+        {
+            return AudioMath::areSame (static_cast<std::vector<float>> (s1),
+                                       static_cast<std::vector<float>> (s2),
+                                       delta);
+        }
+
+        inline FFTDataCpx getResponse (Signal& s1)
+        {
+            int size = static_cast<int> (s1.size());
+            FFTDataReal indata (size);
+            FFTDataCpx outdata (size);
+            for (auto i = 0; i < size; ++i)
+                indata.set (i, s1[i] * Analyzer::hamming (i, size));
+
+            FFT::forward (&outdata, indata);
+            return outdata;
         }
 
     } // namespace TestSignal
