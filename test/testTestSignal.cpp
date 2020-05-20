@@ -118,7 +118,7 @@ static void testMakeDriac()
     auto x = ts::makeDriac (1000);
     assertEQ (x.size(), 1000);
     assertClose (x[0], 1.0f, FLT_EPSILON);
-    for (auto i = 1; i < x.size(); ++i)
+    for (auto i = 1; i < int (x.size()); ++i)
     {
         assertClose (x[i], 0.0f, FLT_EPSILON);
     }
