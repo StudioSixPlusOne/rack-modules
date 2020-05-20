@@ -1,18 +1,10 @@
 # ignore third_party code from clang-format checks
-./composites/IComposite.h
-./composites/SqPort.h
-./composites/TestComposite.h
-./composites/WidgetComposite.h
+./src/composites/framework/*
 ./dep/*
-./sqsrc/util/*
+./src/third-party/sqsrc/util/*
 ./src/ctrl/*
-./test/fft/*
-./test/kiss_fft130/*
-./test/kiss_fft130/test/*
-./test/kiss_fft130/tools/*
-./test/Analyzer.cpp
-./test/Analyzer.h
-./test/ExtremeTester.h
-./test/initPerf.cpp
-./test/MeasureTime.h
-./test/TimeStatsCollector.h
+./test/third-party/fft/*
+./test/third-party/kiss_fft130/*
+./test/third-party/kiss_fft130/test/*
+./test/third-party/kiss_fft130/tools/*
+./test/third-party/*

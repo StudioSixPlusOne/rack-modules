@@ -25,14 +25,18 @@
 #include "../../arch.mk"
 include $(RACK_DIR)/arch.mk
 
-CXXFLAGS += -I$(RACK_DIR)/include/dsp/ -I./test/fft 
-CXXFLAGS += -I./test/kiss_fft130 
-CXXFLAGS += -I./test/kiss_fft130/tools
+CXXFLAGS += -I$(RACK_DIR)/include/dsp/ -I./test/third-party/fft 
+CXXFLAGS += -I./test/third-party/kiss_fft130 
+CXXFLAGS += -I./test/third-party/kiss_fft130/tools
+CXXFLAGS += -I./test/third-party/
+CXXFLAGS += -I./test/utils/
 
 TEST_SOURCES = $(wildcard test/*.cpp)
-TEST_SOURCES += $(wildcard test/fft/*.cpp)
-TEST_SOURCES += test/kiss_fft130/kiss_fft.c
-TEST_SOURCES += test/kiss_fft130/tools/kiss_fftr.c
+TEST_SOURCES += $(wildcard test/utils/*.cpp)
+TEST_SOURCES += $(wildcard test/third-party/*.cpp)
+TEST_SOURCES += $(wildcard test/third-party/fft/*.cpp)
+TEST_SOURCES += test/third-party/kiss_fft130/kiss_fft.c
+TEST_SOURCES += test/third-party/kiss_fft130/tools/kiss_fftr.c
 
 # DONT USE src/.cpp files
 

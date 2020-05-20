@@ -3,7 +3,8 @@
 # FLAGS will be passed to both the C and C++ compiler
 FLAGS += 
 CFLAGS +=
-CXXFLAGS += -I./sqsrc/util -I./composites -I./src -I./dsp 
+CXXFLAGS += -I./src/third-party/sqsrc/util -I./src/composites -I./src -I./src/dsp
+CXXFLAGS += -I./src/modules -I./src/composites/framework
 
 # compile for V1 vs 0.6
 FLAGS += -D __V1x
@@ -22,6 +23,7 @@ endif
 LDFLAGS += -lpthread
 
 # Add .cpp files to the build
+SOURCES += $(wildcard src/modules/*.cpp)
 SOURCES += $(wildcard src/*.cpp)
 
 # Add files to the ZIP package when running `make dist`
