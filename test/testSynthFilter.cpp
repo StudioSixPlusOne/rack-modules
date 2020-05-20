@@ -198,7 +198,7 @@ static void testMoogBpPeak()
         auto peakBin = Analyzer::getMax (response);
         auto freqBin = FFT::freqToBin (fc, sr, fftSize);
         auto tol = fc * 0.005 * binWidth; // 0.5% tolerance
-        printf ("%f ,%d %d %f\n", fc, freqBin, peakBin, tol);
+        //printf ("%f ,%d %d %f\n", fc, freqBin, peakBin, tol);
         assertClose (peakBin, freqBin, int (tol));
     }
 }

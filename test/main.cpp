@@ -36,6 +36,7 @@ extern void testTestSignal();
 extern void testKSDelay();
 extern void testCombFilter();
 extern void testSynthFilter();
+extern void testMaccomo();
 
 //external performance tests
 extern void initPerf();
@@ -86,11 +87,7 @@ int main (int argc, char** argv)
     testKSDelay();
     testCombFilter();
     testSynthFilter();
+    testMaccomo();
 
     printf ("Tests passed.\n");
 }
-/* 
-// TODO is this needed
-void sequencerHelp()
-{
-} */

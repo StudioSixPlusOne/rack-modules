@@ -150,7 +150,7 @@ namespace sspo
         {
             assert (s1.size() == s2.size());
             Signal ret;
-            for (auto i = 0; i < s1.size(); ++i)
+            for (auto i = 0; i < int (s1.size()); ++i)
                 ret.push_back (s1[i] + s2[i]);
 
             return ret;
