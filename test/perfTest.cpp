@@ -31,6 +31,8 @@ SOFTWARE.
 #include "filter.hpp"
 #include "digital.hpp"
 #include "random.hpp"
+#include "math.hpp"
+#include "common.hpp"
 
 extern double overheadInOut;
 extern double overheadOutOnly;
@@ -46,10 +48,6 @@ extern double overheadOutOnly;
 #include "KSDelay.h"
 #include "PolyShiftRegister.h"
 #include "CombFilter.h"
-
-#include "common.hpp"
-#include "filter.hpp"
-#include "digital.hpp"
 
 #ifdef _USE_WINDOWS_PERFTIME
 double SqTime::frequency = 0;
@@ -167,6 +165,13 @@ static void testNoise (bool useDefault)
                 return distribution (defaultGenerator);
             else
                 return distribution (gen);
+        },
+        1);
+
+    MeasureTime<float>::run (
+        overheadInOut, "rand01", []() {
+            float x = rand01();
+            return x;
         },
         1);
 }
@@ -354,6 +359,30 @@ static void testHardLimiter()
     MeasureTime<double>::run (
         overheadInOut, "Hard Limiter process", [&l]() {
             float x = l.process (TestBuffers<float>::get() * 2.0f);
+            return x;
+        },
+        1);
+
+    sspo::Saturator sat;
+    MeasureTime<double>::run (
+        overheadInOut, "saturator -1.0 1.0", [&sat]() {
+            float x = sat.process (TestBuffers<float>::get() * 2.0f);
+            return x;
+        },
+        1);
+
+    sat.max = 11.7f;
+    sat.kneeWidth = 0.5f;
+    MeasureTime<double>::run (
+        overheadInOut, "saturator -11.70 11.70", [&sat]() {
+            float x = sat.process (TestBuffers<float>::get() * 24.0f);
+            return x;
+        },
+        1);
+
+    MeasureTime<double>::run (
+        overheadInOut, "voltageSaturator", [&sat]() {
+            float x = sspo::voltageSaturate (TestBuffers<float>::get() * 24.0f);
             return x;
         },
         1);

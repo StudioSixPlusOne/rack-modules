@@ -37,6 +37,7 @@ extern void testKSDelay();
 extern void testCombFilter();
 extern void testSynthFilter();
 extern void testMaccomo();
+extern void testSaturator();
 
 //external performance tests
 extern void initPerf();
@@ -77,6 +78,7 @@ int main (int argc, char** argv)
 
     // run external tests defined above
 
+    testSaturator();
     testEmpty();
     testTestSignal();
     testAudioMath();
