@@ -40,6 +40,7 @@ extern void testMaccomo();
 extern void testSaturator();
 extern void testUtilityFilter();
 extern void testLala();
+extern void testEva();
 
 //external performance tests
 extern void initPerf();
@@ -94,6 +95,7 @@ int main (int argc, char** argv)
     testCombFilter();
     testSynthFilter();
     testMaccomo();
+    testEva();
 
     printf ("Tests passed.\n");
 }
