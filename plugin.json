@@ -68,6 +68,17 @@
         "Utility",
         "Voltage-controlled amplifier"
       ]
+    },
+    {
+      "slug": "Eva",
+      "name": "Eva",
+      "description": "Mixer",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#eva",
+      "tags": [
+        "Mixer",
+        "Voltage-controlled amplifier",
+        "Polyphonic"
+      ]
     }
   ]
 }
