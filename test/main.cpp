@@ -26,6 +26,7 @@
 #include <string>
 
 // external tests
+extern void testEva();
 extern void testEmpty();
 extern void testAudioMath();
 extern void testCircularBuffer();
@@ -83,6 +84,7 @@ int main (int argc, char** argv)
 
     testLala();
     testUtilityFilter();
+    testEva();
     testSaturator();
     testEmpty();
     testTestSignal();
@@ -95,7 +97,6 @@ int main (int argc, char** argv)
     testCombFilter();
     testSynthFilter();
     testMaccomo();
-    testEva();
 
     printf ("Tests passed.\n");
 }

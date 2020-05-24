@@ -435,7 +435,7 @@ static void testEva()
             float_4 att;
             att[0] = TestBuffers<float>::get();
 
-            float_4 x = eva.attenuationFromShape (att);
+            float_4 x = eva.attenuationFromShape (att, 0.5f);
             return x[0];
         },
         1);
