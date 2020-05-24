@@ -32,8 +32,12 @@
 #include <vector>
 #include <algorithm>
 #include "Eva.h"
+#include "AudioMath.h"
 
 using Eva = EvaComp<TestComposite>;
+
+constexpr float maxLimit = 11.7f;
+constexpr float satStart = 11.2f;
 
 static void testExtreme()
 {
@@ -67,9 +71,26 @@ static void testMaxInputChannels()
     assertEQ (maxChannels, 8);
 }
 
+static bool checkOutput (float out, float expected)
+{
+    if ((expected > -satStart) && (expected < satStart))
+    {
+        return sspo::AudioMath::areSame (out, expected, 0.00001f);
+    }
+    else if ((expected < maxLimit) || (expected > maxLimit))
+    {
+        return sspo::AudioMath::areSame (std::abs (out), maxLimit, FLT_EPSILON * 12);
+    }
+    else
+    {
+        return (std::abs (out) <= maxLimit) && (std::abs (out) >= satStart - 0.1);
+    }
+}
+
 static void testMonoSumming (float i1, float i2, float i3, float i4, float att, float attCv)
 {
     Eva eva;
+    eva.params[eva.GAIN_SHAPE_PARAM].setValue (0);
     for (auto i = 0; i < 4; ++i)
         eva.inputs[i].setChannels (1);
 
@@ -84,7 +105,7 @@ static void testMonoSumming (float i1, float i2, float i3, float i4, float att, 
     auto attenuation = clamp (att + (attCv / 5.0f), -1.0f, 1.0f);
     auto out = eva.outputs[eva.MAIN_OUTPUT].getVoltage();
     auto expected = (i1 + i2 + i3 + i4) * attenuation;
-    assertClose (out, expected, 0.00001f);
+    assertEQ (checkOutput (out, expected), true);
 }
 
 static void testMonoSumming()
@@ -108,6 +129,8 @@ static void vectToInput (Eva& e, VF& vect, Eva::InputIds input)
 static void testPolySumming (VF i1, VF i2, VF i3, VF i4, float att, VF attCv)
 {
     Eva eva;
+    eva.params[eva.GAIN_SHAPE_PARAM].setValue (0);
+
     vectToInput (eva, i1, eva.ONE_INPUT);
     vectToInput (eva, i2, eva.TWO_INPUT);
     vectToInput (eva, i3, eva.THREE_INPUT);
@@ -136,7 +159,7 @@ static void testPolySumming (VF i1, VF i2, VF i3, VF i4, float att, VF attCv)
                          + eva.inputs[eva.FOUR_INPUT].getPolyVoltage (i))
                         * attenuation;
         auto out = eva.outputs[eva.MAIN_OUTPUT].getPolyVoltage (i);
-        assertClose (out, expected, 0.00001f);
+        assertEQ (checkOutput (out, expected), true);
     }
 }
 
@@ -147,7 +170,7 @@ static void testPolySumming()
                      VF{ 0.5, -0.65 },
                      VF{ 0.324324f, -0.23433f, -0.234343f, -0.456546f, 0.3454354f, -0.98967f, 0.3434324 },
                      0.2f,
-                     VF {1.0f, 0.3f, -0.4f});
+                     VF{ 1.0f, 0.3f, -0.4f });
 }
 
 void testEva()
