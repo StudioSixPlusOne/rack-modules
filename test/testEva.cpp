@@ -173,9 +173,30 @@ static void testPolySumming()
                      VF{ 1.0f, 0.3f, -0.4f });
 }
 
+static void testAttenuationFromShape()
+{
+    Eva eva;
+    eva.params[eva.GAIN_SHAPE_PARAM].setValue (0.63);
+    float_4 attenuation;
+    attenuation[0] = -1.0f;
+    attenuation[1] = 1.0f;
+    attenuation[2] = -0.37;
+    attenuation[3] = +0.49;
+
+    auto shape = eva.params[eva.GAIN_SHAPE_PARAM].getValue();
+
+    auto result = eva.attenuationFromShape (attenuation, shape);
+
+    assertClose (result[0], -1.0f, 0.001f);
+    assertClose (result[1], 1.0f, 0.001f);
+    assertClose (result[2], -0.198f, 0.001f);
+    assertClose (result[3], +0.313f, 0.001f);
+}
+
 void testEva()
 {
     printf ("testEva\n");
+    testAttenuationFromShape();
     testExtreme();
     testMaxInputChannels();
     testMonoSumming();
