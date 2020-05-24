@@ -49,6 +49,7 @@ extern double overheadOutOnly;
 #include "KSDelay.h"
 #include "PolyShiftRegister.h"
 #include "CombFilter.h"
+#include "Eva.h"
 
 #ifdef _USE_WINDOWS_PERFTIME
 double SqTime::frequency = 0;
@@ -410,6 +411,44 @@ static void testKSDelay()
         1);
 }
 
+using Eva = EvaComp<TestComposite>;
+
+static void testEva()
+{
+    Eva eva;
+    eva.inputs[eva.ONE_INPUT].setChannels (16);
+    eva.inputs[eva.TWO_INPUT].setChannels (16);
+    eva.inputs[eva.THREE_INPUT].setChannels (16);
+    eva.inputs[eva.FOUR_INPUT].setChannels (16);
+
+    eva.params[eva.GAIN_SHAPE_PARAM].setValue (3.0);
+
+    MeasureTime<double>::run (
+        overheadInOut, "Eva", [&eva]() {
+            eva.step();
+            return eva.outputs[KSDelay::OUT_OUTPUT].getVoltage (0);
+        },
+        1);
+
+    MeasureTime<float>::run (
+        overheadInOut, "Eva gain shape", [&eva]() {
+            float_4 att;
+            att[0] = TestBuffers<float>::get();
+
+            float_4 x = eva.attenuationFromShape (att);
+            return x[0];
+        },
+        1);
+
+    /*    sspo::AudioMath::LookupTable::Table<float> usTable = sspo::AudioMath::LookupTable::makeTable<float> (0.00001f, 10.1f, 0.001f, [] (const float x) -> float { return sspo::AudioMath::LookupTable::unisonSpreadScalar (x); });
+    MeasureTime<float>::run (
+        overheadInOut, "LookupTable unison scalar", [&usTable]() {
+            float x = sspo::AudioMath::LookupTable::process<float> (usTable, TestBuffers<float>::get());
+            return x;
+        },
+        1); */
+}
+
 using PolyShiftRegister = PolyShiftRegisterComp<TestComposite>;
 using CombFilter = CombFilterComp<TestComposite>;
 
@@ -507,5 +546,6 @@ void perfTest()
     testKSDelay();
     testPolyShiftRegister();
     testLookupTable();
-    testCombFilter();
+    testCombFilter(); 
+    testEva();
 }

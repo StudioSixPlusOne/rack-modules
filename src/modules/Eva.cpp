@@ -58,14 +58,16 @@ struct MixWidget : ModuleWidget
         box.size = Vec (3 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
         SqHelper::setPanel (this, "res/Eva.svg");
 
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (7.619, 93.398)), module, Comp::ATTENUVERTER_PARAM));
+        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (7.619, 96.02)), module, Comp::ATTENUVERTER_PARAM));
+        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (7.619, 72.57)), module, Comp::GAIN_SHAPE_PARAM));
 
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.624, 14.362)), module, Comp::ONE_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.632, 23.549)), module, Comp::TWO_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.614, 32.702)), module, Comp::THREE_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.635, 41.903)), module, Comp::FOUR_INPUT));
+        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.624, 21.77)), module, Comp::ONE_INPUT));
+        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.632, 33.07)), module, Comp::TWO_INPUT));
+        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.614, 44.98)), module, Comp::THREE_INPUT));
+        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.635, 57.5)), module, Comp::FOUR_INPUT));
+        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.635, 84.43)), module, Comp::ATTENUATION_CV));
 
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (7.619, 108.479)), module, Comp::MAIN_OUTPUT));
+        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (7.619, 112.67)), module, Comp::MAIN_OUTPUT));
     }
 };
 
