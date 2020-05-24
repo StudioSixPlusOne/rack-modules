@@ -22,6 +22,7 @@
 #pragma once
 
 #include "IComposite.h"
+#include "HardLimiter.h"
 #include <memory>
 #include <assert.h>
 
@@ -77,6 +78,7 @@ public:
     enum ParamIds
     {
         ATTENUVERTER_PARAM,
+        GAIN_SHAPE_PARAM,
         NUM_PARAMS
     };
     enum InputIds
@@ -100,10 +102,29 @@ public:
 
     constexpr static int inputCount = 4;
 
+    float_4 attenuationFromShape (float_4 attenuation)
+    {
+        auto order = TBase::params[GAIN_SHAPE_PARAM].getValue();
+        order = order >= 0.0f
+                    ? order + 1
+                    : order - 1;
+        order = order >= 1.0f
+                    ? order
+                    : 1.0 / -order;
+        float_4 ret;
+        for (auto i = 0; i < 4; ++i)
+        {
+            ret[i] = attenuation[i] >= 0.0f
+                         ? std::pow (attenuation[i], order)
+                         : -std::pow (-attenuation[i], order);
+        }
+        return ret;
+    }
+
     int maxInputChannels()
     {
         auto ret = 0;
-        for (auto i = 0; i < NUM_INPUTS; ++i)
+        for (auto i = 0; i < inputCount; ++i)
         {
             if (TBase::inputs[i].getChannels() > ret)
                 ret = TBase::inputs[i].getChannels();
@@ -118,6 +139,7 @@ template <class TBase>
 inline void EvaComp<TBase>::step()
 {
     auto channels = maxInputChannels();
+    auto attenuationParam = TBase::params[ATTENUVERTER_PARAM].getValue();
 
     for (auto c = 0; c < channels; c += 4)
     {
@@ -125,9 +147,12 @@ inline void EvaComp<TBase>::step()
         for (auto i = 0; i < inputCount; ++i)
             out += TBase::inputs[i].template getPolyVoltageSimd<float_4> (c);
 
-        auto attenuation = TBase::params[ATTENUVERTER_PARAM].getValue()
-                           + (TBase::inputs[ATTENUATION_CV].getPolyVoltage (c) / 5.0f);
+        auto attenuation = (TBase::inputs[ATTENUATION_CV].template getPolyVoltageSimd<float_4> (c) / 5.0f);
+        for (auto j = 0; j < 4; ++j)
+            attenuation[j] += attenuationParam;
         attenuation = clamp (attenuation, -1.0f, 1.0f);
+        attenuation = attenuationFromShape (attenuation);
+        out = sspo::voltageSaturate (out);
         out *= attenuation;
 
         //set output
@@ -149,9 +174,11 @@ IComposite::Config EvaDescription<TBase>::getParam (int i)
     IComposite::Config ret = { 0.0f, 1.0f, 0.0f, "Code type", "unit", 0.0f, 1.0f, 0.0f };
     switch (i)
     {
-        //TODO
         case EvaComp<TBase>::ATTENUVERTER_PARAM:
             ret = { -1.0f, 1.0f, 1.0f, "Attenuverter", " ", 0, 1, 0.0f };
+            break;
+        case EvaComp<TBase>::GAIN_SHAPE_PARAM:
+            ret = { -3.0f, 3.0f, 0.0f, "Gain Shape", " ", 0, 1, 0.0f };
             break;
         default:
             assert (false);
