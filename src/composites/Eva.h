@@ -102,22 +102,14 @@ public:
 
     constexpr static int inputCount = 4;
 
-    float_4 attenuationFromShape (float_4 attenuation)
+    float_4 attenuationFromShape (float_4 attenuation, float shape)
     {
-        auto order = TBase::params[GAIN_SHAPE_PARAM].getValue();
-        order = order >= 0.0f
-                    ? order + 1
-                    : order - 1;
-        order = order >= 1.0f
-                    ? order
-                    : 1.0 / -order;
+        auto order = shape;
+        order = simd::ifelse (order > 0.0f, order + 1, 1.0 / -(order - 1));
         float_4 ret;
-        for (auto i = 0; i < 4; ++i)
-        {
-            ret[i] = attenuation[i] >= 0.0f
-                         ? std::pow (attenuation[i], order)
-                         : -std::pow (-attenuation[i], order);
-        }
+        float_4 positiveAttenuation = simd::abs (attenuation);
+        ret = simd::pow (positiveAttenuation, { order, order, order, order });
+        ret = simd::ifelse (attenuation < 0, -ret, ret);
         return ret;
     }
 
@@ -151,7 +143,10 @@ inline void EvaComp<TBase>::step()
         for (auto j = 0; j < 4; ++j)
             attenuation[j] += attenuationParam;
         attenuation = clamp (attenuation, -1.0f, 1.0f);
-        attenuation = attenuationFromShape (attenuation);
+        auto shape = TBase::params[GAIN_SHAPE_PARAM].getValue();
+        attenuation = shape == 0.0f
+                          ? attenuation
+                          : attenuationFromShape (attenuation, shape);
         out = sspo::voltageSaturate (out);
         out *= attenuation;
 
