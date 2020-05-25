@@ -35,6 +35,7 @@
 #include "AudioMath.h"
 
 using Eva = EvaComp<TestComposite>;
+using namespace sspo::AudioMath;
 
 constexpr float maxLimit = 11.7f;
 constexpr float satStart = 11.2f;
@@ -193,10 +194,135 @@ static void testAttenuationFromShape()
     assertClose (result[3], +0.313f, 0.001f);
 }
 
+static void testAttenuationFromShapeIsNormalised()
+{
+    auto shape = 1.34f;
+    Eva eva;
+    float_4 attenuation;
+    for (attenuation[0] = -1.0f; attenuation[0] < 1.0; attenuation[0] += 0.01)
+    {
+        auto result = eva.attenuationFromShape (attenuation, shape);
+        assertGE (result[0], -1.0f);
+        assertLE (result[0], 1.0f);
+    }
+}
+
+static void testAttenuationFromShapeWhenAttenuationZero()
+{
+    Eva eva;
+
+    auto inc = 0.1f;
+    auto epsilon = 0.001f;
+    std::vector<float_4> permutations;
+
+    auto testsRun = 0;
+    auto zeroChecked = 0;
+    permutations.push_back ({ 0, 1, 1, 1 });
+    permutations.push_back ({ 1, 0, 1, 1 });
+    permutations.push_back ({ 1, 1, 0, 1 });
+    permutations.push_back ({ 1, 1, 1, 0 });
+    permutations.push_back ({ 0, 0, 1, 1 });
+    permutations.push_back ({ 1, 0, 0, 1 });
+    permutations.push_back ({ 1, 1, 0, 0 });
+    permutations.push_back ({ 0, 1, 1, 0 });
+    permutations.push_back ({ 0, 0, 0, 1 });
+    permutations.push_back ({ 1, 0, 0, 0 });
+    permutations.push_back ({ 0, 1, 0, 0 });
+    permutations.push_back ({ 0, 0, 1, 0 });
+    permutations.push_back ({ 0, 0, 0, 0 });
+    for (auto shape = -3.0f; shape <= 3.0f; shape += inc)
+    {
+        //printf ("shape %f\n", shape);
+        for (auto a = -1.0f; a < 1.0f; a += inc)
+        {
+            //printf ("a %f\n", a);
+            for (auto b = -1.0f; b < 1.0f; b += inc)
+            {
+                //printf ("b %f\n", b);
+                for (auto c = -1.0f; c < 1.0f; c += inc)
+                {
+                    //printf ("c %f\n", c);
+                    for (auto d = -1.0f; d < 1.0f; d += inc)
+                    {
+                        //printf ("d %f\n", d);
+                        for (auto perm : permutations)
+                        {
+                            float_4 x{ a, b, c, d };
+                            auto y = x * perm;
+                            //printf ("y %f %f %f %f\n", y[0], y[1], y[2], y[3]);
+                            auto result = eva.attenuationFromShape (y, shape);
+                            for (auto i = 0; i < 4; ++i)
+                            {
+                                testsRun++;
+                                if (areSame (perm[i], 0.0f))
+                                {
+                                    zeroChecked++;
+                                    assertClose (result[i], 0.0f, epsilon);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    printf ("run %d zeros %d\n", testsRun, zeroChecked);
+}
+
+static void testSimdClamp2()
+{
+    float_4 attMin{ -1.0f, -1.0f, -1.0f, -1.0f };
+    float_4 attMax{ 1.0f, 1.0f, 1.0f, 1.0f };
+    float_4 x{ -2.0f, -1.0f, 1.0f, 2.0f };
+
+    auto res = simd::clamp (x, attMin, attMax);
+
+    assertEQ (res[0], -1.0f);
+    assertEQ (res[1], -1.0f);
+    assertEQ (res[2], 1.0f);
+    assertEQ (res[3], 1.0f);
+}
+
+//test to compare std::pow and simd::pow
+// as expected with fast approx functions a level of tolerance is found
+// simd(0, order), does not return 0, instead 240613957091486838146644248300244434944.000000
+static void testSimdPow()
+{
+    auto inc = 0.1f;
+    auto epsilon = 0.001f;
+
+    float_4 x{};
+    float_4 order_4{};
+    for (auto order = 0.0f; order <= 3.0f; order += inc)
+    {
+        order_4 = { order, order, order, order };
+
+        for (x[0] = 0.0f; x[0] <= 20.0f; x[0] += inc)
+        {
+            auto resultStd = std::pow (x[0], order);
+            auto resultSimd = simd::pow (x, order_4);
+            //assertClose (resultStd, resultSimd[0], epsilon);
+            if (! ((resultSimd[0] >= resultStd - epsilon)
+                   && (resultSimd[0] <= resultStd + epsilon)))
+            {
+                printf ("x : %f, order %f, std %f simd %f\n",
+                        x[0],
+                        order,
+                        resultStd,
+                        resultSimd[0]);
+            }
+        }
+    }
+}
+
 void testEva()
 {
     printf ("testEva\n");
     testAttenuationFromShape();
+    testAttenuationFromShapeIsNormalised();
+    testAttenuationFromShapeWhenAttenuationZero();
+    testSimdClamp2();
+    testSimdPow();
     testExtreme();
     testMaxInputChannels();
     testMonoSumming();
