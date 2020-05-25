@@ -36,7 +36,7 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  
  The main audio input should be triggered with noise, the color and duration of this has a large impact on the resulting sound. Try experimenting with short bursts, such as snare sounds, longer noise sounds with automated frequency can be used to emulate a bowed sound. All varations of sound input can be used to create sounds. 
 
-
+[Omri's YouTube Tutorial](https://www.youtube.com/watch?v=VKX3ii-kR1Y)
 <br>
 <br>
 <br>
@@ -87,6 +87,7 @@ A feedfoward comb filter with added feeback loop, can be used to create pitched 
 <br>
 <br>
 <br>
+<br>
 
 ### Tyrant
 
@@ -107,9 +108,10 @@ A monophonic in, polyphonic out shift register, with many probability options.
 <br>
 <br>
 
-Youtube Tutorial
 
-[YouTubeTutorial](https://www.youtube.com/watch?v=OJSy8fOxI5I)
+
+
+[Omri's YouTube Tutorial](https://www.youtube.com/watch?v=hOjkkmr0oNs)
 
 
 
