@@ -21,6 +21,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 
  [Lala](#lala)
  
+ [Eva](#eva)
+ 
 
   
 
@@ -128,10 +130,14 @@ A cascadable two way crossover, used for splitting audio frequency bands, for mu
 - Demo project for ideas <a href="patches//Lala_Demo.vcv">Demo patch</a>
 
 
+### Eva
 
+<img align="left" src="images/Eva.png">
 
+A slimline mixer for audio and cv.
 
-
-
+- All inputs and outputs polyphonic
+- CV controllable attenuverter
+- Variable attenuation curve
 
 
