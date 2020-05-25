@@ -108,7 +108,7 @@ public:
         order = simd::ifelse (order > 0.0f, order + 1, 1.0 / -(order - 1));
         float_4 ret;
         float_4 positiveAttenuation = simd::abs (attenuation);
-        ret = simd::pow (positiveAttenuation, { order, order, order, order });
+        ret = simd::ifelse (attenuation == 0, 0, simd::pow (positiveAttenuation, { order, order, order, order }));
         ret = simd::ifelse (attenuation < 0, -ret, ret);
         return ret;
     }
@@ -142,13 +142,15 @@ inline void EvaComp<TBase>::step()
         auto attenuation = (TBase::inputs[ATTENUATION_CV].template getPolyVoltageSimd<float_4> (c) / 5.0f);
         for (auto j = 0; j < 4; ++j)
             attenuation[j] += attenuationParam;
-        attenuation = clamp (attenuation, -1.0f, 1.0f);
+        float_4 attMin{ -1.0f, -1.0f, -1.0f, -1.0f };
+        float_4 attMax{ 1.0f, 1.0f, 1.0f, 1.0f };
+        attenuation = simd::clamp (attenuation, attMin, attMax);
         auto shape = TBase::params[GAIN_SHAPE_PARAM].getValue();
         attenuation = shape == 0.0f
                           ? attenuation
                           : attenuationFromShape (attenuation, shape);
-        out = sspo::voltageSaturate (out);
         out *= attenuation;
+        out = sspo::voltageSaturate (out);
 
         //set output
         out.store (TBase::outputs[MAIN_OUTPUT].getVoltages (c));
