@@ -38,6 +38,7 @@ extern void testCombFilter();
 extern void testSynthFilter();
 extern void testMaccomo();
 extern void testSaturator();
+extern void testUtilityFilter();
 
 //external performance tests
 extern void initPerf();
@@ -78,6 +79,7 @@ int main (int argc, char** argv)
 
     // run external tests defined above
 
+    testUtilityFilter();
     testSaturator();
     testEmpty();
     testTestSignal();
