@@ -313,7 +313,7 @@ inline void KSDelayComp<TBase>::step()
         float out = crossfade (in, wet, mix);
 
         out = dcOutFilters[i].process (out);
-        out = std::isfinite (out) ? out : 0.0f;
+        out = sspo::voltageSaturate (out);
         lastOut[i] = out;
 
         TBase::outputs[OUT_OUTPUT].setVoltage (out, i);
