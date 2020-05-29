@@ -26,6 +26,7 @@
 #include "digital.hpp"
 #include "math.hpp"
 #include "testSignal.h"
+#include <algorithm>
 
 namespace ts = sspo::TestSignal;
 
@@ -53,7 +54,7 @@ static void testShift()
     auto seq = a + b + c;
     auto trig = ts::makeClockTrigger (100, 3);
     assertEQ (psr.currentChannels, 1);
-    for (auto i = 0; i < 300; ++i)
+    for (auto i = 0; i < int (trig.size()); ++i)
     {
         psr.inputs[psr.MAIN_INPUT].setVoltage (seq[i]);
         psr.inputs[psr.TRIGGER_INPUT].setVoltage (trig[i]);
@@ -63,6 +64,84 @@ static void testShift()
     assertEQ (psr.currentChannels, 3);
     assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (0), 3.3f, FLT_EPSILON);
     assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (1), 1.5f, FLT_EPSILON);
+    assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (2), 1.0f, FLT_EPSILON);
+}
+
+static void testShiftMonoCv (float triggerProbCv)
+{
+    std::vector<float> oldSignal{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    std::vector<float> newSignal;
+    PSR psr;
+    psr.init();
+    psr.step();
+    psr.params[psr.CHANNELS_PARAM].setValue (16);
+    psr.inputs[psr.TRIGGER_PROB_INPUT].setVoltage (triggerProbCv, 0);
+    psr.inputs[psr.TRIGGER_PROB_INPUT].setChannels (1);
+    auto a = ts::makeFixed (100, 1.0f);
+    auto b = ts::makeFixed (100, 1.5f);
+    auto c = ts::makeFixed (100, 3.3f);
+    auto seq = a + b + c + a + b + c + a + b + c + a + b + c + a + b + c;
+    const int stepcount = 15;
+    const int interval = 100;
+    auto trig = ts::makeClockTrigger (interval, stepcount);
+    assertEQ (psr.currentChannels, 1);
+    for (auto j = 0; j < stepcount; ++j)
+    {
+        newSignal.resize (0);
+        for (auto i = 0; i < int (interval); ++i)
+        {
+            psr.inputs[psr.MAIN_INPUT].setVoltage (seq[i]);
+            psr.inputs[psr.TRIGGER_INPUT].setVoltage (trig[i]);
+            psr.step();
+        }
+        //test newbuffer = oldbuffer or newbuffershifted
+        //between elements 1 and psr.currentChannels
+
+        //get new buffer
+        for (auto k = 0; k < stepcount; ++k)
+            newSignal.push_back (psr.outputs[psr.MAIN_OUTPUT].getVoltage (k));
+        //compare same
+        auto same = newSignal == oldSignal;
+        //compare shifter
+        auto shifted = std::equal (newSignal.begin() + 1,
+                                   newSignal.end(),
+                                   oldSignal.begin());
+        //assert or
+        assert (same || shifted);
+        oldSignal = newSignal;
+    }
+}
+
+static void testShiftMonoCv()
+{
+    testShiftMonoCv (0.0f);
+    testShiftMonoCv (8.0f);
+}
+
+static void testShiftPolyCv()
+{
+    PSR psr;
+    psr.init();
+    psr.step();
+    psr.params[psr.CHANNELS_PARAM].setValue (3);
+    psr.inputs[psr.TRIGGER_PROB_INPUT].setChannels (3);
+    psr.inputs[psr.TRIGGER_PROB_INPUT].setVoltage (10.0, 1);
+    auto a = ts::makeFixed (100, 1.0f);
+    auto b = ts::makeFixed (100, 1.5f);
+    auto c = ts::makeFixed (100, 3.3f);
+    auto seq = a + b + c;
+    auto trig = ts::makeClockTrigger (100, 3);
+    assertEQ (psr.currentChannels, 1);
+    for (auto i = 0; i < int (trig.size()); ++i)
+    {
+        psr.inputs[psr.MAIN_INPUT].setVoltage (seq[i]);
+        psr.inputs[psr.TRIGGER_INPUT].setVoltage (trig[i]);
+        psr.step();
+    }
+
+    assertEQ (psr.currentChannels, 3);
+    assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (0), 3.3f, FLT_EPSILON);
+    assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (1), 0.0f, FLT_EPSILON);
     assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (2), 1.0f, FLT_EPSILON);
 }
 
@@ -90,7 +169,7 @@ static void testReset()
     assertEQ (psr.currentChannels, 1);
 }
 
-static void testShuffle()
+static void testShuffleNoCv()
 {
     PSR psr;
     psr.init();
@@ -118,6 +197,40 @@ static void testShuffle()
             shuffleCount++;
     }
     assertClose (shuffleCount, 500, 200);
+}
+
+static void testShufflePolyCv()
+{
+    PSR psr;
+    psr.init();
+    psr.step();
+    psr.params[psr.CHANNELS_PARAM].setValue (3);
+    auto a = ts::makeFixed (100, 1.0f);
+    auto b = ts::makeFixed (100, 1.5f);
+    auto c = ts::makeFixed (100, 3.3f);
+    auto seq = a + b + c;
+    auto trig = ts::makeClockTrigger (100, 3);
+    assertEQ (psr.currentChannels, 1);
+    psr.params[psr.SHUFFLE_PROB_PARAM].setValue (0.0);
+    psr.inputs[psr.SHUFFLE_PROB_INPUT].setChannels (3);
+    psr.inputs[psr.SHUFFLE_PROB_INPUT].setVoltage (5.0, 1);
+
+    auto shuffleCount = 0;
+    for (auto i = 0; i < 1000; ++i)
+    {
+        for (auto i = 0; i < 300; ++i)
+        {
+            psr.inputs[psr.MAIN_INPUT].setVoltage (seq[i]);
+            psr.inputs[psr.TRIGGER_INPUT].setVoltage (trig[i]);
+            psr.step();
+        }
+        assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (0), 3.3f, 0.0001f);
+        assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (2), 1.0f, 0.0001f);
+
+        if (psr.outputs[psr.MAIN_OUTPUT].getVoltage (1) != 1.5f)
+            shuffleCount++;
+    }
+    assertClose (shuffleCount, 500, 100);
 }
 
 static void testAccentA()
@@ -226,8 +339,11 @@ void testPolyShiftRegister()
     printf ("Testing Poly Shift Register Tyrant");
     test01();
     testShift();
+    testShiftMonoCv();
+    testShiftPolyCv();
     testReset();
-    testShuffle();
+    testShuffleNoCv();
+    testShufflePolyCv();
     testAccentA();
     testAccentB();
     testAccentRNG();

@@ -100,7 +100,8 @@ public:
     };
 
     static constexpr int maxChannels = 16;
-    std::vector<float> channelData;
+    //16 historc values kept per channel to allow for individual shuffles
+    std::vector<std::vector<float>> channelData;
     dsp::SchmittTrigger clockTrigger;
     dsp::SchmittTrigger resetTrigger;
     int currentChannels = 1;
@@ -133,11 +134,15 @@ public:
     // must be called after setSampleRate
     void init()
     {
-        defaultGenerator.seed (time (NULL));
+        defaultGenerator.seed (time (nullptr));
 
         channelData.resize (maxChannels);
         for (auto& cd : channelData)
-            cd = 0.0f;
+        {
+            cd.resize (maxChannels);
+            for (auto& c : cd)
+                c = -0.0f;
+        }
 
         triggerRng.resize (maxChannels);
         for (auto& t : triggerRng)
@@ -156,11 +161,11 @@ public:
             a = 0.0f;
     }
 
-    void shift (float in)
+    void shift (float in, int bufferChannel = 0)
     {
         for (auto i = maxChannels; i > 0; --i)
-            channelData[i] = channelData[i - 1];
-        channelData[0] = in;
+            channelData[bufferChannel][i] = channelData[bufferChannel][i - 1];
+        channelData[bufferChannel][0] = in;
     }
 
     void triggerRngGenerator()
@@ -169,58 +174,80 @@ public:
             triggerRng[i] = rand01();
     }
 
-    void generateAccents()
+    void generateAccents (std::vector<float>& accentOffsets,
+                          ParamIds accentProbParam,
+                          InputIds accentProbCv,
+                          ParamIds accentOffsetParam,
+                          InputIds accentOffsetCv,
+                          int bufferChannel,
+                          bool rng = false)
     {
-        if (TBase::inputs[ACCENT_A_PROB_INPUT].getChannels() > 1)
+        if (TBase::inputs[accentProbCv].getChannels() > 1)
         {
-            for (auto c = 0; c < currentChannels; ++c)
-            {
-                accentAOffsets[c] = fixedAccent (ACCENT_A_PROB_PARAM, ACCENT_A_PROB_INPUT, ACCENT_A_OFFSET_PARAM, ACCENT_A_OFFSET_INPUT, c);
-            }
+            auto scale = rng ? rand01() : 1.0f;
+            accentOffsets[bufferChannel] = scale
+                                           * fixedAccent (accentProbParam,
+                                                          accentProbCv,
+                                                          accentOffsetParam,
+                                                          accentProbCv,
+                                                          bufferChannel);
         }
         else
         {
-            auto accent = fixedAccent (ACCENT_A_PROB_PARAM, ACCENT_A_PROB_INPUT, ACCENT_A_OFFSET_PARAM, ACCENT_A_OFFSET_INPUT, 0);
-            for (auto& a : accentAOffsets)
-                a = accent;
-        }
-
-        if (TBase::inputs[ACCENT_B_PROB_INPUT].getChannels() > 1)
-        {
-            for (auto c = 0; c < currentChannels; ++c)
-            {
-                accentBOffsets[c] = fixedAccent (ACCENT_B_PROB_PARAM, ACCENT_B_PROB_INPUT, ACCENT_B_OFFSET_PARAM, ACCENT_B_OFFSET_INPUT, c);
-            }
-        }
-        else
-        {
-            auto accent = fixedAccent (ACCENT_B_PROB_PARAM, ACCENT_B_PROB_INPUT, ACCENT_B_OFFSET_PARAM, ACCENT_B_OFFSET_INPUT, 0);
-            for (auto& a : accentBOffsets)
-                a = accent;
-        }
-
-        if (TBase::inputs[ACCENT_RNG_PROB_INPUT].getChannels() > 1)
-        {
-            for (auto c = 0; c < currentChannels; ++c)
-            {
-                accentRngOffsets[c] = rand01() * fixedAccent (ACCENT_RNG_PROB_PARAM, ACCENT_RNG_PROB_INPUT, ACCENT_RNG_OFFSET_PARAM, ACCENT_RNG_MAX_INPUT, c);
-            }
-        }
-        else
-        {
-            auto accent = rand01() * fixedAccent (ACCENT_RNG_PROB_PARAM, ACCENT_RNG_PROB_INPUT, ACCENT_RNG_OFFSET_PARAM, ACCENT_RNG_MAX_INPUT, 0);
-            for (auto& a : accentRngOffsets)
+            auto scale = rng ? rand01() : 1.0f;
+            auto accent = scale
+                          * fixedAccent (accentProbParam,
+                                         accentProbCv,
+                                         accentOffsetParam,
+                                         accentProbCv,
+                                         0);
+            for (auto& a : accentOffsets)
                 a = accent;
         }
     }
 
-    float fixedAccent (ParamIds probParam, InputIds probInput, ParamIds offsetParam, InputIds offsetInput, int c)
+    void generateAccents (int bufferChannel)
+    {
+        generateAccents (accentAOffsets,
+                         ACCENT_A_PROB_PARAM,
+                         ACCENT_A_PROB_INPUT,
+                         ACCENT_A_OFFSET_PARAM,
+                         ACCENT_A_OFFSET_INPUT,
+                         bufferChannel);
+
+        generateAccents (accentBOffsets,
+                         ACCENT_B_PROB_PARAM,
+                         ACCENT_B_PROB_INPUT,
+                         ACCENT_B_OFFSET_PARAM,
+                         ACCENT_B_OFFSET_INPUT,
+                         bufferChannel);
+
+        generateAccents (accentRngOffsets,
+                         ACCENT_RNG_PROB_PARAM,
+                         ACCENT_RNG_PROB_INPUT,
+                         ACCENT_RNG_OFFSET_PARAM,
+                         ACCENT_RNG_MAX_INPUT,
+                         bufferChannel,
+                         true);
+    }
+
+    float fixedAccent (ParamIds probParam,
+                       InputIds probInput,
+                       ParamIds offsetParam,
+                       InputIds offsetInput,
+                       int c)
     {
         auto ret = 0.0f;
-        auto accentProb = clamp (TBase::params[probParam].getValue() + TBase::inputs[probInput].getPolyVoltage (c) / 10.0f, 0.0f, 1.0f);
+        auto accentProb = clamp (TBase::params[probParam].getValue()
+                                     + TBase::inputs[probInput].getPolyVoltage (c) / 10.0f,
+                                 0.0f,
+                                 1.0f);
         auto useAccent = accentProb > rand01();
         if (useAccent)
-            ret = clamp (TBase::params[offsetParam].getValue() + TBase::inputs[offsetInput].getPolyVoltage (c), -10.0f, 10.0f);
+            ret = clamp (TBase::params[offsetParam].getValue()
+                             + TBase::inputs[offsetInput].getPolyVoltage (c),
+                         -10.0f,
+                         10.0f);
 
         return ret;
     }
@@ -235,23 +262,48 @@ public:
 template <class TBase>
 inline void PolyShiftRegisterComp<TBase>::step()
 {
-    //channels, trigger and shufffle are monophonic as these all act on a single buffer not per output channel
-    auto channels = static_cast<int> (clamp (TBase::params[CHANNELS_PARAM].getValue() + TBase::inputs[CHANNELS_INPUT].getVoltage(), 1.0f, static_cast<float> (maxChannels)));
-    auto triggerProb = clamp (TBase::params[TRIGGER_PROB_PARAM].getValue() + TBase::inputs[TRIGGER_PROB_INPUT].getVoltage() / 10.0f, 0.0f, 1.0f);
-    auto shuffleProb = clamp (TBase::params[SHUFFLE_PROB_PARAM].getValue() + TBase::inputs[SHUFFLE_PROB_INPUT].getVoltage() / 10.0f, 0.0f, 1.0f);
+    //channels, monophonic as these all act on a single buffer not per output channel
+    auto channels = static_cast<int> (clamp (TBase::params[CHANNELS_PARAM].getValue()
+                                                 + TBase::inputs[CHANNELS_INPUT].getVoltage(),
+                                             1.0f,
+                                             static_cast<float> (maxChannels)));
 
+    //trigger and shuffle act per channel buffer
+    auto triggered = clockTrigger.process (TBase::inputs[TRIGGER_INPUT].getVoltage());
+    auto monoTriggerProb = TBase::inputs[TRIGGER_PROB_INPUT].getChannels() < 2;
+    float triggerProb = clamp (TBase::params[TRIGGER_PROB_PARAM].getValue()
+                                   + TBase::inputs[TRIGGER_PROB_INPUT].getVoltage() / 10.0f,
+                               0.0f,
+                               1.0f);
     auto ignoreTrigger = triggerProb > rand01();
-    if (clockTrigger.process (TBase::inputs[TRIGGER_INPUT].getVoltage()) && ! ignoreTrigger)
-    {
-        shift (TBase::inputs[MAIN_INPUT].getVoltage());
-        currentChannels++;
-        currentChannels = clamp (currentChannels, 1, channels);
-        triggerRngGenerator();
-        auto useShuffle = shuffleProb > rand01();
-        if (useShuffle)
-            std::random_shuffle (channelData.begin(), channelData.end());
 
-        generateAccents();
+    for (auto c = 0; c < maxChannels; ++c)
+    {
+        triggerProb = clamp (TBase::params[TRIGGER_PROB_PARAM].getValue()
+                                 + TBase::inputs[TRIGGER_PROB_INPUT].getPolyVoltage (c) / 10.0f,
+                             0.0f,
+                             1.0f);
+
+        auto shuffleProb = clamp (TBase::params[SHUFFLE_PROB_PARAM].getValue()
+                                      + TBase::inputs[SHUFFLE_PROB_INPUT].getPolyVoltage (c) / 10.0f,
+                                  0.0f,
+                                  1.0f);
+
+        if (! monoTriggerProb)
+            ignoreTrigger = triggerProb > rand01();
+
+        if (triggered && ! ignoreTrigger)
+        {
+            shift (TBase::inputs[MAIN_INPUT].getVoltage(), c);
+
+            currentChannels++;
+            currentChannels = clamp (currentChannels, 1, channels);
+            triggerRngGenerator();
+            auto useShuffle = shuffleProb > rand01();
+            if (useShuffle)
+                std::random_shuffle (channelData[c].begin(), channelData[c].end());
+            generateAccents (c);
+        }
     }
 
     if (resetTrigger.process (TBase::inputs[RESET_INPUT].getVoltage()))
@@ -260,7 +312,7 @@ inline void PolyShiftRegisterComp<TBase>::step()
     //output channels
     for (auto c = 0; c < std::min (currentChannels, channels); ++c)
     {
-        auto out = channelData[c];
+        auto out = channelData[c][c];
         out += accentAOffsets[c];
         out += accentBOffsets[c];
         out += accentRngOffsets[c];
