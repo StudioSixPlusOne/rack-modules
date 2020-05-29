@@ -101,7 +101,7 @@ A monophonic in, polyphonic out shift register, with many probability options.
 - Shuffle Probability controls the values in the buffer being reordered
 - Three accent controls
 - Accent A & B apply a fixed offset, Accent RNG applies a random offset with the maximum value defined by the offset controls
-- If Accent CV's have no input or a monophonic input all channels are affected simultaneously, If the probability cv inputs have polyphonic inputs the channels are effected independently
+- If any of the probability CV's have no input or a monophonic input all channels are affected simultaneously, If the probability cv inputs have polyphonic inputs the channels are effected independently
 - The Reset input sets the current channel count to 1 and samples the input, the channel count is increased on each trigger input, until the desired channel count is reached
 
 <br>
