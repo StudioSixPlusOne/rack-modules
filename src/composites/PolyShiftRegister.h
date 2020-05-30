@@ -189,7 +189,7 @@ public:
                                            * fixedAccent (accentProbParam,
                                                           accentProbCv,
                                                           accentOffsetParam,
-                                                          accentProbCv,
+                                                          accentOffsetCv,
                                                           bufferChannel);
         }
         else
@@ -199,7 +199,7 @@ public:
                           * fixedAccent (accentProbParam,
                                          accentProbCv,
                                          accentOffsetParam,
-                                         accentProbCv,
+                                         accentOffsetCv,
                                          0);
             for (auto& a : accentOffsets)
                 a = accent;
@@ -276,7 +276,7 @@ inline void PolyShiftRegisterComp<TBase>::step()
                                0.0f,
                                1.0f);
     auto ignoreTrigger = triggerProb > rand01();
-
+    auto shifted = false;
     for (auto c = 0; c < maxChannels; ++c)
     {
         triggerProb = clamp (TBase::params[TRIGGER_PROB_PARAM].getValue()
@@ -295,15 +295,19 @@ inline void PolyShiftRegisterComp<TBase>::step()
         if (triggered && ! ignoreTrigger)
         {
             shift (TBase::inputs[MAIN_INPUT].getVoltage(), c);
+            shifted = true;
 
-            currentChannels++;
-            currentChannels = clamp (currentChannels, 1, channels);
             triggerRngGenerator();
             auto useShuffle = shuffleProb > rand01();
             if (useShuffle)
                 std::random_shuffle (channelData[c].begin(), channelData[c].end());
             generateAccents (c);
         }
+    }
+    if (shifted)
+    {
+        currentChannels++;
+        currentChannels = clamp (currentChannels, 1, channels);
     }
 
     if (resetTrigger.process (TBase::inputs[RESET_INPUT].getVoltage()))
