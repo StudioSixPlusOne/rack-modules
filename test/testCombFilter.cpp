@@ -83,7 +83,7 @@ void testPositiveCombPeaks (float voct, float sr)
 
     printf ("Comb peaks: freq %f  sr %f peak count %d\n", freq, sr, static_cast<int> (peaks.size()));
 
-    for (auto i = 0; i < peaks.size(); ++i)
+    for (auto i = 0; i < int (peaks.size()); ++i)
     {
         if (peaks[i].freq >= freq * 0.75f)
         {
