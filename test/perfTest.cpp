@@ -456,10 +456,10 @@ void perfTest()
     assert (overheadInOut > 0);
     assert (overheadOutOnly > 0);
 
-    //test1();
+    test1();
     testNoise (true);
-    //testNormal();
-    //testFastApprox();
+    testNormal();
+    testFastApprox();
     testCircularBuffer();
     testHardLimiter();
     testKSDelay();
