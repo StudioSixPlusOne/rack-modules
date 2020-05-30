@@ -12,3 +12,4 @@ extern Model* modelCombFilter;
 extern Model* modelMix;
 extern Model* modelLaLa;
 extern Model* modelEva;
+extern Model* modelZazel;
