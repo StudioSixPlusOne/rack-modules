@@ -13,4 +13,5 @@ void init (::rack::Plugin* p)
     p->addModel (modelCombFilter);
     p->addModel (modelLaLa);
     p->addModel (modelEva);
+    p->addModel (modelZazel);
 }
