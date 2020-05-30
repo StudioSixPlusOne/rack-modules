@@ -10,3 +10,4 @@ extern Model* modelMaccomo;
 extern Model* modelPolyShiftRegister;
 extern Model* modelCombFilter;
 extern Model* modelMix;
+extern Model* modelZazel;

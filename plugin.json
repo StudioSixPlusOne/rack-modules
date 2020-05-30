@@ -55,6 +55,12 @@
         "Filter",
         "Effect"
       ]
+    },
+    {
+      "slug": "Zazel",
+      "name": "Zazel",
+      "description": "",
+      "tags": []
     }
   ]
 }
