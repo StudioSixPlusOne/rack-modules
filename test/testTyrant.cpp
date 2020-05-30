@@ -150,21 +150,24 @@ static void testReset()
     PSR psr;
     psr.init();
     psr.step();
-    psr.params[psr.CHANNELS_PARAM].setValue (3);
+    psr.params[psr.CHANNELS_PARAM].setValue (6);
     auto a = ts::makeFixed (100, 1.0f);
     auto b = ts::makeFixed (100, 1.5f);
     auto c = ts::makeFixed (100, 3.3f);
-    auto seq = a + b + c;
-    auto trig = ts::makeClockTrigger (100, 3);
-    auto reset = ts::makeZeros (250) + ts::makeTrigger (50, 44);
+    auto seq = a + b + c + a + b + c;
+    auto trig = ts::makeClockTrigger (100, 6);
+    auto reset = ts::makeTrigger (600, 44);
     assertEQ (psr.currentChannels, 1);
-    for (auto i = 0; i < 300; ++i)
+    for (auto i = 0; i < 600; ++i)
     {
         psr.inputs[psr.MAIN_INPUT].setVoltage (seq[i]);
         psr.inputs[psr.TRIGGER_INPUT].setVoltage (trig[i]);
-        psr.inputs[psr.RESET_INPUT].setVoltage (trig[i]);
+        psr.inputs[psr.RESET_INPUT].setVoltage (reset[i]);
         psr.step();
+        assertEQ (psr.currentChannels, int (i / 100) + 1);
     }
+    psr.inputs[psr.RESET_INPUT].setVoltage (10.0f);
+    psr.step();
 
     assertEQ (psr.currentChannels, 1);
 }
@@ -233,6 +236,32 @@ static void testShufflePolyCv()
     assertClose (shuffleCount, 500, 100);
 }
 
+static void testAccentZeroOffset()
+{
+    PSR psr;
+    psr.init();
+    psr.step();
+    psr.params[psr.CHANNELS_PARAM].setValue (3);
+    psr.params[psr.ACCENT_A_PROB_PARAM].setValue (0.0);
+    psr.params[psr.ACCENT_A_OFFSET_PARAM].setValue (0.0);
+    psr.inputs[psr.ACCENT_A_PROB_INPUT].setChannels (3);
+    psr.inputs[psr.ACCENT_A_PROB_INPUT].setVoltage (0.7, 1);
+    auto trig = ts::makeClockTrigger (100, 3);
+    auto seq = ts::makeZeros (300);
+    auto accentCount = 0;
+    for (auto i = 0; i < 1000; ++i)
+    {
+        for (auto i = 0; i < 300; ++i)
+        {
+            psr.inputs[psr.MAIN_INPUT].setVoltage (seq[i]);
+            psr.inputs[psr.TRIGGER_INPUT].setVoltage (trig[i]);
+            psr.step();
+        }
+        for (auto c = 0; c < 3; ++c)
+            assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (c), 0.0f, FLT_EPSILON);
+    }
+}
+
 static void testAccentA()
 {
     PSR psr;
@@ -281,6 +310,64 @@ static void testAccentB()
         if ((psr.outputs[psr.MAIN_OUTPUT].getVoltage (0) == -0.7f)
             && (psr.outputs[psr.MAIN_OUTPUT].getVoltage (1) == -0.7f))
             accentCount++;
+    }
+    assertClose (accentCount, 500, 200);
+}
+
+static void testAccentAPolyCv()
+{
+    PSR psr;
+    psr.init();
+    psr.step();
+    psr.params[psr.CHANNELS_PARAM].setValue (3);
+    psr.params[psr.ACCENT_A_PROB_PARAM].setValue (0.0);
+    psr.params[psr.ACCENT_A_OFFSET_PARAM].setValue (-3.2);
+    psr.inputs[psr.ACCENT_A_PROB_INPUT].setChannels (3);
+    psr.inputs[psr.ACCENT_A_PROB_INPUT].setVoltage (5, 2);
+    auto trig = ts::makeClockTrigger (100, 3);
+    auto seq = ts::makeZeros (300);
+    auto accentCount = 0;
+    for (auto i = 0; i < 1000; ++i)
+    {
+        for (auto i = 0; i < 300; ++i)
+        {
+            psr.inputs[psr.MAIN_INPUT].setVoltage (seq[i]);
+            psr.inputs[psr.TRIGGER_INPUT].setVoltage (trig[i]);
+            psr.step();
+        }
+        if (psr.outputs[psr.MAIN_OUTPUT].getVoltage (2) == -3.2f)
+            accentCount++;
+        assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (0), 0.0f, FLT_EPSILON);
+        assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (1), 0.0f, FLT_EPSILON);
+    }
+    assertClose (accentCount, 500, 200);
+}
+
+static void testAccentBPolyCv()
+{
+    PSR psr;
+    psr.init();
+    psr.step();
+    psr.params[psr.CHANNELS_PARAM].setValue (3);
+    psr.params[psr.ACCENT_B_PROB_PARAM].setValue (0.0);
+    psr.params[psr.ACCENT_B_OFFSET_PARAM].setValue (-3.2);
+    psr.inputs[psr.ACCENT_B_PROB_INPUT].setChannels (3);
+    psr.inputs[psr.ACCENT_B_PROB_INPUT].setVoltage (5, 1);
+    auto trig = ts::makeClockTrigger (100, 3);
+    auto seq = ts::makeZeros (300);
+    auto accentCount = 0;
+    for (auto i = 0; i < 1000; ++i)
+    {
+        for (auto i = 0; i < 300; ++i)
+        {
+            psr.inputs[psr.MAIN_INPUT].setVoltage (seq[i]);
+            psr.inputs[psr.TRIGGER_INPUT].setVoltage (trig[i]);
+            psr.step();
+        }
+        if (psr.outputs[psr.MAIN_OUTPUT].getVoltage (1) == -3.2f)
+            accentCount++;
+        assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (0), 0.0f, FLT_EPSILON);
+        assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (2), 0.0f, FLT_EPSILON);
     }
     assertClose (accentCount, 500, 200);
 }
@@ -336,7 +423,7 @@ static void testExtreme()
 
 void testPolyShiftRegister()
 {
-    printf ("Testing Poly Shift Register Tyrant");
+    printf ("Testing Poly Shift Register Tyrant\n");
     test01();
     testShift();
     testShiftMonoCv();
@@ -347,6 +434,9 @@ void testPolyShiftRegister()
     testAccentA();
     testAccentB();
     testAccentRNG();
+    testAccentZeroOffset();
+    testAccentAPolyCv();
+    testAccentBPolyCv();
 
     testExtreme();
 }
