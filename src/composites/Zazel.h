@@ -23,6 +23,7 @@
 
 #include "IComposite.h"
 #include "AudioMath.h"
+#include "easing.h"
 #include <memory>
 #include <vector>
 
@@ -74,17 +75,6 @@ public:
         return std::make_shared<ZazelDescription<TBase>>();
     }
 
-    void setSampleRate (float rate)
-    {
-        //TODO
-    }
-
-    // must be called after setSampleRate
-    void init()
-    {
-        //TODO
-    }
-
     enum ParamIds
     {
         EASING_ATTENUVERTER_PARAM,
@@ -119,7 +109,24 @@ public:
         NUM_LIGHTS
     };
 
-    //TODO member variables
+    //member variables
+
+    float sampleRate = 1.0f;
+    float sampleTime = 1.0f;
+    std::vector<Easings::Easing> easings;
+
+    void setSampleRate (float rate)
+    {
+        sampleRate = rate;
+        sampleTime = 1.0f / rate;
+    }
+
+    // must be called after setSampleRate
+    void init()
+    {
+        //TODO
+        easings = Easings::getEasingVector();
+    }
 
     void step() override;
 };
