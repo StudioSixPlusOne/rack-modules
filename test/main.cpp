@@ -42,6 +42,7 @@ extern void testSaturator();
 extern void testUtilityFilter();
 extern void testLala();
 extern void testEva();
+extern void testEasing();
 
 //external performance tests
 extern void initPerf();
@@ -85,6 +86,7 @@ int main (int argc, char** argv)
     testLala();
     testUtilityFilter();
     testEva();
+    testEasing();
     testSaturator();
     testEmpty();
     testTestSignal();
