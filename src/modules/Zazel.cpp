@@ -21,6 +21,7 @@
 
 #include "plugin.hpp"
 #include "Zazel.h"
+#include "easing.h"
 #include "WidgetComposite.h"
 #include "ctrl/SqMenuItem.h"
 #include <atomic>
@@ -111,17 +112,75 @@ struct Zazel : Module
         requestedParameter.store (rpi);
     }
 
+    int getEasing()
+    {
+        return zazel->getCurrentEasing();
+    }
+
+    bool getOneShot()
+    {
+        return zazel->oneShot;
+    }
+
     void process (const ProcessArgs& args) override
     {
         paramChange();
         zazel->step();
-        //TODO send output to parameter
+        if (paramHandle.moduleId != -1 && paramHandle.module != nullptr)
+        {
+            ParamQuantity* pq = paramHandle.module->paramQuantities[paramHandle.paramId];
+            if (pq != nullptr)
+                pq->setScaledValue (zazel->out / 2.0f + 0.5);
+        }
     }
 };
 
 /*****************************************************
 User Interface
 *****************************************************/
+
+struct EasingWidget : Widget
+{
+    Zazel* module = nullptr;
+    NVGcolor lineColor;
+    Easings::EasingFactory ef;
+
+    EasingWidget()
+    {
+        box.size = mm2px (Vec (14.142, 14.084));
+        lineColor = nvgRGBA (0xf0, 0xf0, 0xf0, 0xff);
+    }
+
+    void setModule (Zazel* module)
+    {
+        this->module = module;
+    }
+
+    void draw (const DrawArgs& args) override
+    {
+        if (module == nullptr)
+            return;
+        const auto border = 14.142f * 0.1f; //bordersize in mm
+        const auto width = 11.0f;
+        const auto permm = width;
+        auto easing = ef.getEasingVector().at (module->getEasing());
+
+        nvgBeginPath (args.vg);
+        nvgMoveTo (args.vg, mm2px (border), mm2px (border + width));
+        for (auto i = 0.0f; i < 1.0f; i += 0.01f)
+        {
+            auto easingY = module->getOneShot()
+                               ? easing->easeIn (i, 0.0f, 1.0f, 1.0f)
+                               : easing->easeInOut (i, 0.0f, 1.0f, 1.0f);
+            nvgLineTo (args.vg,
+                       mm2px (permm * i + border),
+                       mm2px (border + width - width * easingY));
+        }
+        nvgStrokeColor (args.vg, lineColor);
+        nvgStrokeWidth (args.vg, 1.5f);
+        nvgStroke (args.vg);
+    }
+};
 
 struct ParameterSelectWidget : Widget
 {
@@ -243,8 +302,10 @@ struct ParameterSelectWidget : Widget
         //module name text
         Vec c = Vec (5, 15);
         auto moduleTxt = getSelectedModuleName();
+        moduleTxt.resize (14);
         nvgText (args.vg, c.x, c.y, moduleTxt.c_str(), NULL);
         auto parameterTxt = getSelectedParameterName();
+        parameterTxt.resize (14);
         c = Vec (5, 35);
         nvgText (args.vg, c.x, c.y, parameterTxt.c_str(), NULL);
     }
@@ -287,8 +348,11 @@ struct ZazelWidget : ModuleWidget
         auto* paramSelectwidget = createWidget<ParameterSelectWidget> (mm2px (Vec (5.591, 14.19)));
         paramSelectwidget->setModule (module);
         addChild (paramSelectwidget);
-        // mm2px(Vec(14.142, 14.084))
-        addChild (createWidget<Widget> (mm2px (Vec (40.315, 14.19))));
+
+        auto* easingWidget = createWidget<EasingWidget> (mm2px (Vec (40.315, 14.19)));
+        easingWidget->setModule (module);
+
+        addChild (easingWidget);
     }
 };
 
