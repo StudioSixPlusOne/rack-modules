@@ -33,6 +33,7 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
+#pragma once
 
 #include <cmath>
 #include "AudioMath.h"
@@ -273,8 +274,9 @@ namespace Easings
         float easeInOut (float t, float b, float c, float d) override
         {
             t /= d;
-            if ((t / 2) < 1)
+            if ((t / 2) < 0.5)
                 return ((c / 2) * (t * t)) + b;
+            --t;
             return -c / 2 * (((t - 2) * (t)) - 1) + b;
             /*
             originally return -c/2 * (((t-2)*(--t)) - 1) + b;
@@ -351,6 +353,22 @@ namespace Easings
 
     struct EasingFactory
     {
+        std::vector<std::shared_ptr<Easings::Easing>> vect;
+
+        EasingFactory()
+        {
+            vect.push_back (std::make_shared<Back>());
+            vect.push_back (std::make_shared<Bounce>());
+            vect.push_back (std::make_shared<Circ>());
+            vect.push_back (std::make_shared<Cubic>());
+            vect.push_back (std::make_shared<Elastic>());
+            vect.push_back (std::make_shared<Expo>());
+            vect.push_back (std::make_shared<Linear>());
+            vect.push_back (std::make_shared<Quad>());
+            vect.push_back (std::make_shared<Quart>());
+            vect.push_back (std::make_shared<Quint>());
+            vect.push_back (std::make_shared<Sine>());
+        }
         enum class EasingNames
         {
             back,
@@ -363,25 +381,13 @@ namespace Easings
             quad,
             quart,
             quint,
-            sine
+            sine,
+            EASING_COUNT
         };
 
-        std::vector<std::shared_ptr<Easings::Easing>> getEasingVector()
+        std::vector<std::shared_ptr<Easings::Easing>>& getEasingVector()
         {
-            std::vector<std::shared_ptr<Easings::Easing>> ret;
-            ret.push_back (std::make_shared<Back>());
-            ret.push_back (std::make_shared<Bounce>());
-            ret.push_back (std::make_shared<Circ>());
-            ret.push_back (std::make_shared<Cubic>());
-            ret.push_back (std::make_shared<Elastic>());
-            ret.push_back (std::make_shared<Expo>());
-            ret.push_back (std::make_shared<Linear>());
-            ret.push_back (std::make_shared<Quad>());
-            ret.push_back (std::make_shared<Quart>());
-            ret.push_back (std::make_shared<Quint>());
-            ret.push_back (std::make_shared<Sine>());
-
-            return ret;
+            return vect;
         }
     };
 } // namespace Easings
