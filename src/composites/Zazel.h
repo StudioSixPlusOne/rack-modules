@@ -23,9 +23,11 @@
 
 #include "IComposite.h"
 #include "AudioMath.h"
+#include "HardLimiter.h"
 #include "easing.h"
 #include <memory>
 #include <vector>
+#include <cstdlib>
 
 namespace rack
 {
@@ -109,11 +111,52 @@ public:
         NUM_LIGHTS
     };
 
+    enum class Mode
+    {
+        ONESHOT_ATTACK,
+        ONESHOT_HIGH,
+        ONESHOT_DECAY,
+        ONESHOT_LOW,
+        CYCLE_ATTACK,
+        CYCLE_DECAY,
+        PAUSED,
+        COUNT
+    };
+
     //member variables
 
     float sampleRate = 1.0f;
     float sampleTime = 1.0f;
     std::vector<Easings::Easing> easings;
+    int currentEasing = 0.0;
+    bool oneShot = false;
+    int lastClockDuration = 1000;
+    dsp::SchmittTrigger syncTrigger;
+    dsp::SchmittTrigger startContTrigger;
+    dsp::SchmittTrigger pauseTrigger;
+    int framesSinceSync = 0;
+    Mode mode;
+    Mode lastMode;
+    int framesSincePhaseChange = 0;
+    Easings::EasingFactory ef;
+    float out = 0.0f;
+    float framePhaseDuration = 1.0f;
+    int framePhaseCount = 0;
+    float startParam = 0.0f;
+    float endParam = 0.0f;
+
+    void changePhase (Mode m)
+    {
+        framesSincePhaseChange = 0;
+        mode = m;
+    }
+
+    int getCurrentEasing()
+    {
+        return clamp (currentEasing,
+                      0,
+                      int (Easings::EasingFactory::EasingNames::EASING_COUNT) - 1);
+    }
 
     void setSampleRate (float rate)
     {
@@ -121,11 +164,157 @@ public:
         sampleTime = 1.0f / rate;
     }
 
+    void syncClock()
+    {
+        if (TBase::inputs[CLOCK_INPUT].isConnected())
+        {
+            if (syncTrigger.process (TBase::inputs[CLOCK_INPUT].getVoltage()))
+            {
+                framesSinceSync++;
+                lastClockDuration = framesSinceSync;
+                framesSinceSync = 0;
+            }
+            else
+            {
+                framesSinceSync++;
+            }
+        }
+        else
+            lastClockDuration = sampleRate;
+    }
+
+    void checkOneShotMode()
+    {
+        bool newOneShot = TBase::params[ONESHOT_PARAM].getValue();
+
+        if (! newOneShot && oneShot)
+            changePhase (Mode::CYCLE_ATTACK);
+        if (newOneShot && ! oneShot)
+            changePhase (Mode::PAUSED);
+
+        oneShot = newOneShot;
+    }
+
+    void doTriggers()
+    {
+        if (startContTrigger.process (TBase::inputs[START_CONT_INPUT].getVoltage()))
+        {
+            framesSincePhaseChange = 0;
+            if (! oneShot)
+                changePhase (Mode::CYCLE_ATTACK);
+
+            else
+            {
+                changePhase (Mode::ONESHOT_ATTACK);
+            }
+        }
+
+        //neagative gate
+
+        if (TBase::inputs[START_CONT_INPUT].getVoltage() < 1.0f
+            && (mode == Mode::ONESHOT_ATTACK || mode == Mode::ONESHOT_HIGH))
+        {
+            changePhase (Mode::ONESHOT_DECAY);
+        }
+    }
+
+    void doStateMachine()
+    {
+        auto easing = ef.getEasingVector().at (clamp (currentEasing, 0, 10));
+
+        switch (mode)
+        {
+            case Mode::ONESHOT_ATTACK:
+                out = easing->easeOut (framesSincePhaseChange,
+                                       startParam,
+                                       endParam - startParam,
+                                       framePhaseCount);
+
+                if (framesSincePhaseChange > framePhaseCount)
+                    changePhase (Mode::ONESHOT_HIGH);
+                break;
+
+            case Mode::ONESHOT_HIGH:
+                out = endParam;
+                break;
+
+            case Mode::ONESHOT_DECAY:
+                out = easing->easeIn (framePhaseCount - framesSincePhaseChange,
+                                      startParam,
+                                      endParam - startParam,
+                                      framePhaseCount);
+                if (framesSincePhaseChange > framePhaseCount)
+                    changePhase (Mode::ONESHOT_LOW);
+                break;
+
+            case Mode::ONESHOT_LOW:
+                out = startParam;
+                break;
+
+            case Mode::CYCLE_ATTACK:
+                out = easing->easeInOut (framesSincePhaseChange,
+                                         startParam,
+                                         endParam - startParam,
+                                         framePhaseCount / 2.0);
+                if (framesSincePhaseChange > framePhaseCount / 2.0)
+                    changePhase (Mode::CYCLE_DECAY);
+                break;
+
+            case Mode::CYCLE_DECAY:
+                out = easing->easeInOut ((framePhaseCount / 2.0) - framesSincePhaseChange,
+                                         startParam,
+                                         endParam - startParam,
+                                         framePhaseCount / 2.0);
+                if (framesSincePhaseChange > framePhaseCount / 2.0)
+                    changePhase (Mode::CYCLE_ATTACK);
+                break;
+            case Mode::PAUSED:
+                break;
+            delault:
+                break;
+        }
+    }
+
+    void calcParameters()
+    {
+        currentEasing = TBase::params[EASING_PARAM].getValue()
+                        + TBase::params[EASING_ATTENUVERTER_PARAM].getValue()
+                              * TBase::inputs[EASING_INPUT].getVoltage();
+
+        framePhaseDuration = TBase::params[DURATION_PARAM].getValue()
+                             + TBase::params[DURATION_ATTENUVERTER_PARAM].getValue()
+                                   * TBase::inputs[DURATION_INPUT].getVoltage() / 5.0f;
+
+        startParam = TBase::params[START_PARAM].getValue()
+                     + TBase::params[START_ATTENUVERTER_PARAM].getValue()
+                           * TBase::inputs[START_INPUT].getVoltage() / 5.0f;
+
+        endParam = TBase::params[END_PARAM].getValue()
+                   + TBase::params[END_ATTENUVERTER_PARAM].getValue()
+                         * TBase::inputs[END_INPUT].getVoltage() / 5.0f;
+
+        framePhaseDuration = clamp (framePhaseDuration, 0.000001, 5.0);
+        framePhaseCount = framePhaseDuration * lastClockDuration;
+    }
+
+    void doPause()
+    {
+        if (pauseTrigger.process (TBase::inputs[STOP_CONT_INPUT].getVoltage()))
+        {
+            if (mode == Mode::PAUSED)
+                mode = lastMode;
+            else
+            {
+                lastMode = mode;
+                mode = Mode::PAUSED;
+            }
+        }
+    }
     // must be called after setSampleRate
     void init()
     {
         //TODO
-        easings = Easings::getEasingVector();
+        mode = Mode::PAUSED;
     }
 
     void step() override;
@@ -134,7 +323,18 @@ public:
 template <class TBase>
 inline void ZazelComp<TBase>::step()
 {
-    //TODO step
+    doPause();
+    syncClock();
+    checkOneShotMode();
+    doTriggers();
+    if (mode != Mode::PAUSED)
+    {
+        framesSincePhaseChange++;
+        calcParameters();
+        doStateMachine();
+    }
+
+    TBase::outputs[MAIN_OUTPUT].setVoltage (sspo::voltageSaturate (out * 10.0f));
 }
 
 template <class TBase>
@@ -159,22 +359,22 @@ IComposite::Config ZazelDescription<TBase>::getParam (int i)
             ret = { -1.0f, 1.0f, 0.f, "Start Cv", " ", 0, 1, 0.0f };
             break;
         case ZazelComp<TBase>::START_PARAM:
-            ret = { -10.0f, 10.0f, 0.f, "Start", " ", 0, 1, 0.0f };
+            ret = { -1.0f, 1.0f, 0.f, "Start", " ", 0, 1, 0.0f };
             break;
         case ZazelComp<TBase>::END_ATTENUVERTER_PARAM:
             ret = { -1.0f, 1.0f, 0.0f, "End Cv", " ", 0, 1, 0.0f };
             break;
         case ZazelComp<TBase>::END_PARAM:
-            ret = { -10.0f, 10.0f, 0.f, "End", " ", 0, 1, 0.0f };
+            ret = { -1.0f, 1.0f, 0.f, "End", " ", 0, 1, 0.0f };
             break;
         case ZazelComp<TBase>::DURATION_ATTENUVERTER_PARAM:
             ret = { -1.0f, 1.0f, 0.f, "Duration Cv", " ", 0, 1, 0.0f };
             break;
         case ZazelComp<TBase>::DURATION_PARAM:
-            ret = { 0.0f, 1.0f, 0.0f, "Duration", " ", 0, 1, 0.0f };
+            ret = { 0.0f, 10.0f, 0.5f, "Duration", " ", 0, 1, 0.0f };
             break;
         case ZazelComp<TBase>::ONESHOT_PARAM:
-            ret = { 0.0f, 1.0f, 0.0f, "Oneshot / cycle ", " ", 0, 1, 0.0f };
+            ret = { -1.0f, 0.0f, 0.0f, "Oneshot / cycle ", " ", 0, 1, 0.0f };
             break;
         default:
             assert (false);
