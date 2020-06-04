@@ -39,6 +39,7 @@ extern void testSynthFilter();
 extern void testMaccomo();
 extern void testSaturator();
 extern void testEasing();
+extern void testZazel();
 
 //external performance tests
 extern void initPerf();
@@ -79,6 +80,7 @@ int main (int argc, char** argv)
 
     // run external tests defined above
 
+    testZazel();
     testEasing();
     testSaturator();
     testEmpty();

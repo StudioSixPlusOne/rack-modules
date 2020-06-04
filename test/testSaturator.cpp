@@ -55,7 +55,7 @@ static void testWithinKnee (float limit, float knee)
 
     for (auto i = -limit; i < -limit + knee - cdb; i += inc)
     {
-        printf ("%f\n", i);
+        //printf ("%f\n", i);
 
         assertGE (sat.process (i), -limit);
         assertLE (sat.process (i), -(limit - knee) + ad);
@@ -63,7 +63,7 @@ static void testWithinKnee (float limit, float knee)
 
     for (auto i = limit; i > limit - knee + cdb; i -= inc)
     {
-        printf ("%f\n", i);
+        //printf ("%f\n", i);
         assertLE (sat.process (i), limit);
         assertGE (sat.process (i), limit - knee - ad);
     }
