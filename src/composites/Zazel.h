@@ -129,7 +129,7 @@ public:
     float sampleTime = 1.0f;
     std::vector<Easings::Easing> easings;
     int currentEasing = 0.0;
-    bool oneShot = false;
+    bool oneShot = true;
     int lastClockDuration = 1000;
     dsp::SchmittTrigger syncTrigger;
     dsp::SchmittTrigger startContTrigger;
@@ -293,7 +293,7 @@ public:
                    + TBase::params[END_ATTENUVERTER_PARAM].getValue()
                          * TBase::inputs[END_INPUT].getVoltage() / 5.0f;
 
-        framePhaseDuration = clamp (framePhaseDuration, 0.000001, 5.0);
+        framePhaseDuration = clamp (framePhaseDuration, 0.000001f, 5.0f);
         framePhaseCount = framePhaseDuration * lastClockDuration;
     }
 
@@ -313,8 +313,8 @@ public:
     // must be called after setSampleRate
     void init()
     {
-        //TODO
-        mode = Mode::PAUSED;
+        lastClockDuration = sampleRate;
+        mode = Mode::CYCLE_ATTACK;
     }
 
     void step() override;
