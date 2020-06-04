@@ -40,6 +40,7 @@ struct Zazel : Module
     std::shared_ptr<Comp> zazel;
     std::atomic<RequestedParamId> requestedParameter;
     ParamHandle paramHandle;
+    std::atomic<bool> clearParam;
 
     Zazel()
     {
@@ -52,6 +53,7 @@ struct Zazel : Module
         //init parameter handle
         paramHandle.color = nvgRGB (0xcd, 0xde, 0x87);
         APP->engine->addParamHandle (&paramHandle);
+        clearParam.store (false);
 
         //init composite
         onSampleRateChange();
@@ -101,6 +103,11 @@ struct Zazel : Module
 
     void paramChange()
     {
+        if (clearParam.load())
+        {
+            APP->engine->updateParamHandle (&paramHandle, -1, -1, true);
+            clearParam.store (false);
+        }
         RequestedParamId rpi = requestedParameter.load();
         if (rpi.moduleid == -1)
             return;
@@ -221,6 +228,7 @@ struct ParameterSelectWidget : Widget
             rpi.moduleid = -1;
             rpi.paramid = -1;
             module->requestedParameter.store (rpi);
+            module->clearParam = true;
             e.consume (this);
         }
     }
