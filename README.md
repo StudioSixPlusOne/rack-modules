@@ -23,6 +23,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  
  [Eva](#eva)
  
+ [Zazel](#zazel)
+ 
 
   
 
@@ -131,6 +133,9 @@ A cascadable two way crossover, used for splitting audio frequency bands, for mu
 
 
 ### Eva
+### Zazel
+
+<img align="left" src="images/Zazel.png">
 
 <img align="left" src="images/Eva.png">
 
