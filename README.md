@@ -138,6 +138,19 @@ A cascadable two way crossover, used for splitting audio frequency bands, for mu
 <img align="left" src="images/Zazel.png">
 
 <img align="left" src="images/Eva.png">
+A performance-based controller, designed to be connected to midi triggers, to allow smooth fades using easing functions between parameters on other modules, pairs well with VCV MIDI-Gate.
+
+- Parameter select widget, display the module and parameter currently controlled, left-click then click on the desired parameter to assign, right-click to unassign
+- Curve display. Shows the currently selected easing, and form depending on one-shot or cycle mode
+- Easing shape, the full selection of Robert Penner's Easing Functions
+- Start value, sets one extreme of the parameter value
+- End value, sets the other extreme of the parameter value
+- Duration, the time taken to automate the parameter from the start to the end value. see Clock below
+- Cycle - Oneshot, when in cycle mode the selected parameter is always translating from start to end value and back. when in Oneshot mode, a positive trigger at the "start" input automates the selected parameter from the start to end value, a negative-going trigger will reverse the automation
+-Clock, the clock signal provides the time multiplier used by the duration control, if no input is provided the duration is multiplied by 1 second
+- Start, this is the trigger input used in one-shot mode
+- Stop-Cont, this is a pause control
+- Out CV output reflecting the controlled parameter
 
 A slimline mixer for audio and cv.
 
