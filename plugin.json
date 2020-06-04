@@ -59,8 +59,14 @@
     {
       "slug": "Zazel",
       "name": "Zazel",
-      "description": "",
-      "tags": []
+      "description": "Parameter Controller for fades and LFO",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#zazel",
+      "tags": [
+        "Clock modulator",
+        "Function generator",
+        "Low-frequency oscillator",
+        "Controller"
+      ]
     }
   ]
 }

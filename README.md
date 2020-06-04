@@ -18,6 +18,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  [Massarti](#massarti)
  
  [Tyrant](#tyrant)
+
+ [Zazel](#zazel)
  
 
   
@@ -112,7 +114,9 @@ Youtube Tutorial
 [YouTubeTutorial](https://www.youtube.com/watch?v=OJSy8fOxI5I)
 
 
+### Zazel
 
+<img align="left" src="images/Zazel.png">
 
 
 

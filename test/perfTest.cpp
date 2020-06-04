@@ -48,6 +48,7 @@ extern double overheadOutOnly;
 #include "KSDelay.h"
 #include "PolyShiftRegister.h"
 #include "CombFilter.h"
+#include "Zazel.h"
 
 #ifdef _USE_WINDOWS_PERFTIME
 double SqTime::frequency = 0;
@@ -447,6 +448,81 @@ static void testPolyShiftRegister()
         },
         1);
 }
+using Zazel = ZazelComp<TestComposite>;
+
+static void testZazel()
+{
+    Zazel zazel;
+    zazel.setSampleRate (44100);
+    zazel.init();
+    zazel.params[zazel.EASING_PARAM]
+        .setValue (int (Easings::EasingFactory::EasingNames::linear));
+    zazel.params[zazel.ONESHOT_PARAM].setValue (0); //cycle mode
+    zazel.params[zazel.START_PARAM].setValue (-1.0f);
+    zazel.params[zazel.END_PARAM].setValue (1.0f);
+
+    // initial 8.54 of 1%
+    MeasureTime<double>::run (
+        overheadInOut, "Zazel Cycle Linear", [&zazel]() {
+            zazel.step();
+            return zazel.outputs[Zazel::MAIN_OUTPUT].getVoltage (0);
+        },
+        1);
+
+    zazel.params[zazel.EASING_PARAM]
+        .setValue (int (Easings::EasingFactory::EasingNames::sine));
+
+    // initial 12.65 of 1%
+    MeasureTime<double>::run (
+        overheadInOut, "Zazel Cycle Sine", [&zazel]() {
+            zazel.step();
+            return zazel.outputs[Zazel::MAIN_OUTPUT].getVoltage (0);
+        },
+        1);
+
+    MeasureTime<double>::run (
+        overheadInOut, "Zazel Cycle doPause", [&zazel]() {
+            zazel.doPause();
+            return zazel.outputs[Zazel::MAIN_OUTPUT].getVoltage (0);
+        },
+        1);
+
+    MeasureTime<double>::run (
+        overheadInOut, "Zazel Cycle doSyncClock", [&zazel]() {
+            zazel.syncClock();
+            return zazel.outputs[Zazel::MAIN_OUTPUT].getVoltage (0);
+        },
+        1);
+
+    MeasureTime<double>::run (
+        overheadInOut, "Zazel Cycle CheckOneshotMode", [&zazel]() {
+            zazel.checkOneShotMode();
+            return zazel.outputs[Zazel::MAIN_OUTPUT].getVoltage (0);
+        },
+        1);
+
+    MeasureTime<double>::run (
+        overheadInOut, "Zazel Cycle doTrigger", [&zazel]() {
+            zazel.doTriggers();
+            return zazel.outputs[Zazel::MAIN_OUTPUT].getVoltage (0);
+        },
+        1);
+
+    MeasureTime<double>::run (
+        overheadInOut, "Zazel Cycle calcParameters", [&zazel]() {
+            zazel.calcParameters();
+            return zazel.outputs[Zazel::MAIN_OUTPUT].getVoltage (0);
+        },
+        1);
+
+    //initial measure = 6.99 of 1%
+    MeasureTime<double>::run (
+        overheadInOut, "Zazel Cycle doStateMachine", [&zazel]() {
+            zazel.doStateMachine();
+            return zazel.outputs[Zazel::MAIN_OUTPUT].getVoltage (0);
+        },
+        1);
+}
 
 void perfTest()
 {
@@ -455,7 +531,7 @@ void perfTest()
     //  setup();
     assert (overheadInOut > 0);
     assert (overheadOutOnly > 0);
-
+    testZazel();
     //test1();
     testNoise (true);
     //testNormal();
