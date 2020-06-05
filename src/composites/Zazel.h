@@ -270,7 +270,7 @@ public:
                 break;
             case Mode::PAUSED:
                 break;
-            delault:
+            default:
                 break;
         }
     }
@@ -293,7 +293,7 @@ public:
                    + TBase::params[END_ATTENUVERTER_PARAM].getValue()
                          * TBase::inputs[END_INPUT].getVoltage() / 5.0f;
 
-        framePhaseDuration = clamp (framePhaseDuration, 0.000001f, 5.0f);
+        framePhaseDuration = clamp (framePhaseDuration, 0.001f, 5.0f);
         framePhaseCount = framePhaseDuration * lastClockDuration;
     }
 
