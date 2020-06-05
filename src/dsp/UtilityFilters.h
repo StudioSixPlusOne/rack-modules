@@ -122,13 +122,13 @@ namespace sspo
         //coefficents
         struct BiquadCoeffecients
         {
-            float a0{};
-            float a1{};
-            float a2{};
-            float b1{};
-            float b2{};
-            float c0{};
-            float d0{};
+            T a0{};
+            T a1{};
+            T a2{};
+            T b1{};
+            T b2{};
+            T c0{};
+            T d0{};
         } coeffs;
     };
 
@@ -172,7 +172,7 @@ namespace sspo
         T process (const T in)
         {
             T out = f1.process (in);
-            return -out;
+            return out;
         }
     };
 
