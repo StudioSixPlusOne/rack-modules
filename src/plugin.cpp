@@ -12,4 +12,5 @@ void init (::rack::Plugin* p)
     p->addModel (modelPolyShiftRegister);
     p->addModel (modelCombFilter);
     p->addModel (modelMix);
+    p->addModel (modelLaLa);
 }
