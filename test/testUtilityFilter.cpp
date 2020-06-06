@@ -42,7 +42,7 @@ static void testSlopeLrLp (const float cutoff,
                            const float expectedCorner,
                            const float expectedSlope)
 {
-    LinkwitzRileyLP4<float> filter;
+    LinkwitzRileyLP2<float> filter;
     filter.setParameters (sr, cutoff);
 
     constexpr int fftSize = 1024 * 32;
@@ -73,7 +73,7 @@ static void testSlopeLrLp (const float_4 cutoff,
                            const float expectedCorner,
                            const float expectedSlope)
 {
-    LinkwitzRileyLP4<float_4> filter;
+    LinkwitzRileyLP2<float_4> filter;
     filter.setParameters (sr, cutoff);
 
     constexpr int fftSize = 1024 * 32;
@@ -113,7 +113,7 @@ static void testSlopeLrHp (const float cutoff,
                            const float expectedCorner,
                            const float expectedSlope)
 {
-    LinkwitzRileyHP4<float> filter;
+    LinkwitzRileyHP2<float> filter;
     filter.setParameters (sr, cutoff);
 
     constexpr int fftSize = 1024 * 32;
@@ -144,7 +144,7 @@ static void testSlopeLrHp (const float_4 cutoff,
                            const float expectedCorner,
                            const float expectedSlope)
 {
-    LinkwitzRileyHP4<float_4> filter;
+    LinkwitzRileyHP2<float_4> filter;
     filter.setParameters (sr, cutoff);
 
     constexpr int fftSize = 1024 * 32;
@@ -211,8 +211,8 @@ static void testLrLpSmid()
 
 static void testLWRCrossOver (float fc, float sr)
 {
-    LinkwitzRileyLP4<float> lp;
-    LinkwitzRileyHP4<float> hp;
+    LinkwitzRileyLP2<float> lp;
+    LinkwitzRileyHP2<float> hp;
     lp.setParameters (sr, fc);
     hp.setParameters (sr, fc);
 
@@ -249,8 +249,8 @@ static void testLWRCrossOver (float fc, float sr)
 
 static void testLWRCrossOver (float_4 fc, float_4 sr)
 {
-    LinkwitzRileyLP4<float_4> lp;
-    LinkwitzRileyHP4<float_4> hp;
+    LinkwitzRileyLP2<float_4> lp;
+    LinkwitzRileyHP2<float_4> hp;
     lp.setParameters (sr, fc);
     hp.setParameters (sr, fc);
 
