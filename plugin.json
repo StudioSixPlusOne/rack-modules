@@ -56,6 +56,17 @@
         "Filter",
         "Effect"
       ]
+    },
+    {
+      "slug": "LaLa",
+      "name": "LaLa",
+      "description": "Two way cross over",
+      "tags": [
+        "Filter",
+        "Polyphonic",
+        "Utility",
+        "Voltage-controlled amplifier"
+      ]
     }
   ]
 }

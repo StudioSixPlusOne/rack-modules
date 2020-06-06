@@ -133,11 +133,11 @@ namespace sspo
     };
 
     template <typename T>
-    struct LinkwitzRileyLP4
+    struct LinkwitzRileyLP2
     {
         BiQuad<T> f1;
 
-        LinkwitzRileyLP4()
+        LinkwitzRileyLP2()
         {
             f1.clear();
         }
@@ -155,11 +155,11 @@ namespace sspo
     };
 
     template <typename T>
-    struct LinkwitzRileyHP4
+    struct LinkwitzRileyHP2
     {
         BiQuad<T> f1;
 
-        LinkwitzRileyHP4()
+        LinkwitzRileyHP2()
         {
             f1.clear();
         }
