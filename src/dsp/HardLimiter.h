@@ -25,7 +25,13 @@
 #include <cmath>
 #include <utility>
 
+#include "simd/vector.hpp"
+#include "simd/functions.hpp"
+#include "simd/sse_mathfun.h"
+#include "simd/sse_mathfun_extension.h"
 #include "LookupTable.h"
+
+using float_4 = ::rack::simd::float_4;
 
 namespace sspo
 {
@@ -119,6 +125,15 @@ namespace sspo
     inline float voltageSaturate (float in)
     {
         return saturate (in, 11.7f, 0.5f);
+    }
+
+    inline float_4 voltageSaturate (float_4 in)
+    {
+        float_4 ret;
+        for (auto i = 0; i < 4; ++i)
+            ret[i] = voltageSaturate (in[i]);
+
+        return ret;
     }
 
     struct Saturator
