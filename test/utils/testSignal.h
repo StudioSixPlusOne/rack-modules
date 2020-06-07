@@ -193,7 +193,7 @@ namespace sspo
                                        delta);
         }
 
-        inline FFTDataCpx getResponse (Signal& s1)
+        inline FFTDataCpx getResponse (const Signal& s1)
         {
             int size = static_cast<int> (s1.size());
             FFTDataReal indata (size);

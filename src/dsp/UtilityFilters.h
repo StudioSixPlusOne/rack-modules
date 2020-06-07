@@ -23,6 +23,11 @@
 
 #include "AudioMath.h"
 #include "simd/functions.hpp"
+#include "simd/vector.hpp"
+#include "simd/sse_mathfun_extension.h"
+#include "simd/sse_mathfun.h"
+
+using float_4 = rack::simd::float_4;
 
 using namespace sspo::AudioMath;
 
@@ -112,12 +117,12 @@ namespace sspo
                        b2Num / denominator);
         }
 
-    private:
-        //memory
-        T xz1{};
-        T xz2{};
-        T yz1{};
-        T yz2{};
+        void setAllPass1stOrder (const T sr, const T freq)
+        {
+            T fc = rack::simd::ifelse (freq < sr * 0.5, freq, freq * 0.95);
+            T alpha = (rack::simd::tan (k_pi * fc / sr) - 1) / (rack::simd::tan (k_pi * fc / sr) + 1);
+            setCoeffs (alpha, 1.0f, 0.0f, alpha, 0.0f, 1.0f, 0.0f);
+        }
 
         //coefficents
         struct BiquadCoeffecients
@@ -130,6 +135,25 @@ namespace sspo
             T c0{};
             T d0{};
         } coeffs;
+
+    private:
+        //memory
+        T xz1{};
+        T xz2{};
+        T yz1{};
+        T yz2{};
+    };
+
+    struct MixedBiquadSimd : public BiQuad<float_4>
+    {
+        void mergeCoeffs (BiQuad<float>& b1, BiQuad<float>& b2, BiQuad<float>& b3, BiQuad<float>& b4)
+        {
+            setCoeffs ({ b1.coeffs.a0, b2.coeffs.a0, b3.coeffs.a0, b4.coeffs.a0 },
+                       { b1.coeffs.a1, b2.coeffs.a1, b3.coeffs.a1, b4.coeffs.a1 },
+                       { b1.coeffs.a2, b2.coeffs.a2, b3.coeffs.a2, b4.coeffs.a2 },
+                       { b1.coeffs.b1, b2.coeffs.b1, b3.coeffs.b1, b4.coeffs.b1 },
+                       { b1.coeffs.b2, b2.coeffs.b2, b3.coeffs.b2, b4.coeffs.b2 });
+        }
     };
 
     template <typename T>

@@ -23,6 +23,7 @@
 
 #include "asserts.h"
 #include "AudioMath.h"
+#include "testSignal.h"
 #include "FFT.h"
 #include "FFTData.h"
 
@@ -72,6 +73,36 @@ namespace sspo
             ret.cornerGain = float (db (cornerResponse) - db (driacCornerResponse));
             ret.slope = float (db (slopeResponse) - db (driacSlopeResponse)) / 2.0f;
             return ret;
+        }
+
+        inline TestSignal::Signal getMagnitude (const FFTDataCpx& response)
+        {
+            TestSignal::Signal ret;
+            for (auto i = 0; i < int (response.size()) / 2; ++i)
+                ret.push_back (db (response.getAbs (i)));
+
+            return ret;
+        }
+
+        inline TestSignal::Signal getMagnitude (const TestSignal::Signal& sig)
+        {
+            auto response = TestSignal::getResponse (sig);
+            return getMagnitude (response);
+        }
+
+        inline TestSignal::Signal getPhase (const FFTDataCpx& response)
+        {
+            TestSignal::Signal ret;
+            for (auto i = 0; i < int (response.size()) / 2; ++i)
+                ret.push_back (std::arg (response.get (i)));
+
+            return ret;
+        }
+
+        inline TestSignal::Signal getPhase (const TestSignal::Signal& sig)
+        {
+            auto response = TestSignal::getResponse (sig);
+            return getPhase (response);
         }
 
     } // namespace FftAnalyzer
