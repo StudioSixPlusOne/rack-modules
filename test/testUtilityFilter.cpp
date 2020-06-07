@@ -308,6 +308,108 @@ static void testLWRCrossOverSmid()
     }
 }
 
+static void testAllPass (float fc, float sr)
+{
+    BiQuad<float> allpass;
+    allpass.setAllPass1stOrder (sr, fc);
+    ts::Signal sig;
+    int fftSize = 1024 * 16;
+
+    auto driac = ts::makeDriac (fftSize);
+
+    for (auto x : driac)
+        sig.push_back (allpass.process (x));
+
+    auto driacMagnitude = FftAnalyzer::getMagnitude (driac);
+    auto sigMagnitude = FftAnalyzer::getMagnitude (sig);
+    auto magMatch = ts::areSame (driacMagnitude, sigMagnitude, 0.2f);
+
+#if 0
+    for (auto i = 0; i < fftSize / 2; ++i)
+        printf ("%f %f\n", sigMagnitude[i], driacMagnitude[i]);
+#else
+
+    assert (magMatch);
+#endif
+
+    auto driacPhase = FftAnalyzer::getPhase (driac);
+    auto sigPhase = FftAnalyzer::getPhase (sig);
+#if 0
+    for (auto x : sigPhase)
+        printf ("phase %f\n", x);
+#else
+    assertClose (sigPhase[0], 0.0f, 0.0001f);
+    assertClose (sigPhase[sigPhase.size() - 1], -k_pi, 0.01f);
+
+    auto freqBin = FFT::freqToBin (fc, sr, fftSize);
+    assertClose (sigPhase[freqBin], -k_pi / 2.0f, 0.01f);
+#endif
+}
+
+static void testAllPass()
+{
+    for (auto fc = 100.0f; fc < 5000.0f; fc += 100.0f)
+        testAllPass (fc, 44100.0f);
+}
+
+static void testMixedBiquadSimd()
+{
+    auto fclp = 300.0;
+    auto fchp = 800.0f;
+    auto fclp2 = 1200.0f;
+    auto fchp2 = 1870.0f;
+
+    auto sr = 96000.0f;
+
+    BiQuad<float> lp;
+    BiQuad<float> lp2;
+    BiQuad<float> hp;
+    BiQuad<float> hp2;
+
+    lp.setLinkwitzRileyLp2 (sr, fclp);
+    lp2.setLinkwitzRileyLp2 (sr, fclp2);
+    hp.setLinkwitzRileyHp2 (sr, fchp);
+    hp2.setLinkwitzRileyHp2 (sr, fchp2);
+
+    MixedBiquadSimd filter;
+    filter.mergeCoeffs (lp, lp2, hp, hp2);
+
+    auto fftSize = 1024 * 16;
+
+    auto driac = ts::makeDriac (fftSize);
+    std::vector<ts::Signal> signals;
+    signals.resize (4);
+    for (auto x : driac)
+    {
+        auto s = filter.process (x);
+        for (auto i = 0; i < 4; ++i)
+        {
+            signals[i].push_back (s[i]);
+        }
+    }
+
+    auto driacResponse = ts::getResponse (driac);
+    auto lpResponse = ts::getResponse (signals[0]);
+    auto lp2Response = ts::getResponse (signals[1]);
+    auto hpResponse = ts::getResponse (signals[2]);
+    auto hp2Response = ts::getResponse (signals[3]);
+
+    auto lpslope = FftAnalyzer::getSlopeLowpass (lpResponse, driacResponse, fclp, sr);
+    auto lp2slope = FftAnalyzer::getSlopeLowpass (lp2Response, driacResponse, fclp2, sr);
+    auto hpslope = FftAnalyzer::getSlopeHighpass (hpResponse, driacResponse, fchp, sr);
+    auto hp2slope = FftAnalyzer::getSlopeHighpass (hp2Response, driacResponse, fchp2, sr);
+
+    assertClose (lpslope.cornerGain, -6.0f, 0.5f);
+    assertClose (lp2slope.cornerGain, -6.0f, 0.5f);
+    assertClose (hpslope.cornerGain, -6.0f, 0.5f);
+    assertClose (hp2slope.cornerGain, -6.0f, 0.5f);
+
+    assertClose (lpslope.slope, -12.0f, 1.0f);
+    assertClose (lp2slope.slope, -12.0f, 1.0f);
+    assertClose (hpslope.slope, -12.0f, 1.0f);
+    assertClose (hp2slope.slope, -12.0f, 1.0f);
+}
+
 void testUtilityFilter()
 {
     printf ("Utility Filter\n");
@@ -317,4 +419,6 @@ void testUtilityFilter()
     testLrHpSmid();
     testLrLpSmid();
     testLWRCrossOverSmid();
+    testAllPass();
+    testMixedBiquadSimd();
 }
