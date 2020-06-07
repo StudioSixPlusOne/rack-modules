@@ -23,6 +23,7 @@
 
 #include "IComposite.h"
 #include "UtilityFilters.h"
+#include "HardLimiter.h"
 
 #include "simd/functions.hpp"
 #include "simd/sse_mathfun.h"
@@ -108,7 +109,9 @@ public:
     static constexpr int maxChannels = 16;
     float sampleRate = 1.0f;
     float sampleTime = 1.0f;
-    float maxFreq = 0.5f;
+    float_4 sr_4{ sampleRate, sampleRate, sampleRate, sampleRate };
+    float_4 maxFreq = { 0.5f, 0.5f, 0.5f, 0.5f };
+    float_4 minFreq = { 10, 10, 10, 10 };
     std::vector<sspo::LinkwitzRileyLP2<float_4>> lps;
     std::vector<sspo::LinkwitzRileyHP2<float_4>> hps;
 
@@ -116,7 +119,9 @@ public:
     {
         sampleRate = rate;
         sampleTime = 1.0f / rate;
-        maxFreq = rate / 2.0f;
+        sr_4 = { sampleRate, sampleRate, sampleRate, sampleRate };
+        auto m = rate / 2.0f;
+        maxFreq = { m, m, m, m };
     }
     // must be called after setSampleRate
     void init()
@@ -131,7 +136,31 @@ public:
 template <class TBase>
 inline void LaLaComp<TBase>::step()
 {
-    //TODO step
+    auto channels = TBase::inputs[MAIN_INPUT].getChannels();
+    auto freqParam = TBase::params[FREQ_PARAM].getValue();
+    freqParam = freqParam * 10.0f - 5.0f;
+
+    for (auto c = 0; c < channels; c += 4)
+    {
+        auto fcv = TBase::inputs[FREQ_CV_INPUT].template getPolyVoltageSimd<float_4> (c);
+        fcv *= TBase::params[FREQ_CV_PARAM].getValue();
+        fcv += freqParam;
+        float_4 freq = dsp::FREQ_C4 * simd::pow (2.0f, fcv);
+        freq = simd::clamp (freq, minFreq, maxFreq);
+        lps[c / 4].setParameters (sr_4, freq);
+        hps[c / 4].setParameters (sr_4, freq);
+        float_4 in = TBase::inputs[MAIN_INPUT].template getPolyVoltageSimd<float_4> (c);
+        auto lowOut = lps[c / 4].process (in);
+        lowOut = sspo::voltageSaturate (lowOut);
+        auto highOut = 0.0f - hps[c / 4].process (in);
+        highOut = sspo::voltageSaturate (highOut);
+
+        lowOut.store (TBase::outputs[LOW_OUTPUT].getVoltages (c));
+        highOut.store (TBase::outputs[HIGH_OUTPUT].getVoltages (c));
+    }
+
+    TBase::outputs[LOW_OUTPUT].setChannels (channels);
+    TBase::outputs[HIGH_OUTPUT].setChannels (channels);
 }
 
 template <class TBase>
