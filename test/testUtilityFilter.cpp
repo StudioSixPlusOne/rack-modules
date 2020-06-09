@@ -308,6 +308,281 @@ static void testLWRCrossOverSmid()
     }
 }
 
+//Linkwitz-Riley 4 pole
+
+static void testSlopeLrLp4 (const float cutoff,
+                            const float sr,
+                            const float expectedCorner,
+                            const float expectedSlope)
+{
+    LinkwitzRileyLP4<float> filter;
+    filter.setParameters (sr, cutoff);
+
+    constexpr int fftSize = 1024 * 32;
+    ts::Signal signal;
+    auto driac = ts::makeDriac (fftSize);
+
+    for (auto x : driac)
+        signal.push_back (filter.process (x));
+
+    auto response = ts::getResponse (signal);
+    auto driacResponse = ts::getResponse (driac);
+
+    auto slope = FftAnalyzer::getSlopeLowpass (response, driacResponse, cutoff, sr);
+#if 0
+    printf ("LWR4 low pass sr %f fc %f corner %f Slope %f\n",
+            sr,
+            cutoff,
+            slope.cornerGain,
+            slope.slope);
+#else
+    assertClose (slope.cornerGain, expectedCorner, 0.2f); // max error at low fc
+    assertLE (slope.slope, expectedSlope + 0.2f);
+#endif
+}
+
+static void testSlopeLrLp4 (const float_4 cutoff,
+                            const float_4 sr,
+                            const float expectedCorner,
+                            const float expectedSlope)
+{
+    LinkwitzRileyLP4<float_4> filter;
+    filter.setParameters (sr, cutoff);
+
+    constexpr int fftSize = 1024 * 32;
+    auto driac = ts::makeDriac (fftSize);
+    std::vector<ts::Signal> signals;
+    signals.resize (4);
+
+    for (auto x : driac)
+    {
+        auto s = filter.process (x);
+        for (auto i = 0; i < 4; i++)
+            signals[i].push_back (s[i]);
+    }
+    auto driacResponse = ts::getResponse (driac);
+
+    //analyse per channel
+    for (auto i = 0; i < 4; ++i)
+    {
+        auto response = ts::getResponse (signals[i]);
+
+        auto slope = FftAnalyzer::getSlopeLowpass (response, driacResponse, cutoff[i], sr[i]);
+#if 00
+        printf ("LWR4 low pass sr %f fc %f corner %f Slope %f\n",
+                sr,
+                cutoff,
+                slope.cornerGain,
+                slope.slope);
+#else
+        assertClose (slope.cornerGain, expectedCorner, 0.2f); // max error at low fc
+        assertLE (slope.slope, expectedSlope + 0.5f);
+#endif
+    }
+}
+
+static void testSlopeLrHp4 (const float cutoff,
+                            const float sr,
+                            const float expectedCorner,
+                            const float expectedSlope)
+{
+    LinkwitzRileyHP4<float> filter;
+    filter.setParameters (sr, cutoff);
+
+    constexpr int fftSize = 1024 * 32;
+    ts::Signal signal;
+    auto driac = ts::makeDriac (fftSize);
+
+    for (auto x : driac)
+        signal.push_back (filter.process (x));
+
+    auto response = ts::getResponse (signal);
+    auto driacResonse = ts::getResponse (driac);
+
+    auto slope = FftAnalyzer::getSlopeHighpass (response, driacResonse, cutoff, sr);
+#if 0
+    printf ("LWR4 High pass sr %f fc %f corner %f Slope %f\n",
+            sr,
+            cutoff,
+            slope.cornerGain,
+            slope.slope);
+#else
+    assertClose (slope.cornerGain, expectedCorner, 0.15f);
+    assertClose (slope.slope, expectedSlope, 0.5f);
+#endif
+}
+
+static void testSlopeLrHp4 (const float_4 cutoff,
+                            const float_4 sr,
+                            const float expectedCorner,
+                            const float expectedSlope)
+{
+    LinkwitzRileyHP4<float_4> filter;
+    filter.setParameters (sr, cutoff);
+
+    constexpr int fftSize = 1024 * 32;
+    std::vector<ts::Signal> signals;
+    signals.resize (4); // a signal for each of the 4 floats in simd
+    auto driac = ts::makeDriac (fftSize);
+
+    for (auto x : driac)
+    {
+        auto s = filter.process (x);
+        for (auto i = 0; i < 4; ++i)
+            signals[i].push_back (s[i]);
+    }
+    auto driacResonse = ts::getResponse (driac);
+    //analyse the 4 channels
+    for (auto i = 0; i < 4; ++i)
+    {
+        auto response = ts::getResponse (signals[i]);
+        auto slope = FftAnalyzer::getSlopeHighpass (response, driacResonse, cutoff[i], sr[i]);
+#if 0
+    printf ("LWR4 High pass sr %f fc %f corner %f Slope %f\n",
+            sr[i],
+            cutoff[i],
+            slope.cornerGain,
+            slope.slope);
+#else
+        assertClose (slope.cornerGain, expectedCorner, 0.2f);
+        assertClose (slope.slope, expectedSlope, 0.6f);
+#endif
+    }
+}
+
+static void testLrLp4()
+{
+    for (auto fc = 80.0f; fc < 5000.0f; fc += 100.0f)
+        testSlopeLrLp4 (fc, 44100, -6, -24.0f);
+}
+
+static void testLrHp4()
+{
+    for (auto fc = 140.0f; fc < 5000.0f; fc += 100.0f)
+        testSlopeLrHp4 (fc, 44100, -6, -24.5f);
+}
+
+static void testLrHpSmid4()
+{
+    float_4 sr{ 44100, 44100, 44100, 44100 };
+    for (auto fc = 140.0f; fc < 5000.0f; fc += 100.0f)
+    {
+        float_4 fc_4 = { fc, fc + 100.0f, fc + 250.0f, fc + 400.0f };
+        testSlopeLrHp4 (fc_4, sr, -6, -24.5f);
+    }
+}
+
+static void testLrLpSmid4()
+{
+    float_4 sr{ 44100, 44100, 44100, 44100 };
+    for (auto fc = 80.0f; fc < 4000.0f; fc += 100.0f)
+    {
+        float_4 fc_4 = { fc, fc + 100.0f, fc + 250.0f, fc + 400.0f };
+        testSlopeLrLp4 (fc_4, sr, -6, -24.0f);
+    }
+}
+
+static void testLWRCrossOver4 (float fc, float sr)
+{
+    LinkwitzRileyLP4<float> lp;
+    LinkwitzRileyHP4<float> hp;
+    lp.setParameters (sr, fc);
+    hp.setParameters (sr, fc);
+
+    constexpr int fftSize = 1024 * 32;
+    ts::Signal signal;
+    signal.resize (0);
+
+    auto driac = ts::makeDriac (fftSize);
+
+    for (auto x : driac)
+    {
+        signal.push_back (lp.process (x) + hp.process (x));
+    }
+    auto driacResponse = ts::getResponse (driac);
+    auto response = ts::getResponse (signal);
+
+    ts::Signal levels;
+    levels.resize (0);
+
+    for (auto i = 0; i < response.size() / 2.0f; ++i)
+    {
+        levels.push_back (db (response.getAbs (i)) - db (driacResponse.getAbs (i)));
+    }
+
+    auto minval = *std::min_element (levels.begin(), levels.end());
+    auto maxval = *std::max_element (levels.begin(), levels.end());
+#if 0
+    printf ("Min %f Max %f\n", minval, maxval);
+#else
+    assertClose (maxval, 0.0f, 0.35f); //0.35dB variation at low freq
+    assertClose (minval, 0.0f, 0.0012f);
+#endif
+}
+
+static void testLWRCrossOver4 (float_4 fc, float_4 sr)
+{
+    LinkwitzRileyLP4<float_4> lp;
+    LinkwitzRileyHP4<float_4> hp;
+    lp.setParameters (sr, fc);
+    hp.setParameters (sr, fc);
+
+    constexpr int fftSize = 1024 * 32;
+    std::vector<ts::Signal> signals;
+    signals.resize (4);
+
+    auto driac = ts::makeDriac (fftSize);
+
+    for (auto x : driac)
+    {
+        auto s = lp.process (x) + hp.process (x);
+        for (auto i = 0; i < 4; ++i)
+            signals[i].push_back (s[i]);
+    }
+    auto driacResponse = ts::getResponse (driac);
+
+    //test per channel
+    for (auto i = 0; i < 4; i++)
+    {
+        auto response = ts::getResponse (signals[i]);
+
+        ts::Signal levels;
+        levels.resize (0);
+
+        for (auto i = 0; i < response.size() / 2.0f; ++i)
+        {
+            levels.push_back (db (response.getAbs (i)) - db (driacResponse.getAbs (i)));
+        }
+
+        auto minval = *std::min_element (levels.begin(), levels.end());
+        auto maxval = *std::max_element (levels.begin(), levels.end());
+#if 0
+    printf ("Min %f Max %f\n", minval, maxval);
+#else
+        assertClose (maxval, 0.0f, 0.35f); //0.35dB variation at low freq
+        assertClose (minval, 0.0f, 0.002f);
+#endif
+    }
+}
+
+static void testLWRCrossOver4()
+{
+    for (auto fc = 40.0f; fc < 18000.0f; fc += 100.0f)
+        testLWRCrossOver4 (fc, 44100.0f);
+}
+
+static void testLWRCrossOverSmid4()
+{
+    float_4 sr{ 44100, 44100, 44100, 44100 };
+    for (auto fc = 40.0f; fc < 18000.0f; fc += 100.0f)
+    {
+        float_4 fc_4 = { fc, fc + 100.0f, fc + 250.0f, fc + 400.0f };
+        testLWRCrossOver4 (fc_4, sr);
+    }
+}
+
+// ALLPASS *************************
+
 static void testAllPass (float fc, float sr)
 {
     BiQuad<float> allpass;
@@ -351,6 +626,8 @@ static void testAllPass()
     for (auto fc = 100.0f; fc < 5000.0f; fc += 100.0f)
         testAllPass (fc, 44100.0f);
 }
+
+//Mixed Biquad *********************
 
 static void testMixedBiquadSimd()
 {
@@ -410,9 +687,188 @@ static void testMixedBiquadSimd()
     assertClose (hp2slope.slope, -12.0f, 1.0f);
 }
 
+// Butterworth Tests *****************************
+static void testSlopeButterworthLp (const float cutoff,
+                                    const float sr,
+                                    const float expectedCorner,
+                                    const float expectedSlope)
+{
+    BiQuad<float> filter;
+    filter.setButterworthLp2 (sr, cutoff);
+
+    constexpr int fftSize = 1024 * 32;
+    ts::Signal signal;
+    auto driac = ts::makeDriac (fftSize);
+
+    for (auto x : driac)
+        signal.push_back (filter.process (x));
+
+    auto response = ts::getResponse (signal);
+    auto driacResponse = ts::getResponse (driac);
+
+    auto slope = FftAnalyzer::getSlopeLowpass (response, driacResponse, cutoff, sr);
+#if 0
+    printf ("Butterworth low pass sr %f fc %f corner %f Slope %f\n",
+            sr,
+            cutoff,
+            slope.cornerGain,
+            slope.slope);
+#else
+    assertClose (slope.cornerGain, expectedCorner, 0.3f); // max error at low fc
+    assertLE (slope.slope, expectedSlope);
+#endif
+}
+
+static void testSlopeButterworthLp (const float_4 cutoff,
+                                    const float_4 sr,
+                                    const float expectedCorner,
+                                    const float expectedSlope)
+{
+    BiQuad<float_4> filter;
+    filter.setButterworthLp2 (sr, cutoff);
+
+    constexpr int fftSize = 1024 * 32;
+    auto driac = ts::makeDriac (fftSize);
+    std::vector<ts::Signal> signals;
+    signals.resize (4);
+
+    for (auto x : driac)
+    {
+        auto s = filter.process (x);
+        for (auto i = 0; i < 4; i++)
+            signals[i].push_back (s[i]);
+    }
+    auto driacResponse = ts::getResponse (driac);
+
+    //analyse per channel
+    for (auto i = 0; i < 4; ++i)
+    {
+        auto response = ts::getResponse (signals[i]);
+
+        auto slope = FftAnalyzer::getSlopeLowpass (response, driacResponse, cutoff[i], sr[i]);
+#if 00
+        printf ("Butterworth low pass sr %f fc %f corner %f Slope %f\n",
+                sr,
+                cutoff,
+                slope.cornerGain,
+                slope.slope);
+#else
+        assertClose (slope.cornerGain, expectedCorner, 0.3f); // max error at low fc
+        assertLE (slope.slope, expectedSlope + 0.5f);
+#endif
+    }
+}
+
+static void testSlopeButterworthHp (const float cutoff,
+                                    const float sr,
+                                    const float expectedCorner,
+                                    const float expectedSlope)
+{
+    BiQuad<float> filter;
+    filter.setButterworthHp2 (sr, cutoff);
+
+    constexpr int fftSize = 1024 * 32;
+    ts::Signal signal;
+    auto driac = ts::makeDriac (fftSize);
+
+    for (auto x : driac)
+        signal.push_back (filter.process (x));
+
+    auto response = ts::getResponse (signal);
+    auto driacResonse = ts::getResponse (driac);
+
+    auto slope = FftAnalyzer::getSlopeHighpass (response, driacResonse, cutoff, sr);
+#if 0
+    printf ("Butterworth High pass sr %f fc %f corner %f Slope %f\n",
+            sr,
+            cutoff,
+            slope.cornerGain,
+            slope.slope);
+#else
+    assertClose (slope.cornerGain, expectedCorner, 0.15f);
+    assertClose (slope.slope, expectedSlope, 0.6f);
+#endif
+}
+
+static void testSlopeButterworthHp (const float_4 cutoff,
+                                    const float_4 sr,
+                                    const float expectedCorner,
+                                    const float expectedSlope)
+{
+    BiQuad<float_4> filter;
+    filter.setButterworthHp2 (sr, cutoff);
+
+    constexpr int fftSize = 1024 * 32;
+    std::vector<ts::Signal> signals;
+    signals.resize (4); // a signal for each of the 4 floats in simd
+    auto driac = ts::makeDriac (fftSize);
+
+    for (auto x : driac)
+    {
+        auto s = filter.process (x);
+        for (auto i = 0; i < 4; ++i)
+            signals[i].push_back (s[i]);
+    }
+    auto driacResonse = ts::getResponse (driac);
+    //analyse the 4 channels
+    for (auto i = 0; i < 4; ++i)
+    {
+        auto response = ts::getResponse (signals[i]);
+        auto slope = FftAnalyzer::getSlopeHighpass (response, driacResonse, cutoff[i], sr[i]);
+#if 0
+    printf ("Butterworth High pass sr %f fc %f corner %f Slope %f\n",
+            sr[i],
+            cutoff[i],
+            slope.cornerGain,
+            slope.slope);
+#else
+        assertClose (slope.cornerGain, expectedCorner, 0.2f);
+        assertClose (slope.slope, expectedSlope, 0.5f);
+#endif
+    }
+}
+
+static void testButterworthLp()
+{
+    for (auto fc = 40.0f; fc < 5000.0f; fc += 100.0f)
+        testSlopeButterworthLp (fc, 44100, -3, -11.8f);
+}
+
+static void testButterworthHp()
+{
+    for (auto fc = 140.0f; fc < 5000.0f; fc += 100.0f)
+        testSlopeButterworthHp (fc, 44100, -3, -12.0f);
+}
+
+static void testButterworthHpSmid()
+{
+    float_4 sr{ 44100, 44100, 44100, 44100 };
+    for (auto fc = 140.0f; fc < 5000.0f; fc += 100.0f)
+    {
+        float_4 fc_4 = { fc, fc + 100.0f, fc + 250.0f, fc + 400.0f };
+        testSlopeButterworthHp (fc_4, sr, -3, -12.0f);
+    }
+}
+
+static void testButterworthLpSmid()
+{
+    float_4 sr{ 44100, 44100, 44100, 44100 };
+    for (auto fc = 40.0f; fc < 5000.0f; fc += 100.0f)
+    {
+        float_4 fc_4 = { fc, fc + 100.0f, fc + 250.0f, fc + 400.0f };
+        testSlopeButterworthLp (fc_4, sr, -3, -11.8f);
+    }
+}
+
 void testUtilityFilter()
 {
     printf ("Utility Filter\n");
+    testLrLp4();
+    testLrHp4();
+    testLWRCrossOver4();
+    testLrHpSmid4();
+    testLrLpSmid4();
+    testLWRCrossOverSmid4();
     testLrLp();
     testLrHp();
     testLWRCrossOver();
@@ -421,4 +877,8 @@ void testUtilityFilter()
     testLWRCrossOverSmid();
     testAllPass();
     testMixedBiquadSimd();
+    testButterworthLp();
+    testButterworthHp();
+    testButterworthLpSmid();
+    testButterworthHpSmid();
 }
