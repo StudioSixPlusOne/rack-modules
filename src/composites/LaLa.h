@@ -107,13 +107,16 @@ public:
 
     // member variables
     static constexpr int maxChannels = 16;
+    static constexpr float dcBlockerFc = 5.5f;
+    const float_4 dc_4{ dcBlockerFc, dcBlockerFc, dcBlockerFc, dcBlockerFc };
     float sampleRate = 1.0f;
     float sampleTime = 1.0f;
     float_4 sr_4{ sampleRate, sampleRate, sampleRate, sampleRate };
     float_4 maxFreq = { 0.5f, 0.5f, 0.5f, 0.5f };
     float_4 minFreq = { 10, 10, 10, 10 };
-    std::vector<sspo::LinkwitzRileyLP2<float_4>> lps;
-    std::vector<sspo::LinkwitzRileyHP2<float_4>> hps;
+    // filters and dc blocker filter for each band
+    std::vector<sspo::LinkwitzRileyLP4<float_4>> lpFilters;
+    std::vector<sspo::LinkwitzRileyHP4<float_4>> hpFilters;
 
     void setSampleRate (float rate)
     {
@@ -126,8 +129,8 @@ public:
     // must be called after setSampleRate
     void init()
     {
-        hps.resize (maxChannels / 4);
-        lps.resize (maxChannels / 4);
+        hpFilters.resize (maxChannels / 4);
+        lpFilters.resize (maxChannels / 4);
     }
 
     inline void step() override;
@@ -147,12 +150,13 @@ inline void LaLaComp<TBase>::step()
         fcv += freqParam;
         float_4 freq = dsp::FREQ_C4 * simd::pow (2.0f, fcv);
         freq = simd::clamp (freq, minFreq, maxFreq);
-        lps[c / 4].setParameters (sr_4, freq);
-        hps[c / 4].setParameters (sr_4, freq);
+        lpFilters[c / 4].setParameters (sr_4, freq);
+        hpFilters[c / 4].setParameters (sr_4, freq);
         float_4 in = TBase::inputs[MAIN_INPUT].template getPolyVoltageSimd<float_4> (c);
-        auto lowOut = lps[c / 4].process (in);
+        auto lowOut = lpFilters[c / 4].process (in);
         lowOut = sspo::voltageSaturate (lowOut);
-        auto highOut = 0.0f - hps[c / 4].process (in);
+        auto highOut = hpFilters[c / 4].process (in);
+
         highOut = sspo::voltageSaturate (highOut);
 
         lowOut.store (TBase::outputs[LOW_OUTPUT].getVoltages (c));
