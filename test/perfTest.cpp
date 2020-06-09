@@ -44,6 +44,7 @@ extern double overheadOutOnly;
 #include "CircularBuffer.h"
 #include "HardLimiter.h"
 #include "LookupTable.h"
+#include "UtilityFilters.h"
 
 #include "KSDelay.h"
 #include "PolyShiftRegister.h"
@@ -448,6 +449,45 @@ static void testPolyShiftRegister()
         1);
 }
 
+static void testUtilityFilters()
+{
+    sspo::BiQuad<float> bq;
+
+    //initial 1.12
+    MeasureTime<double>::run (
+        overheadInOut, "Biquad process", [&bq]() {
+            return bq.process (TestBuffers<float>::get());
+        },
+        1);
+    //initial 4.61
+    //3.25
+    //3.14
+    //2.88
+    MeasureTime<double>::run (
+        overheadInOut, "Biquad set Butterworth lp", [&bq]() {
+            bq.setButterworthLp2 (44100.0f, TestBuffers<float>::get() * 20000.0f);
+            return bq.coeffs.a0;
+        },
+        1);
+
+    //initial 5.08
+    //3.49
+    sspo::LinkwitzRileyLP4<float> lw;
+    MeasureTime<double>::run (
+        overheadInOut, "Linkwitz-Riley lp4 set parameter", [&lw]() {
+            lw.setParameters (44100.0f, TestBuffers<float>::get() * 20000.0f);
+            return lw.f1.coeffs.a0;
+        },
+        1);
+
+    //initial 2.02
+    MeasureTime<double>::run (
+        overheadInOut, "Linkwitz-Riley lp4 process", [&lw]() {
+            return lw.process (TestBuffers<float>::get());
+        },
+        1);
+}
+
 void perfTest()
 {
     printf ("starting perf test\n");
@@ -457,6 +497,8 @@ void perfTest()
     assert (overheadOutOnly > 0);
 
     test1();
+    testUtilityFilters();
+    //test1();
     testNoise (true);
     testNormal();
     testFastApprox();

@@ -68,10 +68,11 @@ namespace sspo
 
         T process (const T in)
         {
-            /*            auto out = z1 + coeffs.a0 * in;
-            z1 = coeffs.a1 * in + z2 - coeffs.b1 * out;
-            z2 = coeffs.a2 * in - coeffs.b2 * out; */
+            /*auto out = xz1 + coeffs.a0 * in;
+            xz1 = coeffs.a1 * in + xz2 - coeffs.b1 * out;
+            xz2 = coeffs.a2 * in - coeffs.b2 * out;*/
 
+            // alternative calc with 4 memory buffers give an improved performance
             auto out = coeffs.a0 * in + coeffs.a1 * xz1
                        + coeffs.a2 * xz2 - coeffs.b1 * yz1 - coeffs.b2 * yz2;
             yz2 = yz1;
@@ -84,28 +85,28 @@ namespace sspo
         //-3db at fc 12dB/Octave slope 90 Degree phase at fc
         void setButterworthLp2 (const T sr, const T freq)
         {
-            T fc = rack::simd::ifelse (freq < sr * 0.5, freq, freq * 0.95);
-            auto C = 1 / rack::simd::tan ((k_pi * fc) / sr);
-            auto a0 = 1 / (1 + rack::simd::sqrt (2) * C + C * C);
+            T fc = rack::simd::ifelse (freq < sr * 0.5f, freq, freq * 0.95f);
+            auto C = 1.0f / rack::simd::tan ((k_pi * fc) / sr);
+            auto a0 = 1.0f / (1.0f + 1.414213562f * C + C * C);
 
             setCoeffs (a0,
                        2.0f * a0,
                        a0,
-                       2.0f * a0 * (1 - C * C),
-                       a0 * (1 - rack::simd::sqrt (2) * C + C * C));
+                       2.0f * a0 * (1.0f - C * C),
+                       a0 * (1.0f - 1.414213562f * C + C * C));
         }
         //-3db at fc 12dB/Octave slope 90 Degree phase at fc
         void setButterworthHp2 (const T sr, const T freq)
         {
-            T fc = rack::simd::ifelse (freq < sr * 0.5, freq, freq * 0.95);
+            T fc = rack::simd::ifelse (freq < sr * 0.5f, freq, freq * 0.95f);
             auto C = rack::simd::tan ((k_pi * fc) / sr);
-            auto a0 = 1 / (1 + rack::simd::sqrt (2) * C + C * C);
+            auto a0 = 1.0f / (1.0f + 1.414213562f * C + C * C);
 
             setCoeffs (a0,
-                       -2.0 * a0,
+                       -2.0f * a0,
                        a0,
-                       2 * a0 * (C * C - 1),
-                       a0 * (1.0 - rack::simd::sqrt (2) * C + C * C));
+                       2.0f * a0 * (C * C - 1.0f),
+                       a0 * (1.0f - 1.414213562f * C + C * C));
         }
         //-6db at fc 12dB/Octave slope 90 Degree phase at fc
         void setLinkwitzRileyLp2 (const T sr, const T freq)
