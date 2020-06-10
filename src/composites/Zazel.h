@@ -135,8 +135,8 @@ public:
     dsp::SchmittTrigger startContTrigger;
     dsp::SchmittTrigger pauseTrigger;
     int framesSinceSync = 0;
-    Mode mode;
-    Mode lastMode;
+    Mode mode = Mode::ONESHOT_LOW;
+    Mode lastMode = Mode::ONESHOT_LOW;
     int framesSincePhaseChange = 0;
     Easings::EasingFactory ef;
     float out = 0.0f;
@@ -314,7 +314,6 @@ public:
     void init()
     {
         lastClockDuration = sampleRate;
-        mode = Mode::CYCLE_ATTACK;
     }
 
     void step() override;
