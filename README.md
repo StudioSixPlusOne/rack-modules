@@ -18,6 +18,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  [Massarti](#massarti)
  
  [Tyrant](#tyrant)
+
+ [Lala](#lala)
  
 
   
@@ -112,6 +114,18 @@ A monophonic in, polyphonic out shift register, with many probability options.
 
 
 [Omri's YouTube Tutorial](https://www.youtube.com/watch?v=hOjkkmr0oNs)
+
+### Lala
+
+<img align="left" src="images/Lala.png">
+
+A cascadable two way crossover, used for splitting audio frequency bands, for multiband processing
+
+- Polyphonic
+- Frequency controls the band ranges
+- Summed output has a flat frequency response
+- Can be cascaded for any number of bands
+- Demo project for ideas <a href="patches//Lala_Demo.vcv">Demo patch</a>
 
 
 
