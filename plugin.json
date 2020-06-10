@@ -61,6 +61,7 @@
       "slug": "LaLa",
       "name": "LaLa",
       "description": "Two way cross over",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#lala",
       "tags": [
         "Filter",
         "Polyphonic",
