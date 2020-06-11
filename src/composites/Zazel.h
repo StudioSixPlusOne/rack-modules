@@ -88,6 +88,9 @@ public:
         DURATION_ATTENUVERTER_PARAM,
         DURATION_PARAM,
         ONESHOT_PARAM,
+        SYNC_BUTTON_PARAM,
+        TRIG_BUTTON_PARAM,
+        PAUSE_BUTTON_PARAM,
         NUM_PARAMS
     };
     enum InputIds
@@ -108,6 +111,7 @@ public:
     };
     enum LightIds
     {
+        PAUSE_LIGHT,
         NUM_LIGHTS
     };
 
@@ -168,7 +172,8 @@ public:
     {
         if (TBase::inputs[CLOCK_INPUT].isConnected())
         {
-            if (syncTrigger.process (TBase::inputs[CLOCK_INPUT].getVoltage()))
+            if (syncTrigger.process (TBase::inputs[CLOCK_INPUT].getVoltage()
+                                     + TBase::params[SYNC_BUTTON_PARAM].getValue()))
             {
                 framesSinceSync++;
                 lastClockDuration = framesSinceSync;
@@ -197,7 +202,8 @@ public:
 
     void doTriggers()
     {
-        if (startContTrigger.process (TBase::inputs[START_CONT_INPUT].getVoltage()))
+        if (startContTrigger.process (TBase::inputs[START_CONT_INPUT].getVoltage()
+                                      + TBase::params[TRIG_BUTTON_PARAM].getValue()))
         {
             framesSincePhaseChange = 0;
             if (! oneShot)
@@ -211,7 +217,9 @@ public:
 
         //neagative gate
 
-        if (TBase::inputs[START_CONT_INPUT].getVoltage() < 1.0f
+        if (TBase::inputs[START_CONT_INPUT].getVoltage()
+                    + +TBase::params[TRIG_BUTTON_PARAM].getValue()
+                < 1.0f
             && (mode == Mode::ONESHOT_ATTACK || mode == Mode::ONESHOT_HIGH))
         {
             changePhase (Mode::ONESHOT_DECAY);
@@ -299,7 +307,8 @@ public:
 
     void doPause()
     {
-        if (pauseTrigger.process (TBase::inputs[STOP_CONT_INPUT].getVoltage()))
+        if (pauseTrigger.process (TBase::inputs[STOP_CONT_INPUT].getVoltage()
+                                  + TBase::params[PAUSE_BUTTON_PARAM].getValue()))
         {
             if (mode == Mode::PAUSED)
                 mode = lastMode;
@@ -331,6 +340,11 @@ inline void ZazelComp<TBase>::step()
         framesSincePhaseChange++;
         calcParameters();
         doStateMachine();
+        TBase::lights[PAUSE_LIGHT].setSmoothBrightness (0.0f, 5e-6f);
+    }
+    else
+    {
+        TBase::lights[PAUSE_LIGHT].setSmoothBrightness (1.0f, 5e-6f);
     }
 
     TBase::outputs[MAIN_OUTPUT].setVoltage (sspo::voltageSaturate (out * 10.0f));
@@ -374,6 +388,15 @@ IComposite::Config ZazelDescription<TBase>::getParam (int i)
             break;
         case ZazelComp<TBase>::ONESHOT_PARAM:
             ret = { -1.0f, 0.0f, 0.0f, "Oneshot / cycle ", " ", 0, 1, 0.0f };
+            break;
+        case ZazelComp<TBase>::SYNC_BUTTON_PARAM:
+            ret = { 0.0f, 1.0f, 0.0f, "Sync", " ", 0, 1, 0.0f };
+            break;
+        case ZazelComp<TBase>::TRIG_BUTTON_PARAM:
+            ret = { 0.0f, 1.0f, 0.0f, "Trigger", " ", 0, 1, 0.0f };
+            break;
+        case ZazelComp<TBase>::PAUSE_BUTTON_PARAM:
+            ret = { 0.0f, 1.0f, 0.0f, "Pause", " ", 0, 1, 0.0f };
             break;
         default:
             assert (false);
