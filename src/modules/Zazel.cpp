@@ -319,6 +319,24 @@ struct ParameterSelectWidget : Widget
     }
 };
 
+struct ZazelButton : app::SvgSwitch
+{
+    ZazelButton()
+    {
+        momentary = true;
+        addFrame (APP->window->loadSvg (asset::plugin (pluginInstance, "res/ZazelButton.svg")));
+        addFrame (APP->window->loadSvg (asset::plugin (pluginInstance, "res/ZazelButton.svg")));
+    }
+};
+
+struct ZazelTriggerButton : ZazelButton
+{
+    ZazelTriggerButton()
+    {
+        momentary = false;
+    }
+};
+
 struct ZazelWidget : ModuleWidget
 {
     ZazelWidget (Zazel* module)
@@ -342,6 +360,9 @@ struct ZazelWidget : ModuleWidget
         addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (28.925, 94.894)), module, Comp::DURATION_ATTENUVERTER_PARAM));
         addParam (SqHelper::createParamCentered<RoundLargeBlackKnob> (icomp, mm2px (Vec (48.161, 94.894)), module, Comp::DURATION_PARAM));
         addParam (SqHelper::createParamCentered<CKSS> (icomp, mm2px (Vec (5.05, 112.575)), module, Comp::ONESHOT_PARAM));
+        addParam (SqHelper::createParamCentered<ZazelButton> (icomp, mm2px (Vec (16.93, 115.62)), module, Comp::SYNC_BUTTON_PARAM));
+        addParam (SqHelper::createParamCentered<ZazelTriggerButton> (icomp, mm2px (Vec (28.814, 115.62)), module, Comp::TRIG_BUTTON_PARAM));
+        addParam (SqHelper::createParamCentered<ZazelButton> (icomp, mm2px (Vec (40.697, 115.62)), module, Comp::PAUSE_BUTTON_PARAM));
 
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.689, 40.324)), module, Comp::EASING_INPUT));
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.689, 58.514)), module, Comp::START_INPUT));
@@ -352,6 +373,8 @@ struct ZazelWidget : ModuleWidget
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (28.814, 112.575)), module, Comp::START_CONT_INPUT));
 
         addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (52.581, 112.422)), module, Comp::MAIN_OUTPUT));
+
+        addChild (createLightCentered<SmallLight<RedLight>> (mm2px (Vec (37.52, 108.25)), module, Comp::PAUSE_LIGHT));
 
         auto* paramSelectwidget = createWidget<ParameterSelectWidget> (mm2px (Vec (5.591, 14.19)));
         paramSelectwidget->setModule (module);
