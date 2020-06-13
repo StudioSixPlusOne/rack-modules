@@ -26,6 +26,7 @@
 #include "ctrl/SqMenuItem.h"
 #include <atomic>
 #include <assert.h>
+#include "AudioMath.h"
 
 using Comp = ZazelComp<WidgetComposite>;
 
@@ -41,6 +42,9 @@ struct Zazel : Module
     std::atomic<RequestedParamId> requestedParameter;
     ParamHandle paramHandle;
     std::atomic<bool> clearParam;
+    Comp::Mode preLearnMode = Comp::Mode::PAUSED;
+    float lastEnd;
+    int endFrameCounter = 0;
 
     Zazel()
     {
@@ -101,22 +105,70 @@ struct Zazel : Module
         zazel->setSampleRate (rate);
     }
 
-    void paramChange()
+    void updateParamHandle()
     {
-        if (clearParam.load())
-        {
-            APP->engine->updateParamHandle (&paramHandle, -1, -1, true);
-            clearParam.store (false);
-        }
         RequestedParamId rpi = requestedParameter.load();
-        if (rpi.moduleid == -1)
-            return;
         APP->engine->updateParamHandle (&paramHandle, rpi.moduleid, rpi.paramid, true);
 
-        //reset requested parameter so only updates on request.
-        rpi.moduleid = -1;
-        rpi.moduleid = -1;
-        requestedParameter.store (rpi);
+        ParamQuantity* pq = paramHandle.module->paramQuantities[paramHandle.paramId];
+        if (pq != nullptr)
+        {
+            lastEnd = pq->getScaledValue();
+            zazel->setStartParamScaled (lastEnd);
+            zazel->setEndParamScaled (lastEnd);
+        }
+    }
+
+    void removeParam()
+    {
+        APP->engine->updateParamHandle (&paramHandle, -1, -1, true);
+        clearParam.store (false);
+        return;
+    }
+
+    void paramChange()
+    {
+        RequestedParamId rpi = requestedParameter.load();
+        if (rpi.moduleid != -1)
+        {
+            //reset requested parameter so only updates on request.
+            rpi.moduleid = -1;
+            rpi.moduleid = -1;
+            requestedParameter.store (rpi);
+
+            //setup parameter learrning
+            preLearnMode = zazel->mode;
+            zazel->changePhase (Comp::Mode::LEARN_END);
+            endFrameCounter = 0;
+            lastEnd = 0.0f;
+        }
+
+        auto newParam = 0.0f;
+        if (paramHandle.moduleId != -1 && paramHandle.module != nullptr)
+        {
+            ParamQuantity* pq = paramHandle.module->paramQuantities[paramHandle.paramId];
+            if (pq != nullptr)
+            {
+                newParam = pq->getScaledValue();
+            }
+        }
+
+        if (zazel->mode == Comp::Mode::LEARN_END && endFrameCounter > zazel->sampleRate)
+        {
+            zazel->changePhase (preLearnMode);
+            endFrameCounter = 0;
+        }
+        else if (zazel->mode == Comp::Mode::LEARN_END
+                 && (! sspo::AudioMath::areSame (lastEnd, newParam, 0.0001f)))
+        {
+            endFrameCounter = 0;
+            lastEnd = newParam;
+            zazel->setEndParamScaled (newParam);
+        }
+        else
+        {
+            endFrameCounter++;
+        }
     }
 
     int getEasing()
@@ -133,7 +185,9 @@ struct Zazel : Module
     {
         paramChange();
         zazel->step();
-        if (paramHandle.moduleId != -1 && paramHandle.module != nullptr)
+        if (! (paramHandle.moduleId == -1
+               || paramHandle.module == nullptr
+               || zazel->mode == Comp::Mode::LEARN_END))
         {
             ParamQuantity* pq = paramHandle.module->paramQuantities[paramHandle.paramId];
             if (pq != nullptr)
@@ -219,6 +273,7 @@ struct ParameterSelectWidget : Widget
         if (e.action == GLFW_PRESS && e.button == GLFW_MOUSE_BUTTON_LEFT)
         {
             learning = true;
+            module->removeParam();
             e.consume (this);
         }
 
@@ -228,7 +283,8 @@ struct ParameterSelectWidget : Widget
             rpi.moduleid = -1;
             rpi.paramid = -1;
             module->requestedParameter.store (rpi);
-            module->clearParam = true;
+            module->clearParam.store (true);
+            module->removeParam();
             e.consume (this);
         }
     }
@@ -247,6 +303,7 @@ struct ParameterSelectWidget : Widget
             rpi.moduleid = touchedParam->paramQuantity->module->id;
             rpi.paramid = touchedParam->paramQuantity->paramId;
             module->requestedParameter.store (rpi);
+            module->updateParamHandle();
             learning = false;
         }
         else
