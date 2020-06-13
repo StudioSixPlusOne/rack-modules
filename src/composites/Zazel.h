@@ -124,6 +124,7 @@ public:
         CYCLE_ATTACK,
         CYCLE_DECAY,
         PAUSED,
+        LEARN_END,
         COUNT
     };
 
@@ -278,6 +279,9 @@ public:
                 break;
             case Mode::PAUSED:
                 break;
+            case Mode::LEARN_END:
+                out = endParam;
+                break;
             default:
                 break;
         }
@@ -319,6 +323,17 @@ public:
             }
         }
     }
+
+    void setStartParamScaled (float x)
+    {
+        TBase::paramQuantities[START_PARAM]->setScaledValue (x);
+    }
+
+    void setEndParamScaled (float x)
+    {
+        TBase::paramQuantities[END_PARAM]->setScaledValue (x);
+    }
+
     // must be called after setSampleRate
     void init()
     {
