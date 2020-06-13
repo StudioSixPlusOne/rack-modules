@@ -45,6 +45,10 @@ struct Light
     void setBrightnessSmooth(float brightness)
     {
     }
+
+    void setSmoothBrightness (float brightness, float time)
+	{
+	}
 };
 
 static const int PORT_MAX_CHANNELS = 16;
