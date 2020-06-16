@@ -42,7 +42,6 @@ struct Zazel : Module
     std::atomic<RequestedParamId> requestedParameter;
     ParamHandle paramHandle;
     std::atomic<bool> clearParam;
-    Comp::Mode preLearnMode = Comp::Mode::PAUSED;
     float lastEnd;
     int endFrameCounter = 0;
 
@@ -97,6 +96,7 @@ struct Zazel : Module
         rpi.moduleid = json_integer_value (moduleIdJ);
         rpi.paramid = json_integer_value (parameterIdJ);
         requestedParameter.store (rpi);
+        APP->engine->updateParamHandle (&paramHandle, rpi.moduleid, rpi.paramid, true);
     }
 
     void onSampleRateChange() override
@@ -126,6 +126,7 @@ struct Zazel : Module
         return;
     }
 
+    //called every frame to update changed parameters and set start and end values
     void paramChange()
     {
         RequestedParamId rpi = requestedParameter.load();
@@ -137,7 +138,6 @@ struct Zazel : Module
             requestedParameter.store (rpi);
 
             //setup parameter learrning
-            preLearnMode = zazel->mode;
             zazel->changePhase (Comp::Mode::LEARN_END);
             endFrameCounter = 0;
             lastEnd = 0.0f;
@@ -155,7 +155,11 @@ struct Zazel : Module
 
         if (zazel->mode == Comp::Mode::LEARN_END && endFrameCounter > zazel->sampleRate)
         {
-            zazel->changePhase (preLearnMode);
+            if (zazel->oneShot)
+                zazel->changePhase (Comp::Mode::ONESHOT_ATTACK);
+            else
+                zazel->changePhase (Comp::Mode::CYCLE_DECAY);
+
             endFrameCounter = 0;
         }
         else if (zazel->mode == Comp::Mode::LEARN_END
