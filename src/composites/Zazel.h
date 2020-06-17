@@ -196,7 +196,7 @@ public:
         if (! newOneShot && oneShot)
             changePhase (Mode::CYCLE_ATTACK);
         if (newOneShot && ! oneShot)
-            changePhase (Mode::PAUSED);
+            changePhase (Mode::ONESHOT_DECAY);
 
         oneShot = newOneShot;
     }
