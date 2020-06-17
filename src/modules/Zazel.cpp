@@ -83,6 +83,7 @@ struct Zazel : Module
         json_object_set_new (rootJ, "moduleId", json_integer (paramHandle.moduleId));
         json_object_set_new (rootJ, "parameterId", json_integer (paramHandle.paramId));
         json_object_set_new (rootJ, "retriggerMode", json_integer (int (zazel->retriggerMode)));
+        json_object_set_new (rootJ, "DurationMultiplier", json_real (zazel->durationMultiplier));
 
         return rootJ;
     }
@@ -102,6 +103,9 @@ struct Zazel : Module
         json_t* retriggerModeJ = json_object_get (rootJ, "retriggerMode");
         auto re = json_integer_value (retriggerModeJ);
         zazel->retriggerMode = Comp::RetriggerMode (re);
+
+        json_t* durationJ = json_object_get (rootJ, "DurationMultiplier");
+        zazel->durationMultiplier = json_real_value (durationJ);
     }
 
     void onSampleRateChange() override
@@ -216,6 +220,16 @@ struct RetriggerMenuItem : MenuItem
     void onAction (const event::Action& e) override
     {
         module->zazel->setRetriggerMode (mode);
+    }
+};
+
+struct DurationMiltiplierMenuItem : MenuItem
+{
+    Zazel* module;
+    float multiplier;
+    void onAction (const event::Action& e) override
+    {
+        module->zazel->durationMultiplier = multiplier;
     }
 };
 
@@ -494,6 +508,46 @@ struct ZazelWidget : ModuleWidget
         restartFromCurrentMenuItem->rightText = CHECKMARK (module->zazel->retriggerMode
                                                 == restartFromCurrentMenuItem->mode);
         menu->addChild (restartFromCurrentMenuItem); */
+
+        // Duration multiplier
+        menu->addChild (new MenuEntry);
+
+        MenuLabel* durationLabel = new MenuLabel();
+        durationLabel->text = "Duration Multiplier";
+        menu->addChild (durationLabel);
+
+        DurationMiltiplierMenuItem* duration001MenuItem = new DurationMiltiplierMenuItem();
+        duration001MenuItem->multiplier = 0.01f;
+        duration001MenuItem->text = "0.01";
+        duration001MenuItem->module = module;
+        duration001MenuItem->rightText = CHECKMARK (module->zazel->durationMultiplier
+                                                    == duration001MenuItem->multiplier);
+        menu->addChild (duration001MenuItem);
+
+        DurationMiltiplierMenuItem* duration01MenuItem = new DurationMiltiplierMenuItem();
+        duration01MenuItem->multiplier = 0.1f;
+        duration01MenuItem->text = "0.1";
+        duration01MenuItem->module = module;
+        duration01MenuItem->rightText = CHECKMARK (module->zazel->durationMultiplier
+                                                   == duration01MenuItem->multiplier);
+        menu->addChild (duration01MenuItem);
+
+        DurationMiltiplierMenuItem* duration1MenuItem = new DurationMiltiplierMenuItem();
+        duration1MenuItem->multiplier = 1.0f;
+        duration1MenuItem->text = "1.0";
+        duration1MenuItem->module = module;
+        duration1MenuItem->rightText = CHECKMARK (module->zazel->durationMultiplier
+                                                  == duration1MenuItem->multiplier);
+        menu->addChild (duration1MenuItem);
+
+        DurationMiltiplierMenuItem* duration10MenuItem = new DurationMiltiplierMenuItem();
+        duration10MenuItem->multiplier = 10.0f;
+        duration10MenuItem->text = "10.0";
+        duration10MenuItem->module = module;
+        duration10MenuItem->rightText = CHECKMARK (module->zazel->durationMultiplier
+                                                   == duration10MenuItem->multiplier);
+        menu->addChild (duration10MenuItem);
+
     }
 };
 
