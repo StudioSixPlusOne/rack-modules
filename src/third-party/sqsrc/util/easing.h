@@ -273,8 +273,8 @@ namespace Easings
 
         float easeInOut (float t, float b, float c, float d) override
         {
-            t /= d;
-            if ((t / 2) < 0.5)
+            t /= d / 2;
+            if (t < 1.0f)
                 return ((c / 2) * (t * t)) + b;
             --t;
             return -c / 2 * (((t - 2) * (t)) - 1) + b;
