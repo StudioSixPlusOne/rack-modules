@@ -157,6 +157,7 @@ public:
     float startParam = 0.0f;
     float endParam = 0.0f;
     RetriggerMode retriggerMode = RetriggerMode::RESTART;
+    float durationMultiplier = 1.0f;
 
     void setRetriggerMode (RetriggerMode m)
     {
@@ -383,7 +384,8 @@ public:
                    + TBase::params[END_ATTENUVERTER_PARAM].getValue()
                          * TBase::inputs[END_INPUT].getVoltage() / 5.0f;
 
-        framePhaseDuration = clamp (framePhaseDuration, 0.001f, 5.0f);
+        framePhaseDuration *= durationMultiplier;
+        framePhaseDuration = clamp (framePhaseDuration, 0.001f, 20.0f);
         framePhaseCount = framePhaseDuration * lastClockDuration;
     }
 
@@ -477,7 +479,7 @@ IComposite::Config ZazelDescription<TBase>::getParam (int i)
             ret = { -1.0f, 1.0f, 0.f, "Duration Cv", " ", 0, 1, 0.0f };
             break;
         case ZazelComp<TBase>::DURATION_PARAM:
-            ret = { 0.0f, 10.0f, 0.5f, "Duration", " ", 0, 1, 0.0f };
+            ret = { 0.0f, 2.0f, 1.0f, "Duration", " ", 0, 1, 0.0f };
             break;
         case ZazelComp<TBase>::ONESHOT_PARAM:
             ret = { -1.0f, 0.0f, 0.0f, "Oneshot / cycle ", " ", 0, 1, 0.0f };
