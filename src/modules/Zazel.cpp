@@ -547,7 +547,6 @@ struct ZazelWidget : ModuleWidget
         duration10MenuItem->rightText = CHECKMARK (module->zazel->durationMultiplier
                                                    == duration10MenuItem->multiplier);
         menu->addChild (duration10MenuItem);
-
     }
 };
 
