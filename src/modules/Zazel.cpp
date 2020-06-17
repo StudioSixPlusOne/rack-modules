@@ -82,6 +82,7 @@ struct Zazel : Module
 
         json_object_set_new (rootJ, "moduleId", json_integer (paramHandle.moduleId));
         json_object_set_new (rootJ, "parameterId", json_integer (paramHandle.paramId));
+        json_object_set_new (rootJ, "retriggerMode", json_integer (int (zazel->retriggerMode)));
 
         return rootJ;
     }
@@ -97,6 +98,10 @@ struct Zazel : Module
         rpi.paramid = json_integer_value (parameterIdJ);
         requestedParameter.store (rpi);
         APP->engine->updateParamHandle (&paramHandle, rpi.moduleid, rpi.paramid, true);
+
+        json_t* retriggerModeJ = json_object_get (rootJ, "retriggerMode");
+        auto re = json_integer_value (retriggerModeJ);
+        zazel->retriggerMode = Comp::RetriggerMode (re);
     }
 
     void onSampleRateChange() override
@@ -156,7 +161,7 @@ struct Zazel : Module
         if (zazel->mode == Comp::Mode::LEARN_END && endFrameCounter > zazel->sampleRate)
         {
             if (zazel->oneShot)
-                zazel->changePhase (Comp::Mode::ONESHOT_ATTACK);
+                zazel->changePhase (Comp::Mode::ONESHOT_DECAY);
             else
                 zazel->changePhase (Comp::Mode::CYCLE_DECAY);
 
@@ -203,6 +208,16 @@ struct Zazel : Module
 /*****************************************************
 User Interface
 *****************************************************/
+
+struct RetriggerMenuItem : MenuItem
+{
+    Zazel* module;
+    Comp::RetriggerMode mode;
+    void onAction (const event::Action& e) override
+    {
+        module->zazel->setRetriggerMode (mode);
+    }
+};
 
 struct EasingWidget : Widget
 {
@@ -420,7 +435,7 @@ struct ZazelWidget : ModuleWidget
         addParam (SqHelper::createParamCentered<RoundLargeBlackKnob> (icomp, mm2px (Vec (48.161, 94.894)), module, Comp::DURATION_PARAM));
         addParam (SqHelper::createParamCentered<CKSS> (icomp, mm2px (Vec (5.05, 112.575)), module, Comp::ONESHOT_PARAM));
         addParam (SqHelper::createParamCentered<ZazelButton> (icomp, mm2px (Vec (16.93, 115.62)), module, Comp::SYNC_BUTTON_PARAM));
-        addParam (SqHelper::createParamCentered<ZazelTriggerButton> (icomp, mm2px (Vec (28.814, 115.62)), module, Comp::TRIG_BUTTON_PARAM));
+        addParam (SqHelper::createParamCentered<ZazelButton> (icomp, mm2px (Vec (28.814, 115.62)), module, Comp::TRIG_BUTTON_PARAM));
         addParam (SqHelper::createParamCentered<ZazelButton> (icomp, mm2px (Vec (40.697, 115.62)), module, Comp::PAUSE_BUTTON_PARAM));
 
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.689, 40.324)), module, Comp::EASING_INPUT));
@@ -443,6 +458,42 @@ struct ZazelWidget : ModuleWidget
         easingWidget->setModule (module);
 
         addChild (easingWidget);
+    }
+
+    void appendContextMenu (Menu* menu) override
+    {
+        auto* module = dynamic_cast<Zazel*> (this->module);
+
+        menu->addChild (new MenuEntry);
+
+        MenuLabel* retriggerLabel = new MenuLabel();
+        retriggerLabel->text = "Retrigger mode";
+        menu->addChild (retriggerLabel);
+
+        RetriggerMenuItem* restartMenuItem = new RetriggerMenuItem();
+        restartMenuItem->mode = Comp::RetriggerMode::RESTART;
+        restartMenuItem->text = "Restart";
+        restartMenuItem->module = module;
+        restartMenuItem->rightText = CHECKMARK (module->zazel->retriggerMode
+                                                == restartMenuItem->mode);
+        menu->addChild (restartMenuItem);
+
+        RetriggerMenuItem* ignoreMenuItem = new RetriggerMenuItem();
+        ignoreMenuItem->mode = Comp::RetriggerMode::IGNORE;
+        ignoreMenuItem->text = "Ignore";
+        ignoreMenuItem->module = module;
+        ignoreMenuItem->rightText = CHECKMARK (module->zazel->retriggerMode
+                                               == ignoreMenuItem->mode);
+        menu->addChild (ignoreMenuItem);
+
+        //TODO implement after next round of testing
+        /*         RetriggerMenuItem* restartFromCurrentMenuItem = new RetriggerMenuItem();
+        restartFromCurrentMenuItem->mode = Comp::RetriggerMode::RESTART_FROM_CURRENT;
+        restartFromCurrentMenuItem->text = "Restart from current";
+        restartFromCurrentMenuItem->module = module;
+        restartFromCurrentMenuItem->rightText = CHECKMARK (module->zazel->retriggerMode
+                                                == restartFromCurrentMenuItem->mode);
+        menu->addChild (restartFromCurrentMenuItem); */
     }
 };
 

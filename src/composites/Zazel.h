@@ -128,6 +128,13 @@ public:
         COUNT
     };
 
+    enum class RetriggerMode
+    {
+        RESTART,
+        IGNORE,
+        RESTART_FROM_CURRENT
+    };
+
     //member variables
 
     float sampleRate = 1.0f;
@@ -149,6 +156,12 @@ public:
     int framePhaseCount = 0;
     float startParam = 0.0f;
     float endParam = 0.0f;
+    RetriggerMode retriggerMode = RetriggerMode::RESTART;
+
+    void setRetriggerMode (RetriggerMode m)
+    {
+        retriggerMode = m;
+    }
 
     void changePhase (Mode m)
     {
@@ -205,25 +218,90 @@ public:
     {
         if (startContTrigger.process (TBase::inputs[START_CONT_INPUT].getVoltage()
                                       + TBase::params[TRIG_BUTTON_PARAM].getValue()))
-        {
-            framesSincePhaseChange = 0;
-            if (! oneShot)
-                changePhase (Mode::CYCLE_ATTACK);
 
-            else
+        {
+            switch (retriggerMode)
             {
-                changePhase (Mode::ONESHOT_ATTACK);
+                case RetriggerMode::IGNORE:
+                    switch (mode)
+                    {
+                        case Mode::PAUSED:
+                            break;
+                        case Mode::ONESHOT_LOW:
+                            changePhase (Mode::ONESHOT_ATTACK);
+                            break;
+                        case Mode::ONESHOT_HIGH:
+                            changePhase (Mode::ONESHOT_DECAY);
+                            break;
+                        case Mode::ONESHOT_DECAY:
+                            break;
+                        case Mode::ONESHOT_ATTACK:
+                            break;
+                        case Mode::LEARN_END:
+                            break;
+                        case Mode::CYCLE_DECAY:
+                            break;
+                        case Mode::CYCLE_ATTACK:
+                            break;
+                        default:
+                            assert (false);
+                    }
+                    break;
+                case RetriggerMode::RESTART:
+                    switch (mode)
+                    {
+                        case Mode::PAUSED:
+                            break;
+                        case Mode::ONESHOT_LOW:
+                            changePhase (Mode::ONESHOT_ATTACK);
+                            break;
+                        case Mode::ONESHOT_HIGH:
+                            changePhase (Mode::ONESHOT_DECAY);
+                            break;
+                        case Mode::ONESHOT_DECAY:
+                            changePhase (Mode::ONESHOT_ATTACK);
+                            break;
+                        case Mode::ONESHOT_ATTACK:
+                            changePhase (Mode::ONESHOT_DECAY);
+                            break;
+                        case Mode::LEARN_END:
+                            break;
+                        case Mode::CYCLE_DECAY:
+                            changePhase (Mode::CYCLE_ATTACK);
+                            break;
+                        case Mode::CYCLE_ATTACK:
+                            changePhase (Mode::CYCLE_ATTACK);
+                            break;
+                        default:
+                            assert (false);
+                    }
+                    break;
+                case RetriggerMode::RESTART_FROM_CURRENT:
+                    switch (mode)
+                    {
+                        case Mode::PAUSED:
+                            break;
+                        case Mode::ONESHOT_LOW:
+                            break;
+                        case Mode::ONESHOT_HIGH:
+                            break;
+                        case Mode::ONESHOT_DECAY:
+                            break;
+                        case Mode::ONESHOT_ATTACK:
+                            break;
+                        case Mode::LEARN_END:
+                            break;
+                        case Mode::CYCLE_DECAY:
+                            break;
+                        case Mode::CYCLE_ATTACK:
+                            break;
+                        default:
+                            assert (false);
+                    }
+                    break;
+                default:
+                    assert (fasle);
             }
-        }
-
-        //neagative gate
-
-        if (TBase::inputs[START_CONT_INPUT].getVoltage()
-                    + +TBase::params[TRIG_BUTTON_PARAM].getValue()
-                < 1.0f
-            && (mode == Mode::ONESHOT_ATTACK || mode == Mode::ONESHOT_HIGH))
-        {
-            changePhase (Mode::ONESHOT_DECAY);
         }
     }
 
