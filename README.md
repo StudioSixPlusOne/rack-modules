@@ -136,6 +136,7 @@ A cascadable two way crossover, used for splitting audio frequency bands, for mu
 ### Zazel
 
 <img align="left" src="images/Zazel.png">
+<img src="images/ZazelContextMenu,png">
 
 <img align="left" src="images/Eva.png">
 A performance-based controller, designed to be connected to midi triggers, to allow smooth fades using easing functions between parameters on other modules, pairs well with VCV MIDI-Gate.
@@ -147,11 +148,13 @@ A performance-based controller, designed to be connected to midi triggers, to al
 - End value, sets the other extreme of the parameter value
 - Duration, the time taken to automate the parameter from the start to the end value. see Clock below
 - Cycle - Oneshot, when in cycle mode the selected parameter is always translating from start to end value and back. when in Oneshot mode, a positive trigger at the "start" input automates the selected parameter from the start to end value, a negative-going trigger will reverse the automation
-- Sync, the clock signal provides the time multiplier used by the duration control, if no input is provided the duration is multiplied by 1 second
+- Sync, the clock signal provides the time multiplier used by the duration control, if no input is provided the duration is multiplied by 1 second, this range can be adjusted in the context menu.
 - Triggger, this is the trigger input used in one-shot mode
-- Reset, this is a pause control
+- Pause, this is a pause control
 - Out CV output reflecting the controlled parameter
 - Sync, Trig and Pause inputs, have a small grey tab below the input that can be used as buttons when connecting to MIDI-CAT
+- retrigger mode selectable in context menu
+
 
 A slimline mixer for audio and cv.
 
