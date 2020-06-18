@@ -301,7 +301,7 @@ public:
                     }
                     break;
                 default:
-                    assert (fasle);
+                    assert (false);
             }
         }
     }
