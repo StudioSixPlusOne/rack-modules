@@ -78,7 +78,6 @@ public:
     enum ParamIds
     {
         ATTENUVERTER_PARAM,
-        GAIN_SHAPE_PARAM,
         NUM_PARAMS
     };
     enum InputIds
@@ -87,6 +86,10 @@ public:
         TWO_INPUT,
         THREE_INPUT,
         FOUR_INPUT,
+        FIVE_INPUT,
+        SIX_INPUT,
+        SEVEN_INPUT,
+        EIGHT_INPUT,
         ATTENUATION_CV,
         NUM_INPUTS
     };
@@ -100,18 +103,7 @@ public:
         NUM_LIGHTS
     };
 
-    constexpr static int inputCount = 4;
-
-    float_4 attenuationFromShape (float_4 attenuation, float shape)
-    {
-        auto order = shape;
-        order = simd::ifelse (order > 0.0f, order + 1, 1.0 / -(order - 1));
-        float_4 ret;
-        float_4 positiveAttenuation = simd::abs (attenuation);
-        ret = simd::ifelse (attenuation == 0, 0, simd::pow (positiveAttenuation, { order, order, order, order }));
-        ret = simd::ifelse (attenuation < 0, -ret, ret);
-        return ret;
-    }
+    constexpr static int inputCount = 8;
 
     int maxInputChannels()
     {
@@ -139,16 +131,13 @@ inline void EvaComp<TBase>::step()
         for (auto i = 0; i < inputCount; ++i)
             out += TBase::inputs[i].template getPolyVoltageSimd<float_4> (c);
 
-        auto attenuation = (TBase::inputs[ATTENUATION_CV].template getPolyVoltageSimd<float_4> (c) / 5.0f);
+        auto attenuation =
+            (TBase::inputs[ATTENUATION_CV].template getPolyVoltageSimd<float_4> (c) / 5.0f);
         for (auto j = 0; j < 4; ++j)
             attenuation[j] += attenuationParam;
         float_4 attMin{ -1.0f, -1.0f, -1.0f, -1.0f };
         float_4 attMax{ 1.0f, 1.0f, 1.0f, 1.0f };
         attenuation = simd::clamp (attenuation, attMin, attMax);
-        auto shape = TBase::params[GAIN_SHAPE_PARAM].getValue();
-        attenuation = shape == 0.0f
-                          ? attenuation
-                          : attenuationFromShape (attenuation, shape);
         out *= attenuation;
         out = sspo::voltageSaturate (out);
 
@@ -173,9 +162,6 @@ IComposite::Config EvaDescription<TBase>::getParam (int i)
     {
         case EvaComp<TBase>::ATTENUVERTER_PARAM:
             ret = { -1.0f, 1.0f, 1.0f, "Attenuverter", " ", 0, 1, 0.0f };
-            break;
-        case EvaComp<TBase>::GAIN_SHAPE_PARAM:
-            ret = { -3.0f, 3.0f, 0.0f, "Gain Shape", " ", 0, 1, 0.0f };
             break;
         default:
             assert (false);
