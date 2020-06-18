@@ -95,7 +95,7 @@ static void testOneShotAtInit()
         sig.push_back (zazel.outputs[zazel.MAIN_OUTPUT].getVoltage());
         assertClose (zazel.lastClockDuration, 44100, 1);
     }
-    auto freq = sr / 1024;
+    auto freq = sr / 2048;
     auto response = ts::getResponse (sig);
     auto maxBin = Analyzer::getMax (response);
     auto targetBin = FFT::freqToBin (freq, sr, fftSize);
@@ -145,7 +145,7 @@ static void testOneshotRiseTime()
     auto trigger = t + t + t + t + t + t + t + t + t + t + t + t + t + t + t + t;
     zazel.params[zazel.DURATION_PARAM].setValue (1.0f / 1000);
     auto counter = 0;
-    zazel.mode = Zazel::Mode::PAUSED;
+    zazel.mode = Zazel::Mode::ONESHOT_LOW;
     //dont count first pass
     while (zazel.mode == Zazel::Mode::ONESHOT_ATTACK || zazel.mode == Zazel::Mode::PAUSED)
     {
@@ -185,7 +185,7 @@ static void testOneshotFallTime()
     auto trigger = t + t + t + t + t + t + t + t + t + t + t + t + t + t + t + t;
     zazel.params[zazel.DURATION_PARAM].setValue (1.0f / 1000);
     auto counter = 0;
-    zazel.mode = Zazel::Mode::PAUSED;
+    zazel.mode = Zazel::Mode::ONESHOT_LOW;
     //dont count until decay
     while (zazel.mode != Zazel::Mode::ONESHOT_DECAY)
     {
@@ -219,7 +219,7 @@ static void testPauseOneshotRising()
     auto pauseTrig = ts::makeTrigger (pauseLen, 44) + ts::makeTrigger (pauseLen, 44);
     zazel.params[zazel.DURATION_PARAM].setValue (1.0f / 1000);
     auto counter = 0;
-    zazel.mode = Zazel::Mode::PAUSED;
+    zazel.mode = Zazel::Mode::ONESHOT_LOW;
     //dont count first pass
     while (zazel.mode == Zazel::Mode::ONESHOT_ATTACK || zazel.mode == Zazel::Mode::PAUSED)
     {
@@ -284,7 +284,7 @@ static void testPauseOneshotFalling()
     auto pauseTrig = ts::makeTrigger (pauseLen, 44) + ts::makeTrigger (pauseLen, 44);
     zazel.params[zazel.DURATION_PARAM].setValue (1.0f / 1000);
     auto counter = 0;
-    zazel.mode = Zazel::Mode::PAUSED;
+    zazel.mode = Zazel::Mode::ONESHOT_LOW;
     //run until decay
     while (zazel.mode != Zazel::Mode::ONESHOT_DECAY)
     {
@@ -379,8 +379,8 @@ void testZazel()
     testCycleFromFresh();
     testOneShotAtInit();
     testOneShotFlag();
-    testClockSpeed();
 
+    testClockSpeed();
     testOneshotRiseTime();
     testOneshotFallTime();
     testPauseOneshotRising();
