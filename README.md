@@ -138,6 +138,6 @@ A slimline mixer for audio and cv.
 
 - All inputs and outputs polyphonic
 - CV controllable attenuverter
-- Variable attenuation curve
+
 
 

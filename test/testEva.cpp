@@ -65,11 +65,12 @@ static void testMaxInputChannels()
     eva.inputs[eva.ONE_INPUT].setChannels (2);
     eva.inputs[eva.TWO_INPUT].setChannels (4);
     eva.inputs[eva.THREE_INPUT].setChannels (6);
-    eva.inputs[eva.FOUR_INPUT].setChannels (8);
+    eva.inputs[eva.FOUR_INPUT].setChannels (7);
+    eva.inputs[eva.FIVE_INPUT].setChannels (9);
 
     auto maxChannels = eva.maxInputChannels();
 
-    assertEQ (maxChannels, 8);
+    assertEQ (maxChannels, 9);
 }
 
 static bool checkOutput (float out, float expected)
@@ -88,35 +89,47 @@ static bool checkOutput (float out, float expected)
     }
 }
 
-static void testMonoSumming (float i1, float i2, float i3, float i4, float att, float attCv)
+static void testMonoSumming (float i1,
+                             float i2,
+                             float i3,
+                             float i4,
+                             float i5,
+                             float i6,
+                             float i7,
+                             float i8,
+                             float att,
+                             float attCv)
 {
     Eva eva;
-    eva.params[eva.GAIN_SHAPE_PARAM].setValue (0);
-    for (auto i = 0; i < 4; ++i)
+    for (auto i = 0; i < 8; ++i)
         eva.inputs[i].setChannels (1);
 
     eva.inputs[eva.ONE_INPUT].setVoltage (i1);
     eva.inputs[eva.TWO_INPUT].setVoltage (i2);
     eva.inputs[eva.THREE_INPUT].setVoltage (i3);
     eva.inputs[eva.FOUR_INPUT].setVoltage (i4);
+    eva.inputs[eva.FIVE_INPUT].setVoltage (i5);
+    eva.inputs[eva.SIX_INPUT].setVoltage (i6);
+    eva.inputs[eva.SEVEN_INPUT].setVoltage (i7);
+    eva.inputs[eva.EIGHT_INPUT].setVoltage (i8);
     eva.params[eva.ATTENUVERTER_PARAM].setValue (att);
     eva.inputs[eva.ATTENUATION_CV].setVoltage (attCv);
 
     eva.step();
     auto attenuation = clamp (att + (attCv / 5.0f), -1.0f, 1.0f);
     auto out = eva.outputs[eva.MAIN_OUTPUT].getVoltage();
-    auto expected = (i1 + i2 + i3 + i4) * attenuation;
+    auto expected = (i1 + i2 + i3 + i4 + i5 + i6 + i7 + i8) * attenuation;
     assertEQ (checkOutput (out, expected), true);
 }
 
 static void testMonoSumming()
 {
-    testMonoSumming (-27.4f, 17.5f, 0.0f, -0.45, 1.0f, 0.5f);
-    testMonoSumming (-27.4f, 17.5f, 0.0f, -0.45, -1.0f, 1.0f);
-    testMonoSumming (-27.4f, 17.5f, 0.0f, -0.45, 0.0f, -1.0f);
-    testMonoSumming (-0.4f, 0.5f, 0.2345f, -0.45, 0.34f, -12.0f);
-    testMonoSumming (0.4f, 0.523f, 0.3245f, 0.45, -0.0123f, 3.0f);
-    testMonoSumming (0.3245f, -0.4545f, -0.34324f, -0.45343, -0.3243f, 0.1f);
+    testMonoSumming (-27.4f, 17.5f, 0.0f, -0.45, -0.4f, 0.5f, 0.2345f, -0.45, 1.0f, 0.5f);
+    testMonoSumming (-27.4f, 17.5f, 0.0f, -0.45, -0.4f, 0.5f, 0.2345f, -0.45, -1.0f, 1.0f);
+    testMonoSumming (-27.4f, 17.5f, 0.0f, -0.45, -0.4f, 0.5f, 0.2345f, -0.45, 0.0f, -1.0f);
+    testMonoSumming (-0.4f, 0.5f, 0.2345f, -0.45, 0.34f, 0.3245f, -0.4545f, -0.34324f, -0.45343, -12.0f);
+    testMonoSumming (0.4f, 0.523f, 0.3245f, 0.45, 0.3245f, -0.4545f, -0.34324f, -0.45343, -0.0123f, 3.0f);
+    testMonoSumming (0.3245f, -0.4545f, -0.34324f, -0.45343, 0.2345f, -0.45, 1.0f, 0.5f, -0.3243f, 0.1f);
 }
 using VF = std::vector<float>;
 
@@ -127,15 +140,18 @@ static void vectToInput (Eva& e, VF& vect, Eva::InputIds input)
     e.inputs[input].setChannels (vect.size());
 }
 
-static void testPolySumming (VF i1, VF i2, VF i3, VF i4, float att, VF attCv)
+static void testPolySumming (VF i1, VF i2, VF i3, VF i4, VF i5, VF i6, VF i7, VF i8, float att, VF attCv)
 {
     Eva eva;
-    eva.params[eva.GAIN_SHAPE_PARAM].setValue (0);
 
     vectToInput (eva, i1, eva.ONE_INPUT);
     vectToInput (eva, i2, eva.TWO_INPUT);
     vectToInput (eva, i3, eva.THREE_INPUT);
     vectToInput (eva, i4, eva.FOUR_INPUT);
+    vectToInput (eva, i5, eva.FIVE_INPUT);
+    vectToInput (eva, i6, eva.SIX_INPUT);
+    vectToInput (eva, i7, eva.SEVEN_INPUT);
+    vectToInput (eva, i8, eva.EIGHT_INPUT);
     eva.params[eva.ATTENUVERTER_PARAM].setValue (att);
 
     for (auto i = 0; i < int (attCv.size()); ++i)
@@ -146,18 +162,32 @@ static void testPolySumming (VF i1, VF i2, VF i3, VF i4, float att, VF attCv)
 
     //test output channel count
     auto maxsize = std::max (
-        { int (i1.size()), int (i2.size()), int (i3.size()), int (i4.size()) });
+        { int (i1.size()),
+          int (i2.size()),
+          int (i3.size()),
+          int (i4.size()),
+          int (i5.size()),
+          int (i6.size()),
+          int (i7.size()),
+          int (i8.size()) });
+
     auto channels = eva.outputs[eva.MAIN_OUTPUT].getChannels();
     assertEQ (channels, maxsize);
 
     //check out poly channels
     for (auto i = 0; i < channels; ++i)
     {
-        auto attenuation = clamp (att + (eva.inputs[eva.ATTENUATION_CV].getPolyVoltage (i) / 5.0f), -1.0f, 1.0f);
+        auto attenuation = clamp (att + (eva.inputs[eva.ATTENUATION_CV].getPolyVoltage (i) / 5.0f),
+                                  -1.0f,
+                                  1.0f);
         auto expected = (eva.inputs[eva.ONE_INPUT].getPolyVoltage (i)
                          + eva.inputs[eva.TWO_INPUT].getPolyVoltage (i)
                          + eva.inputs[eva.THREE_INPUT].getPolyVoltage (i)
-                         + eva.inputs[eva.FOUR_INPUT].getPolyVoltage (i))
+                         + eva.inputs[eva.FOUR_INPUT].getPolyVoltage (i)
+                         + eva.inputs[eva.FIVE_INPUT].getPolyVoltage (i)
+                         + eva.inputs[eva.SIX_INPUT].getPolyVoltage (i)
+                         + eva.inputs[eva.SEVEN_INPUT].getPolyVoltage (i)
+                         + eva.inputs[eva.EIGHT_INPUT].getPolyVoltage (i))
                         * attenuation;
         auto out = eva.outputs[eva.MAIN_OUTPUT].getPolyVoltage (i);
         assertEQ (checkOutput (out, expected), true);
@@ -169,104 +199,13 @@ static void testPolySumming()
     testPolySumming (VF{ 0.3243224f, -0.34345455f, -0.67876856 },
                      VF{ 0.3243224f, 0.546546f, -0.456546546, -0.34324f, -0.5656f, 0.2343224f },
                      VF{ 0.5, -0.65 },
+                     VF{ 0.5, -0.65 },
+                     VF{ 0.3243224f, -0.34345455f, -0.67876856 },
+                     VF{ 0.3243224f, 0.546546f, -0.456546546, -0.34324f, -0.5656f, 0.2343224f },
+                     VF{ 0.3243224f, -0.34345455f, -0.67876856 },
                      VF{ 0.324324f, -0.23433f, -0.234343f, -0.456546f, 0.3454354f, -0.98967f, 0.3434324 },
                      0.2f,
                      VF{ 1.0f, 0.3f, -0.4f });
-}
-
-static void testAttenuationFromShape()
-{
-    Eva eva;
-    eva.params[eva.GAIN_SHAPE_PARAM].setValue (0.63);
-    float_4 attenuation;
-    attenuation[0] = -1.0f;
-    attenuation[1] = 1.0f;
-    attenuation[2] = -0.37;
-    attenuation[3] = +0.49;
-
-    auto shape = eva.params[eva.GAIN_SHAPE_PARAM].getValue();
-
-    auto result = eva.attenuationFromShape (attenuation, shape);
-
-    assertClose (result[0], -1.0f, 0.001f);
-    assertClose (result[1], 1.0f, 0.001f);
-    assertClose (result[2], -0.198f, 0.001f);
-    assertClose (result[3], +0.313f, 0.001f);
-}
-
-static void testAttenuationFromShapeIsNormalised()
-{
-    auto shape = 1.34f;
-    Eva eva;
-    float_4 attenuation;
-    for (attenuation[0] = -1.0f; attenuation[0] < 1.0; attenuation[0] += 0.01)
-    {
-        auto result = eva.attenuationFromShape (attenuation, shape);
-        assertGE (result[0], -1.0f);
-        assertLE (result[0], 1.0f);
-    }
-}
-
-static void testAttenuationFromShapeWhenAttenuationZero()
-{
-    Eva eva;
-
-    auto inc = 0.1f;
-    auto epsilon = 0.001f;
-    std::vector<float_4> permutations;
-
-    auto testsRun = 0;
-    auto zeroChecked = 0;
-    permutations.push_back ({ 0, 1, 1, 1 });
-    permutations.push_back ({ 1, 0, 1, 1 });
-    permutations.push_back ({ 1, 1, 0, 1 });
-    permutations.push_back ({ 1, 1, 1, 0 });
-    permutations.push_back ({ 0, 0, 1, 1 });
-    permutations.push_back ({ 1, 0, 0, 1 });
-    permutations.push_back ({ 1, 1, 0, 0 });
-    permutations.push_back ({ 0, 1, 1, 0 });
-    permutations.push_back ({ 0, 0, 0, 1 });
-    permutations.push_back ({ 1, 0, 0, 0 });
-    permutations.push_back ({ 0, 1, 0, 0 });
-    permutations.push_back ({ 0, 0, 1, 0 });
-    permutations.push_back ({ 0, 0, 0, 0 });
-    for (auto shape = -3.0f; shape <= 3.0f; shape += inc)
-    {
-        //printf ("shape %f\n", shape);
-        for (auto a = -1.0f; a < 1.0f; a += inc)
-        {
-            //printf ("a %f\n", a);
-            for (auto b = -1.0f; b < 1.0f; b += inc)
-            {
-                //printf ("b %f\n", b);
-                for (auto c = -1.0f; c < 1.0f; c += inc)
-                {
-                    //printf ("c %f\n", c);
-                    for (auto d = -1.0f; d < 1.0f; d += inc)
-                    {
-                        //printf ("d %f\n", d);
-                        for (auto perm : permutations)
-                        {
-                            float_4 x{ a, b, c, d };
-                            auto y = x * perm;
-                            //printf ("y %f %f %f %f\n", y[0], y[1], y[2], y[3]);
-                            auto result = eva.attenuationFromShape (y, shape);
-                            for (auto i = 0; i < 4; ++i)
-                            {
-                                testsRun++;
-                                if (areSame (perm[i], 0.0f))
-                                {
-                                    zeroChecked++;
-                                    assertClose (result[i], 0.0f, epsilon);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    printf ("run %d zeros %d\n", testsRun, zeroChecked);
 }
 
 static void testSimdClamp2()
@@ -318,9 +257,6 @@ static void testSimdPow()
 void testEva()
 {
     printf ("testEva\n");
-    testAttenuationFromShape();
-    testAttenuationFromShapeIsNormalised();
-    testAttenuationFromShapeWhenAttenuationZero();
     testSimdClamp2();
     testSimdPow();
     testExtreme();
