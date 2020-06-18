@@ -117,7 +117,7 @@ Youtube Tutorial
 ### Zazel
 
 <img align="left" src="images/Zazel.png">
-<img src="images/ZazelContextMenu,png">
+<img src="images/ZazelContextMenu.png">
 
 A performance-based controller, designed to be connected to midi triggers, to allow smooth fades using easing functions between parameters on other modules, pairs well with VCV MIDI-Gate.
 
