@@ -47,6 +47,15 @@
       ]
     },
     {
+      "slug": "Te",
+      "name": "Te",
+      "description": "Tyrant Expander",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#te",
+      "tags": [
+        "Expander"
+      ]
+    },
+    {
       "slug": "CombFilter",
       "name": "Massarti",
       "description": "Comb Filter",

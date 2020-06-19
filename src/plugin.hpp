@@ -9,7 +9,7 @@ extern Model* modelKSDelay;
 extern Model* modelMaccomo;
 extern Model* modelPolyShiftRegister;
 extern Model* modelCombFilter;
-extern Model* modelMix;
 extern Model* modelLaLa;
 extern Model* modelEva;
 extern Model* modelZazel;
+extern Model* modelTe;
