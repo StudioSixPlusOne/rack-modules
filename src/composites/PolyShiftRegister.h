@@ -23,7 +23,6 @@
 
 #include "IComposite.h"
 #include "AudioMath.h"
-
 #include <algorithm>
 #include <cstdlib>
 #include <vector>
@@ -31,6 +30,22 @@
 #include <time.h>
 
 using namespace sspo::AudioMath;
+
+#include <bitset>
+namespace sspo
+{
+    // used to pass data between Tyrant and Te
+    struct TyrantExpanderBuffer
+    {
+        std::bitset<16> triggerAccent;
+        std::bitset<16> shuffleAccent;
+        std::bitset<16> aAccent;
+        std::bitset<16> bAccent;
+        std::bitset<16> rngAccent;
+        std::bitset<16> reset;
+        int currentChannels = 1;
+    };
+} // namespace sspo
 
 namespace rack
 {
@@ -112,6 +127,13 @@ public:
     std::vector<float> accentBOffsets;
     std::vector<float> accentRngOffsets;
 
+    //expander buffer
+    sspo::TyrantExpanderBuffer producerM;
+    sspo::TyrantExpanderBuffer consumerM;
+
+    //current buffer for expander
+    sspo::TyrantExpanderBuffer* expMessage;
+
     PolyShiftRegisterComp (Module* module) : TBase (module)
     {
     }
@@ -159,6 +181,28 @@ public:
         accentRngOffsets.resize (maxChannels);
         for (auto& a : accentRngOffsets)
             a = 0.0f;
+
+        expMessage = &producerM;
+    }
+
+    void resetExpanderMessage()
+    {
+        expMessage->triggerAccent.reset();
+        expMessage->shuffleAccent.reset();
+        expMessage->aAccent.reset();
+        expMessage->bAccent.reset();
+        expMessage->rngAccent.reset();
+        expMessage->reset.reset();
+    }
+
+    void accentsToExpander()
+    {
+        for (auto i = 0; i < 16; ++i)
+        {
+            expMessage->aAccent[i] = accentAOffsets[i] != 0.0f;
+            expMessage->bAccent[i] = accentBOffsets[i] != 0.0f;
+            expMessage->rngAccent[i] = accentRngOffsets[i] != 0.0f;
+        }
     }
 
     void shift (float in, int bufferChannel = 0)
@@ -276,6 +320,16 @@ inline void PolyShiftRegisterComp<TBase>::step()
                                0.0f,
                                1.0f);
     auto ignoreTrigger = triggerProb > rand01();
+
+    auto monoShuffleProb = TBase::inputs[SHUFFLE_PROB_INPUT].getChannels() < 2;
+    auto shuffleProb = clamp (TBase::params[SHUFFLE_PROB_PARAM].getValue()
+                                  + TBase::inputs[SHUFFLE_PROB_INPUT].getVoltage() / 10.0f,
+                              0.0f,
+                              1.0f);
+    auto useShuffle = shuffleProb > rand01();
+    //write ignore status to channel 0
+    //expMessage->triggerAccent[0] = ignoreTrigger;
+
     auto shifted = false;
     for (auto c = 0; c < maxChannels; ++c)
     {
@@ -284,10 +338,10 @@ inline void PolyShiftRegisterComp<TBase>::step()
                              0.0f,
                              1.0f);
 
-        auto shuffleProb = clamp (TBase::params[SHUFFLE_PROB_PARAM].getValue()
-                                      + TBase::inputs[SHUFFLE_PROB_INPUT].getPolyVoltage (c) / 10.0f,
-                                  0.0f,
-                                  1.0f);
+        shuffleProb = clamp (TBase::params[SHUFFLE_PROB_PARAM].getValue()
+                                 + TBase::inputs[SHUFFLE_PROB_INPUT].getPolyVoltage (c) / 10.0f,
+                             0.0f,
+                             1.0f);
 
         if (! monoTriggerProb)
             ignoreTrigger = triggerProb > rand01();
@@ -298,11 +352,18 @@ inline void PolyShiftRegisterComp<TBase>::step()
             shifted = true;
 
             triggerRngGenerator();
-            auto useShuffle = shuffleProb > rand01();
+            if (! monoShuffleProb)
+                useShuffle = shuffleProb > rand01();
+
+            expMessage->shuffleAccent[c] = useShuffle;
             if (useShuffle)
                 std::random_shuffle (channelData[c].begin(), channelData[c].end());
             generateAccents (c);
+            accentsToExpander();
         }
+
+        if (triggered)
+            expMessage->triggerAccent[c] = ignoreTrigger;
     }
     if (shifted)
     {
@@ -311,8 +372,10 @@ inline void PolyShiftRegisterComp<TBase>::step()
     }
 
     if (resetTrigger.process (TBase::inputs[RESET_INPUT].getVoltage()))
+    {
         currentChannels = 1;
-
+        expMessage->reset.set();
+    }
     //output channels
     for (auto c = 0; c < std::min (currentChannels, channels); ++c)
     {
@@ -323,6 +386,7 @@ inline void PolyShiftRegisterComp<TBase>::step()
         TBase::outputs[MAIN_OUTPUT].setVoltage (out, c);
     }
 
+    expMessage->currentChannels = currentChannels;
     TBase::outputs[MAIN_OUTPUT].setChannels (std::min (currentChannels, channels));
 }
 
