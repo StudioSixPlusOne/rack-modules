@@ -19,6 +19,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  
  [Tyrant](#tyrant)
 
+ [TE](#te) Tyrant expander
+
  [Lala](#lala)
  
  [Eva](#eva)
@@ -118,6 +120,17 @@ A monophonic in, polyphonic out shift register, with many probability options.
 
 
 [Omri's YouTube Tutorial](https://www.youtube.com/watch?v=hOjkkmr0oNs)
+
+### Te
+Tyrant Expander
+
+<src="images/TyrantTe.png">
+
+An expansion module when placed to the right of Tyrant, provides trigger outputs for the probability actions provided by tyrant.
+
+- all outputs polyphonic 
+- pairs well with polyphonic envelope generator
+- must be placed to the right and touching Tyrant
 
 ### Lala
 
