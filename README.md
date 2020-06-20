@@ -124,13 +124,35 @@ A monophonic in, polyphonic out shift register, with many probability options.
 ### Te
 Tyrant Expander
 
-<src="images/TyrantTe.png">
+<img align="left" src="images/TyrantTe.png">
 
 An expansion module when placed to the right of Tyrant, provides trigger outputs for the probability actions provided by tyrant.
 
 - all outputs polyphonic 
 - pairs well with polyphonic envelope generator
 - must be placed to the right and touching Tyrant
+
+<br>
+<br>
+<br>
+
+
+<br>
+<br>
+<br>
+
+
+
+<br>
+<br>
+<br>
+
+
+<br>
+<br>
+<br>
+
+
 
 ### Lala
 
@@ -143,6 +165,27 @@ A cascadable two way crossover, used for splitting audio frequency bands, for mu
 - Summed output has a flat frequency response
 - Can be cascaded for any number of bands
 - Demo project for ideas <a href="patches//Lala_Demo.vcv">Demo patch</a>
+
+<br>
+<br>
+<br>
+
+
+<br>
+<br>
+<br>
+
+
+
+<br>
+<br>
+<br>
+
+
+<br>
+<br>
+<br>
+
 
 
 ### Eva
