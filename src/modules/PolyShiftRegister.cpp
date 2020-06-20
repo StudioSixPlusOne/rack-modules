@@ -37,11 +37,27 @@ struct PolyShiftRegister : Module
         std::shared_ptr<IComposite> icomp = Comp::getDescription();
         SqHelper::setupParams (icomp, this);
         psr->init();
+        rightExpander.producerMessage = &psr->producerM;
+        rightExpander.consumerMessage = &psr->consumerM;
     }
 
     void process (const ProcessArgs& args) override
     {
+        //update pointer to expander module data every frame
+        bool isExpander = rightExpander.module
+                          && rightExpander.module->model == modelTe;
+
+        if (isExpander)
+            psr->expMessage = (sspo::TyrantExpanderBuffer*) rightExpander.producerMessage;
+        else
+            psr->expMessage = &psr->producerM;
+
+        psr->resetExpanderMessage();
         psr->step();
+
+        //swap expander buffers
+        if (isExpander)
+            rightExpander.messageFlipRequested = true;
     }
 };
 
