@@ -79,6 +79,8 @@
         "Voltage-controlled amplifier",
         "Polyphonic"
       ]
+    },
+    {
       "slug": "Zazel",
       "name": "Zazel",
       "description": "Parameter Controller for fades and LFO",
