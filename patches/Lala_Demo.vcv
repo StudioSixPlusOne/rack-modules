@@ -26,7 +26,7 @@
     {
       "id": 1606,
       "plugin": "MindMeldModular",
-      "version": "1.1.6",
+      "version": "1.1.7",
       "model": "MixMasterJr",
       "params": [
         {
@@ -305,7 +305,6 @@
       "leftModuleId": 2137,
       "rightModuleId": 1,
       "data": {
-        "panelTheme": 0,
         "trackLabels": "-01--02--03--04--05--06--07--08-GRP1GRP2",
         "panLawMono": 1,
         "panLawStereo": 1,
@@ -336,6 +335,7 @@
         ],
         "momentaryCvButtons": 1,
         "masterFaderScalesSends": 0,
+        "linearVolCvInputs": 0,
         "id_t0_gainAdjust": 1.0,
         "id_t0_fadeRate": 0.0,
         "id_t0_fadeProfile": 0.0,
@@ -1146,7 +1146,7 @@
       "leftModuleId": 1608,
       "rightModuleId": 2109,
       "data": {
-        "running": false,
+        "running": true,
         "cycling": false,
         "currentPlay": 1,
         "tracks": [
@@ -3924,7 +3924,7 @@
     {
       "id": 2109,
       "plugin": "VultModulesFree",
-      "version": "1.10.0",
+      "version": "1.10.1",
       "model": "Trummor2",
       "params": [
         {
@@ -4279,12 +4279,12 @@
     {
       "id": 2138,
       "plugin": "StudioSixPlusOne",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "model": "LaLa",
       "params": [
         {
           "id": 0,
-          "value": 0.654187322
+          "value": 0.57993722
         },
         {
           "id": 1,
@@ -4377,12 +4377,12 @@
     {
       "id": 2141,
       "plugin": "StudioSixPlusOne",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "model": "LaLa",
       "params": [
         {
           "id": 0,
-          "value": 0.35381192
+          "value": 0.949499428
         },
         {
           "id": 1,
@@ -4433,10 +4433,10 @@
       "patina_a_x": 368.085327,
       "patina_a_y": 423.528503,
       "overlay": false,
-      "overlay_r": 0.616196334,
-      "overlay_g": 0.907735288,
-      "overlay_b": 0.688996017,
-      "overlay_a": 0.111338094,
+      "overlay_r": 0.701900661,
+      "overlay_g": 0.390127659,
+      "overlay_b": 0.0236496329,
+      "overlay_a": 0.320568651,
       "pos": [
         27,
         3
@@ -4531,7 +4531,7 @@
     {
       "id": 2148,
       "plugin": "StudioSixPlusOne",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "model": "LaLa",
       "params": [
         {
@@ -4553,7 +4553,7 @@
     {
       "id": 2149,
       "plugin": "StudioSixPlusOne",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "model": "LaLa",
       "params": [
         {
