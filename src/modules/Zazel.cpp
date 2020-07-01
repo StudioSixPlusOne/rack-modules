@@ -27,6 +27,7 @@
 #include <atomic>
 #include <assert.h>
 #include "AudioMath.h"
+#include "widgets.h"
 
 using Comp = ZazelComp<WidgetComposite>;
 
@@ -439,14 +440,14 @@ struct ZazelWidget : ModuleWidget
         addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
         addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-        addParam (SqHelper::createParamCentered<RoundLargeBlackKnob> (icomp, mm2px (Vec (48.161, 58.514)), module, Comp::START_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (28.925, 40.324)), module, Comp::EASING_ATTENUVERTER_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (28.925, 58.514)), module, Comp::START_ATTENUVERTER_PARAM));
-        addParam (SqHelper::createParamCentered<RoundLargeBlackKnob> (icomp, mm2px (Vec (48.161, 40.324)), module, Comp::EASING_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (28.925, 76.704)), module, Comp::END_ATTENUVERTER_PARAM));
-        addParam (SqHelper::createParamCentered<RoundLargeBlackKnob> (icomp, mm2px (Vec (48.161, 76.704)), module, Comp::END_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (28.925, 94.894)), module, Comp::DURATION_ATTENUVERTER_PARAM));
-        addParam (SqHelper::createParamCentered<RoundLargeBlackKnob> (icomp, mm2px (Vec (48.161, 94.894)), module, Comp::DURATION_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (48.161, 58.514)), module, Comp::START_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (28.925, 40.324)), module, Comp::EASING_ATTENUVERTER_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (28.925, 58.514)), module, Comp::START_ATTENUVERTER_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (48.161, 40.324)), module, Comp::EASING_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (28.925, 76.704)), module, Comp::END_ATTENUVERTER_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (48.161, 76.704)), module, Comp::END_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (28.925, 94.894)), module, Comp::DURATION_ATTENUVERTER_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (48.161, 94.894)), module, Comp::DURATION_PARAM));
         addParam (SqHelper::createParamCentered<CKSS> (icomp, mm2px (Vec (5.05, 112.575)), module, Comp::ONESHOT_PARAM));
         addParam (SqHelper::createParamCentered<ZazelButton> (icomp, mm2px (Vec (16.93, 115.62)), module, Comp::SYNC_BUTTON_PARAM));
         addParam (SqHelper::createParamCentered<ZazelButton> (icomp, mm2px (Vec (28.814, 115.62)), module, Comp::TRIG_BUTTON_PARAM));

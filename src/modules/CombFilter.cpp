@@ -23,6 +23,7 @@
 #include "CombFilter.h"
 #include "WidgetComposite.h"
 #include "ctrl/SqHelper.h"
+#include "widgets.h"
 
 using Comp = CombFilterComp<WidgetComposite>;
 
@@ -71,12 +72,12 @@ struct CombFilterWidget : ModuleWidget
         addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
         addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-        addParam (SqHelper::createParamCentered<RoundLargeBlackKnob> (icomp, mm2px (Vec (41.01, 25.312 + 1.25)), module, Comp::FREQUENCY_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (24.871, 29.546 + 2.5)), module, Comp::FREQUENCY_CV_ATTENUVERTER_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (25.135, 47.802 + 2.5)), module, Comp::COMB_CV_ATTENUVERTER_PARAM));
-        addParam (SqHelper::createParamCentered<RoundLargeBlackKnob> (icomp, mm2px (Vec (41.01, 47.802 + 2.5)), module, Comp::COMB_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (25.135, 70.292 + 2.5)), module, Comp::FEEDBACK_CV_ATTENUVERTER_PARAM));
-        addParam (SqHelper::createParamCentered<RoundLargeBlackKnob> (icomp, mm2px (Vec (41.01, 70.292 + 2.5)), module, Comp::FEEDBACK_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (41.01, 25.312 + 1.25)), module, Comp::FREQUENCY_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (24.871, 29.546 + 2.5)), module, Comp::FREQUENCY_CV_ATTENUVERTER_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (25.135, 47.802 + 2.5)), module, Comp::COMB_CV_ATTENUVERTER_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (41.01, 47.802 + 2.5)), module, Comp::COMB_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (25.135, 70.292 + 2.5)), module, Comp::FEEDBACK_CV_ATTENUVERTER_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (41.01, 70.292 + 2.5)), module, Comp::FEEDBACK_PARAM));
 
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 21.344)), module, Comp::VOCT_INPUT));
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 29.546 + 2.5)), module, Comp::FREQ_CV_INPUT));
