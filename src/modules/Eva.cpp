@@ -23,6 +23,7 @@
 #include "Eva.h"
 #include "WidgetComposite.h"
 #include "ctrl/SqMenuItem.h"
+#include "widgets.h"
 
 using Comp = EvaComp<WidgetComposite>;
 
@@ -58,7 +59,7 @@ struct MixWidget : ModuleWidget
         box.size = Vec (3 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
         SqHelper::setPanel (this, "res/Eva.svg");
 
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (7.619, 87.69)), module, Comp::ATTENUVERTER_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (7.619, 87.69)), module, Comp::ATTENUVERTER_PARAM));
 
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.624, 17.85)), module, Comp::ONE_INPUT));
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.632, 26.32)), module, Comp::TWO_INPUT));

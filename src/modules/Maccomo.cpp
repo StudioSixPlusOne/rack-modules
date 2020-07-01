@@ -23,6 +23,7 @@
 #include "Maccomo.h"
 #include "WidgetComposite.h"
 #include "ctrl/SqMenuItem.h"
+#include "widgets.h"
 
 using Comp = MaccomoComp<WidgetComposite>;
 
@@ -57,14 +58,6 @@ struct Maccomo : Module
 User Interface
 *****************************************************/
 
-struct RoundSmallBlackSnapKnob : RoundSmallBlackKnob
-{
-    RoundSmallBlackSnapKnob()
-    {
-        snap = true;
-    }
-};
-
 struct MaccomoWidget : ModuleWidget
 {
     MaccomoWidget (Maccomo* module)
@@ -79,13 +72,13 @@ struct MaccomoWidget : ModuleWidget
         addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
         addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-        addParam (SqHelper::createParamCentered<RoundLargeBlackKnob> (icomp, mm2px (Vec (41.01, 25.14 + 1.25)), module, Comp::FREQUENCY_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (25.135, 29.10 + 2.5)), module, Comp::FREQUENCY_CV_ATTENUVERTER_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (25.135, 47.802 + 2.5)), module, Comp::RESONANCE_CV_ATTENUVERTER_PARAM));
-        addParam (SqHelper::createParamCentered<RoundLargeBlackKnob> (icomp, mm2px (Vec (41.01, 47.802 + 2.5)), module, Comp::RESONANCE_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (25.135, 70.292 + 2.5)), module, Comp::DRIVE_CV_ATTENUVERTER_PARAM));
-        addParam (SqHelper::createParamCentered<RoundLargeBlackKnob> (icomp, mm2px (Vec (41.01, 70.292 + 2.5)), module, Comp::DRIVE_PARAM));
-        addParam (SqHelper::createParamCentered<RoundSmallBlackSnapKnob> (icomp, mm2px (Vec (25.135, 92.781)), module, Comp::MODE_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (41.01, 25.14 + 1.25)), module, Comp::FREQUENCY_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (25.135, 29.10 + 2.5)), module, Comp::FREQUENCY_CV_ATTENUVERTER_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (25.135, 47.802 + 2.5)), module, Comp::RESONANCE_CV_ATTENUVERTER_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (41.01, 47.802 + 2.5)), module, Comp::RESONANCE_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (25.135, 70.292 + 2.5)), module, Comp::DRIVE_CV_ATTENUVERTER_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (41.01, 70.292 + 2.5)), module, Comp::DRIVE_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::SmallSnapKnob> (icomp, mm2px (Vec (25.135, 92.781)), module, Comp::MODE_PARAM));
 
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 21.344)), module, Comp::VOCT_INPUT));
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 47.802 + 2.5)), module, Comp::RESONANCE_CV_INPUT));
