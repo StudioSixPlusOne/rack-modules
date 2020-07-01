@@ -2,6 +2,7 @@
 #include "LaLa.h"
 #include "WidgetComposite.h"
 #include "ctrl/SqMenuItem.h"
+#include "widgets.h"
 
 using Comp = LaLaComp<WidgetComposite>;
 
@@ -45,8 +46,8 @@ struct LaLaWidget : ModuleWidget
         box.size = Vec (8 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
         SqHelper::setPanel (this, "res/LaLa.svg");
 
-        addParam (SqHelper::createParamCentered<RoundLargeBlackKnob> (icomp, mm2px (Vec (7.607, 28.962)), module, Comp::FREQ_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (7.658, 41.774)), module, Comp::FREQ_CV_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (7.607, 28.962)), module, Comp::FREQ_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (7.658, 41.774)), module, Comp::FREQ_CV_PARAM));
 
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.65, 52.668)), module, Comp::FREQ_CV_INPUT));
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.62, 69.806)), module, Comp::MAIN_INPUT));

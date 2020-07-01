@@ -23,6 +23,7 @@
 #include "KSDelay.h"
 #include "WidgetComposite.h"
 #include "ctrl/SqMenuItem.h"
+#include "widgets.h"
 
 using Comp = KSDelayComp<WidgetComposite>;
 
@@ -57,22 +58,6 @@ struct KSDelay : Module
 User Interface
 *****************************************************/
 
-struct RoundLargeBlackSnapKnob : RoundLargeBlackKnob
-{
-    RoundLargeBlackSnapKnob()
-    {
-        snap = true;
-    }
-};
-
-struct RoundSmallBlackSnapKnob : RoundSmallBlackKnob
-{
-    RoundSmallBlackSnapKnob()
-    {
-        snap = true;
-    }
-};
-
 struct KSDelayWidget : ModuleWidget
 {
     KSDelayWidget (KSDelay* module)
@@ -88,13 +73,13 @@ struct KSDelayWidget : ModuleWidget
         addChild (createWidget<ScrewSilver> (Vec (15, 365)));
         addChild (createWidget<ScrewSilver> (Vec (box.size.x - 30, 365)));
 
-        addParam (SqHelper::createParam<RoundLargeBlackSnapKnob> (icomp, Vec (67, 57), module, Comp::OCTAVE_PARAM));
-        addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (40, 80), module, Comp::TUNE_PARAM));
-        addParam (SqHelper::createParam<RoundLargeBlackKnob> (icomp, Vec (67, 123), module, Comp::FEEDBACK_PARAM));
-        addParam (SqHelper::createParam<RoundSmallBlackSnapKnob> (icomp, Vec (14, 193), module, Comp::UNISON_PARAM));
-        addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (50, 193), module, Comp::UNISON_SPREAD_PARAM));
-        addParam (SqHelper::createParam<RoundSmallBlackKnob> (icomp, Vec (87, 193), module, Comp::UNISON_MIX_PARAM));
-        addParam (SqHelper::createParam<RoundLargeBlackKnob> (icomp, Vec (67, 260), module, Comp::STRETCH_PARAM));
+        addParam (SqHelper::createParam<sspo::LargeSnapKnob> (icomp, Vec (67, 57), module, Comp::OCTAVE_PARAM));
+        addParam (SqHelper::createParam<sspo::SmallKnob> (icomp, Vec (40, 80), module, Comp::TUNE_PARAM));
+        addParam (SqHelper::createParam<sspo::LargeKnob> (icomp, Vec (67, 123), module, Comp::FEEDBACK_PARAM));
+        addParam (SqHelper::createParam<sspo::SmallSnapKnob> (icomp, Vec (14, 193), module, Comp::UNISON_PARAM));
+        addParam (SqHelper::createParam<sspo::SmallKnob> (icomp, Vec (50, 193), module, Comp::UNISON_SPREAD_PARAM));
+        addParam (SqHelper::createParam<sspo::SmallKnob> (icomp, Vec (87, 193), module, Comp::UNISON_MIX_PARAM));
+        addParam (SqHelper::createParam<sspo::LargeKnob> (icomp, Vec (67, 260), module, Comp::STRETCH_PARAM));
         //addParam (SqHelper::createParam<CKSS> (icomp, Vec (37, 260), module, Comp::STRETCH_LOCK_PARAM));
 
         addInput (createInput<PJ301MPort> (Vec (14, 63), module, Comp::VOCT));
