@@ -23,6 +23,7 @@
 #include "PolyShiftRegister.h"
 #include "WidgetComposite.h"
 #include "ctrl/SqMenuItem.h"
+#include "widgets.h"
 
 using Comp = PolyShiftRegisterComp<WidgetComposite>;
 
@@ -75,15 +76,15 @@ struct PolyShiftRegisterWidget : ModuleWidget
         addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
         addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-        addParam (SqHelper::createParamCentered<RoundBlackSnapKnob> (icomp, mm2px (Vec (30.989 + 5.08, 18.522 + 2.71)), module, Comp::CHANNELS_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (19.405, 36.711 + 2.71)), module, Comp::TRIGGER_PROB_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (42.764 + 10.16, 36.774 + 2.71)), module, Comp::SHUFFLE_PROB_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (19.405, 54.901 + 2.71)), module, Comp::ACCENT_A_PROB_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (42.764 + 10.16, 54.964 + 2.71)), module, Comp::ACCENT_A_OFFSET_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (19.405, 73.091 + 2.71)), module, Comp::ACCENT_B_PROB_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (42.764 + 10.16, 73.154 + 2.71)), module, Comp::ACCENT_B_OFFSET_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (19.405, 91.281 + 2.71)), module, Comp::ACCENT_RNG_PROB_PARAM));
-        addParam (SqHelper::createParamCentered<RoundBlackKnob> (icomp, mm2px (Vec (42.764 + 10.16, 91.344 + 2.71)), module, Comp::ACCENT_RNG_OFFSET_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::SnapKnob> (icomp, mm2px (Vec (30.989 + 5.08, 18.522 + 2.71)), module, Comp::CHANNELS_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (19.405, 36.711 + 2.71)), module, Comp::TRIGGER_PROB_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (42.764 + 10.16, 36.774 + 2.71)), module, Comp::SHUFFLE_PROB_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (19.405, 54.901 + 2.71)), module, Comp::ACCENT_A_PROB_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (42.764 + 10.16, 54.964 + 2.71)), module, Comp::ACCENT_A_OFFSET_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (19.405, 73.091 + 2.71)), module, Comp::ACCENT_B_PROB_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (42.764 + 10.16, 73.154 + 2.71)), module, Comp::ACCENT_B_OFFSET_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (19.405, 91.281 + 2.71)), module, Comp::ACCENT_RNG_PROB_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (42.764 + 10.16, 91.344 + 2.71)), module, Comp::ACCENT_RNG_OFFSET_PARAM));
 
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (19.309 + 5.08, 18.522 + 2.71)), module, Comp::CHANNELS_INPUT));
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.725, 36.711 + 2.71)), module, Comp::TRIGGER_PROB_INPUT));
