@@ -13,3 +13,8 @@ Wallenda now has saturated outputs
 
 Plugins TE (Tyrant Expander), Lala, Eva, Zazel
 
+
+### V Unreleased
+
+Updated knobs to use custom svg
+
