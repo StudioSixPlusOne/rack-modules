@@ -50,6 +50,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 <br>
 <br>
 <br>
+<br>
+<br>
 
 ### Maccomo  
 
@@ -66,6 +68,8 @@ An emulation of a ladder filter, based on the descriptions and block diagrams in
 If the audio input is disconnected, the filter will still run in monophonic mode or with the channel count of the V/oct input, allowing for self oscillation and use as a VCO.
 
 
+<br>
+<br>
 <br>
 <br>
 <br>
@@ -120,6 +124,8 @@ A monophonic in, polyphonic out shift register, with many probability options.
 
 
 [Omri's YouTube Tutorial](https://www.youtube.com/watch?v=hOjkkmr0oNs)
+<br>
+<br>
 
 ### Te
 Tyrant Expander
@@ -188,13 +194,13 @@ A cascadable two way crossover, used for splitting audio frequency bands, for mu
 
 
 
-### Eva
+
 ### Zazel
 
 <img align="left" src="images/Zazel.png">
 <img src="images/ZazelContextMenu.png">
 
-<img align="left" src="images/Eva.png">
+
 A performance-based controller, designed to be connected to midi triggers, to allow smooth fades using easing functions between parameters on other modules, pairs well with VCV MIDI-Gate.
 
 - Parameter select widget, display the module and parameter currently controlled, left-click then click on the desired parameter to assign and adjust to set the end parameter, right-click to unassign
@@ -211,6 +217,11 @@ A performance-based controller, designed to be connected to midi triggers, to al
 - Sync, Trig and Pause inputs, have a small grey tab below the input that can be used as buttons when connecting to MIDI-CAT
 - retrigger mode selectable in context menu
 
+
+
+### Eva
+
+<img align="left" src="images/Eva.png">
 
 A slimline mixer for audio and cv.
 
