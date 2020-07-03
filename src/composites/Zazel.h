@@ -385,7 +385,7 @@ public:
                          * TBase::inputs[END_INPUT].getVoltage() / 5.0f;
 
         framePhaseDuration *= durationMultiplier;
-        framePhaseDuration = clamp (framePhaseDuration, 0.001f, 20.0f);
+        framePhaseDuration = clamp (framePhaseDuration, 0.001f, 2000.0f);
         framePhaseCount = framePhaseDuration * lastClockDuration;
     }
 

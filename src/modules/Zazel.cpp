@@ -548,6 +548,38 @@ struct ZazelWidget : ModuleWidget
         duration10MenuItem->rightText = CHECKMARK (module->zazel->durationMultiplier
                                                    == duration10MenuItem->multiplier);
         menu->addChild (duration10MenuItem);
+
+        DurationMiltiplierMenuItem* duration50MenuItem = new DurationMiltiplierMenuItem();
+        duration50MenuItem->multiplier = 50.0f;
+        duration50MenuItem->text = "50.0";
+        duration50MenuItem->module = module;
+        duration50MenuItem->rightText = CHECKMARK (module->zazel->durationMultiplier
+                                                   == duration50MenuItem->multiplier);
+        menu->addChild (duration50MenuItem);
+
+        DurationMiltiplierMenuItem* duration100MenuItem = new DurationMiltiplierMenuItem();
+        duration100MenuItem->multiplier = 100.0f;
+        duration100MenuItem->text = "100.0";
+        duration100MenuItem->module = module;
+        duration100MenuItem->rightText = CHECKMARK (module->zazel->durationMultiplier
+                                                    == duration100MenuItem->multiplier);
+        menu->addChild (duration100MenuItem);
+
+        DurationMiltiplierMenuItem* duration500MenuItem = new DurationMiltiplierMenuItem();
+        duration500MenuItem->multiplier = 500.0f;
+        duration500MenuItem->text = "500.0";
+        duration500MenuItem->module = module;
+        duration500MenuItem->rightText = CHECKMARK (module->zazel->durationMultiplier
+                                                    == duration500MenuItem->multiplier);
+        menu->addChild (duration500MenuItem);
+
+        DurationMiltiplierMenuItem* duration1000MenuItem = new DurationMiltiplierMenuItem();
+        duration1000MenuItem->multiplier = 1000.0f;
+        duration1000MenuItem->text = "1000.0";
+        duration1000MenuItem->module = module;
+        duration1000MenuItem->rightText = CHECKMARK (module->zazel->durationMultiplier
+                                                     == duration1000MenuItem->multiplier);
+        menu->addChild (duration1000MenuItem);
     }
 };
 
