@@ -100,6 +100,15 @@
         "Low-frequency oscillator",
         "Controller"
       ]
+    },
+    {
+      "slug": "Iverson",
+      "name": "Iverson",
+      "description": "Trigger Sequencer for use with midi controller",
+      "tags": [
+        "Controller",
+        "Sequencer"
+      ]
     }
   ]
 }
