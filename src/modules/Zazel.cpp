@@ -98,7 +98,7 @@ struct Zazel : Module
         RequestedParamId rpi;
         rpi.moduleid = json_integer_value (moduleIdJ);
         rpi.paramid = json_integer_value (parameterIdJ);
-        requestedParameter.store (rpi);
+        //        requestedParameter.store (rpi);
         APP->engine->updateParamHandle (&paramHandle, rpi.moduleid, rpi.paramid, true);
 
         json_t* retriggerModeJ = json_object_get (rootJ, "retriggerMode");
