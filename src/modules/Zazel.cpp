@@ -31,19 +31,28 @@
 
 using Comp = ZazelComp<WidgetComposite>;
 
+/// The module and parameter to automate.
+/// if the values are -1, no update is required
 struct RequestedParamId
 {
     int moduleid = -1;
     int paramid = -1;
 };
 
+/// module Zazel
+/// A plugin designed to automate parameters over time
 struct Zazel : Module
 {
     std::shared_ptr<Comp> zazel;
+    /// request parameter from the UI
     std::atomic<RequestedParamId> requestedParameter;
+    /// Automated Parameter
     ParamHandle paramHandle;
+    ///request to clear automated parameter from the UI
     std::atomic<bool> clearParam;
-    float lastEnd;
+    /// last automated parameter vaule when in learn mode
+    float lastEnd = 0;
+    /// how long in learn mode since the automated parameter was changed
     int endFrameCounter = 0;
 
     Zazel()
@@ -64,11 +73,12 @@ struct Zazel : Module
         zazel->init();
     }
 
-    ~Zazel()
+    ~Zazel() override
     {
         APP->engine->removeParamHandle (&paramHandle);
     }
-
+    /// Called whe module reset.
+    /// Resets the connected parameter
     void onReset() override
     {
         RequestedParamId rpi;
@@ -115,6 +125,8 @@ struct Zazel : Module
         zazel->setSampleRate (rate);
     }
 
+    /// Updates the paramHandle and prepares parameters for learning.
+    /// Called by the UI widget
     void updateParamHandle()
     {
         RequestedParamId rpi = requestedParameter.load();
@@ -129,6 +141,8 @@ struct Zazel : Module
         }
     }
 
+    /// Clears selected automation parameter.
+    /// Called by th UI widget.
     void removeParam()
     {
         APP->engine->updateParamHandle (&paramHandle, -1, -1, true);
@@ -136,11 +150,13 @@ struct Zazel : Module
         return;
     }
 
-    //called every frame to update changed parameters and set start and end values
+    /// Called every frame to update changed parameters and set start value,
+    ///  and learn mode for end values.
     void paramChange()
     {
         RequestedParamId rpi = requestedParameter.load();
         if (rpi.moduleid != -1)
+        // modulated parameter changed
         {
             //reset requested parameter so only updates on request.
             rpi.moduleid = -1;
@@ -155,6 +171,7 @@ struct Zazel : Module
 
         auto newParam = 0.0f;
         if (paramHandle.moduleId != -1 && paramHandle.module != nullptr)
+        /// selected automation parameter is present.
         {
             ParamQuantity* pq = paramHandle.module->paramQuantities[paramHandle.paramId];
             if (pq != nullptr)
@@ -164,6 +181,7 @@ struct Zazel : Module
         }
 
         if (zazel->mode == Comp::Mode::LEARN_END && endFrameCounter > zazel->sampleRate)
+        /// if learning and the parameter has not be changed for 1 second.
         {
             if (zazel->oneShot)
                 zazel->changePhase (Comp::Mode::ONESHOT_DECAY);
@@ -174,6 +192,7 @@ struct Zazel : Module
         }
         else if (zazel->mode == Comp::Mode::LEARN_END
                  && (! sspo::AudioMath::areSame (lastEnd, newParam, 0.0001f)))
+        /// learning mode, parameter value updated.
         {
             endFrameCounter = 0;
             lastEnd = newParam;
@@ -185,20 +204,27 @@ struct Zazel : Module
         }
     }
 
+    /// the index of the curve used for automation
     int getEasing()
     {
         return zazel->getCurrentEasing();
     }
 
+    /// true of in oneShote mode, false indicates cycle mode.
     bool getOneShot()
     {
         return zazel->oneShot;
     }
 
+    ///process loop.
+    ///Checks for changed parameter, then ZazelComp.step(),
+    /// set the modulated parameter
     void process (const ProcessArgs& args) override
     {
         paramChange();
+
         zazel->step();
+
         if (! (paramHandle.moduleId == -1
                || paramHandle.module == nullptr
                || zazel->mode == Comp::Mode::LEARN_END))
