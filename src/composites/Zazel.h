@@ -139,9 +139,11 @@ public:
 
     float sampleRate = 1.0f;
     float sampleTime = 1.0f;
+    /// Shapes used for automation curves
     std::vector<Easings::Easing> easings;
     int currentEasing = 0.0;
     bool oneShot = true;
+    /// time between trigger or gates, used when syncing clock times
     int lastClockDuration = 1000;
     dsp::SchmittTrigger syncTrigger;
     dsp::SchmittTrigger startContTrigger;
@@ -159,11 +161,13 @@ public:
     RetriggerMode retriggerMode = RetriggerMode::RESTART;
     float durationMultiplier = 1.0f;
 
+    /// mode used when triggering before current cycle is complete
     void setRetriggerMode (RetriggerMode m)
     {
         retriggerMode = m;
     }
 
+    /// phase of the state machne used in the process loop
     void changePhase (Mode m)
     {
         framesSincePhaseChange = 0;
@@ -183,6 +187,7 @@ public:
         sampleTime = 1.0f / rate;
     }
 
+    /// when the clock input is connected, counts frames between clock ticks.
     void syncClock()
     {
         if (TBase::inputs[CLOCK_INPUT].isConnected())
@@ -215,6 +220,8 @@ public:
         oneShot = newOneShot;
     }
 
+    /// Trigger input or button selected.
+    /// Depending on retigger mode, change phase of state machine.
     void doTriggers()
     {
         if (startContTrigger.process (TBase::inputs[START_CONT_INPUT].getVoltage()
@@ -306,6 +313,8 @@ public:
         }
     }
 
+    /// process action dependant on  the phase in MODE
+    /// Test showed this switch  to be quicker that updating a std::function when changing phase
     void doStateMachine()
     {
         auto easing = ef.getEasingVector().at (clamp (currentEasing, 0, 10));
@@ -366,6 +375,7 @@ public:
         }
     }
 
+    /// Updates internal members from ui parameters and cv inputs
     void calcParameters()
     {
         currentEasing = TBase::params[EASING_PARAM].getValue()
@@ -389,6 +399,7 @@ public:
         framePhaseCount = framePhaseDuration * lastClockDuration;
     }
 
+    /// responds to pause trigger
     void doPause()
     {
         if (pauseTrigger.process (TBase::inputs[STOP_CONT_INPUT].getVoltage()
@@ -420,6 +431,7 @@ public:
         lastClockDuration = sampleRate;
     }
 
+    /// process loop
     void step() override;
 };
 
