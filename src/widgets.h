@@ -79,4 +79,13 @@ namespace sspo
                                                          "res/SspoKnob.svg")));
         }
     };
+
+    struct PJ301MPort : app::SvgPort
+    {
+        PJ301MPort()
+        {
+            setSvg (APP->window->loadSvg (asset::plugin (pluginInstance,
+                                                         "res/SspoPort.svg")));
+        }
+    };
 } // namespace sspo

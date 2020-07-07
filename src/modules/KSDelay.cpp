@@ -82,15 +82,15 @@ struct KSDelayWidget : ModuleWidget
         addParam (SqHelper::createParam<sspo::LargeKnob> (icomp, Vec (67, 260), module, Comp::STRETCH_PARAM));
         //addParam (SqHelper::createParam<CKSS> (icomp, Vec (37, 260), module, Comp::STRETCH_LOCK_PARAM));
 
-        addInput (createInput<PJ301MPort> (Vec (14, 63), module, Comp::VOCT));
-        addInput (createInput<PJ301MPort> (Vec (14, 129), module, Comp::FEEDBACK_INPUT));
-        addInput (createInput<PJ301MPort> (Vec (14, 320), module, Comp::IN_INPUT));
-        addInput (createInput<PJ301MPort> (Vec (14, 223), module, Comp::UNISON_INPUT));
-        addInput (createInput<PJ301MPort> (Vec (50, 223), module, Comp::UNISON_SPREAD_INPUT));
-        addInput (createInput<PJ301MPort> (Vec (87, 223), module, Comp::UNISON_MIX_INPUT));
-        addInput (createInput<PJ301MPort> (Vec (14, 266), module, Comp::STRETCH_INPUT));
+        addInput (createInput<sspo::PJ301MPort> (Vec (14, 63), module, Comp::VOCT));
+        addInput (createInput<sspo::PJ301MPort> (Vec (14, 129), module, Comp::FEEDBACK_INPUT));
+        addInput (createInput<sspo::PJ301MPort> (Vec (14, 320), module, Comp::IN_INPUT));
+        addInput (createInput<sspo::PJ301MPort> (Vec (14, 223), module, Comp::UNISON_INPUT));
+        addInput (createInput<sspo::PJ301MPort> (Vec (50, 223), module, Comp::UNISON_SPREAD_INPUT));
+        addInput (createInput<sspo::PJ301MPort> (Vec (87, 223), module, Comp::UNISON_MIX_INPUT));
+        addInput (createInput<sspo::PJ301MPort> (Vec (14, 266), module, Comp::STRETCH_INPUT));
 
-        addOutput (createOutput<PJ301MPort> (Vec (73, 320), module, Comp::OUT_OUTPUT));
+        addOutput (createOutput<sspo::PJ301MPort> (Vec (73, 320), module, Comp::OUT_OUTPUT));
     }
 };
 
