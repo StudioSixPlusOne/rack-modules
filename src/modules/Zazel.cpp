@@ -479,15 +479,15 @@ struct ZazelWidget : ModuleWidget
         addParam (SqHelper::createParamCentered<ZazelButton> (icomp, mm2px (Vec (28.814, 115.62)), module, Comp::TRIG_BUTTON_PARAM));
         addParam (SqHelper::createParamCentered<ZazelButton> (icomp, mm2px (Vec (40.697, 115.62)), module, Comp::PAUSE_BUTTON_PARAM));
 
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.689, 40.324)), module, Comp::EASING_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.689, 58.514)), module, Comp::START_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.689, 76.704)), module, Comp::END_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.689, 94.894)), module, Comp::DURATION_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (40.697, 112.422)), module, Comp::STOP_CONT_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (16.93, 112.575)), module, Comp::CLOCK_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (28.814, 112.575)), module, Comp::START_CONT_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.689, 40.324)), module, Comp::EASING_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.689, 58.514)), module, Comp::START_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.689, 76.704)), module, Comp::END_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.689, 94.894)), module, Comp::DURATION_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (40.697, 112.422)), module, Comp::STOP_CONT_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (16.93, 112.575)), module, Comp::CLOCK_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (28.814, 112.575)), module, Comp::START_CONT_INPUT));
 
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (52.581, 112.422)), module, Comp::MAIN_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (52.581, 112.422)), module, Comp::MAIN_OUTPUT));
 
         addChild (createLightCentered<SmallLight<RedLight>> (mm2px (Vec (37.52, 108.25)), module, Comp::PAUSE_LIGHT));
 
