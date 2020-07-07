@@ -49,11 +49,11 @@ struct LaLaWidget : ModuleWidget
         addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (7.607, 28.962)), module, Comp::FREQ_PARAM));
         addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (7.658, 41.774)), module, Comp::FREQ_CV_PARAM));
 
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.65, 52.668)), module, Comp::FREQ_CV_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.62, 69.806)), module, Comp::MAIN_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.65, 52.668)), module, Comp::FREQ_CV_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.62, 69.806)), module, Comp::MAIN_INPUT));
 
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (7.62, 87.289)), module, Comp::HIGH_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (7.62, 105.809)), module, Comp::LOW_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (7.62, 87.289)), module, Comp::HIGH_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (7.62, 105.809)), module, Comp::LOW_OUTPUT));
     }
 };
 

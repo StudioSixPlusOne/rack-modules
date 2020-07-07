@@ -79,13 +79,13 @@ struct CombFilterWidget : ModuleWidget
         addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (25.135, 70.292 + 2.5)), module, Comp::FEEDBACK_CV_ATTENUVERTER_PARAM));
         addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (41.01, 70.292 + 2.5)), module, Comp::FEEDBACK_PARAM));
 
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 21.344)), module, Comp::VOCT_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 29.546 + 2.5)), module, Comp::FREQ_CV_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 47.802 + 2.5)), module, Comp::COMB_CV_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 70.292 + 2.5)), module, Comp::FEEDBACK_CV_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (9.26, 112.625)), module, Comp::MAIN_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 21.344)), module, Comp::VOCT_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 29.546 + 2.5)), module, Comp::FREQ_CV_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 47.802 + 2.5)), module, Comp::COMB_CV_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 70.292 + 2.5)), module, Comp::FEEDBACK_CV_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 112.625)), module, Comp::MAIN_INPUT));
 
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (41.01, 112.625)), module, Comp::MAIN_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (41.01, 112.625)), module, Comp::MAIN_OUTPUT));
     }
 };
 

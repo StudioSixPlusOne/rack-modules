@@ -61,17 +61,17 @@ struct MixWidget : ModuleWidget
 
         addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (7.619, 87.69)), module, Comp::ATTENUVERTER_PARAM));
 
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.624, 17.85)), module, Comp::ONE_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.632, 26.32)), module, Comp::TWO_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.614, 34.78)), module, Comp::THREE_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.635, 43.25)), module, Comp::FOUR_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.635, 51.72)), module, Comp::FIVE_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.635, 60.18)), module, Comp::SIX_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.635, 68.65)), module, Comp::SEVEN_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.635, 77.12)), module, Comp::EIGHT_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (7.635, 98.16)), module, Comp::ATTENUATION_CV));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.624, 17.85)), module, Comp::ONE_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.632, 26.32)), module, Comp::TWO_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.614, 34.78)), module, Comp::THREE_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.635, 43.25)), module, Comp::FOUR_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.635, 51.72)), module, Comp::FIVE_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.635, 60.18)), module, Comp::SIX_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.635, 68.65)), module, Comp::SEVEN_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.635, 77.12)), module, Comp::EIGHT_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.635, 98.16)), module, Comp::ATTENUATION_CV));
 
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (7.619, 112.58)), module, Comp::MAIN_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (7.619, 112.58)), module, Comp::MAIN_OUTPUT));
     }
 };
 
