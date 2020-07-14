@@ -68,7 +68,7 @@ public:
         return buffer[(writeIndex - delaySamples) & wrapBits];
     }
 
-    inline T readBuffer (const float delaySamples, const bool interpolate = true) const noexcept
+    inline T readBuffer (const float delaySamples) const noexcept
     {
         auto y1 = readBuffer (static_cast<int> (delaySamples));
         auto y2 = readBuffer (static_cast<int> (delaySamples) + 1);
