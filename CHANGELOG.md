@@ -14,8 +14,8 @@ Wallenda now has saturated outputs
 Plugins TE (Tyrant Expander), Lala, Eva, Zazel
 
 
-### V1.1.1 Unreleased
+### V1.1.1 UI & Bugfixes
 
 Updated knobs and ports to use custom svg. 
 Fixed bug in Zazel where it was going into learn mode, when loading
-
+Fixed bug in Massariti removing aliasing
