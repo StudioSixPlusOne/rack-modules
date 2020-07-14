@@ -30,6 +30,7 @@
 
 namespace sspo
 {
+    /// single track trigger sequencer, with variable loop points
     template <int MAX_LENGTH>
     struct TriggerSequencer
     {
@@ -80,7 +81,3 @@ namespace sspo
         }
     };
 } // namespace sspo
-
-/// single track trigger sequencer, with variable loop points
-template <int MAX_LENGTH>
-#include "AudioMath.h"
