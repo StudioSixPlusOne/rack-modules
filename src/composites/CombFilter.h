@@ -25,6 +25,7 @@
 #include "CircularBuffer.h"
 #include "HardLimiter.h"
 #include "LookupTable.h"
+#include "resampler.hpp"
 
 namespace rack
 {
@@ -74,32 +75,6 @@ public:
         return std::make_shared<CombFilterDescription<TBase>>();
     }
 
-    void setSampleRate (float rate)
-    {
-        sampleRate = rate;
-        samplePeriod = 1.0f / sampleRate;
-
-        maxFreq = std::min (20000.0f, sampleRate / 2.0f);
-
-        for (auto& d : dcOutFilters)
-            d.setCutoffFreq (dcOutCutoff / sampleRate);
-    }
-
-    // must be called after setSampleRate
-    void init()
-    {
-        buffers.resize (16);
-        for (auto& b : buffers)
-            b.reset (4096);
-
-        saturate.max = 0.86f;
-        saturate.kneeWidth = 0.005f;
-
-        dcOutFilters.resize (maxChannels);
-        for (auto& d : dcOutFilters)
-            d.setCutoffFreq (dcOutCutoff / sampleRate);
-    }
-
     enum ParamIds
     {
         FREQUENCY_PARAM,
@@ -129,15 +104,49 @@ public:
         NUM_LIGHTS
     };
 
-    static constexpr int maxChannels = 16;
-    static constexpr float dcOutCutoff = 40.0f;
+    static constexpr float dcOutCutoff = 4.0f;
     float maxFreq = 20000;
     float sampleRate = 1;
     float samplePeriod = 1;
 
     std::vector<CircularBuffer<float>> buffers;
-    sspo::Saturator saturate;
+    std::vector<sspo::Compressor> limiters;
     std::vector<dsp::RCFilter> dcOutFilters;
+
+    void setSampleRate (float rate)
+    {
+        sampleRate = rate;
+        samplePeriod = 1.0f / sampleRate;
+
+        maxFreq = std::min (20000.0f, sampleRate / 2.0f);
+
+        for (auto& d : dcOutFilters)
+            d.setCutoffFreq (dcOutCutoff / sampleRate);
+
+        for (auto& l : limiters)
+            l.setSampleRate (sampleRate);
+    }
+
+    // must be called after setSampleRate
+    void init()
+    {
+        buffers.resize (PORT_MAX_CHANNELS);
+        for (auto& b : buffers)
+            b.reset (4096);
+
+        dcOutFilters.resize (PORT_MAX_CHANNELS);
+        for (auto& d : dcOutFilters)
+            d.setCutoffFreq (dcOutCutoff / sampleRate);
+
+        limiters.resize (PORT_MAX_CHANNELS);
+        for (auto& l : limiters)
+        {
+            l.setSampleRate (sampleRate);
+            l.setTimes (0.001, 0.120f);
+            l.threshold = -0.3f;
+            l.ratio = 10.5f;
+        }
+    }
 
     void step() override;
 };
@@ -160,7 +169,7 @@ inline void CombFilterComp<TBase>::step()
         auto frequency = freqParam;
         frequency += TBase::inputs[VOCT_INPUT].getPolyVoltage (c);
         frequency += (TBase::inputs[FREQ_CV_INPUT].getPolyVoltage (c) * freqAttenuverterParam);
-        frequency = dsp::FREQ_C4 * lookup.pow2 (frequency);
+        frequency = dsp::FREQ_C4 * simd::pow (2.0f, frequency);
         frequency = clamp (frequency, 0.1f, maxFreq);
 
         auto feedback = feedbackParam + feedbackAttenuverterParam * (TBase::inputs[FEEDBACK_CV_INPUT].getPolyVoltage (c) / 5.0f);
@@ -173,13 +182,14 @@ inline void CombFilterComp<TBase>::step()
         auto index = delayTime * sampleRate;
 
         in += buffers[c].readBuffer (index) * comb * feedback;
-        buffers[c].writeBuffer (in);
 
         auto out = in + buffers[c].readBuffer (index) * comb;
+        buffers[c].writeBuffer (in);
 
         dcOutFilters[c].process (out);
         out = dcOutFilters[c].highpass();
-        out = saturate.process (out);
+
+        out = limiters[c].process (out);
 
         TBase::outputs[MAIN_OUTPUT].setVoltage (out * 5.0f, c);
     }
