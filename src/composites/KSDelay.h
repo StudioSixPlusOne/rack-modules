@@ -216,7 +216,7 @@ public:
     std::vector<CircularBuffer<float>> buffers;
     std::vector<rack::dsp::BiquadFilter> dcInFilters;
     std::vector<rack::dsp::BiquadFilter> dcOutFilters;
-    std::vector<sspo::Limiter> limiters;
+    std::vector<sspo::Compressor> limiters;
     std::vector<float> lastWets;
     std::vector<float> delayTimes;
     std::vector<std::vector<float>> oscphases;

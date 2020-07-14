@@ -29,7 +29,10 @@
 #include "simd/functions.hpp"
 #include "simd/sse_mathfun.h"
 #include "simd/sse_mathfun_extension.h"
+#include "digital.hpp"
 #include "LookupTable.h"
+
+using namespace rack;
 
 using float_4 = ::rack::simd::float_4;
 
@@ -39,19 +42,22 @@ namespace sspo
     /// !A fixed parameter limiter
     /// Based on description given in Prikle, Designing Audio Effects 2nd
     ///
-    struct Limiter
+    struct Compressor
     {
-        Limiter() = default;
+        Compressor()
+        {
+            divider.setDivision (divFreq);
+        }
 
         void calcCoeffs()
         {
-            attackCoeff = std::exp (TC / (sampleRate * attackTime));
-            releaseCoeff = std::exp (TC / (sampleRate * releaseTimes));
+            attackCoeff = simd::exp (TC / (sampleRate * attackTime));
+            releaseCoeff = simd::exp (TC / (sampleRate * releaseTimes));
         }
 
         void setSampleRate (const float sr)
         {
-            sampleRate = sr;
+            sampleRate = sr / divFreq;
             calcCoeffs();
         }
 
@@ -61,29 +67,32 @@ namespace sspo
             releaseTimes = release;
             calcCoeffs();
         }
-
+        float G = 0.0;
         float process (const float in)
         {
-            //envelope follower
-            auto rectIn = std::abs (in);
-            currentEnv = rectIn > lastEnv
-                             ? attackCoeff * (lastEnv - rectIn) + rectIn
-                             : releaseCoeff * (lastEnv - rectIn) + rectIn;
-            currentEnv = std::max (currentEnv, 0.00000000001f);
-            lastEnv = currentEnv;
+            if (divider.process())
+            {
+                //envelope follower
+                auto rectIn = std::abs (in);
+                currentEnv = rectIn > lastEnv
+                                 ? attackCoeff * (lastEnv - rectIn) + rectIn
+                                 : releaseCoeff * (lastEnv - rectIn) + rectIn;
+                currentEnv = std::max (currentEnv, 0.00000000001f);
+                lastEnv = currentEnv;
 
-            auto dn = 20.0f * lookup.log10 (currentEnv);
-
-            //Hard knee compression
-            auto yndB = dn <= threshold ? dn : threshold + ((dn - threshold) / ratio);
-            auto gndB = yndB - dn;
-            auto G = lookup.pow10 (gndB / 20.0f);
+                //            auto dn = 20.0f * lookup.log10 (currentEnv);
+                auto dn = 20.0f * simd::log10 (currentEnv);
+                //Hard knee compression
+                auto yndB = dn <= threshold ? dn : threshold + ((dn - threshold) / ratio);
+                auto gndB = yndB - dn;
+                G = simd::pow (10.0f, gndB / 20.0f);
+            }
 
             return in * G;
         }
 
         float attackTime{ 0.0001f };
-        float releaseTimes{ 0.0025f };
+        float releaseTimes{ 0.025f };
         float ratio{ 10.5f };
         float threshold{ -0.0f }; //dB
 
@@ -93,6 +102,8 @@ namespace sspo
         float lastEnv{ 0.0f };
         float currentEnv{ 0.0f };
         float sampleRate{ 1.0f };
+        static constexpr int divFreq = 4;
+        dsp::ClockDivider divider;
 
         static constexpr float TC{ -0.9996723408f }; // { std::log (0.368f); } //capacitor discharge to 36.8%
     };
@@ -109,8 +120,8 @@ namespace sspo
             if (std::abs (in) < max)
             {
                 ret = in > 0.0f
-                          ? in - ((std::pow (in - max + (kneeWidth / 2.0), 2.0)) / (2.0 * kneeWidth))
-                          : in + ((std::pow (in + max - (kneeWidth / 2.0), 2.0)) / (2.0 * kneeWidth));
+                          ? in - ((simd::pow (in - max + (kneeWidth / 2.0), 2.0)) / (2.0 * kneeWidth))
+                          : in + ((simd::pow (in + max - (kneeWidth / 2.0), 2.0)) / (2.0 * kneeWidth));
                 //ret = rack::math::clamp (ret, -max, max);
             }
             else
