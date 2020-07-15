@@ -89,7 +89,6 @@ int main (int argc, char** argv)
     testTriggerSequencer();
     testIverson();
     testLala();
-    testUtilityFilter();
     testEva();
     testZazel();
     testEasing();
@@ -105,6 +104,7 @@ int main (int argc, char** argv)
     testCombFilter();
     testSynthFilter();
     testMaccomo();
+    testUtilityFilter();
 
     printf ("Tests passed.\n");
 }
