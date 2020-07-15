@@ -37,7 +37,7 @@ namespace sspo
     private:
         static constexpr int maxLength = MAX_LENGTH;
         int length = 16;
-        std::bitset<maxLength> sequence{ false };
+        std::bitset<maxLength> sequence;
         bool mute = false;
         int index = -1;
 
@@ -52,7 +52,8 @@ namespace sspo
             reset();
         }
 
-        int getLength() { return maxLength; }
+        int getMaxLength() { return maxLength; }
+        int getLength() { return length; }
         void setLength (int len) { length = len; }
         const std::bitset<MAX_LENGTH>& getSequence() { return sequence; }
         bool getMute() { return mute; }
