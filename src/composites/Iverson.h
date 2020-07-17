@@ -24,7 +24,10 @@
 #include <memory>
 #include "IComposite.h"
 #include "TriggerSequencer.h"
+#include "digital.hpp"
 
+static const int MIDI_MAP_SIZE = 200;
+static const int MAX_MIDI = 128;
 namespace rack
 {
     namespace engine
@@ -377,9 +380,44 @@ public:
     };
 
     static constexpr int MAX_SEQUENCE_LENGTH = 64;
+    static constexpr int GRID_WIDTH = 16;
+    static constexpr int TRACK_COUNT = 8;
+    static constexpr int MAX_PAGES = 4;
+
+    static constexpr float LED_FADE_DELTA = 0.00001f;
+
+    static constexpr int pages = MAX_SEQUENCE_LENGTH / GRID_WIDTH;
 
     float sampleRate = 1.0f;
     float sampleTime = 1.0f;
+
+    /// current page
+    int page = 0;
+    std::vector<sspo::TriggerSequencer<MAX_SEQUENCE_LENGTH>> tracks;
+    std::vector<dsp::PulseGenerator> outPulse;
+    bool isLearning = false;
+    bool isRunning = true;
+    bool clock = false;
+
+    struct Triggers
+    {
+        dsp::TSchmittTrigger<float> pageLeft;
+        dsp::TSchmittTrigger<float> pageRight;
+        dsp::TSchmittTrigger<float> length;
+        dsp::TSchmittTrigger<float> learn;
+        dsp::TSchmittTrigger<float> run;
+        dsp::TSchmittTrigger<float> reset;
+        dsp::TSchmittTrigger<float> clock;
+
+        std::vector<dsp::TSchmittTrigger<float>> mutes;
+        std::vector<dsp::TSchmittTrigger<float>> grid;
+
+        Triggers()
+        {
+            mutes.resize (TRACK_COUNT);
+            grid.resize (GRID_WIDTH * TRACK_COUNT);
+        }
+    } triggers;
 
     IversonComp (Module* module) : TBase (module)
     {
@@ -409,14 +447,193 @@ public:
     // must be called after setSampleRate
     void init()
     {
+        tracks.resize (TRACK_COUNT);
+        outPulse.resize (TRACK_COUNT);
     }
 
     void step() override;
+
+    /// updates led's to reflect sequencer state on selected page
+    void sequencerLEDs();
+    /// update tracks from inputs
+    void gridInputs();
+
+    /// updates selected page
+    void pageChangeInputs();
+    /// resets all tracks to -1
+    void resetInput();
+    /// handles when the length button is pressed
+    /// to learn the length from the next grid triggered
+    void lengthInput();
+    /// mdid assign mode
+    void learnInput();
+    /// reset sequencers
+    void runInput();
+    void clockInput();
+    void muteInput();
+
+    int getGridIndex (int x, int y);
+    int getStepIndex (int page, int x);
+    bool getStateGridIndex (int page, int track, int step);
+    void outputSequence();
 };
 
 template <class TBase>
 inline void IversonComp<TBase>::step()
 {
+    gridInputs();
+    lengthInput();
+    sequencerLEDs();
+    pageChangeInputs();
+    learnInput();
+    resetInput();
+    runInput();
+    clockInput();
+    muteInput();
+    outputSequence();
+}
+
+template <class TBase>
+void IversonComp<TBase>::sequencerLEDs()
+{
+    for (auto t = 0; t < TRACK_COUNT; ++t)
+    {
+        for (auto s = 0; s < GRID_WIDTH; ++s)
+        {
+            TBase::lights[GRID_1_1_LIGHT + getGridIndex (s, t)]
+                .setBrightness (tracks[t].getStep (getStepIndex (page, s)));
+        }
+    }
+}
+
+template <class TBase>
+void IversonComp<TBase>::pageChangeInputs()
+{
+    if (triggers.pageLeft.process (TBase::params[PAGE_LEFT_PARAM].getValue()))
+    {
+        page--;
+        page = page < 0 ? MAX_PAGES - 1 : page;
+        TBase::lights[PAGE_1_LIGHT].setBrightness (1.0f);
+    }
+    else
+        TBase::lights[PAGE_1_LIGHT].setSmoothBrightness (0.0f, LED_FADE_DELTA);
+
+    if (triggers.pageRight.process (TBase::params[PAGE_RIGHT_PARAM].getValue()))
+    {
+        page++;
+        page = page == MAX_PAGES ? 0 : page;
+        TBase::lights[PAGE_2_LIGHT].setBrightness (1.0f);
+    }
+    else
+        TBase::lights[PAGE_2_LIGHT].setSmoothBrightness (0.0f, LED_FADE_DELTA);
+}
+
+template <class TBase>
+void IversonComp<TBase>::resetInput()
+{
+    if (triggers.reset.process (TBase::params[RESET_PARAM].getValue()
+                                + std::abs (TBase::inputs[RESET_INPUT].getVoltage())))
+    {
+        for (auto& t : tracks)
+            t.reset();
+
+        TBase::lights[RESET_LIGHT].setBrightness (1.0f);
+    }
+    else
+        TBase::lights[RESET_LIGHT].setSmoothBrightness (0.0f, LED_FADE_DELTA);
+}
+
+template <class TBase>
+void IversonComp<TBase>::lengthInput()
+{
+    for (auto t = 0; t < TRACK_COUNT; ++t)
+        tracks[t].setLength (TBase::params[LENGTH_1_PARAM + t].getValue());
+    //TODO button length
+}
+
+template <class TBase>
+void IversonComp<TBase>::learnInput()
+{
+    if (triggers.learn.process (TBase::params[MIDI_LEARN_PARAM].getValue()))
+        isLearning = ! isLearning;
+    TBase::lights[MIDI_LEARN_LIGHT].setBrightness (isLearning);
+}
+
+template <class TBase>
+void IversonComp<TBase>::runInput()
+{
+    if (triggers.run.process (TBase::params[RUN_PARAM].getValue()
+                              + std::abs (TBase::inputs[RUN_INPUT].getVoltage())))
+    {
+        isRunning = ! isRunning;
+    }
+    else
+        TBase::lights[RUN_LIGHT].setBrightness (isRunning);
+}
+
+template <class TBase>
+void IversonComp<TBase>::gridInputs()
+{
+    for (auto t = 0; t < TRACK_COUNT; ++t)
+    {
+        for (auto s = 0; s < GRID_WIDTH; ++s)
+        {
+            if (triggers.grid[getGridIndex (s, t)].process (TBase::params[GRID_1_1_PARAM + getGridIndex (s, t)].getValue()))
+                tracks[t].invertStep (getStepIndex (page, s));
+        }
+    }
+}
+template <class TBase>
+void IversonComp<TBase>::clockInput()
+{
+    if (triggers.clock.process (TBase::params[CLOCK_PARAM].getValue()
+                                + std::abs (TBase::inputs[CLOCK_INPUT].getVoltage())))
+    {
+        clock = true;
+        TBase::lights[CLOCK_LIGHT].setBrightness (1.0f);
+    }
+    else
+    {
+        clock = false;
+        TBase::lights[CLOCK_LIGHT].setSmoothBrightness (0.0f, LED_FADE_DELTA);
+    }
+}
+template <class TBase>
+void IversonComp<TBase>::muteInput()
+{
+    for (auto i = 0; i < TRACK_COUNT; i++)
+    {
+        if (triggers.mutes[i].process (TBase::params[MUTE_1_PARAM + i].getValue()))
+        {
+            tracks[i].setMute (! tracks[i].getMute());
+        }
+        TBase::lights[MUTE_1_LIGHT + i].setBrightness (tracks[i].getMute());
+    }
+}
+template <class TBase>
+int IversonComp<TBase>::getGridIndex (int x, int y)
+{
+    return y * GRID_WIDTH + x;
+}
+template <class TBase>
+int IversonComp<TBase>::getStepIndex (int page, int x)
+{
+    return page * GRID_WIDTH + x;
+}
+template <class TBase>
+void IversonComp<TBase>::outputSequence()
+{
+    for (auto t = 0; t < TRACK_COUNT; t++)
+    {
+        if (tracks[t].step (clock))
+            outPulse[t].trigger();
+        TBase::outputs[TRIGGER_1_OUTPUT + t].setVoltage (outPulse[t].process (sampleTime));
+    }
+}
+template <class TBase>
+bool IversonComp<TBase>::getStateGridIndex (int page, int track, int step)
+{
+    return tracks[track].getStep (getStepIndex (page, step));
 }
 
 template <class TBase>
@@ -442,7 +659,7 @@ IComposite::Config IversonDescription<TBase>::getParam (int i)
 
     if (i <= IversonComp<TBase>::LENGTH_8_PARAM)
     {
-        ret = { 0.0f, IversonComp<TBase>::MAX_SEQUENCE_LENGTH, IversonComp<TBase>::MAX_SEQUENCE_LENGTH, " ", " ", 0, 1, 0.0f };
+        ret = { 1.0f, IversonComp<TBase>::MAX_SEQUENCE_LENGTH, IversonComp<TBase>::MAX_SEQUENCE_LENGTH, " ", " ", 0, 1, 0.0f };
         return ret;
     }
 

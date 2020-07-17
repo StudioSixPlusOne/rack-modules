@@ -67,6 +67,7 @@ namespace sspo
         }
         bool getCurrentStep() { return getStep (index); }
         void setStep (int step, bool x) { sequence[step] = x; }
+        void invertStep (int step) { sequence[step] = ! sequence[step]; }
 
         bool step (bool trigger)
         {
@@ -79,6 +80,15 @@ namespace sspo
             }
             else
                 return false;
+        }
+        void setIndex (int i)
+        {
+            if (i > -1 && i < MAX_LENGTH)
+                index = i;
+        }
+        void setSequence (int i)
+        {
+            sequence = i;
         }
     };
 } // namespace sspo

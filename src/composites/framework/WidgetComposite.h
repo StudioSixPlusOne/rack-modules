@@ -63,7 +63,7 @@ public:
     {
         return ::rack::appGet()->engine->getSampleTime();
     }
-protected:
+    //protected:
     std::vector<Input>& inputs;
     std::vector<Output>& outputs;
     std::vector<Param>& params;
