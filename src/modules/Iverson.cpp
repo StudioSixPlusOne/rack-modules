@@ -6,6 +6,7 @@
 #include "Iverson.h"
 #include "WidgetComposite.h"
 #include "ctrl/SqMenuItem.h"
+#include "app/MidiWidget.hpp"
 
 using Comp = IversonComp<WidgetComposite>;
 
@@ -14,15 +15,111 @@ struct Iverson : Module
     static constexpr int MAX_SEQUENCE_LENGTH = 64;
     std::shared_ptr<Comp> iverson;
 
+    struct MidiOutput : midi::Output
+    {
+        int currentCC[MAX_MIDI];
+        bool currentNotes[MAX_MIDI];
+
+        MidiOutput()
+        {
+            reset();
+        }
+
+        void reset()
+        {
+            for (auto i = 0; i < MAX_MIDI; ++i)
+            {
+                currentCC[i] = -1;
+                currentNotes[i] = false;
+            }
+        }
+
+        void setCC (int cc, int val)
+        {
+            if (val == currentCC[cc])
+                return;
+            currentCC[cc] = val;
+            // create message
+            midi::Message msg;
+            msg.setStatus (0xb);
+            msg.setNote (cc);
+            msg.setValue (val);
+            sendMessage (msg);
+        }
+
+        void resetNote (int note)
+        {
+            midi::Message msg;
+            msg.setStatus (0x9);
+            msg.setNote (note);
+            msg.setValue (0);
+            sendMessage (msg);
+            currentNotes[note] = false;
+        }
+
+        void setNote (int note, int velocity)
+        {
+            if (velocity > 0 && ! currentNotes[note])
+            {
+                //note on
+                midi::Message msg;
+                msg.setStatus (0x9);
+                msg.setNote (note);
+                msg.setValue (velocity);
+                sendMessage (msg);
+            }
+            else if (velocity == 0 && currentNotes[note])
+            {
+                //note off
+                midi::Message msg;
+                msg.setStatus (0x9);
+                msg.setNote (note);
+                msg.setValue (0);
+                sendMessage (msg);
+            }
+            currentNotes[note] = velocity > 0;
+        }
+    };
+
+    std::vector<midi::InputQueue> midiInputQueues{ 2 };
+    std::vector<MidiOutput> midiOutputs{ 2 };
+
+    dsp::ClockDivider controllerPageUpdateTrigger;
+
+    struct MidiMapping
+    {
+        int controller = -1;
+        int note = -1;
+        int cc = -1;
+        int paramId = -1;
+
+        void reset()
+        {
+            controller = -1;
+            note = -1;
+            cc = -1;
+            paramId = -1;
+        }
+    };
+
+    std::vector<MidiMapping> midiMappings;
+    MidiMapping midiLearnMapping;
+
     Iverson()
     {
         config (Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
 
+        //        midiInputQueues.resize (2);
+        //preallocate midi mappings, to avoid allocations during push_back
+        // occurring during the audio process loop
+        midiMappings.reserve (MIDI_MAP_SIZE);
         iverson = std::make_shared<Comp> (this);
         std::shared_ptr<IComposite> icomp = Comp::getDescription();
         SqHelper::setupParams (icomp, this);
         onSampleRateChange();
         iverson->init();
+
+        controllerPageUpdateTrigger.setDivision (10000);
     }
     void onSampleRateChange() override
     {
@@ -30,15 +127,304 @@ struct Iverson : Module
         iverson->setSampleRate (rate);
     }
 
-    void process (const ProcessArgs& args) override
+    json_t* dataToJson() override
     {
-        iverson->step();
+        json_t* rootJ = json_object();
+
+        json_object_set_new (rootJ, "running", json_boolean (iverson->isRunning));
+
+        json_t* mutesJ = json_array();
+        json_t* lengthsJ = json_array();
+        json_t* indexJ = json_array();
+        json_t* sequenceJ = json_array();
+
+        for (auto i = 0; i < iverson->TRACK_COUNT; ++i)
+        {
+            json_array_insert_new (mutesJ, i, json_boolean ((iverson->tracks[i].getMute())));
+            json_array_insert_new (lengthsJ, i, json_integer (iverson->tracks[i].getLength()));
+            json_array_insert_new (indexJ, i, json_integer (iverson->tracks[i].getIndex()));
+            json_array_insert_new (sequenceJ, i, json_integer (iverson->tracks[i].getSequence().to_ulong()));
+        }
+
+        json_object_set_new (rootJ, "mutes", mutesJ);
+        json_object_set_new (rootJ, "lengths", lengthsJ);
+        json_object_set_new (rootJ, "index", indexJ);
+        json_object_set_new (rootJ, "sequence", sequenceJ);
+
+        json_t* midiMapsJ = json_array();
+        for (auto i = 0; i < (int) midiMappings.size(); ++i)
+        {
+            json_t* mappingJ = json_object();
+            json_object_set_new (mappingJ, "controller", json_integer (midiMappings[i].controller));
+            json_object_set_new (mappingJ, "note", json_integer (midiMappings[i].note));
+            json_object_set_new (mappingJ, "cc", json_integer (midiMappings[i].cc));
+            json_object_set_new (mappingJ, "paramId", json_integer (midiMappings[i].paramId));
+            json_array_insert_new (midiMapsJ, i, mappingJ);
+        }
+
+        json_object_set_new (rootJ, "midiBinding", midiMapsJ);
+
+        return rootJ;
+    }
+    void dataFromJson (json_t* rootJ) override
+    {
+        json_t* runningJ = json_object_get (rootJ, "running");
+        if (runningJ)
+            iverson->isRunning = json_boolean_value (runningJ);
+
+        json_t* mutesJ = json_object_get (rootJ, "mutes");
+        for (auto t = 0; t < iverson->TRACK_COUNT; ++t)
+        {
+            if (mutesJ)
+            {
+                json_t* mutesArrayJ = json_array_get (mutesJ, t);
+                if (mutesArrayJ)
+                    iverson->tracks[t].setMute (json_boolean_value (mutesArrayJ));
+            }
+        }
+
+        json_t* lengthsJ = json_object_get (rootJ, "lengths");
+        for (auto t = 0; t < iverson->TRACK_COUNT; ++t)
+        {
+            if (lengthsJ)
+            {
+                json_t* lengthsArrayJ = json_array_get (lengthsJ, t);
+                if (lengthsArrayJ)
+                    iverson->tracks[t].setLength (json_integer_value (lengthsArrayJ));
+            }
+        }
+
+        json_t* indexJ = json_object_get (rootJ, "lengths");
+        for (auto t = 0; t < iverson->TRACK_COUNT; ++t)
+        {
+            if (indexJ)
+            {
+                json_t* indexArrayJ = json_array_get (indexJ, t);
+                if (indexArrayJ)
+                    iverson->tracks[t].setIndex (json_integer_value (indexArrayJ));
+            }
+        }
+
+        json_t* sequenceJ = json_object_get (rootJ, "sequence");
+        for (auto t = 0; t < iverson->TRACK_COUNT; ++t)
+        {
+            if (sequenceJ)
+            {
+                json_t* sequenceArrayJ = json_array_get (sequenceJ, t);
+                if (sequenceArrayJ)
+                    iverson->tracks[t].setSequence (json_integer_value (sequenceArrayJ));
+            }
+        }
+
+        json_t* midiBindingJ = json_object_get (rootJ, "midiBinding");
+        midiMappings.resize ((int) json_array_size (midiBindingJ));
+        midiMappings.reserve (MIDI_MAP_SIZE);
+        for (auto i = 0; i < (int) json_array_size (midiBindingJ); ++i)
+        {
+            if (midiBindingJ)
+            {
+                json_t* mm = json_array_get (midiBindingJ, i);
+                if (mm)
+                {
+                    json_t* controllerJ = json_object_get (mm, "controller");
+                    if (controllerJ)
+                        midiMappings[i].controller = json_integer_value (controllerJ);
+
+                    json_t* noteJ = json_object_get (mm, "note");
+                    if (noteJ)
+                        midiMappings[i].note = json_integer_value (noteJ);
+
+                    json_t* ccJ = json_object_get (mm, "cc");
+                    if (ccJ)
+                        midiMappings[i].cc = json_integer_value (ccJ);
+
+                    json_t* paramJ = json_object_get (mm, "paramId");
+                    if (paramJ)
+                        midiMappings[i].paramId = json_integer_value (paramJ);
+                }
+            }
+        }
     }
 
-    /*****************************************************
+    void doLearn();
+    void process (const ProcessArgs& args) override
+    {
+        doLearn();
+        midiToParm();
+        iverson->step();
+        if (controllerPageUpdateTrigger.process())
+        {
+            pageLights();
+        }
+        //        doMidiOut();
+    }
+
+    /// Midi events are used to set assigned params
+    /// midi handling would reqire linking to RACK for unit test
+    /// hence all midi to be processed in Iverson.cpp
+    void midiToParm();
+    /// sends midi to external controllerr to show status
+    void pageLights();
+};
+
+void Iverson::midiToParm()
+{
+    midi::Message msg;
+    for (auto q = 0; q < 2; ++q)
+    {
+        while (midiInputQueues[q].shift (&msg))
+
+        {
+            switch (msg.getStatus())
+            {
+                //note off
+                case 0x8:
+                {
+                    //find midiMapping for noteoff
+                    for (auto& m : midiMappings)
+                    {
+                        if (m.note == msg.getNote() && m.controller == q)
+                            params[m.paramId].setValue (0);
+                    }
+                }
+                break;
+
+                //note on
+                case 0x9:
+                {
+                    //find midiMapping for noteon
+                    for (auto& m : midiMappings)
+                    {
+                        DEBUG ("NOTE ON, MIDIMappings controller %d  note %d  cc %d param %d",
+                               m.controller,
+                               m.note,
+                               m.cc,
+                               m.paramId);
+                        if (m.note == msg.getNote() && m.controller == q)
+                            params[m.paramId].setValue ((msg.getValue() == 0 ? 0 : 1));
+                    }
+                }
+                break;
+                    // cc
+                case 0xb:
+                {
+                    //find midiMapping for noteon
+                    for (auto& m : midiMappings)
+                    {
+                        DEBUG ("NOTE ON, MIDIMappings controller %d  note %d  cc %d param %d",
+                               m.controller,
+                               m.note,
+                               m.cc,
+                               m.paramId);
+                        if (m.cc == msg.getNote() && m.controller == q)
+                            params[m.paramId].setValue ((msg.getValue() == 0 ? 0 : 1));
+                    }
+                }
+
+                break;
+                default:
+                    break;
+            }
+        }
+    }
+}
+void Iverson::doLearn()
+{
+    if (iverson->isLearning)
+    {
+        if ((midiLearnMapping.controller != -1)
+            && (midiLearnMapping.cc != -1 || midiLearnMapping.note != -1)
+            && midiLearnMapping.paramId != -1)
+        {
+            midiMappings.push_back (midiLearnMapping);
+            midiLearnMapping.reset();
+            iverson->isLearning = false;
+        }
+        // if midi add to midi learn param
+        midi::Message msg;
+        for (auto q = 0; q < 2; ++q)
+        {
+            while (midiInputQueues[q].shift (&msg))
+
+            {
+                switch (msg.getStatus())
+                {
+                        //note on
+                    case 0x9:
+                    {
+                        midiLearnMapping.controller = q;
+                        midiLearnMapping.note = msg.getNote();
+                    }
+                    break;
+                    // cc
+                    case 0xb:
+                    {
+                        midiLearnMapping.controller = q;
+                        midiLearnMapping.cc = msg.getNote();
+                    }
+                    break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        //if param add to midi learn param
+        for (auto i = (int) iverson->GRID_1_1_PARAM; i <= iverson->GRID_16_8_PARAM; ++i)
+        {
+            if ((int) iverson->params[i].getValue() != 0)
+            {
+                midiLearnMapping.paramId = i;
+                return;
+            }
+        }
+        for (auto i = (int) iverson->MUTE_1_PARAM; i <= iverson->MUTE_8_PARAM; ++i)
+        {
+            if ((int) iverson->params[i].getValue() != 0)
+            {
+                midiLearnMapping.paramId = i;
+                return;
+            }
+        }
+    }
+}
+
+void Iverson::pageLights()
+{
+    for (auto i = 0; i < 2; ++i)
+    {
+        midiOutputs[i].setDriverId (midiInputQueues[i].driverId);
+        midiOutputs[i].setDeviceId (midiInputQueues[i].deviceId);
+        midiOutputs[i].setChannel (0);
+        //        midiOutputs[i].driver = midiInputQueues[i].driver;
+        //        midiOutputs[i].outputDevice = midiInputQueues[i].inputDevice;
+    }
+
+    for (auto& mm : midiMappings)
+    {
+        midiOutputs[mm.controller].resetNote (mm.note);
+        if (mm.paramId <= iverson->GRID_16_8_PARAM)
+        // sequence
+        {
+            auto t = mm.paramId / iverson->GRID_WIDTH;
+            auto i = mm.paramId - t * iverson->GRID_WIDTH;
+            midiOutputs[mm.controller].setNote (mm.note, iverson->getStateGridIndex (iverson->page, t, i));
+        }
+        else if (mm.paramId >= iverson->MUTE_1_PARAM && mm.paramId <= iverson->MUTE_8_PARAM)
+        {
+            auto t = mm.paramId - iverson->MUTE_1_PARAM;
+            midiOutputs[mm.controller].setNote (mm.note, iverson->tracks[t].getMute());
+        }
+    }
+
+    //TODO current index
+    //toDO length
+    //todo mutes
+}
+
+/*****************************************************
 User Interface
 *****************************************************/
-};
 
 struct IversonWidget : ModuleWidget
 {
@@ -364,8 +750,19 @@ struct IversonWidget : ModuleWidget
         addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (9.807, 112.101)), module, Comp::SET_LENGTH_LIGHT));
         addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (22.507, 112.101)), module, Comp::MIDI_LEARN_LIGHT));
 
+        MidiWidget* midiLeftWidget = createWidget<MidiWidget> (mm2px (Vec (38.646, 98.094)));
+        midiLeftWidget->box.size = mm2px (Vec (40, 25));
+        midiLeftWidget->setMidiPort (module ? &module->midiInputQueues[0] : NULL);
+        addChild (midiLeftWidget);
+
+        MidiWidget* midiRightWidget = createWidget<MidiWidget> (mm2px (Vec (85.02, 98.094)));
+        midiRightWidget->box.size = mm2px (Vec (40, 25));
+        midiRightWidget->setMidiPort (module ? &module->midiInputQueues[1] : NULL);
+        addChild (midiRightWidget);
+
         /*         // mm2px(Vec(60.747, 69.094))
         addChild (createWidget<Widget> (mm2px (Vec (4.515, 18.372))));
+
         // mm2px(Vec(60.747, 69.094))
         addChild (createWidget<Widget> (mm2px (Vec (66.957, 18.372))));
         // mm2px(Vec(39.881, 16.094))
