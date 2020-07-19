@@ -59,7 +59,7 @@ struct Iverson : Module
 
         void setNote (int note, int velocity)
         {
-            if (velocity > 0 && ! currentNotes[note])
+            if (velocity > 0)
             {
                 //note on
                 midi::Message msg;
@@ -68,7 +68,7 @@ struct Iverson : Module
                 msg.setValue (velocity);
                 sendMessage (msg);
             }
-            else if (velocity == 0 && currentNotes[note])
+            else if (velocity == 0)
             {
                 //note off
                 midi::Message msg;
@@ -84,7 +84,8 @@ struct Iverson : Module
     std::vector<midi::InputQueue> midiInputQueues{ 2 };
     std::vector<MidiOutput> midiOutputs{ 2 };
 
-    dsp::ClockDivider controllerPageUpdateTrigger;
+    dsp::ClockDivider controlPageUpdateDivider;
+    dsp::ClockDivider paramMidiUpdateDivider;
 
     struct MidiMapping
     {
@@ -119,7 +120,8 @@ struct Iverson : Module
         onSampleRateChange();
         iverson->init();
 
-        controllerPageUpdateTrigger.setDivision (10000);
+        controlPageUpdateDivider.setDivision (10000);
+        paramMidiUpdateDivider.setDivision (100);
     }
     void onSampleRateChange() override
     {
@@ -136,20 +138,28 @@ struct Iverson : Module
         json_t* mutesJ = json_array();
         json_t* lengthsJ = json_array();
         json_t* indexJ = json_array();
-        json_t* sequenceJ = json_array();
+        json_t* sequenceHiJ = json_array();
+        json_t* sequenceLowJ = json_array();
 
         for (auto i = 0; i < iverson->TRACK_COUNT; ++i)
         {
             json_array_insert_new (mutesJ, i, json_boolean ((iverson->tracks[i].getMute())));
             json_array_insert_new (lengthsJ, i, json_integer (iverson->tracks[i].getLength()));
             json_array_insert_new (indexJ, i, json_integer (iverson->tracks[i].getIndex()));
-            json_array_insert_new (sequenceJ, i, json_integer (iverson->tracks[i].getSequence().to_ulong()));
+            //sequence 64bit, json integers are 32bit, store ass hi low values
+            json_array_insert_new (sequenceHiJ,
+                                   i,
+                                   json_integer (((iverson->tracks[i].getSequence().to_ulong()) >> 32u) & 0xffffffff));
+            json_array_insert_new (sequenceLowJ,
+                                   i,
+                                   json_integer (((iverson->tracks[i].getSequence().to_ulong())) & 0xffffffff));
         }
 
         json_object_set_new (rootJ, "mutes", mutesJ);
         json_object_set_new (rootJ, "lengths", lengthsJ);
         json_object_set_new (rootJ, "index", indexJ);
-        json_object_set_new (rootJ, "sequence", sequenceJ);
+        json_object_set_new (rootJ, "sequenceHi", sequenceHiJ);
+        json_object_set_new (rootJ, "sequenceLow", sequenceLowJ);
 
         json_t* midiMapsJ = json_array();
         for (auto i = 0; i < (int) midiMappings.size(); ++i)
@@ -204,15 +214,27 @@ struct Iverson : Module
                     iverson->tracks[t].setIndex (json_integer_value (indexArrayJ));
             }
         }
-
-        json_t* sequenceJ = json_object_get (rootJ, "sequence");
+        //sequence values 64 bit, split int low hi 32bits
+        json_t* sequenceLowJ = json_object_get (rootJ, "sequenceLow");
         for (auto t = 0; t < iverson->TRACK_COUNT; ++t)
         {
-            if (sequenceJ)
+            if (sequenceLowJ)
             {
-                json_t* sequenceArrayJ = json_array_get (sequenceJ, t);
-                if (sequenceArrayJ)
-                    iverson->tracks[t].setSequence (json_integer_value (sequenceArrayJ));
+                json_t* sequenceArrayLowJ = json_array_get (sequenceLowJ, t);
+                if (sequenceArrayLowJ)
+                    iverson->tracks[t].setSequence (json_integer_value (sequenceArrayLowJ));
+            }
+        }
+
+        json_t* sequenceHiJ = json_object_get (rootJ, "sequenceHi");
+        for (auto t = 0; t < iverson->TRACK_COUNT; ++t)
+        {
+            if (sequenceHiJ)
+            {
+                json_t* sequenceArrayHiJ = json_array_get (sequenceHiJ, t);
+                if (sequenceArrayHiJ)
+                    iverson->tracks[t].setSequence (iverson->tracks[t].getSequence().to_ulong()
+                                                    + ((ulong) json_integer_value (sequenceArrayHiJ) << 32u));
             }
         }
 
@@ -250,21 +272,28 @@ struct Iverson : Module
     void process (const ProcessArgs& args) override
     {
         doLearn();
-        midiToParm();
-        iverson->step();
-        if (controllerPageUpdateTrigger.process())
+        if (paramMidiUpdateDivider.process())
         {
+            updateMidiOutDeviceDriver();
+            midiToParm();
+        }
+
+        iverson->step();
+        if (controlPageUpdateDivider.process())
+        {
+            //            updateMidiOutDeviceDriver();
             pageLights();
         }
         //        doMidiOut();
     }
 
     /// Midi events are used to set assigned params
-    /// midi handling would reqire linking to RACK for unit test
+    /// midi handling would require linking to RACK for unit test
     /// hence all midi to be processed in Iverson.cpp
     void midiToParm();
     /// sends midi to external controllerr to show status
     void pageLights();
+    void updateMidiOutDeviceDriver();
 };
 
 void Iverson::midiToParm()
@@ -308,7 +337,7 @@ void Iverson::midiToParm()
                     // cc
                 case 0xb:
                 {
-                    //find midiMapping for noteon
+                    //find midiMapping for cc
                     for (auto& m : midiMappings)
                     {
                         DEBUG ("NOTE ON, MIDIMappings controller %d  note %d  cc %d param %d",
@@ -328,14 +357,31 @@ void Iverson::midiToParm()
         }
     }
 }
+
 void Iverson::doLearn()
 {
     if (iverson->isLearning)
+    // if we have all required params, add to list
     {
         if ((midiLearnMapping.controller != -1)
             && (midiLearnMapping.cc != -1 || midiLearnMapping.note != -1)
             && midiLearnMapping.paramId != -1)
         {
+            //delete any existing map to this parameter
+            auto mm = std::find_if (midiMappings.begin(), midiMappings.end(), [this] (const MidiMapping& x) { return x.paramId == midiLearnMapping.paramId; });
+            if (mm != midiMappings.end())
+                midiMappings.erase (mm);
+
+            //delete any existing map to this midi note
+            mm = std::find_if (midiMappings.begin(), midiMappings.end(), [this] (const MidiMapping& x) { return x.note != -1 && x.note == midiLearnMapping.note; });
+            if (mm != midiMappings.end())
+                midiMappings.erase (mm);
+
+            //delete any existing map to this midi cc
+            mm = std::find_if (midiMappings.begin(), midiMappings.end(), [this] (const MidiMapping& x) { return x.cc != -1 && x.cc == midiLearnMapping.cc; });
+            if (mm != midiMappings.end())
+                midiMappings.erase (mm);
+
             midiMappings.push_back (midiLearnMapping);
             midiLearnMapping.reset();
             iverson->isLearning = false;
@@ -386,40 +432,86 @@ void Iverson::doLearn()
                 return;
             }
         }
+
+        for (auto i = (int) iverson->PAGE_ONE_PARAM; i <= iverson->PAGE_FOUR_PARAM; ++i)
+        {
+            if ((int) iverson->params[i].getValue() != 0)
+            {
+                midiLearnMapping.paramId = i;
+                return;
+            }
+        }
+
+        std::vector<int> learnableButtons = { iverson->SET_LENGTH_PARAM,
+                                              iverson->RUN_PARAM,
+                                              iverson->RESET_PARAM };
+
+        for (auto lb : learnableButtons)
+        {
+            if ((int) iverson->params[lb].getValue() != 0)
+            {
+                midiLearnMapping.paramId = lb;
+                return;
+            }
+        }
     }
 }
 
 void Iverson::pageLights()
 {
-    for (auto i = 0; i < 2; ++i)
-    {
-        midiOutputs[i].setDriverId (midiInputQueues[i].driverId);
-        midiOutputs[i].setDeviceId (midiInputQueues[i].deviceId);
-        midiOutputs[i].setChannel (0);
-        //        midiOutputs[i].driver = midiInputQueues[i].driver;
-        //        midiOutputs[i].outputDevice = midiInputQueues[i].inputDevice;
-    }
-
     for (auto& mm : midiMappings)
+    //    pageLightIndex++;
+    //    pageLightIndex /= midiMappings.size();
+    //    auto mm = midiMappings[pageLightIndex];
     {
-        midiOutputs[mm.controller].resetNote (mm.note);
+        //        midiOutputs[mm.controller].resetNote (mm.note);
+
         if (mm.paramId <= iverson->GRID_16_8_PARAM)
         // sequence
         {
             auto t = mm.paramId / iverson->GRID_WIDTH;
             auto i = mm.paramId - t * iverson->GRID_WIDTH;
-            midiOutputs[mm.controller].setNote (mm.note, iverson->getStateGridIndex (iverson->page, t, i));
+            auto midiColor = 0;
+            if (iverson->tracks[t].getIndex() != i)
+            {
+                if (iverson->tracks[t].getLength() - 1 == i + iverson->page * iverson->GRID_WIDTH)
+                {
+                    midiColor = iverson->getStateGridIndex (iverson->page, t, i)
+                                    ? 5
+                                    : 3;
+                }
+                else
+                    midiColor = iverson->getStateGridIndex (iverson->page, t, i)
+                                    ? 1
+                                    : 0;
+            }
+            else
+                midiColor = 5;
+            midiOutputs[mm.controller].setNote (mm.note, midiColor);
         }
         else if (mm.paramId >= iverson->MUTE_1_PARAM && mm.paramId <= iverson->MUTE_8_PARAM)
         {
             auto t = mm.paramId - iverson->MUTE_1_PARAM;
             midiOutputs[mm.controller].setNote (mm.note, iverson->tracks[t].getMute());
         }
-    }
 
-    //TODO current index
-    //toDO length
-    //todo mutes
+        else if (mm.paramId >= iverson->PAGE_ONE_PARAM && mm.paramId <= iverson->PAGE_FOUR_PARAM)
+        {
+            auto pageIndex = mm.paramId - iverson->PAGE_ONE_PARAM;
+            midiOutputs[mm.controller].setNote (mm.note, pageIndex == iverson->page);
+        }
+    }
+}
+void Iverson::updateMidiOutDeviceDriver()
+{
+    for (auto i = 0; i < 2; ++i)
+    {
+        if (midiOutputs[i].driverId != midiInputQueues[i].driverId)
+            midiOutputs[i].setDriverId (midiInputQueues[i].driverId);
+        if (midiOutputs[i].deviceId != midiInputQueues[i].deviceId)
+            midiOutputs[i].setDeviceId (midiInputQueues[i].deviceId);
+        midiOutputs[i].setChannel (0);
+    }
 }
 
 /*****************************************************
@@ -585,13 +677,15 @@ struct IversonWidget : ModuleWidget
         addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (122.519, 82.199)), module, Comp::GRID_16_8_PARAM));
         addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (134.161, 82.199)), module, Comp::MUTE_8_PARAM));
         addParam (SqHelper::createParamCentered<sspo::SmallSnapKnob> (icomp, mm2px (Vec (147.212, 82.199)), module, Comp::LENGTH_8_PARAM));
-        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (9.807, 100.475)), module, Comp::PAGE_LEFT_PARAM));
-        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (22.507, 100.475)), module, Comp::PAGE_RIGHT_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (9.807, 100.475)), module, Comp::PAGE_ONE_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (16.157, 100.475)), module, Comp::PAGE_TWO_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (22.507, 100.475)), module, Comp::PAGE_THREE_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (28.857, 100.475)), module, Comp::PAGE_FOUR_PARAM));
         addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (134.161, 102.013)), module, Comp::RUN_PARAM));
         addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (147.211, 102.013)), module, Comp::RESET_PARAM));
         addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (160.262, 102.013)), module, Comp::CLOCK_PARAM));
         addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (9.807, 112.101)), module, Comp::SET_LENGTH_PARAM));
-        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (22.507, 112.101)), module, Comp::MIDI_LEARN_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (28.857, 112.101)), module, Comp::MIDI_LEARN_PARAM));
 
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (134.161, 112.101)), module, Comp::RUN_INPUT));
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (147.212, 112.101)), module, Comp::RESET_INPUT));
@@ -742,13 +836,15 @@ struct IversonWidget : ModuleWidget
         addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (116.169, 82.199)), module, Comp::GRID_15_8_LIGHT));
         addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (122.519, 82.199)), module, Comp::GRID_16_8_LIGHT));
         addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (134.161, 82.199)), module, Comp::MUTE_8_LIGHT));
-        addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (9.807, 100.475)), module, Comp::PAGE_1_LIGHT));
-        addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (22.507, 100.475)), module, Comp::PAGE_2_LIGHT));
+        addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (9.807, 100.475)), module, Comp::PAGE_ONE_LIGHT));
+        addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (16.157, 100.475)), module, Comp::PAGE_TWO_LIGHT));
+        addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (22.507, 100.475)), module, Comp::PAGE_THREE_LIGHT));
+        addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (28.857, 100.475)), module, Comp::PAGE_FOUR_LIGHT));
         addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (134.161, 102.013)), module, Comp::RUN_LIGHT));
         addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (147.211, 102.013)), module, Comp::RESET_LIGHT));
         addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (160.262, 102.013)), module, Comp::CLOCK_LIGHT));
         addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (9.807, 112.101)), module, Comp::SET_LENGTH_LIGHT));
-        addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (22.507, 112.101)), module, Comp::MIDI_LEARN_LIGHT));
+        addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (28.857, 112.101)), module, Comp::MIDI_LEARN_LIGHT));
 
         MidiWidget* midiLeftWidget = createWidget<MidiWidget> (mm2px (Vec (38.646, 98.094)));
         midiLeftWidget->box.size = mm2px (Vec (40, 25));
