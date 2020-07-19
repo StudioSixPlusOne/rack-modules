@@ -203,8 +203,10 @@ public:
         LENGTH_6_PARAM,
         LENGTH_7_PARAM,
         LENGTH_8_PARAM,
-        PAGE_LEFT_PARAM,
-        PAGE_RIGHT_PARAM,
+        PAGE_ONE_PARAM,
+        PAGE_TWO_PARAM,
+        PAGE_THREE_PARAM,
+        PAGE_FOUR_PARAM,
         RUN_PARAM,
         RESET_PARAM,
         CLOCK_PARAM,
@@ -369,8 +371,10 @@ public:
         MUTE_6_LIGHT,
         MUTE_7_LIGHT,
         MUTE_8_LIGHT,
-        PAGE_1_LIGHT,
-        PAGE_2_LIGHT,
+        PAGE_ONE_LIGHT,
+        PAGE_TWO_LIGHT,
+        PAGE_THREE_LIGHT,
+        PAGE_FOUR_LIGHT,
         RUN_LIGHT,
         RESET_LIGHT,
         CLOCK_LIGHT,
@@ -396,13 +400,13 @@ public:
     std::vector<sspo::TriggerSequencer<MAX_SEQUENCE_LENGTH>> tracks;
     std::vector<dsp::PulseGenerator> outPulse;
     bool isLearning = false;
+    bool isSetLength = false;
     bool isRunning = true;
     bool clock = false;
 
     struct Triggers
     {
-        dsp::TSchmittTrigger<float> pageLeft;
-        dsp::TSchmittTrigger<float> pageRight;
+        std::vector<dsp::TSchmittTrigger<float>> pages{ 4 };
         dsp::TSchmittTrigger<float> length;
         dsp::TSchmittTrigger<float> learn;
         dsp::TSchmittTrigger<float> run;
@@ -509,23 +513,17 @@ void IversonComp<TBase>::sequencerLEDs()
 template <class TBase>
 void IversonComp<TBase>::pageChangeInputs()
 {
-    if (triggers.pageLeft.process (TBase::params[PAGE_LEFT_PARAM].getValue()))
+    for (auto i = 0; i < int (triggers.pages.size()); ++i)
     {
-        page--;
-        page = page < 0 ? MAX_PAGES - 1 : page;
-        TBase::lights[PAGE_1_LIGHT].setBrightness (1.0f);
+        if (triggers.pages[i].process (TBase::params[PAGE_ONE_PARAM + i].getValue()))
+        {
+            page = i;
+        }
+        if (page == i)
+            TBase::lights[PAGE_ONE_LIGHT + i].setBrightness (1.0f);
+        else
+            TBase::lights[PAGE_ONE_LIGHT + i].setBrightness (0.0f);
     }
-    else
-        TBase::lights[PAGE_1_LIGHT].setSmoothBrightness (0.0f, LED_FADE_DELTA);
-
-    if (triggers.pageRight.process (TBase::params[PAGE_RIGHT_PARAM].getValue()))
-    {
-        page++;
-        page = page == MAX_PAGES ? 0 : page;
-        TBase::lights[PAGE_2_LIGHT].setBrightness (1.0f);
-    }
-    else
-        TBase::lights[PAGE_2_LIGHT].setSmoothBrightness (0.0f, LED_FADE_DELTA);
 }
 
 template <class TBase>
@@ -548,14 +546,24 @@ void IversonComp<TBase>::lengthInput()
 {
     for (auto t = 0; t < TRACK_COUNT; ++t)
         tracks[t].setLength (TBase::params[LENGTH_1_PARAM + t].getValue());
-    //TODO button length
+
+    //button length
+    if (triggers.length.process (TBase::params[SET_LENGTH_PARAM].getValue())
+        && ! isLearning)
+    {
+        isSetLength = ! isSetLength;
+    }
+    TBase::lights[SET_LENGTH_LIGHT].setBrightness (isSetLength);
 }
 
 template <class TBase>
 void IversonComp<TBase>::learnInput()
 {
-    if (triggers.learn.process (TBase::params[MIDI_LEARN_PARAM].getValue()))
+    if (triggers.learn.process (TBase::params[MIDI_LEARN_PARAM].getValue())
+        && ! isSetLength)
+    {
         isLearning = ! isLearning;
+    }
     TBase::lights[MIDI_LEARN_LIGHT].setBrightness (isLearning);
 }
 
@@ -579,7 +587,18 @@ void IversonComp<TBase>::gridInputs()
         for (auto s = 0; s < GRID_WIDTH; ++s)
         {
             if (triggers.grid[getGridIndex (s, t)].process (TBase::params[GRID_1_1_PARAM + getGridIndex (s, t)].getValue()))
-                tracks[t].invertStep (getStepIndex (page, s));
+            {
+                if (isSetLength)
+                {
+                    //                    tracks[t].setLength (getStepIndex (page, s));
+                    TBase::params[LENGTH_1_PARAM + t].setValue (getStepIndex (page, s + 1));
+                    isSetLength = false;
+                }
+                else
+                {
+                    tracks[t].invertStep (getStepIndex (page, s));
+                }
+            }
         }
     }
 }
@@ -627,7 +646,7 @@ void IversonComp<TBase>::outputSequence()
     {
         if (tracks[t].step (clock))
             outPulse[t].trigger();
-        TBase::outputs[TRIGGER_1_OUTPUT + t].setVoltage (outPulse[t].process (sampleTime));
+        TBase::outputs[TRIGGER_1_OUTPUT + t].setVoltage (outPulse[t].process (sampleTime) * 10.0f);
     }
 }
 template <class TBase>
@@ -665,11 +684,17 @@ IComposite::Config IversonDescription<TBase>::getParam (int i)
 
     switch (i)
     {
-        case IversonComp<TBase>::PAGE_LEFT_PARAM:
-            ret = { 0.0f, 1.0f, 0.0f, "Page Left", " ", 0, 1, 0.0f };
+        case IversonComp<TBase>::PAGE_ONE_PARAM:
+            ret = { 0.0f, 1.0f, 0.0f, "Page One", " ", 0, 1, 0.0f };
             break;
-        case IversonComp<TBase>::PAGE_RIGHT_PARAM:
-            ret = { 0.0f, 1.0f, 0.0f, "Page Right", " ", 0, 1, 0.0f };
+        case IversonComp<TBase>::PAGE_TWO_PARAM:
+            ret = { 0.0f, 1.0f, 0.0f, "Page Two", " ", 0, 1, 0.0f };
+            break;
+        case IversonComp<TBase>::PAGE_THREE_PARAM:
+            ret = { 0.0f, 1.0f, 0.0f, "Page Three", " ", 0, 1, 0.0f };
+            break;
+        case IversonComp<TBase>::PAGE_FOUR_PARAM:
+            ret = { 0.0f, 1.0f, 0.0f, "Page FOUR", " ", 0, 1, 0.0f };
             break;
         case IversonComp<TBase>::RUN_PARAM:
             ret = { 0.0f, 1.0f, 0.0f, "Run", " ", 0, 1, 0.0f };
