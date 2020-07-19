@@ -86,7 +86,7 @@ namespace sspo
             if (i > -1 && i < MAX_LENGTH)
                 index = i;
         }
-        void setSequence (int i)
+        void setSequence (int64_t i)
         {
             sequence = i;
         }
