@@ -173,6 +173,8 @@ struct Iverson : Module
         }
 
         json_object_set_new (rootJ, "midiBinding", midiMapsJ);
+        json_object_set_new (rootJ, "midiInputLeft", midiInputQueues[0].toJson());
+        json_object_set_new (rootJ, "midiInputRight", midiInputQueues[1].toJson());
 
         return rootJ;
     }
@@ -234,7 +236,7 @@ struct Iverson : Module
                 json_t* sequenceArrayHiJ = json_array_get (sequenceHiJ, t);
                 if (sequenceArrayHiJ)
                     iverson->tracks[t].setSequence (iverson->tracks[t].getSequence().to_ulong()
-                                                    + ((ulong) json_integer_value (sequenceArrayHiJ) << 32u));
+                                                    + ((int64_t) json_integer_value (sequenceArrayHiJ) << 32u));
             }
         }
 
@@ -266,6 +268,13 @@ struct Iverson : Module
                 }
             }
         }
+        json_t* midiInputLeftJ = json_object_get (rootJ, "midiInputLeft");
+        if (midiInputLeftJ)
+            midiInputQueues[0].fromJson (midiInputLeftJ);
+
+        json_t* midiInputRightJ = json_object_get (rootJ, "midiInputRight");
+        if (midiInputRightJ)
+            midiInputQueues[1].fromJson (midiInputRightJ);
     }
 
     void doLearn();
@@ -517,6 +526,27 @@ void Iverson::updateMidiOutDeviceDriver()
 /*****************************************************
 User Interface
 *****************************************************/
+
+struct SummaryWidget : TransparentWidget
+{
+    Iverson* module = nullptr;
+
+    void step() override
+    {
+        Widget::step();
+    }
+    void draw (const DrawArgs& args) override
+    {
+        if (module == nullptr)
+            return;
+        //plot beats
+        //plot indexes
+        //plot loops
+        //draw current page
+
+        Widget::draw (args);
+    }
+};
 
 struct IversonWidget : ModuleWidget
 {
