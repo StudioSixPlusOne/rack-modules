@@ -469,7 +469,7 @@ public:
     /// handles when the length button is pressed
     /// to learn the length from the next grid triggered
     void lengthInput();
-    /// mdid assign mode
+    /// midi assign mode
     void learnInput();
     /// reset sequencers
     void runInput();
@@ -706,7 +706,7 @@ IComposite::Config IversonDescription<TBase>::getParam (int i)
             ret = { 0.0f, 1.0f, 0.0f, "Clock", " ", 0, 1, 0.0f };
             break;
         case IversonComp<TBase>::SET_LENGTH_PARAM:
-            ret = { 0.0f, 1.0f, 0.0f, "Lemgth", " ", 0, 1, 0.0f };
+            ret = { 0.0f, 1.0f, 0.0f, "Length", " ", 0, 1, 0.0f };
             break;
         case IversonComp<TBase>::MIDI_LEARN_PARAM:
             ret = { 0.0f, 1.0f, 0.0f, "Midi Learn", " ", 0, 1, 0.0f };
