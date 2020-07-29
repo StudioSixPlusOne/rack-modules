@@ -403,6 +403,7 @@ public:
     bool isSetLength = false;
     bool isRunning = true;
     bool clock = false;
+    dsp::ClockDivider ledDivider;
 
     struct Triggers
     {
@@ -453,6 +454,7 @@ public:
     {
         tracks.resize (TRACK_COUNT);
         outPulse.resize (TRACK_COUNT);
+        ledDivider.setDivision (512);
     }
 
     void step() override;
@@ -485,9 +487,13 @@ public:
 template <class TBase>
 inline void IversonComp<TBase>::step()
 {
-    gridInputs();
-    lengthInput();
-    sequencerLEDs();
+    if (ledDivider.process())
+    {
+        sequencerLEDs();
+        gridInputs();
+        lengthInput();
+    }
+
     pageChangeInputs();
     learnInput();
     resetInput();
