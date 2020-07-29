@@ -527,9 +527,34 @@ void Iverson::updateMidiOutDeviceDriver()
 User Interface
 *****************************************************/
 
-struct SummaryWidget : TransparentWidget
+struct SummaryWidget : Widget
 {
     Iverson* module = nullptr;
+
+    struct GridColors
+    {
+        NVGcolor none;
+        NVGcolor on;
+        NVGcolor loop;
+        NVGcolor loopAndBeat;
+        NVGcolor index;
+        NVGcolor page;
+    } gridColors;
+
+    SummaryWidget()
+    {
+        gridColors.none = nvgRGBA (0, 0, 0, 255);
+        gridColors.on = nvgRGBA (0, 255, 0, 255);
+        gridColors.loop = nvgRGBA (255, 0, 0, 255);
+        gridColors.loopAndBeat = nvgRGBA (255, 255, 0, 255);
+        gridColors.index = nvgRGBA (255, 255, 0, 255);
+        gridColors.page = nvgRGBA (255, 255, 255, 100);
+    }
+
+    void setModule (Iverson* module)
+    {
+        this->module = module;
+    }
 
     void step() override
     {
@@ -539,12 +564,54 @@ struct SummaryWidget : TransparentWidget
     {
         if (module == nullptr)
             return;
-        //plot beats
-        //plot indexes
-        //plot loops
-        //draw current page
+        auto beatWidth = box.size.x / Iverson::MAX_SEQUENCE_LENGTH;
+        auto trackHeight = box.size.y / module->iverson->tracks.size();
+        //        nvgBeginPath (args.vg);
 
-        Widget::draw (args);
+        for (auto t = 0; t < int (module->iverson->tracks.size()); ++t)
+        {
+            //plot beats
+            for (auto b = 0; b < Iverson::MAX_SEQUENCE_LENGTH; ++b)
+            {
+                auto color = module->iverson->tracks[t].getStep (b)
+                                 ? gridColors.on
+                                 : gridColors.none;
+                nvgFillColor (args.vg, color);
+                nvgBeginPath (args.vg);
+                nvgRect (args.vg, b * beatWidth, t * trackHeight, beatWidth, trackHeight);
+                nvgFill (args.vg);
+            }
+            //plot indexes
+            if (module->iverson->tracks[t].getIndex() != -1)
+            {
+                auto index = module->iverson->tracks[t].getIndex();
+                auto color = gridColors.index;
+                nvgFillColor (args.vg, color);
+                nvgBeginPath (args.vg);
+                nvgRect (args.vg, index * beatWidth, t * trackHeight, beatWidth, trackHeight);
+                nvgFill (args.vg);
+            }
+            //plot loops
+            {
+                auto loop = module->iverson->tracks[t].getLength() - 1;
+                auto color = module->iverson->tracks[t].getStep (loop)
+                                 ? gridColors.loopAndBeat
+                                 : gridColors.loop;
+                nvgFillColor (args.vg, color);
+                nvgBeginPath (args.vg);
+                nvgRect (args.vg, loop * beatWidth, t * trackHeight, beatWidth, trackHeight);
+                nvgFill (args.vg);
+            }
+        }
+
+        //draw current page
+        auto page = module->iverson->page;
+        auto pageWidth = beatWidth * (Iverson::MAX_SEQUENCE_LENGTH / module->iverson->pages);
+        nvgFillColor (args.vg, gridColors.page);
+        nvgBeginPath (args.vg);
+        nvgRect (args.vg, page * pageWidth, 0, pageWidth, box.size.y);
+
+        nvgFill (args.vg);
     }
 };
 
@@ -886,11 +953,17 @@ struct IversonWidget : ModuleWidget
         midiRightWidget->setMidiPort (module ? &module->midiInputQueues[1] : NULL);
         addChild (midiRightWidget);
 
+        SummaryWidget* summaryWidget = createWidget<SummaryWidget> (mm2px (Vec (8.5, 87.5)));
+
+        summaryWidget->box.size = mm2px (Vec (115, 4));
+        summaryWidget->setModule (module);
+        addChild (summaryWidget);
+
         /*         // mm2px(Vec(60.747, 69.094))
         addChild (createWidget<Widget> (mm2px (Vec (4.515, 18.372))));
 
         // mm2px(Vec(60.747, 69.094))
-        addChild (createWidget<Widget> (mm2px (Vec (66.957, 18.372))));
+        addChild (createWidget<Widget> (mm2px ()));
         // mm2px(Vec(39.881, 16.094))
         addChild (createWidget<Widget> (mm2px (Vec (38.646, 98.094))));
         // mm2px(Vec(39.881, 16.094))
