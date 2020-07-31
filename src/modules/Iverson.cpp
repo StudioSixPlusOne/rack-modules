@@ -522,29 +522,35 @@ namespace sspo
     /*****************************************************
 User Interface
 *****************************************************/
+    struct GridColors
+    {
+        NVGcolor none;
+        NVGcolor on;
+        NVGcolor loop;
+        NVGcolor loopAndBeat;
+        NVGcolor index;
+        NVGcolor page;
+
+        GridColors()
+        {
+            none = nvgRGBA (0, 0, 0, 255);
+            on = nvgRGBA (0, 255, 0, 255);
+            loop = nvgRGBA (255, 0, 0, 255);
+            loopAndBeat = nvgRGBA (255, 255, 0, 255);
+            index = nvgRGBA (255, 255, 0, 255);
+            page = nvgRGBA (255, 255, 255, 100);
+        }
+    };
 
     struct SummaryWidget : Widget
     {
         Iverson* module = nullptr;
 
-        struct GridColors
-        {
-            NVGcolor none;
-            NVGcolor on;
-            NVGcolor loop;
-            NVGcolor loopAndBeat;
-            NVGcolor index;
-            NVGcolor page;
-        } gridColors;
+        GridColors gridColors;
 
         SummaryWidget()
         {
             gridColors.none = nvgRGBA (0, 0, 0, 255);
-            gridColors.on = nvgRGBA (0, 255, 0, 255);
-            gridColors.loop = nvgRGBA (255, 0, 0, 255);
-            gridColors.loopAndBeat = nvgRGBA (255, 255, 0, 255);
-            gridColors.index = nvgRGBA (255, 255, 0, 255);
-            gridColors.page = nvgRGBA (255, 255, 255, 100);
         }
 
         void setModule (Iverson* module)
@@ -611,6 +617,79 @@ User Interface
         }
     };
 
+    struct GridWidget : TransparentWidget
+    {
+        Iverson* module = nullptr;
+        GridColors gridColors;
+
+        struct GridLocation
+        {
+            int x = 0;
+            int y = 0;
+        } gridLocation;
+
+        GridWidget()
+        {
+            gridColors.none = nvgRGBA (77, 77, 77, 100);
+        }
+
+        void setModule (Iverson* mod)
+        {
+            module = mod;
+        }
+
+        void setGridLocation (int x, int y)
+        {
+            gridLocation.x = x;
+            gridLocation.y = y;
+        }
+
+        void draw (const DrawArgs& args) override
+        {
+            if (module == nullptr)
+                return;
+            auto xoffset = module->iverson->page * module->iverson->GRID_WIDTH;
+            auto color = module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
+                             ? gridColors.on
+                             : gridColors.none;
+            color = module->iverson->tracks[gridLocation.y].getIndex() == gridLocation.x + xoffset
+                        ? gridColors.index
+                        : color;
+            color = module->iverson->tracks[gridLocation.y].getLength() - 1 == gridLocation.x + xoffset
+                            && module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
+                        ? gridColors.loopAndBeat
+                        : color;
+            color = module->iverson->tracks[gridLocation.y].getLength() - 1 == gridLocation.x + xoffset
+                            && ! module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
+                        ? gridColors.loop
+                        : color;
+
+            auto gradient = nvgRadialGradient (args.vg,
+                                               box.size.x / 2,
+                                               box.size.y / 2,
+                                               box.size.y / 10,
+                                               box.size.x * 0.75f,
+                                               color,
+                                               gridColors.none);
+
+            nvgBeginPath (args.vg);
+            nvgFillPaint (args.vg, gradient);
+            nvgRoundedRect (args.vg, 0, 0, box.size.x, box.size.y, box.size.x / 10.0f);
+            nvgFill (args.vg);
+        }
+    };
+
+    struct GridButton : app::SvgSwitch
+    {
+        GridButton()
+        {
+            momentary = true;
+            shadow->opacity = 0;
+
+            addFrame (appGet()->window->loadSvg (asset::plugin (pluginInstance, "res/8X8_transparent.svg")));
+        }
+    };
+
     struct IversonWidget : ModuleWidget
     {
         IversonWidget (Iverson* module)
@@ -639,13 +718,16 @@ User Interface
             {
                 for (auto s = 0; s < gridWidth; ++s)
                 {
-                    addParam (SqHelper::createParamCentered<LEDButton> (icomp,
-                                                                        mm2px (Vec (grid_1_1.x + s * gridXDelta, grid_1_1.y + t * gridYDelta)),
-                                                                        module,
-                                                                        Comp::GRID_1_1_PARAM + t * gridWidth + s));
-                    addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (grid_1_1.x + s * gridXDelta, grid_1_1.y + t * gridYDelta)),
-                                                                          module,
-                                                                          Comp::GRID_1_1_LIGHT + t * gridWidth + s));
+                    addParam (SqHelper::createParamCentered<GridButton> (icomp,
+                                                                         mm2px (Vec (grid_1_1.x + s * gridXDelta, grid_1_1.y + t * gridYDelta)),
+                                                                         module,
+                                                                         Comp::GRID_1_1_PARAM + t * gridWidth + s));
+
+                    GridWidget* gridWidget = createWidget<GridWidget> (mm2px (Vec (grid_1_1.x + s * gridXDelta - 4, grid_1_1.y + t * gridYDelta - 3.5)));
+                    gridWidget->box.size = mm2px (Vec (8, 7));
+                    gridWidget->setGridLocation (s, t);
+                    gridWidget->setModule (module);
+                    addChild (gridWidget);
                 }
                 addParam (SqHelper::createParamCentered<LEDButton> (icomp,
                                                                     mm2px (Vec (muteX, grid_1_1.y + t * gridYDelta)),
@@ -693,7 +775,6 @@ User Interface
             addChild (midiBWidget);
 
             SummaryWidget* summaryWidget = createWidget<SummaryWidget> (mm2px (Vec (8.5, 87.5)));
-
             summaryWidget->box.size = mm2px (Vec (130, 4));
             summaryWidget->setModule (module);
             addChild (summaryWidget);
