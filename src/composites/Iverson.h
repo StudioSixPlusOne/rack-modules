@@ -28,8 +28,6 @@
 
 namespace sspo
 {
-    static const int MIDI_MAP_SIZE = 200;
-    static const int MAX_MIDI = 128;
     namespace rack
     {
         namespace engine
@@ -59,6 +57,18 @@ namespace sspo
     class IversonComp : public TBase
     {
     public:
+        static constexpr int MAX_SEQUENCE_LENGTH = 64;
+        static constexpr int GRID_WIDTH = 16;
+        static constexpr int TRACK_COUNT = 8;
+        static constexpr int GRID_SIZE = GRID_WIDTH * TRACK_COUNT;
+        static constexpr int MAX_PAGES = 4;
+        static constexpr int MIDI_MAP_SIZE = 200;
+        static constexpr int MAX_MIDI = 128;
+
+        static constexpr float LED_FADE_DELTA = 0.00001f;
+
+        static constexpr int pages = MAX_SEQUENCE_LENGTH / GRID_WIDTH;
+
         enum ParamIds
         {
             GRID_1_1_PARAM,
@@ -209,7 +219,6 @@ namespace sspo
             PAGE_TWO_PARAM,
             PAGE_THREE_PARAM,
             PAGE_FOUR_PARAM,
-            RUN_PARAM,
             RESET_PARAM,
             CLOCK_PARAM,
             SET_LENGTH_PARAM,
@@ -218,7 +227,6 @@ namespace sspo
         };
         enum InputIds
         {
-            RUN_INPUT,
             RESET_INPUT,
             CLOCK_INPUT,
             NUM_INPUTS
@@ -377,22 +385,12 @@ namespace sspo
             PAGE_TWO_LIGHT,
             PAGE_THREE_LIGHT,
             PAGE_FOUR_LIGHT,
-            RUN_LIGHT,
             RESET_LIGHT,
             CLOCK_LIGHT,
             SET_LENGTH_LIGHT,
             MIDI_LEARN_LIGHT,
             NUM_LIGHTS
         };
-
-        static constexpr int MAX_SEQUENCE_LENGTH = 64;
-        static constexpr int GRID_WIDTH = 16;
-        static constexpr int TRACK_COUNT = 8;
-        static constexpr int MAX_PAGES = 4;
-
-        static constexpr float LED_FADE_DELTA = 0.00001f;
-
-        static constexpr int pages = MAX_SEQUENCE_LENGTH / GRID_WIDTH;
 
         float sampleRate = 1.0f;
         float sampleTime = 1.0f;
@@ -403,7 +401,6 @@ namespace sspo
         std::vector<dsp::PulseGenerator> outPulse;
         bool isLearning = false;
         bool isSetLength = false;
-        bool isRunning = true;
         bool clock = false;
         dsp::ClockDivider ledDivider;
 
@@ -476,7 +473,6 @@ namespace sspo
         /// midi assign mode
         void learnInput();
         /// reset sequencers
-        void runInput();
         void clockInput();
         void muteInput();
 
@@ -499,7 +495,6 @@ namespace sspo
         pageChangeInputs();
         learnInput();
         resetInput();
-        runInput();
         clockInput();
         muteInput();
         outputSequence();
@@ -576,18 +571,6 @@ namespace sspo
     }
 
     template <class TBase>
-    void IversonComp<TBase>::runInput()
-    {
-        if (triggers.run.process (TBase::params[RUN_PARAM].getValue()
-                                  + std::abs (TBase::inputs[RUN_INPUT].getVoltage())))
-        {
-            isRunning = ! isRunning;
-        }
-        else
-            TBase::lights[RUN_LIGHT].setBrightness (isRunning);
-    }
-
-    template <class TBase>
     void IversonComp<TBase>::gridInputs()
     {
         for (auto t = 0; t < TRACK_COUNT; ++t)
@@ -654,7 +637,7 @@ namespace sspo
         {
             if (tracks[t].step (clock))
                 outPulse[t].trigger();
-            TBase::outputs[TRIGGER_1_OUTPUT + t].setVoltage (outPulse[t].process (sampleTime) * 10.0f);
+            //            TBase::outputs[TRIGGER_1_OUTPUT + t].setVoltage (outPulse[t].process (sampleTime) * 10.0f);
         }
     }
     template <class TBase>
@@ -702,10 +685,7 @@ namespace sspo
                 ret = { 0.0f, 1.0f, 0.0f, "Page Three", " ", 0, 1, 0.0f };
                 break;
             case IversonComp<TBase>::PAGE_FOUR_PARAM:
-                ret = { 0.0f, 1.0f, 0.0f, "Page FOUR", " ", 0, 1, 0.0f };
-                break;
-            case IversonComp<TBase>::RUN_PARAM:
-                ret = { 0.0f, 1.0f, 0.0f, "Run", " ", 0, 1, 0.0f };
+                ret = { 0.0f, 1.0f, 0.0f, "Page Four", " ", 0, 1, 0.0f };
                 break;
             case IversonComp<TBase>::RESET_PARAM:
                 ret = { 0.0f, 1.0f, 0.0f, "Reset", " ", 0, 1, 0.0f };
@@ -720,7 +700,8 @@ namespace sspo
                 ret = { 0.0f, 1.0f, 0.0f, "Midi Learn", " ", 0, 1, 0.0f };
                 break;
             default:
-                assert (false);
+                //                assert (false);
+                assert (true);
         }
         return ret;
     }
