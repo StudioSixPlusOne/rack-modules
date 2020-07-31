@@ -617,7 +617,7 @@ User Interface
         }
     };
 
-    struct GridWidget : TransparentWidget
+    struct GridWidget : LightWidget
     {
         Iverson* module = nullptr;
         GridColors gridColors;
@@ -734,9 +734,9 @@ User Interface
                                                                     module,
                                                                     Comp::MUTE_1_PARAM + t));
 
-                addChild (createLightCentered<MediumLight<GreenLight>> (mm2px (Vec (muteX, grid_1_1.y + t * gridYDelta)),
-                                                                        module,
-                                                                        Comp::MUTE_1_LIGHT + t));
+                addChild (createLightCentered<LargeLight<GreenLight>> (mm2px (Vec (muteX, grid_1_1.y + t * gridYDelta)),
+                                                                       module,
+                                                                       Comp::MUTE_1_LIGHT + t));
 
                 addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (triggerX, grid_1_1.y + t * gridYDelta)),
                                                              module,
@@ -755,14 +755,14 @@ User Interface
             addInput (createInputCentered<PJ301MPort> (mm2px (Vec (147.212, 112.101)), module, Comp::RESET_INPUT));
             addInput (createInputCentered<PJ301MPort> (mm2px (Vec (160.262, 112.101)), module, Comp::CLOCK_INPUT));
 
-            addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (9.807, 100.475)), module, Comp::PAGE_ONE_LIGHT));
-            addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (16.157, 100.475)), module, Comp::PAGE_TWO_LIGHT));
-            addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (22.507, 100.475)), module, Comp::PAGE_THREE_LIGHT));
-            addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (28.857, 100.475)), module, Comp::PAGE_FOUR_LIGHT));
-            addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (147.211, 102.013)), module, Comp::RESET_LIGHT));
-            addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (160.262, 102.013)), module, Comp::CLOCK_LIGHT));
-            addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (9.807, 112.101)), module, Comp::SET_LENGTH_LIGHT));
-            addChild (createLightCentered<MediumLight<RedLight>> (mm2px (Vec (28.857, 112.101)), module, Comp::MIDI_LEARN_LIGHT));
+            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (9.807, 100.475)), module, Comp::PAGE_ONE_LIGHT));
+            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (16.157, 100.475)), module, Comp::PAGE_TWO_LIGHT));
+            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (22.507, 100.475)), module, Comp::PAGE_THREE_LIGHT));
+            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (28.857, 100.475)), module, Comp::PAGE_FOUR_LIGHT));
+            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (147.211, 102.013)), module, Comp::RESET_LIGHT));
+            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (160.262, 102.013)), module, Comp::CLOCK_LIGHT));
+            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (9.807, 112.101)), module, Comp::SET_LENGTH_LIGHT));
+            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (28.857, 112.101)), module, Comp::MIDI_LEARN_LIGHT));
 
             MidiWidget* midiAWidget = createWidget<MidiWidget> (mm2px (Vec (43.23, 98.094)));
             midiAWidget->box.size = mm2px (Vec (40, 25));
