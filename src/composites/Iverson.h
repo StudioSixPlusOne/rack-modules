@@ -26,18 +26,18 @@
 #include "TriggerSequencer.h"
 #include "digital.hpp"
 
+namespace rack
+{
+    namespace engine
+    {
+        struct Module;
+    }
+} // namespace rack
+using Module = ::rack::engine::Module;
+using namespace rack;
+
 namespace sspo
 {
-    namespace rack
-    {
-        namespace engine
-        {
-            struct Module;
-        }
-    } // namespace rack
-    using Module = ::rack::engine::Module;
-    using namespace rack;
-
     template <class TBase>
     class IversonDescription : public IComposite
     {
