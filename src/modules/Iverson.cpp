@@ -290,7 +290,7 @@ namespace sspo
                 //            updateMidiOutDeviceDriver();
                 pageLights();
             }
-            //        doMidiOut();
+            //                    doMidiOut();
         }
 
         /// Midi events are used to set assigned params
@@ -462,6 +462,16 @@ namespace sspo
         }
     }
 
+    struct MidiFeedbackVelocity
+    {
+        int none = 0;
+        int activeStep = 1;
+        int loop = 3;
+        int loopStep = 5;
+        int index = 5;
+        int indexStep = 3;
+    } midiFeedback;
+
     void Iverson::pageLights()
     {
         for (auto& mm : midiMappings)
@@ -477,21 +487,21 @@ namespace sspo
                 auto t = mm.paramId / iverson->GRID_WIDTH;
                 auto i = mm.paramId - t * iverson->GRID_WIDTH;
                 auto midiColor = 0;
-                if (iverson->tracks[t].getIndex() != i)
+                if (iverson->tracks[t].getIndex() != i + iverson->page * iverson->GRID_WIDTH)
                 {
                     if (iverson->tracks[t].getLength() - 1 == i + iverson->page * iverson->GRID_WIDTH)
                     {
                         midiColor = iverson->getStateGridIndex (iverson->page, t, i)
-                                        ? 5
-                                        : 3;
+                                        ? midiFeedback.loopStep
+                                        : midiFeedback.loop;
                     }
                     else
                         midiColor = iverson->getStateGridIndex (iverson->page, t, i)
-                                        ? 1
-                                        : 0;
+                                        ? midiFeedback.activeStep
+                                        : midiFeedback.none;
                 }
                 else
-                    midiColor = 5;
+                    midiColor = midiFeedback.index;
                 midiOutputs[mm.controller].setNote (mm.note, midiColor);
             }
             else if (mm.paramId >= iverson->MUTE_1_PARAM && mm.paramId <= iverson->MUTE_8_PARAM)

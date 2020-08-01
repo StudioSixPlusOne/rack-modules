@@ -63,6 +63,7 @@ namespace sspo
         bool getStep (int x)
         {
             x = rack::math::clamp (x, 0, maxLength);
+            x = rack::math::clamp (x, 0, maxLength);
             return sequence[x];
         }
         bool getCurrentStep() { return getStep (index); }
