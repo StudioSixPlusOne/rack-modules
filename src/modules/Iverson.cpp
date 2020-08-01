@@ -136,7 +136,7 @@ namespace sspo
         {
             json_t* rootJ = json_object();
 
-            json_t* mutesJ = json_array();
+            json_t* activesJ = json_array();
             json_t* lengthsJ = json_array();
             json_t* indexJ = json_array();
             json_t* sequenceHiJ = json_array();
@@ -144,7 +144,7 @@ namespace sspo
 
             for (auto i = 0; i < iverson->TRACK_COUNT; ++i)
             {
-                json_array_insert_new (mutesJ, i, json_boolean ((iverson->tracks[i].getMute())));
+                json_array_insert_new (activesJ, i, json_boolean ((iverson->tracks[i].getActive())));
                 json_array_insert_new (lengthsJ, i, json_integer (iverson->tracks[i].getLength()));
                 json_array_insert_new (indexJ, i, json_integer (iverson->tracks[i].getIndex()));
                 //sequence 64bit, json integers are 32bit, store ass hi low values
@@ -156,7 +156,7 @@ namespace sspo
                                        json_integer (((iverson->tracks[i].getSequence().to_ulong())) & 0xffffffff));
             }
 
-            json_object_set_new (rootJ, "mutes", mutesJ);
+            json_object_set_new (rootJ, "actives", activesJ);
             json_object_set_new (rootJ, "lengths", lengthsJ);
             json_object_set_new (rootJ, "index", indexJ);
             json_object_set_new (rootJ, "sequenceHi", sequenceHiJ);
@@ -179,16 +179,17 @@ namespace sspo
 
             return rootJ;
         }
+
         void dataFromJson (json_t* rootJ) override
         {
-            json_t* mutesJ = json_object_get (rootJ, "mutes");
+            json_t* activesJ = json_object_get (rootJ, "actives");
             for (auto t = 0; t < iverson->TRACK_COUNT; ++t)
             {
-                if (mutesJ)
+                if (activesJ)
                 {
-                    json_t* mutesArrayJ = json_array_get (mutesJ, t);
-                    if (mutesArrayJ)
-                        iverson->tracks[t].setMute (json_boolean_value (mutesArrayJ));
+                    json_t* activesArrayJ = json_array_get (activesJ, t);
+                    if (activesArrayJ)
+                        iverson->tracks[t].setActive (json_boolean_value (activesArrayJ));
                 }
             }
 
@@ -430,7 +431,7 @@ namespace sspo
                     return;
                 }
             }
-            for (auto i = (int) iverson->MUTE_1_PARAM; i <= iverson->MUTE_8_PARAM; ++i)
+            for (auto i = (int) iverson->ACTIVE_1_PARAM; i <= iverson->ACTIVE_8_PARAM; ++i)
             {
                 if ((int) iverson->params[i].getValue() != 0)
                 {
@@ -504,10 +505,10 @@ namespace sspo
                     midiColor = midiFeedback.index;
                 midiOutputs[mm.controller].setNote (mm.note, midiColor);
             }
-            else if (mm.paramId >= iverson->MUTE_1_PARAM && mm.paramId <= iverson->MUTE_8_PARAM)
+            else if (mm.paramId >= iverson->ACTIVE_1_PARAM && mm.paramId <= iverson->ACTIVE_8_PARAM)
             {
-                auto t = mm.paramId - iverson->MUTE_1_PARAM;
-                midiOutputs[mm.controller].setNote (mm.note, iverson->tracks[t].getMute());
+                auto t = mm.paramId - iverson->ACTIVE_1_PARAM;
+                midiOutputs[mm.controller].setNote (mm.note, iverson->tracks[t].getActive());
             }
 
             else if (mm.paramId >= iverson->PAGE_ONE_PARAM && mm.paramId <= iverson->PAGE_FOUR_PARAM)
@@ -656,24 +657,25 @@ User Interface
 
         void draw (const DrawArgs& args) override
         {
-            if (module == nullptr)
-                return;
-            auto xoffset = module->iverson->page * module->iverson->GRID_WIDTH;
-            auto color = module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
-                             ? gridColors.on
-                             : gridColors.none;
-            color = module->iverson->tracks[gridLocation.y].getIndex() == gridLocation.x + xoffset
-                        ? gridColors.index
-                        : color;
-            color = module->iverson->tracks[gridLocation.y].getLength() - 1 == gridLocation.x + xoffset
-                            && module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
-                        ? gridColors.loopAndBeat
-                        : color;
-            color = module->iverson->tracks[gridLocation.y].getLength() - 1 == gridLocation.x + xoffset
-                            && ! module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
-                        ? gridColors.loop
-                        : color;
-
+            auto color = gridColors.none;
+            if (module != nullptr)
+            {
+                auto xoffset = module->iverson->page * module->iverson->GRID_WIDTH;
+                color = module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
+                            ? gridColors.on
+                            : gridColors.none;
+                color = module->iverson->tracks[gridLocation.y].getIndex() == gridLocation.x + xoffset
+                            ? gridColors.index
+                            : color;
+                color = module->iverson->tracks[gridLocation.y].getLength() - 1 == gridLocation.x + xoffset
+                                && module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
+                            ? gridColors.loopAndBeat
+                            : color;
+                color = module->iverson->tracks[gridLocation.y].getLength() - 1 == gridLocation.x + xoffset
+                                && ! module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
+                            ? gridColors.loop
+                            : color;
+            }
             auto gradient = nvgRadialGradient (args.vg,
                                                box.size.x / 2,
                                                box.size.y / 2,
@@ -742,11 +744,11 @@ User Interface
                 addParam (SqHelper::createParamCentered<LEDButton> (icomp,
                                                                     mm2px (Vec (muteX, grid_1_1.y + t * gridYDelta)),
                                                                     module,
-                                                                    Comp::MUTE_1_PARAM + t));
+                                                                    Comp::ACTIVE_1_PARAM + t));
 
                 addChild (createLightCentered<LargeLight<GreenLight>> (mm2px (Vec (muteX, grid_1_1.y + t * gridYDelta)),
                                                                        module,
-                                                                       Comp::MUTE_1_LIGHT + t));
+                                                                       Comp::ACTIVE_1_LIGHT + t));
 
                 addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (triggerX, grid_1_1.y + t * gridYDelta)),
                                                              module,

@@ -199,14 +199,14 @@ namespace sspo
             GRID_14_8_PARAM,
             GRID_15_8_PARAM,
             GRID_16_8_PARAM,
-            MUTE_1_PARAM,
-            MUTE_2_PARAM,
-            MUTE_3_PARAM,
-            MUTE_4_PARAM,
-            MUTE_5_PARAM,
-            MUTE_6_PARAM,
-            MUTE_7_PARAM,
-            MUTE_8_PARAM,
+            ACTIVE_1_PARAM,
+            ACTIVE_2_PARAM,
+            ACTIVE_3_PARAM,
+            ACTIVE_4_PARAM,
+            ACTIVE_5_PARAM,
+            ACTIVE_6_PARAM,
+            ACTIVE_7_PARAM,
+            ACTIVE_8_PARAM,
             LENGTH_1_PARAM,
             LENGTH_2_PARAM,
             LENGTH_3_PARAM,
@@ -245,14 +245,14 @@ namespace sspo
         };
         enum LightIds
         {
-            MUTE_1_LIGHT,
-            MUTE_2_LIGHT,
-            MUTE_3_LIGHT,
-            MUTE_4_LIGHT,
-            MUTE_5_LIGHT,
-            MUTE_6_LIGHT,
-            MUTE_7_LIGHT,
-            MUTE_8_LIGHT,
+            ACTIVE_1_LIGHT,
+            ACTIVE_2_LIGHT,
+            ACTIVE_3_LIGHT,
+            ACTIVE_4_LIGHT,
+            ACTIVE_5_LIGHT,
+            ACTIVE_6_LIGHT,
+            ACTIVE_7_LIGHT,
+            ACTIVE_8_LIGHT,
             PAGE_ONE_LIGHT,
             PAGE_TWO_LIGHT,
             PAGE_THREE_LIGHT,
@@ -280,16 +280,15 @@ namespace sspo
             std::vector<dsp::TSchmittTrigger<float>> pages{ 4 };
             dsp::TSchmittTrigger<float> length;
             dsp::TSchmittTrigger<float> learn;
-            dsp::TSchmittTrigger<float> run;
             dsp::TSchmittTrigger<float> reset;
             dsp::TSchmittTrigger<float> clock;
 
-            std::vector<dsp::TSchmittTrigger<float>> mutes;
+            std::vector<dsp::TSchmittTrigger<float>> actives;
             std::vector<dsp::TSchmittTrigger<float>> grid;
 
             Triggers()
             {
-                mutes.resize (TRACK_COUNT);
+                actives.resize (TRACK_COUNT);
                 grid.resize (GRID_WIDTH * TRACK_COUNT);
             }
         } triggers;
@@ -344,7 +343,7 @@ namespace sspo
         void learnInput();
         /// reset sequencers
         void clockInput();
-        void muteInput();
+        void activeInput();
 
         int getGridIndex (int x, int y);
         int getStepIndex (int page, int x);
@@ -365,7 +364,7 @@ namespace sspo
         learnInput();
         resetInput();
         clockInput();
-        muteInput();
+        activeInput();
         outputSequence();
     }
 
@@ -465,15 +464,15 @@ namespace sspo
         }
     }
     template <class TBase>
-    void IversonComp<TBase>::muteInput()
+    void IversonComp<TBase>::activeInput()
     {
         for (auto i = 0; i < TRACK_COUNT; i++)
         {
-            if (triggers.mutes[i].process (TBase::params[MUTE_1_PARAM + i].getValue()))
+            if (triggers.actives[i].process (TBase::params[ACTIVE_1_PARAM + i].getValue()))
             {
-                tracks[i].setMute (! tracks[i].getMute());
+                tracks[i].setActive (! tracks[i].getActive());
             }
-            TBase::lights[MUTE_1_LIGHT + i].setBrightness (tracks[i].getMute());
+            TBase::lights[ACTIVE_1_LIGHT + i].setBrightness (tracks[i].getActive());
         }
     }
     template <class TBase>
@@ -492,7 +491,7 @@ namespace sspo
         for (auto t = 0; t < TRACK_COUNT; t++)
         {
             tracks[t].step (clock);
-            if (tracks[t].getCurrentStep())
+            if (tracks[t].getCurrentStepPlaying())
                 TBase::outputs[TRIGGER_1_OUTPUT + t].setVoltage (TBase::inputs[CLOCK_INPUT].getVoltage());
             else
                 TBase::outputs[TRIGGER_1_OUTPUT + t].setVoltage (0);
@@ -520,7 +519,7 @@ namespace sspo
             ret = { 0.0f, 1.0f, 0.0f, " ", " ", 0, 1, 0.0f };
             return ret;
         }
-        if (i <= IversonComp<TBase>::MUTE_8_PARAM)
+        if (i <= IversonComp<TBase>::ACTIVE_8_PARAM)
         {
             ret = { 0.0f, 1.0f, 0.0f, " ", " ", 0, 1, 0.0f };
             return ret;
