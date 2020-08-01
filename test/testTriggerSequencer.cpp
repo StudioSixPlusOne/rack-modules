@@ -84,6 +84,7 @@ static void testStepLoop()
     for (auto i = 0; i < (int) seq.size(); ++i)
         trig.setStep (i, seq[i]);
     trig.setLength (3);
+    trig.setActive (true);
 
     for (auto j = 0; j < 2; ++j)
     {
@@ -119,7 +120,7 @@ static void testReset()
     assertEQ (trig.getIndex(), -1);
 }
 
-static void testMute()
+static void testActive()
 {
     std::vector<int> seq = { true,
                              false,
@@ -127,7 +128,7 @@ static void testMute()
                              false };
 
     sspo::TriggerSequencer<16> trig;
-    trig.setMute (true);
+    trig.setActive (false);
     for (auto i = 0; i < (int) seq.size(); ++i)
         trig.setStep (i, seq[i]);
     trig.setLength (3);
@@ -169,6 +170,6 @@ void testTriggerSequencer()
     testStepNoTrig();
     testStepLoop();
     testReset();
-    testMute();
+    testActive();
     testIndex();
 }
