@@ -269,8 +269,7 @@ namespace sspo
 
         /// current page
         int page = 0;
-        std::vector<sspo::TriggerSequencer<MAX_SEQUENCE_LENGTH>> tracks;
-        std::vector<dsp::PulseGenerator> outPulse;
+        std::vector<TriggerSequencer<MAX_SEQUENCE_LENGTH>> tracks;
         bool isLearning = false;
         bool isSetLength = false;
         bool clock = false;
@@ -324,7 +323,6 @@ namespace sspo
         void init()
         {
             tracks.resize (TRACK_COUNT);
-            outPulse.resize (TRACK_COUNT);
             ledDivider.setDivision (512);
         }
 
@@ -370,7 +368,6 @@ namespace sspo
         muteInput();
         outputSequence();
     }
-
 
     template <class TBase>
     void IversonComp<TBase>::pageChangeInputs()
@@ -494,11 +491,14 @@ namespace sspo
     {
         for (auto t = 0; t < TRACK_COUNT; t++)
         {
-            if (tracks[t].step (clock))
-                outPulse[t].trigger();
-            //            TBase::outputs[TRIGGER_1_OUTPUT + t].setVoltage (outPulse[t].process (sampleTime) * 10.0f);
+            tracks[t].step (clock);
+            if (tracks[t].getCurrentStep())
+                TBase::outputs[TRIGGER_1_OUTPUT + t].setVoltage (TBase::inputs[CLOCK_INPUT].getVoltage());
+            else
+                TBase::outputs[TRIGGER_1_OUTPUT + t].setVoltage (0);
         }
     }
+
     template <class TBase>
     bool IversonComp<TBase>::getStateGridIndex (int page, int track, int step)
     {
