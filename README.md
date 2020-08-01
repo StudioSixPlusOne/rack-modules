@@ -3,7 +3,7 @@ VCV Rack modules
 
 A collection of modules for [VCV Rack](https://github.com/VCVRack/Rack), a cross platform opensource, modular synth emulator software.
 
-Modules are polyphonic where applicable. Early releases and beta modules can be found here on github, before being submitted to the VCV libary.
+Modules are polyphonic where applicable. Early releases and beta modules can be found here on github, before being submitted to the VCV library.
 
 ## Building from code
 
@@ -42,7 +42,7 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  - Stretch, the nature of strings gives a natural decay, this controls the length
  - Polyphonic, the number of channels is defined by the audio input
  
- The main audio input should be triggered with noise, the color and duration of this has a large impact on the resulting sound. Try experimenting with short bursts, such as snare sounds, longer noise sounds with automated frequency can be used to emulate a bowed sound. All varations of sound input can be used to create sounds. 
+ The main audio input should be triggered with noise, the color and duration of this has a large impact on the resulting sound. Try experimenting with short bursts, such as snare sounds, longer noise sounds with automated frequency can be used to emulate a bowed sound. All variations of sound input can be used to create sounds. 
 
 [Omri's YouTube Tutorial](https://www.youtube.com/watch?v=VKX3ii-kR1Y)
 <br>
@@ -60,7 +60,7 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 An emulation of a ladder filter, based on the descriptions and block diagrams in Will Pirkles book "Designing Software Synthesizers Plugins in C++" featuring:
 
 - Six modes, selectable via CV and the knob, allowing for automatiom between lp12, lp24, hp12, hp24, bp12 and bp24
-- Frequency contols are summed, for accurate pitch tracking set the knob to C4 261Hz and use the V/oct input
+- Frequency controls are summed, for accurate pitch tracking set the knob to C4 261Hz and use the V/oct input
 - Resonance that allows for self oscillation
 - Drive to add colour and dirt to the sound, works well when self oscillating
 - Polyphonic, the number of channels is defined by the audio input or the V/oct input for use as an oscillator
@@ -81,9 +81,9 @@ If the audio input is disconnected, the filter will still run in monophonic mode
  <img align="left" src="images/Massarti.png">
 
 
-A feedfoward comb filter with added feeback loop, can be used to create pitched sounds from noise, or for the adding of overtones
+A feedforward comb filter with added feedback loop, can be used to create pitched sounds from noise, or for the adding of overtones
 
-- Frequency contols are summed, for accurate pitch tracking
+- Frequency controls are summed, for accurate pitch tracking
 - Comb control adjusts the magnitude of the harmonic bands, positive values boost, negative values cut
 - Feedback adds warmth, and reverb like effect
 - Polyphonic, the number of channels is defined by the audio input
