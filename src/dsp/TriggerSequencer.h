@@ -38,7 +38,7 @@ namespace sspo
         static constexpr int maxLength = MAX_LENGTH;
         int length = 16;
         std::bitset<maxLength> sequence;
-        bool mute = false;
+        bool active = false;
         int index = -1;
 
     public:
@@ -56,9 +56,9 @@ namespace sspo
         int getLength() { return length; }
         void setLength (int len) { length = len; }
         const std::bitset<MAX_LENGTH>& getSequence() { return sequence; }
-        bool getMute() { return mute; }
-        void setMute (bool m) { mute = m; }
-        void invertMute() { mute = ! mute; }
+        bool getActive() { return active; }
+        void setActive (bool m) { active = m; }
+        void invertMute() { active = ! active; }
         int getIndex() { return index; }
         bool getStep (int x)
         {
@@ -67,6 +67,7 @@ namespace sspo
             return sequence[x];
         }
         bool getCurrentStep() { return getStep (index); }
+        bool getCurrentStepPlaying() { return getCurrentStep() && active; }
         void setStep (int step, bool x) { sequence[step] = x; }
         void invertStep (int step) { sequence[step] = ! sequence[step]; }
 
@@ -76,7 +77,7 @@ namespace sspo
             {
                 index++;
                 index = index % length;
-                auto ret = sequence[index] && ! mute;
+                auto ret = sequence[index] && active;
                 return ret;
             }
             else
