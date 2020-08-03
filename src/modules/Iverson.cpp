@@ -1,7 +1,4 @@
 #include "plugin.hpp"
-/* #include "common.hpp"
-#include "module.hpp"
-#include "componentlibrary.hpp" */
 #include "widgets.h"
 #include "Iverson.h"
 #include "WidgetComposite.h"
@@ -288,17 +285,15 @@ namespace sspo
             iverson->step();
             if (controlPageUpdateDivider.process())
             {
-                //            updateMidiOutDeviceDriver();
                 pageLights();
             }
-            //                    doMidiOut();
         }
 
         /// Midi events are used to set assigned params
         /// midi handling would require linking to RACK for unit test
         /// hence all midi to be processed in Iverson.cpp
         void midiToParm();
-        /// sends midi to external controllerr to show status
+        /// sends midi to external controller to show status
         void pageLights();
         void updateMidiOutDeviceDriver();
     };
@@ -476,12 +471,7 @@ namespace sspo
     void Iverson::pageLights()
     {
         for (auto& mm : midiMappings)
-        //    pageLightIndex++;
-        //    pageLightIndex /= midiMappings.size();
-        //    auto mm = midiMappings[pageLightIndex];
         {
-            //        midiOutputs[mm.controller].resetNote (mm.note);
-
             if (mm.paramId <= iverson->GRID_16_8_PARAM)
             // sequence
             {
@@ -579,7 +569,6 @@ User Interface
                 return;
             auto beatWidth = box.size.x / Iverson::MAX_SEQUENCE_LENGTH;
             auto trackHeight = box.size.y / module->iverson->tracks.size();
-            //        nvgBeginPath (args.vg);
 
             for (auto t = 0; t < int (module->iverson->tracks.size()); ++t)
             {
