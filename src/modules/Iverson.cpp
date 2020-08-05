@@ -1,3 +1,4 @@
+#include <rack0.hpp>
 #include "plugin.hpp"
 #include "widgets.h"
 #include "Iverson.h"
@@ -278,7 +279,7 @@ namespace sspo
             doLearn();
             if (paramMidiUpdateDivider.process())
             {
-                updateMidiOutDeviceDriver();
+//                updateMidiOutDeviceDriver();
                 midiToParm();
             }
 
@@ -698,7 +699,7 @@ User Interface
             setModule (module);
 
             std::shared_ptr<IComposite> icomp = Comp::getDescription();
-            box.size = Vec (30 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
+            box.size = Vec (40 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
             SqHelper::setPanel (this, "res/Iverson.svg");
 
             addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, 0)));
@@ -765,15 +766,26 @@ User Interface
             addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (9.807, 112.101)), module, Comp::SET_LENGTH_LIGHT));
             addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (28.857, 112.101)), module, Comp::MIDI_LEARN_LIGHT));
 
-            MidiWidget* midiAWidget = createWidget<MidiWidget> (mm2px (Vec (43.23, 98.094)));
-            midiAWidget->box.size = mm2px (Vec (40, 25));
-            midiAWidget->setMidiPort (module ? &module->midiInputQueues[0] : NULL);
-            addChild (midiAWidget);
 
-            MidiWidget* midiBWidget = createWidget<MidiWidget> (mm2px (Vec (89.6, 98.094)));
-            midiBWidget->box.size = mm2px (Vec (40, 25));
-            midiBWidget->setMidiPort (module ? &module->midiInputQueues[1] : NULL);
-            addChild (midiBWidget);
+            MidiWidget* midiAInWidget = newMidiWidget (module, &module->midiInputQueues[0], Vec (43.23, 98.094));
+            MidiWidget* midiBInWidget = newMidiWidget (module, &module->midiInputQueues[1], Vec (89.6, 98.094));
+            MidiWidget* midiAOutWidget = newMidiWidget (module, &module->midiOutputs[0], Vec (160, 25));
+            MidiWidget* midiBOutWidget = newMidiWidget (module, &module->midiOutputs[1], Vec (160, 100));
+//
+//            MidiWidget* midiBInWidget = createWidget<MidiWidget> (mm2px (Vec (89.6, 98.094)));
+//            midiBInWidget->box.size = mm2px (Vec (40, 25));
+//            midiBInWidget->setMidiPort (module ? &module->midiInputQueues[1] : NULL);
+//            addChild (midiBInWidget);
+//
+//            MidiWidget* midiAOutWidget = createWidget<MidiWidget> (mm2px (Vec (43.23, 98.094)));
+//            midiAInWidget->box.size = mm2px (Vec (40, 25));
+//            midiAInWidget->setMidiPort (module ? &module->midiInputQueues[0] : NULL);
+//            addChild (midiAInWidget);
+//
+//            MidiWidget* midiBInWidget = createWidget<MidiWidget> (mm2px (Vec (89.6, 98.094)));
+//            midiBInWidget->box.size = mm2px (Vec (40, 25));
+//            midiBInWidget->setMidiPort (module ? &module->midiInputQueues[1] : NULL);
+//            addChild (midiBInWidget);
 
             SummaryWidget* summaryWidget = createWidget<SummaryWidget> (mm2px (Vec (8.5, 87.5)));
             summaryWidget->box.size = mm2px (Vec (130, 4));
@@ -789,6 +801,20 @@ User Interface
         addChild (createWidget<Widget> (mm2px (Vec (38.646, 98.094))));
         // mm2px(Vec(39.881, 16.094))
         addChild (createWidget<Widget> (mm2px (Vec (85.02, 98.094)))); */
+        }
+        /**
+         * helper function create and add a MidiWidget to the current widget;
+         * @param module
+         * @param port The midi queue
+         * @return
+         */
+        MidiWidget* newMidiWidget (const Iverson* module, midi::Port* port, Vec pos)
+        {
+            MidiWidget* midiAInWidget = createWidget<MidiWidget> (mm2px (pos));
+            midiAInWidget->box.size = mm2px (Vec(40, 25));
+            midiAInWidget->setMidiPort (module ? port : NULL);
+            addChild (midiAInWidget);
+            return midiAInWidget;
         }
     };
 } // namespace sspo
