@@ -148,10 +148,10 @@ namespace sspo
                 //sequence 64bit, json integers are 32bit, store ass hi low values
                 json_array_insert_new (sequenceHiJ,
                                        i,
-                                       json_integer (((iverson->tracks[i].getSequence().to_ulong()) >> 32u) & 0xffffffff));
+                                       json_integer (((iverson->tracks[i].getSequence().to_ullong()) >> 32u) & 0xffffffff));
                 json_array_insert_new (sequenceLowJ,
                                        i,
-                                       json_integer (((iverson->tracks[i].getSequence().to_ulong())) & 0xffffffff));
+                                       json_integer (((iverson->tracks[i].getSequence().to_ullong())) & 0xffffffff));
             }
 
             json_object_set_new (rootJ, "actives", activesJ);
