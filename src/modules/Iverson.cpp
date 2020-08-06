@@ -279,7 +279,7 @@ namespace sspo
             doLearn();
             if (paramMidiUpdateDivider.process())
             {
-//                updateMidiOutDeviceDriver();
+                //                updateMidiOutDeviceDriver();
                 midiToParm();
             }
 
@@ -766,26 +766,28 @@ User Interface
             addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (9.807, 112.101)), module, Comp::SET_LENGTH_LIGHT));
             addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (28.857, 112.101)), module, Comp::MIDI_LEARN_LIGHT));
 
-
-            MidiWidget* midiAInWidget = newMidiWidget (module, &module->midiInputQueues[0], Vec (43.23, 98.094));
-            MidiWidget* midiBInWidget = newMidiWidget (module, &module->midiInputQueues[1], Vec (89.6, 98.094));
-            MidiWidget* midiAOutWidget = newMidiWidget (module, &module->midiOutputs[0], Vec (160, 25));
-            MidiWidget* midiBOutWidget = newMidiWidget (module, &module->midiOutputs[1], Vec (160, 100));
-//
-//            MidiWidget* midiBInWidget = createWidget<MidiWidget> (mm2px (Vec (89.6, 98.094)));
-//            midiBInWidget->box.size = mm2px (Vec (40, 25));
-//            midiBInWidget->setMidiPort (module ? &module->midiInputQueues[1] : NULL);
-//            addChild (midiBInWidget);
-//
-//            MidiWidget* midiAOutWidget = createWidget<MidiWidget> (mm2px (Vec (43.23, 98.094)));
-//            midiAInWidget->box.size = mm2px (Vec (40, 25));
-//            midiAInWidget->setMidiPort (module ? &module->midiInputQueues[0] : NULL);
-//            addChild (midiAInWidget);
-//
-//            MidiWidget* midiBInWidget = createWidget<MidiWidget> (mm2px (Vec (89.6, 98.094)));
-//            midiBInWidget->box.size = mm2px (Vec (40, 25));
-//            midiBInWidget->setMidiPort (module ? &module->midiInputQueues[1] : NULL);
-//            addChild (midiBInWidget);
+            if (module != nullptr)
+            {
+                MidiWidget* midiAInWidget = newMidiWidget (module, &module->midiInputQueues[0], Vec (43.23, 98.094));
+                MidiWidget* midiBInWidget = newMidiWidget (module, &module->midiInputQueues[1], Vec (89.6, 98.094));
+                MidiWidget* midiAOutWidget = newMidiWidget (module, &module->midiOutputs[0], Vec (160, 25));
+                MidiWidget* midiBOutWidget = newMidiWidget (module, &module->midiOutputs[1], Vec (160, 100));
+            }
+            //
+            //            MidiWidget* midiBInWidget = createWidget<MidiWidget> (mm2px (Vec (89.6, 98.094)));
+            //            midiBInWidget->box.size = mm2px (Vec (40, 25));
+            //            midiBInWidget->setMidiPort (module ? &module->midiInputQueues[1] : NULL);
+            //            addChild (midiBInWidget);
+            //
+            //            MidiWidget* midiAOutWidget = createWidget<MidiWidget> (mm2px (Vec (43.23, 98.094)));
+            //            midiAInWidget->box.size = mm2px (Vec (40, 25));
+            //            midiAInWidget->setMidiPort (module ? &module->midiInputQueues[0] : NULL);
+            //            addChild (midiAInWidget);
+            //
+            //            MidiWidget* midiBInWidget = createWidget<MidiWidget> (mm2px (Vec (89.6, 98.094)));
+            //            midiBInWidget->box.size = mm2px (Vec (40, 25));
+            //            midiBInWidget->setMidiPort (module ? &module->midiInputQueues[1] : NULL);
+            //            addChild (midiBInWidget);
 
             SummaryWidget* summaryWidget = createWidget<SummaryWidget> (mm2px (Vec (8.5, 87.5)));
             summaryWidget->box.size = mm2px (Vec (130, 4));
@@ -811,7 +813,7 @@ User Interface
         MidiWidget* newMidiWidget (const Iverson* module, midi::Port* port, Vec pos)
         {
             MidiWidget* midiAInWidget = createWidget<MidiWidget> (mm2px (pos));
-            midiAInWidget->box.size = mm2px (Vec(40, 25));
+            midiAInWidget->box.size = mm2px (Vec (40, 25));
             midiAInWidget->setMidiPort (module ? port : NULL);
             addChild (midiAInWidget);
             return midiAInWidget;
