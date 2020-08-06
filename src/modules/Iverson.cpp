@@ -174,6 +174,8 @@ namespace sspo
             json_object_set_new (rootJ, "midiBinding", midiMapsJ);
             json_object_set_new (rootJ, "midiInputLeft", midiInputQueues[0].toJson());
             json_object_set_new (rootJ, "midiInputRight", midiInputQueues[1].toJson());
+            json_object_set_new (rootJ, "midiOutputLeft", midiOutputs[0].toJson());
+            json_object_set_new (rootJ, "midiOutputRight", midiOutputs[1].toJson());
 
             return rootJ;
         }
@@ -271,6 +273,14 @@ namespace sspo
             json_t* midiInputRightJ = json_object_get (rootJ, "midiInputRight");
             if (midiInputRightJ)
                 midiInputQueues[1].fromJson (midiInputRightJ);
+
+            json_t* midiOutputLeftJ = json_object_get (rootJ, "midiOutputLeft");
+            if (midiOutputLeftJ)
+                midiOutputs[0].fromJson (midiOutputLeftJ);
+
+            json_t* midiOutputRightJ = json_object_get (rootJ, "midiOutputRight");
+            if (midiOutputRightJ)
+                midiOutputs[1].fromJson (midiOutputRightJ);
         }
 
         void doLearn();
@@ -708,13 +718,13 @@ User Interface
             addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
             //parameter grid inputs
-            Vec grid_1_1 (9.8f, 23.7f);
+            Vec grid_1_1 (40.28f, 23.7f);
             constexpr auto gridXDelta = 8.5f;
             constexpr auto gridYDelta = 8.35f;
             constexpr auto trackCount = 8;
             constexpr auto gridWidth = 16;
-            constexpr auto muteX = 147.2f;
-            constexpr auto triggerX = 160.262f;
+            constexpr auto muteX = 177.68f;
+            constexpr auto triggerX = 190.74f;
 
             for (auto t = 0; t < trackCount; ++t)
             {
@@ -745,33 +755,33 @@ User Interface
                                                              Comp::TRIGGER_1_OUTPUT + t));
             }
 
-            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (9.807, 100.475)), module, Comp::PAGE_ONE_PARAM));
-            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (16.157, 100.475)), module, Comp::PAGE_TWO_PARAM));
-            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (22.507, 100.475)), module, Comp::PAGE_THREE_PARAM));
-            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (28.857, 100.475)), module, Comp::PAGE_FOUR_PARAM));
-            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (147.211, 102.013)), module, Comp::RESET_PARAM));
-            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (160.262, 102.013)), module, Comp::CLOCK_PARAM));
-            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (9.807, 112.101)), module, Comp::SET_LENGTH_PARAM));
-            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (28.857, 112.101)), module, Comp::MIDI_LEARN_PARAM));
+            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (26.39, 23.70)), module, Comp::PAGE_ONE_PARAM));
+            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (26.39, 32.05)), module, Comp::PAGE_TWO_PARAM));
+            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (26.39, 40.40)), module, Comp::PAGE_THREE_PARAM));
+            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (26.39, 48.74)), module, Comp::PAGE_FOUR_PARAM));
+            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (8.57, 65.49)), module, Comp::RESET_PARAM));
+            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (8.57, 23.70)), module, Comp::CLOCK_PARAM));
+            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (26.39, 65.45)), module, Comp::SET_LENGTH_PARAM));
+            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (26.39, 82.15)), module, Comp::MIDI_LEARN_PARAM));
 
-            addInput (createInputCentered<PJ301MPort> (mm2px (Vec (147.212, 112.101)), module, Comp::RESET_INPUT));
-            addInput (createInputCentered<PJ301MPort> (mm2px (Vec (160.262, 112.101)), module, Comp::CLOCK_INPUT));
+            addInput (createInputCentered<PJ301MPort> (mm2px (Vec (8.57, 73.84)), module, Comp::RESET_INPUT));
+            addInput (createInputCentered<PJ301MPort> (mm2px (Vec (8.57, 32.05)), module, Comp::CLOCK_INPUT));
 
-            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (9.807, 100.475)), module, Comp::PAGE_ONE_LIGHT));
-            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (16.157, 100.475)), module, Comp::PAGE_TWO_LIGHT));
-            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (22.507, 100.475)), module, Comp::PAGE_THREE_LIGHT));
-            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (28.857, 100.475)), module, Comp::PAGE_FOUR_LIGHT));
-            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (147.211, 102.013)), module, Comp::RESET_LIGHT));
-            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (160.262, 102.013)), module, Comp::CLOCK_LIGHT));
-            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (9.807, 112.101)), module, Comp::SET_LENGTH_LIGHT));
-            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (28.857, 112.101)), module, Comp::MIDI_LEARN_LIGHT));
+            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (26.39, 23.70)), module, Comp::PAGE_ONE_LIGHT));
+            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (26.39, 32.05)), module, Comp::PAGE_TWO_LIGHT));
+            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (26.39, 40.40)), module, Comp::PAGE_THREE_LIGHT));
+            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (26.39, 48.74)), module, Comp::PAGE_FOUR_LIGHT));
+            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (8.57, 65.49)), module, Comp::RESET_LIGHT));
+            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (8.57, 23.70)), module, Comp::CLOCK_LIGHT));
+            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (26.39, 65.45)), module, Comp::SET_LENGTH_LIGHT));
+            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (26.39, 82.15)), module, Comp::MIDI_LEARN_LIGHT));
 
             if (module != nullptr)
             {
-                MidiWidget* midiAInWidget = newMidiWidget (module, &module->midiInputQueues[0], Vec (43.23, 98.094));
-                MidiWidget* midiBInWidget = newMidiWidget (module, &module->midiInputQueues[1], Vec (89.6, 98.094));
-                MidiWidget* midiAOutWidget = newMidiWidget (module, &module->midiOutputs[0], Vec (160, 25));
-                MidiWidget* midiBOutWidget = newMidiWidget (module, &module->midiOutputs[1], Vec (160, 100));
+                MidiWidget* midiAInWidget = newMidiWidget (module, &module->midiInputQueues[0], Vec (12.96, 98.094));
+                MidiWidget* midiBInWidget = newMidiWidget (module, &module->midiInputQueues[1], Vec (104.56, 98.094));
+                MidiWidget* midiAOutWidget = newMidiWidget (module, &module->midiOutputs[0], Vec (58.76, 98.094));
+                MidiWidget* midiBOutWidget = newMidiWidget (module, &module->midiOutputs[1], Vec (150.35, 98.094));
             }
             //
             //            MidiWidget* midiBInWidget = createWidget<MidiWidget> (mm2px (Vec (89.6, 98.094)));
@@ -789,7 +799,7 @@ User Interface
             //            midiBInWidget->setMidiPort (module ? &module->midiInputQueues[1] : NULL);
             //            addChild (midiBInWidget);
 
-            SummaryWidget* summaryWidget = createWidget<SummaryWidget> (mm2px (Vec (8.5, 87.5)));
+            SummaryWidget* summaryWidget = createWidget<SummaryWidget> (mm2px (Vec (38.98, 87.5)));
             summaryWidget->box.size = mm2px (Vec (130, 4));
             summaryWidget->setModule (module);
             addChild (summaryWidget);
