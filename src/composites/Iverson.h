@@ -272,6 +272,8 @@ namespace sspo
         std::vector<TriggerSequencer<MAX_SEQUENCE_LENGTH>> tracks;
         bool isLearning = false;
         bool isSetLength = false;
+        bool isClearMapping = false;
+        bool isClearAllMapping = false;
         bool clock = false;
         dsp::ClockDivider ledDivider;
 
@@ -345,7 +347,7 @@ namespace sspo
         void clockInput();
         void activeInput();
 
-        int getGridIndex (int x, int y);
+        static int getGridIndex (int x, int y);
         int getStepIndex (int page, int x);
         bool getStateGridIndex (int page, int track, int step);
         void outputSequence();
@@ -521,7 +523,7 @@ namespace sspo
         }
         if (i <= IversonComp<TBase>::ACTIVE_8_PARAM)
         {
-            ret = { 0.0f, 1.0f, 0.0f, " ", " ", 0, 1, 0.0f };
+            ret = { 0.0f, 1.0f, 1.0f, " ", " ", 0, 1, 0.0f };
             return ret;
         }
 
