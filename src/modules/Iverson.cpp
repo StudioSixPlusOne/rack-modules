@@ -6,6 +6,8 @@
 #include "ctrl/SqMenuItem.h"
 #include "app/MidiWidget.hpp"
 
+#include <sstream>
+
 namespace sspo
 {
     using Comp = IversonComp<WidgetComposite>;
@@ -306,7 +308,8 @@ namespace sspo
         void midiToParm();
         /// sends midi to external controller to show status
         void pageLights();
-        void updateMidiOutDeviceDriver();
+        bool isGridMidiMapped (int x, int y);
+        std::string getMidiAssignment (int x, int y);
     };
 
     void Iverson::midiToParm()
@@ -373,6 +376,46 @@ namespace sspo
 
     void Iverson::doLearn()
     {
+        if (iverson->isClearAllMapping)
+        {
+            midiMappings.clear();
+            iverson->isClearAllMapping = false;
+        }
+
+        if (iverson->isClearMapping)
+        {
+            //parameter selected
+            if (midiLearnMapping.paramId != -1)
+            {
+                auto mm = std::find_if (midiMappings.begin(),
+                                        midiMappings.end(),
+                                        [this] (const MidiMapping& x) { return (x.paramId == midiLearnMapping.paramId); });
+                if (mm != midiMappings.end())
+                {
+                    midiMappings.erase (mm);
+                    midiLearnMapping.reset();
+                    iverson->isClearMapping = false;
+                    iverson->isLearning = false;
+                }
+            }
+
+            //midi note selected
+
+            auto mm = std::find_if (midiMappings.begin(),
+                                    midiMappings.end(),
+                                    [this] (const MidiMapping& x) { return x.note != -1
+                                                                           && x.note == midiLearnMapping.note
+                                                                           && (x.controller == midiLearnMapping.controller); });
+
+            if (mm != midiMappings.end())
+            {
+                midiMappings.erase (mm);
+                midiLearnMapping.reset();
+                iverson->isClearMapping = false;
+                iverson->isLearning = false;
+            }
+        }
+
         if (iverson->isLearning)
         // if we have all required params, add to list
         {
@@ -381,12 +424,18 @@ namespace sspo
                 && midiLearnMapping.paramId != -1)
             {
                 //delete any existing map to this parameter
-                auto mm = std::find_if (midiMappings.begin(), midiMappings.end(), [this] (const MidiMapping& x) { return x.paramId == midiLearnMapping.paramId; });
+                auto mm = std::find_if (midiMappings.begin(),
+                                        midiMappings.end(),
+                                        [this] (const MidiMapping& x) { return (x.paramId == midiLearnMapping.paramId); });
                 if (mm != midiMappings.end())
                     midiMappings.erase (mm);
 
                 //delete any existing map to this midi note
-                mm = std::find_if (midiMappings.begin(), midiMappings.end(), [this] (const MidiMapping& x) { return x.note != -1 && x.note == midiLearnMapping.note; });
+                mm = std::find_if (midiMappings.begin(),
+                                   midiMappings.end(),
+                                   [this] (const MidiMapping& x) { return x.note != -1
+                                                                          && x.note == midiLearnMapping.note
+                                                                          && (x.controller == midiLearnMapping.controller); });
                 if (mm != midiMappings.end())
                     midiMappings.erase (mm);
 
@@ -397,7 +446,8 @@ namespace sspo
 
                 midiMappings.push_back (midiLearnMapping);
                 midiLearnMapping.reset();
-                iverson->isLearning = false;
+                // dont turn off midi learn, to allow multiple assignments
+                //                iverson->isLearning = false;
             }
             // if midi add to midi learn param
             midi::Message msg;
@@ -483,52 +533,75 @@ namespace sspo
     {
         for (auto& mm : midiMappings)
         {
-            if (mm.paramId <= iverson->GRID_16_8_PARAM)
-            // sequence
+            if (! iverson->isLearning)
             {
-                auto t = mm.paramId / iverson->GRID_WIDTH;
-                auto i = mm.paramId - t * iverson->GRID_WIDTH;
-                auto midiColor = 0;
-                if (iverson->tracks[t].getIndex() != i + iverson->page * iverson->GRID_WIDTH)
+                if (mm.paramId <= iverson->GRID_16_8_PARAM)
+                // sequence
                 {
-                    if (iverson->tracks[t].getLength() - 1 == i + iverson->page * iverson->GRID_WIDTH)
+                    auto t = mm.paramId / iverson->GRID_WIDTH;
+                    auto i = mm.paramId - t * iverson->GRID_WIDTH;
+                    auto midiColor = 0;
+                    if (iverson->tracks[t].getIndex() != i + iverson->page * iverson->GRID_WIDTH)
                     {
-                        midiColor = iverson->getStateGridIndex (iverson->page, t, i)
-                                        ? midiFeedback.loopStep
-                                        : midiFeedback.loop;
+                        if (iverson->tracks[t].getLength() - 1 == i + iverson->page * iverson->GRID_WIDTH)
+                        {
+                            midiColor = iverson->getStateGridIndex (iverson->page, t, i)
+                                            ? midiFeedback.loopStep
+                                            : midiFeedback.loop;
+                        }
+                        else
+                            midiColor = iverson->getStateGridIndex (iverson->page, t, i)
+                                            ? midiFeedback.activeStep
+                                            : midiFeedback.none;
                     }
                     else
-                        midiColor = iverson->getStateGridIndex (iverson->page, t, i)
-                                        ? midiFeedback.activeStep
-                                        : midiFeedback.none;
+                        midiColor = midiFeedback.index;
+                    midiOutputs[mm.controller].setNote (mm.note, midiColor);
                 }
-                else
-                    midiColor = midiFeedback.index;
-                midiOutputs[mm.controller].setNote (mm.note, midiColor);
+                //Active lights
+                else if (mm.paramId >= iverson->ACTIVE_1_PARAM && mm.paramId <= iverson->ACTIVE_8_PARAM)
+                {
+                    auto t = mm.paramId - iverson->ACTIVE_1_PARAM;
+                    midiOutputs[mm.controller].setNote (mm.note, iverson->tracks[t].getActive());
+                }
+                //Page Lights
+                else if (mm.paramId >= iverson->PAGE_ONE_PARAM && mm.paramId <= iverson->PAGE_FOUR_PARAM)
+                {
+                    auto pageIndex = mm.paramId - iverson->PAGE_ONE_PARAM;
+                    midiOutputs[mm.controller].setNote (mm.note, pageIndex == iverson->page);
+                }
+                else if (mm.paramId == iverson->SET_LENGTH_PARAM)
+                {
+                    midiOutputs[mm.controller].setNote (mm.note, iverson->isSetLength);
+                }
             }
-            else if (mm.paramId >= iverson->ACTIVE_1_PARAM && mm.paramId <= iverson->ACTIVE_8_PARAM)
+            else //midi learn
             {
-                auto t = mm.paramId - iverson->ACTIVE_1_PARAM;
-                midiOutputs[mm.controller].setNote (mm.note, iverson->tracks[t].getActive());
-            }
-
-            else if (mm.paramId >= iverson->PAGE_ONE_PARAM && mm.paramId <= iverson->PAGE_FOUR_PARAM)
-            {
-                auto pageIndex = mm.paramId - iverson->PAGE_ONE_PARAM;
-                midiOutputs[mm.controller].setNote (mm.note, pageIndex == iverson->page);
+                midiOutputs[mm.controller].setNote (mm.note, 1);
             }
         }
     }
-    void Iverson::updateMidiOutDeviceDriver()
+
+    bool Iverson::isGridMidiMapped (int x, int y)
     {
-        for (auto i = 0; i < 2; ++i)
-        {
-            if (midiOutputs[i].driverId != midiInputQueues[i].driverId)
-                midiOutputs[i].setDriverId (midiInputQueues[i].driverId);
-            if (midiOutputs[i].deviceId != midiInputQueues[i].deviceId)
-                midiOutputs[i].setDeviceId (midiInputQueues[i].deviceId);
-            midiOutputs[i].setChannel (0);
-        }
+        auto mapping = std::find_if (midiMappings.begin(),
+                                     midiMappings.end(),
+                                     [x, y] (const MidiMapping mm) { return mm.paramId == Comp::getGridIndex (x, y) + Comp::GRID_1_1_PARAM; });
+
+        return mapping != midiMappings.end();
+    }
+    std::string Iverson::getMidiAssignment (int x, int y)
+    {
+        auto mapping = std::find_if (midiMappings.begin(),
+                                     midiMappings.end(),
+                                     [x, y] (const MidiMapping mm) { return mm.paramId == Comp::getGridIndex (x, y) + Comp::GRID_1_1_PARAM; });
+
+        if (mapping == midiMappings.end())
+            return "";
+
+        std::stringstream ss;
+        ss << mapping->controller << ":" << mapping->note;
+        return ss.str();
     }
 
     /*****************************************************
@@ -542,6 +615,8 @@ User Interface
         NVGcolor loopAndBeat;
         NVGcolor index;
         NVGcolor page;
+        NVGcolor midiLearning;
+        NVGcolor midiAssigned;
 
         GridColors()
         {
@@ -551,6 +626,8 @@ User Interface
             loopAndBeat = nvgRGBA (255, 255, 0, 255);
             index = nvgRGBA (255, 255, 0, 255);
             page = nvgRGBA (255, 255, 255, 100);
+            midiLearning = nvgRGBA (0, 0, 255, 255);
+            midiAssigned = nvgRGBA (0, 255, 255, 255);
         }
     };
 
@@ -632,6 +709,9 @@ User Interface
     {
         Iverson* module = nullptr;
         GridColors gridColors;
+        std::shared_ptr<Font> font;
+        NVGcolor txtColor;
+        const int fontHeight = 8;
 
         struct GridLocation
         {
@@ -642,6 +722,8 @@ User Interface
         GridWidget()
         {
             gridColors.none = nvgRGBA (77, 77, 77, 100);
+            font = APP->window->loadFont (asset::system ("res/fonts/ShareTechMono-Regular.ttf"));
+            txtColor = nvgRGBA (0, 0, 0, 255);
         }
 
         void setModule (Iverson* mod)
@@ -661,20 +743,40 @@ User Interface
             if (module != nullptr)
             {
                 auto xoffset = module->iverson->page * module->iverson->GRID_WIDTH;
-                color = module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
-                            ? gridColors.on
-                            : gridColors.none;
-                color = module->iverson->tracks[gridLocation.y].getIndex() == gridLocation.x + xoffset
-                            ? gridColors.index
-                            : color;
-                color = module->iverson->tracks[gridLocation.y].getLength() - 1 == gridLocation.x + xoffset
-                                && module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
-                            ? gridColors.loopAndBeat
-                            : color;
-                color = module->iverson->tracks[gridLocation.y].getLength() - 1 == gridLocation.x + xoffset
-                                && ! module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
-                            ? gridColors.loop
-                            : color;
+                if (! module->iverson->isLearning) // not learning
+                {
+                    // step active
+                    color = module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
+                                ? gridColors.on
+                                : gridColors.none;
+                    //index
+                    color = module->iverson->tracks[gridLocation.y].getIndex() == gridLocation.x + xoffset
+                                ? gridColors.index
+                                : color;
+                    //loop length on active step
+                    color = module->iverson->tracks[gridLocation.y].getLength() - 1 == gridLocation.x + xoffset
+                                    && module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
+                                ? gridColors.loopAndBeat
+                                : color;
+                    //loop length on inactive step
+                    color = module->iverson->tracks[gridLocation.y].getLength() - 1 == gridLocation.x + xoffset
+                                    && ! module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
+                                ? gridColors.loop
+                                : color;
+                }
+                else //midi learn mode
+                {
+                    //currently learning
+                    color = module->midiLearnMapping.paramId
+                                    == module->iverson->GRID_1_1_PARAM
+                                           + module->iverson->getGridIndex (gridLocation.x, gridLocation.y)
+                                ? gridColors.midiLearning
+                                : gridColors.none;
+                    //already assigned
+                    color = module->isGridMidiMapped (gridLocation.x, gridLocation.y)
+                                ? gridColors.midiAssigned
+                                : color;
+                }
             }
             auto gradient = nvgRadialGradient (args.vg,
                                                box.size.x / 2,
@@ -688,6 +790,18 @@ User Interface
             nvgFillPaint (args.vg, gradient);
             nvgRoundedRect (args.vg, 0, 0, box.size.x, box.size.y, box.size.x / 10.0f);
             nvgFill (args.vg);
+
+            //assignment text
+            if (module != nullptr && module->iverson->isLearning)
+            {
+                nvgFontSize (args.vg, fontHeight);
+                nvgFontFaceId (args.vg, font->handle);
+                nvgTextAlign (args.vg, NVG_ALIGN_LEFT);
+                nvgFillColor (args.vg, txtColor);
+                auto txt = module->getMidiAssignment (gridLocation.x, gridLocation.y);
+                Vec c = Vec (1, 12);
+                nvgText (args.vg, c.x, c.y, txt.c_str(), NULL);
+            }
         }
     };
 
@@ -699,6 +813,32 @@ User Interface
             shadow->opacity = 0;
 
             addFrame (appGet()->window->loadSvg (asset::plugin (pluginInstance, "res/8X8_transparent.svg")));
+        }
+    };
+
+    //context menus
+
+    struct ClearMidiMappingMenuItem : MenuItem
+    {
+        Iverson* module;
+        void onAction (const event::Action& e) override
+        {
+            module->iverson->isClearMapping = true;
+            module->iverson->isClearAllMapping = false;
+            module->iverson->isSetLength = false;
+            module->iverson->isLearning = true;
+        }
+    };
+
+    struct ClearMAllidiMappingMenuItem : MenuItem
+    {
+        Iverson* module;
+        void onAction (const event::Action& e) override
+        {
+            module->iverson->isClearMapping = false;
+            module->iverson->isClearAllMapping = true;
+            module->iverson->isSetLength = false;
+            module->iverson->isLearning = false;
         }
     };
 
@@ -778,42 +918,18 @@ User Interface
 
             if (module != nullptr)
             {
-                MidiWidget* midiAInWidget = newMidiWidget (module, &module->midiInputQueues[0], Vec (12.96, 98.094));
-                MidiWidget* midiBInWidget = newMidiWidget (module, &module->midiInputQueues[1], Vec (104.56, 98.094));
-                MidiWidget* midiAOutWidget = newMidiWidget (module, &module->midiOutputs[0], Vec (58.76, 98.094));
-                MidiWidget* midiBOutWidget = newMidiWidget (module, &module->midiOutputs[1], Vec (150.35, 98.094));
+                newMidiWidget (module, &module->midiInputQueues[0], Vec (12.96, 98.094));
+                newMidiWidget (module, &module->midiInputQueues[1], Vec (104.56, 98.094));
+                newMidiWidget (module, &module->midiOutputs[0], Vec (58.76, 98.094));
+                newMidiWidget (module, &module->midiOutputs[1], Vec (150.35, 98.094));
             }
-            //
-            //            MidiWidget* midiBInWidget = createWidget<MidiWidget> (mm2px (Vec (89.6, 98.094)));
-            //            midiBInWidget->box.size = mm2px (Vec (40, 25));
-            //            midiBInWidget->setMidiPort (module ? &module->midiInputQueues[1] : NULL);
-            //            addChild (midiBInWidget);
-            //
-            //            MidiWidget* midiAOutWidget = createWidget<MidiWidget> (mm2px (Vec (43.23, 98.094)));
-            //            midiAInWidget->box.size = mm2px (Vec (40, 25));
-            //            midiAInWidget->setMidiPort (module ? &module->midiInputQueues[0] : NULL);
-            //            addChild (midiAInWidget);
-            //
-            //            MidiWidget* midiBInWidget = createWidget<MidiWidget> (mm2px (Vec (89.6, 98.094)));
-            //            midiBInWidget->box.size = mm2px (Vec (40, 25));
-            //            midiBInWidget->setMidiPort (module ? &module->midiInputQueues[1] : NULL);
-            //            addChild (midiBInWidget);
 
             SummaryWidget* summaryWidget = createWidget<SummaryWidget> (mm2px (Vec (38.98, 87.5)));
             summaryWidget->box.size = mm2px (Vec (130, 4));
             summaryWidget->setModule (module);
             addChild (summaryWidget);
-
-            /*         // mm2px(Vec(60.747, 69.094))
-        addChild (createWidget<Widget> (mm2px (Vec (4.515, 18.372))));
-
-        // mm2px(Vec(60.747, 69.094))
-        addChild (createWidget<Widget> (mm2px ()));
-        // mm2px(Vec(39.881, 16.094))
-        addChild (createWidget<Widget> (mm2px (Vec (38.646, 98.094))));
-        // mm2px(Vec(39.881, 16.094))
-        addChild (createWidget<Widget> (mm2px (Vec (85.02, 98.094)))); */
         }
+
         /**
          * helper function create and add a MidiWidget to the current widget;
          * @param module
@@ -827,6 +943,21 @@ User Interface
             midiAInWidget->setMidiPort (module ? port : NULL);
             addChild (midiAInWidget);
             return midiAInWidget;
+        }
+
+        void appendContextMenu (Menu* menu) override
+        {
+            menu->addChild (new MenuEntry);
+
+            ClearMAllidiMappingMenuItem* clearAllMenuItem = new ClearMAllidiMappingMenuItem();
+            clearAllMenuItem->text = "Clear all Midi Mappings";
+            clearAllMenuItem->module = (Iverson*) module;
+            menu->addChild (clearAllMenuItem);
+
+            ClearMidiMappingMenuItem* clearMidiMenuItem = new ClearMidiMappingMenuItem();
+            clearMidiMenuItem->text = "Clear Midi Mapping";
+            clearMidiMenuItem->module = (Iverson*) module;
+            menu->addChild (clearMidiMenuItem);
         }
     };
 } // namespace sspo
