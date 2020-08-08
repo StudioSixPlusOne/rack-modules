@@ -858,13 +858,13 @@ User Interface
             addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
             //parameter grid inputs
-            Vec grid_1_1 (40.28f, 23.7f);
+            Vec grid_1_1 (60.60f, 23.7f);
             constexpr auto gridXDelta = 8.5f;
             constexpr auto gridYDelta = 8.35f;
             constexpr auto trackCount = 8;
             constexpr auto gridWidth = 16;
-            constexpr auto muteX = 177.68f;
-            constexpr auto triggerX = 190.74f;
+            constexpr auto muteX = 198.00f;
+            constexpr auto triggerX = 211.06f;
 
             for (auto t = 0; t < trackCount; ++t)
             {
@@ -918,13 +918,13 @@ User Interface
 
             if (module != nullptr)
             {
-                newMidiWidget (module, &module->midiInputQueues[0], Vec (12.96, 98.094));
-                newMidiWidget (module, &module->midiInputQueues[1], Vec (104.56, 98.094));
-                newMidiWidget (module, &module->midiOutputs[0], Vec (58.76, 98.094));
-                newMidiWidget (module, &module->midiOutputs[1], Vec (150.35, 98.094));
+                newMidiWidget (module, &module->midiInputQueues[0], Vec (28.20, 98.094));
+                newMidiWidget (module, &module->midiInputQueues[1], Vec (119.80, 98.094));
+                newMidiWidget (module, &module->midiOutputs[0], Vec (74.00, 98.094));
+                newMidiWidget (module, &module->midiOutputs[1], Vec (165.59, 98.094));
             }
 
-            SummaryWidget* summaryWidget = createWidget<SummaryWidget> (mm2px (Vec (38.98, 87.5)));
+            SummaryWidget* summaryWidget = createWidget<SummaryWidget> (mm2px (Vec (59.3, 87.5)));
             summaryWidget->box.size = mm2px (Vec (130, 4));
             summaryWidget->setModule (module);
             addChild (summaryWidget);
