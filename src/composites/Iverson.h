@@ -322,6 +322,8 @@ namespace sspo
         void init()
         {
             tracks.resize (TRACK_COUNT);
+            for (auto& t : tracks)
+                t.setActive (true);
             ledDivider.setDivision (512);
         }
 
