@@ -1,3 +1,24 @@
+/*
+ * Copyright (c) 2020 Dave French <contact/dot/dave/dot/french3/at/googlemail/dot/com>
+ *
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program (see COPYING); if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301 USA.
+ *
+ */
+
 #include <rack0.hpp>
 #include "plugin.hpp"
 #include "widgets.h"
@@ -13,11 +34,8 @@ namespace sspo
     using Comp = IversonComp<WidgetComposite>;
     using namespace ::rack;
 
-    struct Iverson : Module
+    struct IversonBase : Module
     {
-        static constexpr int MAX_SEQUENCE_LENGTH = 64;
-        std::shared_ptr<Comp> iverson;
-
         struct MidiOutput : midi::Output
         {
             int currentCC[Comp::MAX_MIDI];
@@ -84,12 +102,6 @@ namespace sspo
             }
         };
 
-        std::vector<midi::InputQueue> midiInputQueues{ 2 };
-        std::vector<MidiOutput> midiOutputs{ 2 };
-
-        dsp::ClockDivider controlPageUpdateDivider;
-        dsp::ClockDivider paramMidiUpdateDivider;
-
         struct MidiMapping
         {
             int controller = -1;
@@ -106,14 +118,26 @@ namespace sspo
             }
         };
 
+        // to be defined in deriving classes and passed to composite
+        int MAX_SEQUENCE_LENGTH = 64;
+        int GRID_WIDTH = 16;
+        int TRACK_COUNT = 8;
+
+        std::shared_ptr<Comp> iverson;
+
+        std::vector<midi::InputQueue> midiInputQueues{ 2 };
+        std::vector<MidiOutput> midiOutputs{ 2 };
+
+        dsp::ClockDivider controlPageUpdateDivider;
+        dsp::ClockDivider paramMidiUpdateDivider;
+
         std::vector<MidiMapping> midiMappings;
         MidiMapping midiLearnMapping;
 
-        Iverson()
+        IversonBase()
         {
             config (Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
 
-            //        midiInputQueues.resize (2);
             //preallocate midi mappings, to avoid allocations during push_back
             // occurring during the audio process loop
             iverson = std::make_shared<Comp> (this);
@@ -142,7 +166,7 @@ namespace sspo
             json_t* sequenceHiJ = json_array();
             json_t* sequenceLowJ = json_array();
 
-            for (auto i = 0; i < iverson->TRACK_COUNT; ++i)
+            for (auto i = 0; i < TRACK_COUNT; ++i)
             {
                 json_array_insert_new (activesJ, i, json_boolean ((iverson->tracks[i].getActive())));
                 json_array_insert_new (lengthsJ, i, json_integer (iverson->tracks[i].getLength()));
@@ -312,7 +336,7 @@ namespace sspo
         std::string getMidiAssignment (int x, int y);
     };
 
-    void Iverson::midiToParm()
+    void IversonBase::midiToParm()
     {
         midi::Message msg;
         for (auto q = 0; q < 2; ++q)
@@ -334,7 +358,7 @@ namespace sspo
                     }
                     break;
 
-                    //note on
+                        //note on
                     case 0x9:
                     {
                         //find midiMapping for noteon
@@ -374,10 +398,11 @@ namespace sspo
         }
     }
 
-    void Iverson::doLearn()
+    void IversonBase::doLearn()
     {
         if (iverson->isClearAllMapping)
         {
+            DEBUG ("Clear all mapping");
             midiMappings.clear();
             iverson->isClearAllMapping = false;
         }
@@ -417,8 +442,9 @@ namespace sspo
         }
 
         if (iverson->isLearning)
-        // if we have all required params, add to list
         {
+            // if we have all required params, add to list
+
             if ((midiLearnMapping.controller != -1)
                 && (midiLearnMapping.cc != -1 || midiLearnMapping.note != -1)
                 && midiLearnMapping.paramId != -1)
@@ -458,14 +484,14 @@ namespace sspo
                 {
                     switch (msg.getStatus())
                     {
-                            //note on
+                        //note on
                         case 0x9:
                         {
                             midiLearnMapping.controller = q;
                             midiLearnMapping.note = msg.getNote();
                         }
                         break;
-                        // cc
+                            // cc
                         case 0xb:
                         {
                             midiLearnMapping.controller = q;
@@ -529,7 +555,7 @@ namespace sspo
         int indexStep = 3;
     } midiFeedback;
 
-    void Iverson::pageLights()
+    void IversonBase::pageLights()
     {
         for (auto& mm : midiMappings)
         {
@@ -582,19 +608,19 @@ namespace sspo
         }
     }
 
-    bool Iverson::isGridMidiMapped (int x, int y)
+    bool IversonBase::isGridMidiMapped (int x, int y)
     {
         auto mapping = std::find_if (midiMappings.begin(),
                                      midiMappings.end(),
-                                     [x, y] (const MidiMapping mm) { return mm.paramId == Comp::getGridIndex (x, y) + Comp::GRID_1_1_PARAM; });
+                                     [this, x, y] (const MidiMapping mm) { return mm.paramId == iverson->getGridIndex (x, y) + Comp::GRID_1_1_PARAM; });
 
         return mapping != midiMappings.end();
     }
-    std::string Iverson::getMidiAssignment (int x, int y)
+    std::string IversonBase::getMidiAssignment (int x, int y)
     {
         auto mapping = std::find_if (midiMappings.begin(),
                                      midiMappings.end(),
-                                     [x, y] (const MidiMapping mm) { return mm.paramId == Comp::getGridIndex (x, y) + Comp::GRID_1_1_PARAM; });
+                                     [this, x, y] (const MidiMapping mm) { return mm.paramId == iverson->getGridIndex (x, y) + Comp::GRID_1_1_PARAM; });
 
         if (mapping == midiMappings.end())
             return "";
@@ -604,9 +630,30 @@ namespace sspo
         return ss.str();
     }
 
+    struct Iverson : IversonBase
+    {
+        Iverson() : IversonBase()
+        {
+            iverson->MAX_SEQUENCE_LENGTH = 64;
+            iverson->GRID_WIDTH = 16;
+            iverson->TRACK_COUNT = 8;
+        }
+    };
+
+    struct IversonJr : IversonBase
+    {
+        IversonJr()
+        {
+            iverson->MAX_SEQUENCE_LENGTH = 32;
+            iverson->GRID_WIDTH = 8;
+            iverson->TRACK_COUNT = 8;
+        }
+    };
+
     /*****************************************************
 User Interface
 *****************************************************/
+
     struct GridColors
     {
         NVGcolor none;
@@ -633,7 +680,7 @@ User Interface
 
     struct SummaryWidget : Widget
     {
-        Iverson* module = nullptr;
+        IversonBase* module = nullptr;
 
         GridColors gridColors;
 
@@ -642,7 +689,7 @@ User Interface
             gridColors.none = nvgRGBA (0, 0, 0, 255);
         }
 
-        void setModule (Iverson* module)
+        void setModule (IversonBase* module)
         {
             this->module = module;
         }
@@ -655,13 +702,13 @@ User Interface
         {
             if (module == nullptr)
                 return;
-            auto beatWidth = box.size.x / Iverson::MAX_SEQUENCE_LENGTH;
+            auto beatWidth = box.size.x / module->iverson->MAX_SEQUENCE_LENGTH;
             auto trackHeight = box.size.y / module->iverson->tracks.size();
 
             for (auto t = 0; t < int (module->iverson->tracks.size()); ++t)
             {
                 //plot beats
-                for (auto b = 0; b < Iverson::MAX_SEQUENCE_LENGTH; ++b)
+                for (auto b = 0; b < module->iverson->MAX_SEQUENCE_LENGTH; ++b)
                 {
                     auto color = module->iverson->tracks[t].getStep (b)
                                      ? gridColors.on
@@ -696,7 +743,7 @@ User Interface
 
             //draw current page
             auto page = module->iverson->page;
-            auto pageWidth = beatWidth * (Iverson::MAX_SEQUENCE_LENGTH / module->iverson->pages);
+            auto pageWidth = beatWidth * (module->iverson->MAX_SEQUENCE_LENGTH / module->iverson->pages);
             nvgFillColor (args.vg, gridColors.page);
             nvgBeginPath (args.vg);
             nvgRect (args.vg, page * pageWidth, 0, pageWidth, box.size.y);
@@ -707,7 +754,7 @@ User Interface
 
     struct GridWidget : LightWidget
     {
-        Iverson* module = nullptr;
+        IversonBase* module = nullptr;
         GridColors gridColors;
         std::shared_ptr<Font> font;
         NVGcolor txtColor;
@@ -726,7 +773,7 @@ User Interface
             txtColor = nvgRGBA (0, 0, 0, 255);
         }
 
-        void setModule (Iverson* mod)
+        void setModule (IversonBase* mod)
         {
             module = mod;
         }
@@ -820,7 +867,7 @@ User Interface
 
     struct ClearMidiMappingMenuItem : MenuItem
     {
-        Iverson* module;
+        IversonBase* module;
         void onAction (const event::Action& e) override
         {
             module->iverson->isClearMapping = true;
@@ -832,7 +879,7 @@ User Interface
 
     struct ClearMAllidiMappingMenuItem : MenuItem
     {
-        Iverson* module;
+        IversonBase* module;
         void onAction (const event::Action& e) override
         {
             module->iverson->isClearMapping = false;
@@ -842,29 +889,37 @@ User Interface
         }
     };
 
-    struct IversonWidget : ModuleWidget
+    struct IversonBaseWidget : ModuleWidget
     {
-        IversonWidget (Iverson* module)
+        int trackCount = 8;
+        int gridWidth = 0;
+        float muteX = 198.00f;
+        float triggerX = 211.06f;
+        int midiSelectorCount = 0;
+        std::string filename = "";
+        float summaryLength = 0;
+        std::vector<float> midiSelectorX;
+
+        IversonBaseWidget (IversonBase* module)
         {
             setModule (module);
+        }
 
+        void init (IversonBase* module)
+        {
             std::shared_ptr<IComposite> icomp = Comp::getDescription();
             box.size = Vec (40 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-            SqHelper::setPanel (this, "res/Iverson.svg");
+            SqHelper::setPanel (this, filename.c_str());
 
             addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, 0)));
             addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-            addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+            //            addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
             addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
             //parameter grid inputs
             Vec grid_1_1 (60.60f, 23.7f);
-            constexpr auto gridXDelta = 8.5f;
-            constexpr auto gridYDelta = 8.35f;
-            constexpr auto trackCount = 8;
-            constexpr auto gridWidth = 16;
-            constexpr auto muteX = 198.00f;
-            constexpr auto triggerX = 211.06f;
+            auto gridXDelta = 8.5f;
+            auto gridYDelta = 8.35f;
 
             for (auto t = 0; t < trackCount; ++t)
             {
@@ -918,14 +973,17 @@ User Interface
 
             if (module != nullptr)
             {
-                newMidiWidget (module, &module->midiInputQueues[0], Vec (28.20, 98.094));
-                newMidiWidget (module, &module->midiInputQueues[1], Vec (119.80, 98.094));
-                newMidiWidget (module, &module->midiOutputs[0], Vec (74.00, 98.094));
-                newMidiWidget (module, &module->midiOutputs[1], Vec (165.59, 98.094));
+                newMidiWidget (module, &module->midiInputQueues[0], Vec (midiSelectorX[0], 98.094));
+                newMidiWidget (module, &module->midiOutputs[0], Vec (midiSelectorX[1], 98.094));
+                if (midiSelectorCount == 2)
+                {
+                    newMidiWidget (module, &module->midiInputQueues[1], Vec (midiSelectorX[2], 98.094));
+                    newMidiWidget (module, &module->midiOutputs[1], Vec (midiSelectorX[3], 98.094));
+                }
             }
 
             SummaryWidget* summaryWidget = createWidget<SummaryWidget> (mm2px (Vec (59.3, 87.5)));
-            summaryWidget->box.size = mm2px (Vec (130, 4));
+            summaryWidget->box.size = mm2px (Vec (summaryLength, 4));
             summaryWidget->setModule (module);
             addChild (summaryWidget);
         }
@@ -936,7 +994,7 @@ User Interface
          * @param port The midi queue
          * @return
          */
-        MidiWidget* newMidiWidget (const Iverson* module, midi::Port* port, Vec pos)
+        MidiWidget* newMidiWidget (const IversonBase* module, midi::Port* port, Vec pos)
         {
             MidiWidget* midiAInWidget = createWidget<MidiWidget> (mm2px (pos));
             midiAInWidget->box.size = mm2px (Vec (40, 25));
@@ -951,14 +1009,47 @@ User Interface
 
             ClearMAllidiMappingMenuItem* clearAllMenuItem = new ClearMAllidiMappingMenuItem();
             clearAllMenuItem->text = "Clear all Midi Mappings";
-            clearAllMenuItem->module = (Iverson*) module;
+            clearAllMenuItem->module = (IversonBase*) module;
             menu->addChild (clearAllMenuItem);
 
             ClearMidiMappingMenuItem* clearMidiMenuItem = new ClearMidiMappingMenuItem();
             clearMidiMenuItem->text = "Clear Midi Mapping";
-            clearMidiMenuItem->module = (Iverson*) module;
+            clearMidiMenuItem->module = (IversonBase*) module;
             menu->addChild (clearMidiMenuItem);
         }
     };
+
+    struct IversonWidget : IversonBaseWidget
+    {
+        IversonWidget (IversonBase* module) : IversonBaseWidget (module)
+        {
+            gridWidth = 16;
+            muteX = 198.00f;
+            triggerX = 211.06f;
+            midiSelectorCount = 2;
+            filename = "res/Iverson.svg";
+            summaryLength = 130;
+            midiSelectorX = { 28.20, 74.00, 119.8, 165.59 };
+            init (module);
+        }
+    };
+
+    struct IversonJrWidget : IversonBaseWidget
+    {
+        IversonJrWidget (IversonBase* module) : IversonBaseWidget (module)
+        {
+            gridWidth = 8;
+            muteX = 137.04f;
+            triggerX = 150.1f;
+            midiSelectorCount = 1;
+            filename = "res/IversonJr.svg";
+            summaryLength = 62;
+            midiSelectorX = { 43.52, 89.32, 0, 0 };
+
+            init (module);
+        }
+    };
+
 } // namespace sspo
 Model* modelIverson = createModel<sspo::Iverson, sspo::IversonWidget> ("Iverson");
+Model* modelIversonJr = createModel<sspo::IversonJr, sspo::IversonJrWidget> ("IversonJr");
