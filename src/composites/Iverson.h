@@ -57,17 +57,15 @@ namespace sspo
     class IversonComp : public TBase
     {
     public:
-        static constexpr int MAX_SEQUENCE_LENGTH = 64;
-        static constexpr int GRID_WIDTH = 16;
-        static constexpr int TRACK_COUNT = 8;
-        static constexpr int GRID_SIZE = GRID_WIDTH * TRACK_COUNT;
-        static constexpr int MAX_PAGES = 4;
+        int MAX_SEQUENCE_LENGTH = 64;
+        int GRID_WIDTH = 16;
+        int TRACK_COUNT = 8;
         static constexpr int MIDI_MAP_SIZE = 200;
         static constexpr int MAX_MIDI = 128;
 
         static constexpr float LED_FADE_DELTA = 0.00001f;
 
-        static constexpr int pages = MAX_SEQUENCE_LENGTH / GRID_WIDTH;
+        static constexpr int pages = 4;
 
         enum ParamIds
         {
@@ -269,7 +267,7 @@ namespace sspo
 
         /// current page
         int page = 0;
-        std::vector<TriggerSequencer<MAX_SEQUENCE_LENGTH>> tracks;
+        std::vector<TriggerSequencer<64>> tracks;
         bool isLearning = false;
         bool isSetLength = false;
         bool isClearMapping = false;
@@ -290,8 +288,8 @@ namespace sspo
 
             Triggers()
             {
-                actives.resize (TRACK_COUNT);
-                grid.resize (GRID_WIDTH * TRACK_COUNT);
+                actives.resize (8);
+                grid.resize (128);
             }
         } triggers;
 
@@ -347,7 +345,7 @@ namespace sspo
         void clockInput();
         void activeInput();
 
-        static int getGridIndex (int x, int y);
+        int getGridIndex (int x, int y);
         int getStepIndex (int page, int x);
         bool getStateGridIndex (int page, int track, int step);
         void outputSequence();
@@ -405,8 +403,11 @@ namespace sspo
     void IversonComp<TBase>::lengthInput()
     {
         for (auto t = 0; t < TRACK_COUNT; ++t)
+        {
+            if (TBase::params[LENGTH_1_PARAM + t].getValue() > MAX_SEQUENCE_LENGTH)
+                TBase::params[LENGTH_1_PARAM + t].setValue (MAX_SEQUENCE_LENGTH);
             tracks[t].setLength (TBase::params[LENGTH_1_PARAM + t].getValue());
-
+        }
         //button length
         if (triggers.length.process (TBase::params[SET_LENGTH_PARAM].getValue())
             && ! isLearning)
@@ -523,13 +524,13 @@ namespace sspo
         }
         if (i <= IversonComp<TBase>::ACTIVE_8_PARAM)
         {
-            ret = { 0.0f, 1.0f, 1.0f, " ", " ", 0, 1, 0.0f };
+            ret = { 0.0f, 1.0f, 0.0f, " ", " ", 0, 1, 0.0f };
             return ret;
         }
 
         if (i <= IversonComp<TBase>::LENGTH_8_PARAM)
         {
-            ret = { 1.0f, IversonComp<TBase>::MAX_SEQUENCE_LENGTH, IversonComp<TBase>::MAX_SEQUENCE_LENGTH, " ", " ", 0, 1, 0.0f };
+            ret = { 1.0f, 64, 64, " ", " ", 0, 1, 0.0f };
             return ret;
         }
 

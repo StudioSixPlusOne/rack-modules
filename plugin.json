@@ -105,6 +105,17 @@
       "slug": "Iverson",
       "name": "Iverson",
       "description": "Trigger Sequencer for use with midi controller",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#iverson",
+      "tags": [
+        "Controller",
+        "Sequencer"
+      ]
+    },
+    {
+      "slug": "IversonJr",
+      "name": "IversonJr",
+      "description": "Trigger Sequencer for use with midi controller",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#iverson",
       "tags": [
         "Controller",
         "Sequencer"
