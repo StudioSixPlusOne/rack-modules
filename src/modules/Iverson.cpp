@@ -899,6 +899,9 @@ User Interface
         std::string filename = "";
         float summaryLength = 0;
         std::vector<float> midiSelectorX;
+        float primaryProbX = 0.0f;
+        float altProbX = 0.0f;
+        float altOutx = 0.0f;
 
         IversonBaseWidget (IversonBase* module)
         {
@@ -923,6 +926,15 @@ User Interface
 
             for (auto t = 0; t < trackCount; ++t)
             {
+                addParam (SqHelper::createParamCentered<sspo::SmallKnob> (icomp,
+                                                                          mm2px (Vec (primaryProbX, grid_1_1.y + t * gridYDelta)),
+                                                                          module,
+                                                                          Comp::PRIMARY_PROB_1 + t));
+                addParam (SqHelper::createParamCentered<sspo::SmallKnob> (icomp,
+                                                                          mm2px (Vec (altProbX, grid_1_1.y + t * gridYDelta)),
+                                                                          module,
+                                                                          Comp::ALT_PROB_1 + t));
+
                 for (auto s = 0; s < gridWidth; ++s)
                 {
                     addParam (SqHelper::createParamCentered<GridButton> (icomp,
@@ -948,6 +960,9 @@ User Interface
                 addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (triggerX, grid_1_1.y + t * gridYDelta)),
                                                              module,
                                                              Comp::TRIGGER_1_OUTPUT + t));
+                addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (altOutx, grid_1_1.y + t * gridYDelta)),
+                                                             module,
+                                                             Comp::ALT_OUTPUT_1 + t));
             }
 
             addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (26.39, 23.70)), module, Comp::PAGE_ONE_PARAM));
@@ -1030,6 +1045,9 @@ User Interface
             filename = "res/Iverson.svg";
             summaryLength = 130;
             midiSelectorX = { 28.20, 74.00, 119.8, 165.59 };
+            primaryProbX = 38.52f;
+            altProbX = 48.68f;
+            altOutx = 221.22f;
             init (module);
         }
     };
@@ -1045,6 +1063,9 @@ User Interface
             filename = "res/IversonJr.svg";
             summaryLength = 62;
             midiSelectorX = { 43.52, 89.32, 0, 0 };
+            primaryProbX = 38.52f;
+            altProbX = 48.68f;
+            altOutx = 160.26f;
 
             init (module);
         }
