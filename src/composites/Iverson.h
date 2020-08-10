@@ -376,6 +376,7 @@ namespace sspo
         int getStepIndex (int page, int x);
         bool getStateGridIndex (int page, int track, int step);
         void outputSequence();
+        void probabilityInput();
     };
 
     template <class TBase>
@@ -392,6 +393,7 @@ namespace sspo
         resetInput();
         clockInput();
         activeInput();
+        probabilityInput();
         outputSequence();
     }
 
@@ -521,10 +523,15 @@ namespace sspo
         for (auto t = 0; t < TRACK_COUNT; t++)
         {
             tracks[t].step (clock);
-            if (tracks[t].getCurrentStepPlaying())
+            if (tracks[t].getPrimaryState())
                 TBase::outputs[TRIGGER_1_OUTPUT + t].setVoltage (TBase::inputs[CLOCK_INPUT].getVoltage());
             else
                 TBase::outputs[TRIGGER_1_OUTPUT + t].setVoltage (0);
+
+            if (tracks[t].getAltState())
+                TBase::outputs[ALT_OUTPUT_1 + t].setVoltage (TBase::inputs[CLOCK_INPUT].getVoltage());
+            else
+                TBase::outputs[ALT_OUTPUT_1 + t].setVoltage (0);
         }
     }
 
@@ -532,6 +539,15 @@ namespace sspo
     bool IversonComp<TBase>::getStateGridIndex (int page, int track, int step)
     {
         return tracks[track].getStep (getStepIndex (page, step));
+    }
+    template <class TBase>
+    void IversonComp<TBase>::probabilityInput()
+    {
+        for (auto i = 0; i < TRACK_COUNT; ++i)
+        {
+            tracks[i].setPrimaryProbability (TBase::params[PRIMARY_PROB_1 + i].getValue());
+            tracks[i].setAltProbability (TBase::params[ALT_PROB_1 + i].getValue());
+        }
     }
 
     template <class TBase>
@@ -590,7 +606,7 @@ namespace sspo
             default:
                 if (i <= IversonComp<TBase>::PRIMARY_PROB_8)
                 {
-                    ret = { -1.0f, 1.0f, 0.0f, " ", " ", 0, 1, 0.0f };
+                    ret = { 0.0f, 2.0f, 1.0f, " ", " ", 0, 1, 0.0f };
                     return ret;
                 }
                 if (i <= IversonComp<TBase>::ALT_PROB_8)
