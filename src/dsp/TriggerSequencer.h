@@ -23,10 +23,13 @@
 
 #include <vector>
 #include <bitset>
+#include <ctime>
 #include "asserts.h"
 #include "AudioMath.h"
 #include "common.hpp"
 #include "math.hpp"
+
+using namespace sspo::AudioMath;
 
 namespace sspo
 {
@@ -38,13 +41,11 @@ namespace sspo
     private:
         static constexpr int maxLength = MAX_LENGTH;
         int length = 16;
-        std::bitset<maxLength> sequence;
+        std::bitset<MAX_LENGTH> sequence;
         bool active = false;
         bool primaryState;
-
-    private:
         bool altState;
-        float primaryProbabilty = 1.0f;
+        float primaryProbability = 1.0f;
         float altProbability = 1.0f;
         int index = -1;
 
@@ -57,6 +58,7 @@ namespace sspo
         TriggerSequencer()
         {
             reset();
+            defaultGenerator.seed (time (nullptr));
         }
 
         int getMaxLength() { return maxLength; }
@@ -66,24 +68,39 @@ namespace sspo
         bool getActive() { return active; }
         void setActive (bool m) { active = m; }
         void invertActive() { active = ! active; }
-        bool isPrimaryState() const
+        /**
+         * Primary state is the current main output state of the sequencer
+         * @return
+         */
+        bool getPrimaryState() const
         {
             return primaryState;
         }
-
-        bool isAltState() const
+        /**
+         * Alt state is the current secondary state of the sequencer
+         * @return
+         */
+        bool getAltState() const
         {
             return altState;
         }
 
-        float getPrimaryProbabilty() const
+        float getPrimaryProbability() const
         {
-            return primaryProbabilty;
+            return primaryProbability;
         }
 
-        void setPrimaryProbabilty (float primaryProbabilty)
+        /**
+         * probability of a set step being used 0 < x < 2.0
+         * when x = 1.0 all and only set steps are activated
+         * when x < 1.0 probability of set steps being used in the sequence
+         * when x > 1 all set steps are used + probability of non set steps
+         *
+         * @param primaryProbability
+         */
+        void setPrimaryProbability (float primaryProbability)
         {
-            TriggerSequencer::primaryProbabilty = primaryProbabilty;
+            TriggerSequencer::primaryProbability = rack::math::clamp (primaryProbability, 0.0f, 2.0f);
         }
 
         float getAltProbability() const
@@ -93,7 +110,7 @@ namespace sspo
 
         void setAltProbability (float altProbability)
         {
-            TriggerSequencer::altProbability = altProbability;
+            TriggerSequencer::altProbability = rack::math::clamp (altProbability, 0.0f, 1.0f);
         }
 
         int getIndex() { return index; }
@@ -112,9 +129,29 @@ namespace sspo
         {
             if (trigger)
             {
+                primaryState = false;
+                altState = false;
                 index++;
                 index = index % length;
                 auto ret = sequence[index] && active;
+                if (sequence[index] && active) //primary
+                {
+                    if (primaryProbability <= 2.0f)
+                    {
+                        if (primaryProbability >= rand01())
+                            primaryState = true;
+                    }
+                }
+                else if (! sequence[index] && active) //not primary
+                {
+                    if (primaryProbability > 1.0f)
+                    {
+                        if (primaryProbability - 1.0 >= rand01())
+                            primaryState = true;
+                    }
+                    if (! primaryState && altProbability > rand01())
+                        altState = true;
+                }
                 return ret;
             }
             else
