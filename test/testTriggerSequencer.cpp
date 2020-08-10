@@ -160,6 +160,114 @@ static void testIndex()
     }
 }
 
+/**
+ * test probbilty of the primary at 1.0,
+ * probabity of alt output = 0
+ */
+static void testPrimaryProbability10()
+{
+    std::vector<bool> seq{ true, false, false, false };
+    sspo::TriggerSequencer<4> trig;
+    trig.setAltProbability (0.0f);
+    trig.setPrimaryProbability (1.0);
+    trig.setLength (seq.size());
+    trig.setActive (true);
+
+    for (auto i = 0; i < int (seq.size()); ++i)
+    {
+        trig.setStep (i, seq[i]);
+    }
+
+    for (auto j = 0; j < 100; ++j)
+    {
+        trig.reset();
+        for (auto i = 0; i < int (seq.size()); ++i)
+        {
+            trig.step (true);
+            assertEQ (trig.getPrimaryState(), seq[i]);
+            assertEQ (trig.getAltState(), false);
+        }
+    }
+}
+
+static void testPrimaryProbability0()
+{
+    std::vector<bool> seq{ true, false, false, false };
+    sspo::TriggerSequencer<4> trig;
+    trig.setAltProbability (0.0f);
+    trig.setPrimaryProbability (0.0);
+    trig.setLength (seq.size());
+    trig.setActive (true);
+
+    for (auto i = 0; i < int (seq.size()); ++i)
+    {
+        trig.setStep (i, seq[i]);
+    }
+
+    for (auto j = 0; j < 100; ++j)
+    {
+        trig.reset();
+        for (auto i = 0; i < int (seq.size()); ++i)
+        {
+            trig.step (true);
+            assertEQ (trig.getPrimaryState(), false);
+            assertEQ (trig.getAltState(), false);
+        }
+    }
+}
+
+static void testPrimaryProbability20()
+{
+    std::vector<bool> seq{ true, false, false, false };
+    sspo::TriggerSequencer<4> trig;
+    trig.setAltProbability (0.0f);
+    trig.setPrimaryProbability (2.0);
+    trig.setLength (seq.size());
+    trig.setActive (true);
+
+    for (auto i = 0; i < int (seq.size()); ++i)
+    {
+        trig.setStep (i, seq[i]);
+    }
+
+    for (auto j = 0; j < 100; ++j)
+    {
+        trig.reset();
+        for (auto i = 0; i < int (seq.size()); ++i)
+        {
+            trig.step (true);
+            assertEQ (trig.getPrimaryState(), true);
+            assertEQ (trig.getAltState(), false);
+        }
+    }
+}
+
+static void testAltProbability10()
+{
+    std::vector<bool> seq{ true, false, false, false };
+    sspo::TriggerSequencer<4> trig;
+    trig.setAltProbability (1.0f);
+    trig.setPrimaryProbability (1.0);
+    trig.setLength (seq.size());
+    trig.setActive (true);
+
+    for (auto i = 0; i < int (seq.size()); ++i)
+    {
+        trig.setStep (i, seq[i]);
+    }
+
+    for (auto j = 0; j < 100; ++j)
+    {
+        trig.reset();
+        for (auto i = 0; i < int (seq.size()); ++i)
+        {
+            trig.step (true);
+            assertEQ (trig.getPrimaryState(), seq[i]);
+            assertNE (trig.getAltState(), trig.getPrimaryState());
+        }
+    }
+}
+
 void testTriggerSequencer()
 {
     printf ("test Trigger Sequencer\n");
@@ -172,4 +280,8 @@ void testTriggerSequencer()
     testReset();
     testActive();
     testIndex();
+    testPrimaryProbability10();
+    testPrimaryProbability0();
+    testPrimaryProbability20();
+    testAltProbability10();
 }
