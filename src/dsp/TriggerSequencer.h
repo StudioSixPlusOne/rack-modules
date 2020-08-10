@@ -31,6 +31,7 @@
 namespace sspo
 {
     /// single track trigger sequencer, with variable loop points
+    /// primary and alt outputs, with independent probability
     template <int MAX_LENGTH>
     struct TriggerSequencer
     {
@@ -39,6 +40,12 @@ namespace sspo
         int length = 16;
         std::bitset<maxLength> sequence;
         bool active = false;
+        bool primaryState;
+
+    private:
+        bool altState;
+        float primaryProbabilty = 1.0f;
+        float altProbability = 1.0f;
         int index = -1;
 
     public:
@@ -58,7 +65,37 @@ namespace sspo
         const std::bitset<MAX_LENGTH>& getSequence() { return sequence; }
         bool getActive() { return active; }
         void setActive (bool m) { active = m; }
-        void invertMute() { active = ! active; }
+        void invertActive() { active = ! active; }
+        bool isPrimaryState() const
+        {
+            return primaryState;
+        }
+
+        bool isAltState() const
+        {
+            return altState;
+        }
+
+        float getPrimaryProbabilty() const
+        {
+            return primaryProbabilty;
+        }
+
+        void setPrimaryProbabilty (float primaryProbabilty)
+        {
+            TriggerSequencer::primaryProbabilty = primaryProbabilty;
+        }
+
+        float getAltProbability() const
+        {
+            return altProbability;
+        }
+
+        void setAltProbability (float altProbability)
+        {
+            TriggerSequencer::altProbability = altProbability;
+        }
+
         int getIndex() { return index; }
         bool getStep (int x)
         {
