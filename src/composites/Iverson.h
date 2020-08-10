@@ -22,6 +22,7 @@
 #pragma once
 
 #include <memory>
+#include <bitset>
 #include "IComposite.h"
 #include "TriggerSequencer.h"
 #include "digital.hpp"
@@ -221,6 +222,22 @@ namespace sspo
             CLOCK_PARAM,
             SET_LENGTH_PARAM,
             MIDI_LEARN_PARAM,
+            PRIMARY_PROB_1,
+            PRIMARY_PROB_2,
+            PRIMARY_PROB_3,
+            PRIMARY_PROB_4,
+            PRIMARY_PROB_5,
+            PRIMARY_PROB_6,
+            PRIMARY_PROB_7,
+            PRIMARY_PROB_8,
+            ALT_PROB_1,
+            ALT_PROB_2,
+            ALT_PROB_3,
+            ALT_PROB_4,
+            ALT_PROB_5,
+            ALT_PROB_6,
+            ALT_PROB_7,
+            ALT_PROB_8,
             NUM_PARAMS
         };
         enum InputIds
@@ -239,6 +256,14 @@ namespace sspo
             TRIGGER_6_OUTPUT,
             TRIGGER_7_OUTPUT,
             TRIGGER_8_OUTPUT,
+            ALT_OUTPUT_1,
+            ALT_OUTPUT_2,
+            ALT_OUTPUT_3,
+            ALT_OUTPUT_4,
+            ALT_OUTPUT_5,
+            ALT_OUTPUT_6,
+            ALT_OUTPUT_7,
+            ALT_OUTPUT_8,
             NUM_OUTPUTS
         };
         enum LightIds
@@ -563,8 +588,16 @@ namespace sspo
                 ret = { 0.0f, 1.0f, 0.0f, "Midi Learn", " ", 0, 1, 0.0f };
                 break;
             default:
-                //                assert (false);
-                assert (true);
+                if (i <= IversonComp<TBase>::PRIMARY_PROB_8)
+                {
+                    ret = { -1.0f, 1.0f, 0.0f, " ", " ", 0, 1, 0.0f };
+                    return ret;
+                }
+                if (i <= IversonComp<TBase>::ALT_PROB_8)
+                {
+                    ret = { 0.0f, 1.0f, 1.0f, " ", " ", 0, 1, 0.0f };
+                    return ret;
+                }
         }
         return ret;
     }
