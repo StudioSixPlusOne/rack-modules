@@ -1,11 +1,8 @@
 {
-  "id": 0,
+  "id": 1609,
   "plugin": "StudioSixPlusOne",
   "version": "1.1.0",
   "model": "Iverson",
-  "params": [
-    
-  ],
   "data": {
     "midiBinding": [
       {
@@ -859,6 +856,102 @@
         "note": 45,
         "cc": -1,
         "paramId": 37
+      },
+      {
+        "controller": 0,
+        "note": -1,
+        "cc": 48,
+        "paramId": 152
+      },
+      {
+        "controller": 0,
+        "note": -1,
+        "cc": 49,
+        "paramId": 153
+      },
+      {
+        "controller": 0,
+        "note": -1,
+        "cc": 50,
+        "paramId": 154
+      },
+      {
+        "controller": 0,
+        "note": -1,
+        "cc": 51,
+        "paramId": 155
+      },
+      {
+        "controller": 0,
+        "note": -1,
+        "cc": 52,
+        "paramId": 156
+      },
+      {
+        "controller": 0,
+        "note": -1,
+        "cc": 53,
+        "paramId": 157
+      },
+      {
+        "controller": 0,
+        "note": -1,
+        "cc": 54,
+        "paramId": 158
+      },
+      {
+        "controller": 0,
+        "note": -1,
+        "cc": 55,
+        "paramId": 159
+      },
+      {
+        "controller": 1,
+        "note": -1,
+        "cc": 48,
+        "paramId": 160
+      },
+      {
+        "controller": 1,
+        "note": -1,
+        "cc": 49,
+        "paramId": 161
+      },
+      {
+        "controller": 1,
+        "note": -1,
+        "cc": 50,
+        "paramId": 162
+      },
+      {
+        "controller": 1,
+        "note": -1,
+        "cc": 51,
+        "paramId": 163
+      },
+      {
+        "controller": 1,
+        "note": -1,
+        "cc": 52,
+        "paramId": 164
+      },
+      {
+        "controller": 1,
+        "note": -1,
+        "cc": 53,
+        "paramId": 165
+      },
+      {
+        "controller": 1,
+        "note": -1,
+        "cc": 54,
+        "paramId": 166
+      },
+      {
+        "controller": 1,
+        "note": -1,
+        "cc": 55,
+        "paramId": 167
       }
     ]
   }
