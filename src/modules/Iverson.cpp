@@ -336,6 +336,9 @@ namespace sspo
         std::string getMidiAssignment (int x, int y);
     };
 
+    /**
+     * Checks for miid mappings and passes data to the assigned parameter
+     */
     void IversonBase::midiToParm()
     {
         midi::Message msg;
@@ -386,7 +389,7 @@ namespace sspo
                             //                                   m.cc,
                             //                                   m.paramId);
                             if (m.cc == msg.getNote() && m.controller == q)
-                                params[m.paramId].setValue ((msg.getValue() == 0 ? 0 : 1));
+                                paramQuantities[m.paramId]->setScaledValue (msg.getValue() / 127.0f); //((msg.getValue() == 0 ? 0 : 1));
                         }
                     }
 
@@ -398,11 +401,15 @@ namespace sspo
         }
     }
 
+    /**
+     * Midi mapping from controller to parameters
+     */
     void IversonBase::doLearn()
     {
+        if (! iverson->isLearning)
+            midiLearnMapping.reset();
         if (iverson->isClearAllMapping)
         {
-            DEBUG ("Clear all mapping");
             midiMappings.clear();
             iverson->isClearAllMapping = false;
         }
@@ -466,7 +473,11 @@ namespace sspo
                     midiMappings.erase (mm);
 
                 //delete any existing map to this midi cc
-                mm = std::find_if (midiMappings.begin(), midiMappings.end(), [this] (const MidiMapping& x) { return x.cc != -1 && x.cc == midiLearnMapping.cc; });
+                mm = std::find_if (midiMappings.begin(),
+                                   midiMappings.end(),
+                                   [this] (const MidiMapping& x) { return x.cc != -1
+                                                                          && x.cc == midiLearnMapping.cc
+                                                                          && (x.controller == midiLearnMapping.controller); });
                 if (mm != midiMappings.end())
                     midiMappings.erase (mm);
 
@@ -505,46 +516,73 @@ namespace sspo
             }
 
             //if param add to midi learn param
-            for (auto i = (int) iverson->GRID_1_1_PARAM; i <= iverson->GRID_16_8_PARAM; ++i)
+
+            ParamWidget* touchedParam = APP->scene->rack->touchedParam;
+            if (touchedParam)
             {
-                if ((int) iverson->params[i].getValue() != 0)
-                {
-                    midiLearnMapping.paramId = i;
-                    return;
-                }
-            }
-            for (auto i = (int) iverson->ACTIVE_1_PARAM; i <= iverson->ACTIVE_8_PARAM; ++i)
-            {
-                if ((int) iverson->params[i].getValue() != 0)
-                {
-                    midiLearnMapping.paramId = i;
-                    return;
-                }
+                APP->scene->rack->touchedParam = nullptr;
+                // dont learn midi learn param as turning off midi learn may result in overriding
+                // the last learnt parameter with midi learn.
+                if (touchedParam->paramQuantity->paramId != iverson->MIDI_LEARN_PARAM)
+                    midiLearnMapping.paramId = touchedParam->paramQuantity->paramId;
             }
 
-            for (auto i = (int) iverson->PAGE_ONE_PARAM; i <= iverson->PAGE_FOUR_PARAM; ++i)
-            {
-                if ((int) iverson->params[i].getValue() != 0)
-                {
-                    midiLearnMapping.paramId = i;
-                    return;
-                }
-            }
-
-            std::vector<int> learnableButtons = { iverson->SET_LENGTH_PARAM,
-                                                  iverson->RESET_PARAM };
-
-            for (auto lb : learnableButtons)
-            {
-                if ((int) iverson->params[lb].getValue() != 0)
-                {
-                    midiLearnMapping.paramId = lb;
-                    return;
-                }
-            }
+            //            for (auto i = (int) iverson->GRID_1_1_PARAM; i <= iverson->GRID_16_8_PARAM; ++i)
+            //            {
+            //                if ((int) iverson->params[i].getValue() != 0)
+            //                {
+            //                    midiLearnMapping.paramId = i;
+            //                    return;
+            //                }
+            //            }
+            //            for (auto i = (int) iverson->ACTIVE_1_PARAM; i <= iverson->ACTIVE_8_PARAM; ++i)
+            //            {
+            //                if ((int) iverson->params[i].getValue() != 0)
+            //                {
+            //                    midiLearnMapping.paramId = i;
+            //                    return;
+            //                }
+            //            }
+            //
+            //            for (auto i = (int) iverson->PAGE_ONE_PARAM; i <= iverson->PAGE_FOUR_PARAM; ++i)
+            //            {
+            //                if ((int) iverson->params[i].getValue() != 0)
+            //                {
+            //                    midiLearnMapping.paramId = i;
+            //                    return;
+            //                }
+            //            }
+            //
+            //            //think about this Dave, you can not check a rotary is not zero
+            //            //for assignment
+            //
+            //            for (auto i = (int) iverson->PRIMARY_PROB_1; i <= iverson->ALT_PROB_8; ++i)
+            //            {
+            //                if ((int) iverson->params[i].getValue() != 0)
+            //                {
+            //                    midiLearnMapping.paramId = i;
+            //                    return;
+            //                }
+            //            }
+            //
+            //
+            //            std::vector<int> learnableButtons = { iverson->SET_LENGTH_PARAM,
+            //                                                  iverson->RESET_PARAM };
+            //
+            //            for (auto lb : learnableButtons)
+            //            {
+            //                if ((int) iverson->params[lb].getValue() != 0)
+            //                {
+            //                    midiLearnMapping.paramId = lb;
+            //                    return;
+            //                }
+            //            }
         }
     }
 
+    /**
+     * velocity values used to set colours on midi controllers
+     */
     struct MidiFeedbackVelocity
     {
         int none = 0;
@@ -552,7 +590,6 @@ namespace sspo
         int loop = 3;
         int loopStep = 5;
         int index = 5;
-        int indexStep = 3;
     } midiFeedback;
 
     void IversonBase::pageLights()
