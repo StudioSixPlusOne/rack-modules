@@ -454,6 +454,7 @@ namespace sspo
         {
             isLearning = ! isLearning;
         }
+
         TBase::lights[MIDI_LEARN_LIGHT].setBrightness (isLearning);
     }
 
