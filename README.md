@@ -230,6 +230,33 @@ A slimline mixer for audio and cv.
 - All inputs and outputs polyphonic
 - CV controllable attenuverter
 
+<br>
+<br>
+<br>
+
+
+<br>
+<br>
+<br>
+
+
+
+<br>
+<br>
+<br>
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+
+
+
 
 ### Iverson
 
