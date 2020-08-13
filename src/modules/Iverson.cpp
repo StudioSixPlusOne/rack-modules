@@ -315,7 +315,6 @@ namespace sspo
             doLearn();
             if (paramMidiUpdateDivider.process())
             {
-                //                updateMidiOutDeviceDriver();
                 midiToParm();
             }
 
@@ -337,7 +336,7 @@ namespace sspo
     };
 
     /**
-     * Checks for miid mappings and passes data to the assigned parameter
+     * Checks for midi mappings and passes data to the assigned parameter
      */
     void IversonBase::midiToParm()
     {
@@ -345,7 +344,6 @@ namespace sspo
         for (auto q = 0; q < 2; ++q)
         {
             while (midiInputQueues[q].shift (&msg))
-
             {
                 switch (msg.getStatus())
                 {
@@ -367,11 +365,6 @@ namespace sspo
                         //find midiMapping for noteon
                         for (auto& m : midiMappings)
                         {
-                            //                            ::DEBUG ("NOTE ON, MIDIMappings controller %d  note %d  cc %d param %d",
-                            //                                   m.controller,
-                            //                                   m.note,
-                            //                                   m.cc,
-                            //                                   m.paramId);
                             if (m.note == msg.getNote() && m.controller == q)
                                 params[m.paramId].setValue ((msg.getValue() == 0 ? 0 : 1));
                         }
@@ -383,11 +376,6 @@ namespace sspo
                         //find midiMapping for cc
                         for (auto& m : midiMappings)
                         {
-                            //                            DEBUG ("NOTE ON, MIDIMappings controller %d  note %d  cc %d param %d",
-                            //                                   m.controller,
-                            //                                   m.note,
-                            //                                   m.cc,
-                            //                                   m.paramId);
                             if (m.cc == msg.getNote() && m.controller == q)
                                 paramQuantities[m.paramId]->setScaledValue (msg.getValue() / 127.0f); //((msg.getValue() == 0 ? 0 : 1));
                         }
@@ -484,7 +472,6 @@ namespace sspo
                 midiMappings.push_back (midiLearnMapping);
                 midiLearnMapping.reset();
                 // dont turn off midi learn, to allow multiple assignments
-                //                iverson->isLearning = false;
             }
             // if midi add to midi learn param
             midi::Message msg;
@@ -526,57 +513,6 @@ namespace sspo
                 if (touchedParam->paramQuantity->paramId != iverson->MIDI_LEARN_PARAM)
                     midiLearnMapping.paramId = touchedParam->paramQuantity->paramId;
             }
-
-            //            for (auto i = (int) iverson->GRID_1_1_PARAM; i <= iverson->GRID_16_8_PARAM; ++i)
-            //            {
-            //                if ((int) iverson->params[i].getValue() != 0)
-            //                {
-            //                    midiLearnMapping.paramId = i;
-            //                    return;
-            //                }
-            //            }
-            //            for (auto i = (int) iverson->ACTIVE_1_PARAM; i <= iverson->ACTIVE_8_PARAM; ++i)
-            //            {
-            //                if ((int) iverson->params[i].getValue() != 0)
-            //                {
-            //                    midiLearnMapping.paramId = i;
-            //                    return;
-            //                }
-            //            }
-            //
-            //            for (auto i = (int) iverson->PAGE_ONE_PARAM; i <= iverson->PAGE_FOUR_PARAM; ++i)
-            //            {
-            //                if ((int) iverson->params[i].getValue() != 0)
-            //                {
-            //                    midiLearnMapping.paramId = i;
-            //                    return;
-            //                }
-            //            }
-            //
-            //            //think about this Dave, you can not check a rotary is not zero
-            //            //for assignment
-            //
-            //            for (auto i = (int) iverson->PRIMARY_PROB_1; i <= iverson->ALT_PROB_8; ++i)
-            //            {
-            //                if ((int) iverson->params[i].getValue() != 0)
-            //                {
-            //                    midiLearnMapping.paramId = i;
-            //                    return;
-            //                }
-            //            }
-            //
-            //
-            //            std::vector<int> learnableButtons = { iverson->SET_LENGTH_PARAM,
-            //                                                  iverson->RESET_PARAM };
-            //
-            //            for (auto lb : learnableButtons)
-            //            {
-            //                if ((int) iverson->params[lb].getValue() != 0)
-            //                {
-            //                    midiLearnMapping.paramId = lb;
-            //                    return;
-            //                }
-            //            }
         }
     }
 
@@ -674,16 +610,20 @@ namespace sspo
             iverson->MAX_SEQUENCE_LENGTH = 64;
             iverson->GRID_WIDTH = 16;
             iverson->TRACK_COUNT = 8;
+            for (auto i = 0; i < TRACK_COUNT; ++i)
+                iverson->params[Comp::LENGTH_1_PARAM + i].setValue (iverson->GRID_WIDTH);
         }
     };
 
     struct IversonJr : IversonBase
     {
-        IversonJr()
+        IversonJr() : IversonBase()
         {
             iverson->MAX_SEQUENCE_LENGTH = 32;
             iverson->GRID_WIDTH = 8;
             iverson->TRACK_COUNT = 8;
+            for (auto i = 0; i < TRACK_COUNT; ++i)
+                iverson->params[Comp::LENGTH_1_PARAM + i].setValue (iverson->GRID_WIDTH);
         }
     };
 
@@ -780,7 +720,7 @@ User Interface
 
             //draw current page
             auto page = module->iverson->page;
-            auto pageWidth = beatWidth * (module->iverson->MAX_SEQUENCE_LENGTH / module->iverson->pages);
+            auto pageWidth = beatWidth * ((float) module->iverson->MAX_SEQUENCE_LENGTH / (float) module->iverson->pages);
             nvgFillColor (args.vg, gridColors.page);
             nvgBeginPath (args.vg);
             nvgRect (args.vg, page * pageWidth, 0, pageWidth, box.size.y);
@@ -795,7 +735,7 @@ User Interface
         GridColors gridColors;
         std::shared_ptr<Font> font;
         NVGcolor txtColor;
-        const int fontHeight = 8;
+        const float fontHeight = 8;
 
         struct GridLocation
         {
@@ -826,25 +766,25 @@ User Interface
             auto color = gridColors.none;
             if (module != nullptr)
             {
-                auto xoffset = module->iverson->page * module->iverson->GRID_WIDTH;
+                auto xOffset = module->iverson->page * module->iverson->GRID_WIDTH;
                 if (! module->iverson->isLearning) // not learning
                 {
                     // step active
-                    color = module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
+                    color = module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xOffset)
                                 ? gridColors.on
                                 : gridColors.none;
                     //index
-                    color = module->iverson->tracks[gridLocation.y].getIndex() == gridLocation.x + xoffset
+                    color = module->iverson->tracks[gridLocation.y].getIndex() == gridLocation.x + xOffset
                                 ? gridColors.index
                                 : color;
                     //loop length on active step
-                    color = module->iverson->tracks[gridLocation.y].getLength() - 1 == gridLocation.x + xoffset
-                                    && module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
+                    color = module->iverson->tracks[gridLocation.y].getLength() - 1 == gridLocation.x + xOffset
+                                    && module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xOffset)
                                 ? gridColors.loopAndBeat
                                 : color;
                     //loop length on inactive step
-                    color = module->iverson->tracks[gridLocation.y].getLength() - 1 == gridLocation.x + xoffset
-                                    && ! module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xoffset)
+                    color = module->iverson->tracks[gridLocation.y].getLength() - 1 == gridLocation.x + xOffset
+                                    && ! module->iverson->tracks[gridLocation.y].getStep (gridLocation.x + xOffset)
                                 ? gridColors.loop
                                 : color;
                 }
@@ -923,6 +863,16 @@ User Interface
             module->iverson->isClearAllMapping = true;
             module->iverson->isSetLength = false;
             module->iverson->isLearning = false;
+        }
+    };
+
+    struct ProbabilityNotchMeniItem : MenuItem
+    {
+        float notch = 0.0f;
+        IversonBase* module;
+        void onAction (const event::Action& e) override
+        {
+            module->iverson->params[Comp::PROB_NOTCH_WIDTH].setValue (notch);
         }
     };
 
@@ -1071,6 +1021,44 @@ User Interface
             clearMidiMenuItem->text = "Clear Midi Mapping";
             clearMidiMenuItem->module = (IversonBase*) module;
             menu->addChild (clearMidiMenuItem);
+
+            menu->addChild (new MenuEntry);
+
+            MenuLabel* notchWidthLabel = new MenuLabel();
+            notchWidthLabel->text = "Probability Notch Width";
+            menu->addChild (notchWidthLabel);
+
+            ProbabilityNotchMeniItem* noNotch = new ProbabilityNotchMeniItem();
+            noNotch->notch = 0.0f;
+            noNotch->text = "None  0%";
+            noNotch->module = (IversonBase*) module;
+            noNotch->rightText = CHECKMARK (((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
+                                            == noNotch->notch);
+            menu->addChild (noNotch);
+
+            ProbabilityNotchMeniItem* slimNotch = new ProbabilityNotchMeniItem();
+            slimNotch->notch = 0.20f / 2.0f;
+            slimNotch->text = "Slim  20%";
+            slimNotch->module = (IversonBase*) module;
+            slimNotch->rightText = CHECKMARK (((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
+                                              == slimNotch->notch);
+            menu->addChild (slimNotch);
+
+            ProbabilityNotchMeniItem* midNotch = new ProbabilityNotchMeniItem();
+            midNotch->notch = 0.35f / 2.0f;
+            midNotch->text = "Mid  35%";
+            midNotch->module = (IversonBase*) module;
+            midNotch->rightText = CHECKMARK (((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
+                                             == midNotch->notch);
+            menu->addChild (midNotch);
+
+            ProbabilityNotchMeniItem* wideNotch = new ProbabilityNotchMeniItem();
+            wideNotch->notch = 0.50f / 2.0f;
+            wideNotch->text = "Wide  50%";
+            wideNotch->module = (IversonBase*) module;
+            wideNotch->rightText = CHECKMARK (((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
+                                              == wideNotch->notch);
+            menu->addChild (wideNotch);
         }
     };
 
