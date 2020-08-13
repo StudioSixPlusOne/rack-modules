@@ -27,6 +27,7 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 
  [Zazel](#zazel)
 
+
  [Iverson](#iverson)
 
 
@@ -44,7 +45,9 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  - Stretch, the nature of strings gives a natural decay, this controls the length
  - Polyphonic, the number of channels is defined by the audio input
 
- The main audio input should be triggered with noise, the color and duration of this has a large impact on the resulting sound. Try experimenting with short bursts, such as snare sounds, longer noise sounds with automated frequency can be used to emulate a bowed sound. All variations of sound input can be used to create sounds.
+ 
+ The main audio input should be triggered with noise, the color and duration of this has a large impact on the resulting sound. Try experimenting with short bursts, such as snare sounds, longer noise sounds with automated frequency can be used to emulate a bowed sound. All variations of sound input can be used to create sounds. 
+
 
 [Omri's YouTube Tutorial](https://www.youtube.com/watch?v=VKX3ii-kR1Y)
 <br>
@@ -265,6 +268,7 @@ A slimline mixer for audio and cv.
 
 A performance based trigger sequencer with integrated support for MIDI grid controllers.
 
+
 Iverson comes in two versions: a 16 step and an 8 step (Iverson Jr).
 
  - Eight individual tracks.
@@ -328,3 +332,4 @@ Iverson comes in two versions: a 16 step and an 8 step (Iverson Jr).
         - volume is mapped to length
         - pan to reset
         - the first five rotary controllers are mapped to the main probability of the first 5 rows
+
