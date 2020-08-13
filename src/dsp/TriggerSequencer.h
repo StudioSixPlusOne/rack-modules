@@ -53,6 +53,10 @@ namespace sspo
         void reset()
         {
             index = -1;
+        }
+
+        void resetSequence()
+        {
             sequence.reset();
         }
 

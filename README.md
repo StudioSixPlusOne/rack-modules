@@ -263,24 +263,25 @@ A slimline mixer for audio and cv.
 <img align="left" src="images/Iverson.png">
 <img src="images/IversonJr.png">
 
-A performance based trigger sequencer with intergrated support for midi grid controllers.
+A performance based trigger sequencer with integrated support for midi grid controllers.
 
 Iverson comes in two versions, a 16 step and an 8 step UI, for use depending on controller configuration and desired use.
 
- - Eight indivdual tracks
- - Four pages per sequencer, giving a maximun of 64 steps for Iverson and 32 steps for Iverson Jr
- - All controls internally midi mappable, with factory presets in the right click menu for various controllers. User defined mappings can be set by clicking the midi learn button on the ui, then triggering the midi controller, followed by selecting the required UI element. The context menu provides options to clear single and all midi mappings. If you define a midi map for a controller not provided in the factory presets you may, if you desire, sumbit the module preset for including in future releases
- - Independant track lengths allowing for polyrhythms. Each length can be set by clicking the length button on the left of the ui and selecting the last step to be played on the sequencing grid
+ - Eight individual tracks
+ - Four pages per sequencer, giving a maximum of 64 steps for Iverson and 32 steps for Iverson Jr
+ - All controls internally midi mappable, with factory presets in the right click menu for various controllers. User defined mappings can be set by clicking the midi learn button on the ui, then triggering the midi controller, followed by selecting the required UI element. The context menu provides options to clear single and all midi mappings. If you define a midi map for a controller not provided in the factory presets you may, if you desire, summit the module preset for including in future releases
+ - Independent track lengths allowing for polyrhythms. Each length can be set by clicking the length button on the left of the ui and selecting the last step to be played on the sequencing grid
  - Per track active/mute controls
  - Each track has two outputs, Main follows the programmed pattern, Alt output is for steps not triggered by the pattern, this can be used for ghost hits, open closed hat patterns, and alternating voice triggers of a pattern when used in combination with envelope generators and VCA's, both tracks can be controlled with the probability controls.
- - Probabilty controls  
+ - Probability controls  
  
-    - The main probabilty control is used for the programmed steps, with a value of one, the main output mirrors the programmed grid, with a value less than one this is the chance that the programmed step will be played, values greater then 1 and a chance that non programmed steps will be played on the main output
+    - The main probability control is used for the programmed steps, with a value of one, the main output mirrors the programmed grid, with a value less than one this is the chance that the programmed step will be played, values greater then 1 and a chance that non programmed steps will be played on the main output
     - The Alt probability controls the chance that non programmed outputs and played on the alt output
     - These can be used in combination to perform fills
-    - The context menu provides options for adding a zero deadzone to the probabilty controls, this is useful when using in combination with a midi controller removing the requirement for exact zero placements when requiring only the programmed steps to be played
+    - The context menu provides options for adding a zero deadzone to the probability controls, this is useful when using in combination with a midi controller removing the requirement for exact zero placements when requiring only the programmed steps to be played
   
- - The clock input is passed to the outputs on triggers steps, allowing varing width clock pulses to be used
+ - The clock input is passed to the outputs on triggers steps, allowing varying width clock pulses to be used
  - The reset input can be used to sync all tracks to restart
- - The lower region of the ui contains Midi assignemnt controls, both the input and output require assigning. Iverson has provision for two controllers for the sixteen steps, while using Iverson Jr only a single grid controller is required 
- 
+ - The lower region of the ui contains Midi assignment controls, both the input and output require assigning. Iverson has provision for two controllers for the sixteen steps, while using Iverson Jr only a single grid controller is required
+ - The factory presets for APC mini Iverson JR map the sequencer grid, the lower buttons map the page selection, loop length and reset, the faders are assigned to the main probability controls. 
+ - The factory presets for the APC mini Iverson when used with dual controllers features the same as above, with additional sliders for the Alt probability controls.
