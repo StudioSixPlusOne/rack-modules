@@ -546,13 +546,12 @@ namespace sspo
             //flat notch in center of primary probability to allow for inaccurate placement
             //of controls during performance
             auto prob = 0.0f;
-            auto pp = TBase::params[PRIMARY_PROB_1 + i].getValue() -1; // parameter probability
+            auto pp = TBase::params[PRIMARY_PROB_1 + i].getValue() - 1; // parameter probability
             auto n = TBase::params[PROB_NOTCH_WIDTH].getValue();
             if (pp < -n)
-                prob = pp * (1.0/(1-n))+(n/(1-n));
+                prob = pp * (1.0 / (1 - n)) + (n / (1 - n));
             else if (pp > n)
-                prob = pp * (1.0/(1-n))-(n/(1-n));
-
+                prob = pp * (1.0 / (1 - n)) - (n / (1 - n));
 
             tracks[i].setPrimaryProbability (prob + 1);
             tracks[i].setAltProbability (TBase::params[ALT_PROB_1 + i].getValue());
