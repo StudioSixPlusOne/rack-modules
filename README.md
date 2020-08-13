@@ -3,7 +3,7 @@ VCV Rack modules
 
 A collection of modules for [VCV Rack](https://github.com/VCVRack/Rack), a cross platform opensource, modular synth emulator software.
 
-Modules are polyphonic where applicable. Early releases and beta modules can be found here on github, before being submitted to the VCV libary.
+Modules are polyphonic where applicable. Early releases and beta modules can be found here on github, before being submitted to the VCV library.
 
 ## Building from code
 
@@ -27,6 +27,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  
  [Zazel](#zazel)
  
+ [Iverson](#iverson)
+ 
 
   
 
@@ -42,7 +44,7 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  - Stretch, the nature of strings gives a natural decay, this controls the length
  - Polyphonic, the number of channels is defined by the audio input
  
- The main audio input should be triggered with noise, the color and duration of this has a large impact on the resulting sound. Try experimenting with short bursts, such as snare sounds, longer noise sounds with automated frequency can be used to emulate a bowed sound. All varations of sound input can be used to create sounds. 
+ The main audio input should be triggered with noise, the color and duration of this has a large impact on the resulting sound. Try experimenting with short bursts, such as snare sounds, longer noise sounds with automated frequency can be used to emulate a bowed sound. All variations of sound input can be used to create sounds. 
 
 [Omri's YouTube Tutorial](https://www.youtube.com/watch?v=VKX3ii-kR1Y)
 <br>
@@ -60,7 +62,7 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 An emulation of a ladder filter, based on the descriptions and block diagrams in Will Pirkles book "Designing Software Synthesizers Plugins in C++" featuring:
 
 - Six modes, selectable via CV and the knob, allowing for automatiom between lp12, lp24, hp12, hp24, bp12 and bp24
-- Frequency contols are summed, for accurate pitch tracking set the knob to C4 261Hz and use the V/oct input
+- Frequency controls are summed, for accurate pitch tracking set the knob to C4 261Hz and use the V/oct input
 - Resonance that allows for self oscillation
 - Drive to add colour and dirt to the sound, works well when self oscillating
 - Polyphonic, the number of channels is defined by the audio input or the V/oct input for use as an oscillator
@@ -81,9 +83,9 @@ If the audio input is disconnected, the filter will still run in monophonic mode
  <img align="left" src="images/Massarti.png">
 
 
-A feedfoward comb filter with added feeback loop, can be used to create pitched sounds from noise, or for the adding of overtones
+A feedforward comb filter with added feedback loop, can be used to create pitched sounds from noise, or for the adding of overtones
 
-- Frequency contols are summed, for accurate pitch tracking
+- Frequency controls are summed, for accurate pitch tracking
 - Comb control adjusts the magnitude of the harmonic bands, positive values boost, negative values cut
 - Feedback adds warmth, and reverb like effect
 - Polyphonic, the number of channels is defined by the audio input
@@ -229,4 +231,29 @@ A slimline mixer for audio and cv.
 - CV controllable attenuverter
 
 
+### Iverson
 
+<img align="left" src="images/Iverson.png">
+<img src="images/IversonJr.png">
+
+A performance based trigger sequencer with intergrated support for midi grid controllers.
+
+Iverson comes in two versions, a 16 step and an 8 step UI, for use depending on controller configuration and desired use.
+
+ - Eight indivdual tracks
+ - Four pages per sequencer, giving a maximun of 64 steps for Iverson and 32 steps for Iverson Jr
+ - All controls internally midi mappable, with factory presets in the right click menu for various controllers. User defined mappings can be set by clicking the midi learn button on the ui, then triggering the midi controller, followed by selecting the required UI element. The context menu provides options to clear single and all midi mappings. If you define a midi map for a controller not provided in the factory presets you may, if you desire, sumbit the module preset for including in future releases
+ - Independant track lengths allowing for polyrhythms. Each length can be set by clicking the length button on the left of the ui and selecting the last step to be played on the sequencing grid
+ - Per track active/mute controls
+ - Each track has two outputs, Main follows the programmed pattern, Alt output is for steps not triggered by the pattern, this can be used for ghost hits, open closed hat patterns, and alternating voice triggers of a pattern when used in combination with envelope generators and VCA's, both tracks can be controlled with the probability controls.
+ - Probabilty controls  
+ 
+    - The main probabilty control is used for the programmed steps, with a value of one, the main output mirrors the programmed grid, with a value less than one this is the chance that the programmed step will be played, values greater then 1 and a chance that non programmed steps will be played on the main output
+    - The Alt probability controls the chance that non programmed outputs and played on the alt output
+    - These can be used in combination to perform fills
+    - The context menu provides options for adding a zero deadzone to the probabilty controls, this is useful when using in combination with a midi controller removing the requirement for exact zero placements when requiring only the programmed steps to be played
+  
+ - The clock input is passed to the outputs on triggers steps, allowing varing width clock pulses to be used
+ - The reset input can be used to sync all tracks to restart
+ - The lower region of the ui contains Midi assignemnt controls, both the input and output require assigning. Iverson has provision for two controllers for the sixteen steps, while using Iverson Jr only a single grid controller is required 
+ 
