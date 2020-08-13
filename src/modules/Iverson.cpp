@@ -632,6 +632,7 @@ namespace sspo
             t.setIndex (-1);
             t.reset();
             t.setActive (true);
+            t.resetSequence();
             params[Comp::ACTIVE_1_PARAM + i].setValue (false);
             params[Comp::PRIMARY_PROB_1 + i].setValue (1.0f);
             params[Comp::ALT_PROB_1 + i].setValue (0);
