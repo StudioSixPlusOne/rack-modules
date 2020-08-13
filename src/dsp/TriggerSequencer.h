@@ -53,6 +53,7 @@ namespace sspo
         void reset()
         {
             index = -1;
+            sequence.reset();
         }
 
         TriggerSequencer()

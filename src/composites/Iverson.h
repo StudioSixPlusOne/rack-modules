@@ -327,9 +327,7 @@ namespace sspo
         {
         }
 
-        virtual ~IversonComp()
-        {
-        }
+        virtual ~IversonComp() = default;
 
         /** Implement IComposite
      */
@@ -355,8 +353,6 @@ namespace sspo
 
         void step() override;
 
-        /// updates led's to reflect sequencer state on selected page
-        void sequencerLEDs();
         /// update tracks from inputs
         void gridInputs();
 
