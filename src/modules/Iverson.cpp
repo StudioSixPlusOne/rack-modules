@@ -150,6 +150,8 @@ namespace sspo
             controlPageUpdateDivider.setDivision (10000);
             paramMidiUpdateDivider.setDivision (100);
         }
+        void onReset() override;
+
         void onSampleRateChange() override
         {
             float rate = SqHelper::engineGetSampleRate();
@@ -174,7 +176,8 @@ namespace sspo
                 //sequence 64bit, json integers are 32bit, store ass hi low values
                 json_array_insert_new (sequenceHiJ,
                                        i,
-                                       json_integer (((iverson->tracks[i].getSequence().to_ullong()) >> 32u) & 0xffffffff));
+                                       json_integer (
+                                           ((iverson->tracks[i].getSequence().to_ullong()) >> 32u) & 0xffffffff));
                 json_array_insert_new (sequenceLowJ,
                                        i,
                                        json_integer (((iverson->tracks[i].getSequence().to_ullong())) & 0xffffffff));
@@ -310,6 +313,7 @@ namespace sspo
         }
 
         void doLearn();
+
         void process (const ProcessArgs& args) override
         {
             doLearn();
@@ -329,15 +333,18 @@ namespace sspo
         /// midi handling would require linking to RACK for unit test
         /// hence all midi to be processed in Iverson.cpp
         void midiToParm();
+
         /// sends midi to external controller to show status
         void pageLights();
+
         bool isGridMidiMapped (int x, int y);
+
         std::string getMidiAssignment (int x, int y);
     };
 
     /**
-     * Checks for midi mappings and passes data to the assigned parameter
-     */
+	 * Checks for midi mappings and passes data to the assigned parameter
+	 */
     void IversonBase::midiToParm()
     {
         midi::Message msg;
@@ -350,7 +357,7 @@ namespace sspo
                     //note off
                     case 0x8:
                     {
-                        //find midiMapping for noteoff
+                        //find midiMapping for noteOff
                         for (auto& m : midiMappings)
                         {
                             if (m.note == msg.getNote() && m.controller == q)
@@ -362,11 +369,11 @@ namespace sspo
                         //note on
                     case 0x9:
                     {
-                        //find midiMapping for noteon
+                        //find midiMapping for noteOn
                         for (auto& m : midiMappings)
                         {
                             if (m.note == msg.getNote() && m.controller == q)
-                                params[m.paramId].setValue ((msg.getValue() == 0 ? 0 : 1));
+                                params[m.paramId].setValue (msg.getValue() == 0 ? 0 : 1);
                         }
                     }
                     break;
@@ -377,7 +384,8 @@ namespace sspo
                         for (auto& m : midiMappings)
                         {
                             if (m.cc == msg.getNote() && m.controller == q)
-                                paramQuantities[m.paramId]->setScaledValue (msg.getValue() / 127.0f); //((msg.getValue() == 0 ? 0 : 1));
+                                paramQuantities[m.paramId]->setScaledValue (
+                                    (float) msg.getValue() / 127.0f); //((msg.getValue() == 0 ? 0 : 1));
                         }
                     }
 
@@ -390,8 +398,8 @@ namespace sspo
     }
 
     /**
-     * Midi mapping from controller to parameters
-     */
+	 * Midi mapping from controller to parameters
+	 */
     void IversonBase::doLearn()
     {
         if (! iverson->isLearning)
@@ -409,7 +417,9 @@ namespace sspo
             {
                 auto mm = std::find_if (midiMappings.begin(),
                                         midiMappings.end(),
-                                        [this] (const MidiMapping& x) { return (x.paramId == midiLearnMapping.paramId); });
+                                        [this] (const MidiMapping& x) {
+                                            return (x.paramId == midiLearnMapping.paramId);
+                                        });
                 if (mm != midiMappings.end())
                 {
                     midiMappings.erase (mm);
@@ -423,9 +433,11 @@ namespace sspo
 
             auto mm = std::find_if (midiMappings.begin(),
                                     midiMappings.end(),
-                                    [this] (const MidiMapping& x) { return x.note != -1
-                                                                           && x.note == midiLearnMapping.note
-                                                                           && (x.controller == midiLearnMapping.controller); });
+                                    [this] (const MidiMapping& x) {
+                                        return x.note != -1
+                                               && x.note == midiLearnMapping.note
+                                               && (x.controller == midiLearnMapping.controller);
+                                    });
 
             if (mm != midiMappings.end())
             {
@@ -447,25 +459,31 @@ namespace sspo
                 //delete any existing map to this parameter
                 auto mm = std::find_if (midiMappings.begin(),
                                         midiMappings.end(),
-                                        [this] (const MidiMapping& x) { return (x.paramId == midiLearnMapping.paramId); });
+                                        [this] (const MidiMapping& x) {
+                                            return (x.paramId == midiLearnMapping.paramId);
+                                        });
                 if (mm != midiMappings.end())
                     midiMappings.erase (mm);
 
                 //delete any existing map to this midi note
                 mm = std::find_if (midiMappings.begin(),
                                    midiMappings.end(),
-                                   [this] (const MidiMapping& x) { return x.note != -1
-                                                                          && x.note == midiLearnMapping.note
-                                                                          && (x.controller == midiLearnMapping.controller); });
+                                   [this] (const MidiMapping& x) {
+                                       return x.note != -1
+                                              && x.note == midiLearnMapping.note
+                                              && (x.controller == midiLearnMapping.controller);
+                                   });
                 if (mm != midiMappings.end())
                     midiMappings.erase (mm);
 
                 //delete any existing map to this midi cc
                 mm = std::find_if (midiMappings.begin(),
                                    midiMappings.end(),
-                                   [this] (const MidiMapping& x) { return x.cc != -1
-                                                                          && x.cc == midiLearnMapping.cc
-                                                                          && (x.controller == midiLearnMapping.controller); });
+                                   [this] (const MidiMapping& x) {
+                                       return x.cc != -1
+                                              && x.cc == midiLearnMapping.cc
+                                              && (x.controller == midiLearnMapping.controller);
+                                   });
                 if (mm != midiMappings.end())
                     midiMappings.erase (mm);
 
@@ -478,7 +496,6 @@ namespace sspo
             for (auto q = 0; q < 2; ++q)
             {
                 while (midiInputQueues[q].shift (&msg))
-
                 {
                     switch (msg.getStatus())
                     {
@@ -517,8 +534,8 @@ namespace sspo
     }
 
     /**
-     * velocity values used to set colours on midi controllers
-     */
+	 * velocity values used to set colours on midi controllers
+	 */
     struct MidiFeedbackVelocity
     {
         int none = 0;
@@ -585,15 +602,20 @@ namespace sspo
     {
         auto mapping = std::find_if (midiMappings.begin(),
                                      midiMappings.end(),
-                                     [this, x, y] (const MidiMapping mm) { return mm.paramId == iverson->getGridIndex (x, y) + Comp::GRID_1_1_PARAM; });
+                                     [this, x, y] (const MidiMapping mm) {
+                                         return mm.paramId == iverson->getGridIndex (x, y) + Comp::GRID_1_1_PARAM;
+                                     });
 
         return mapping != midiMappings.end();
     }
+
     std::string IversonBase::getMidiAssignment (int x, int y)
     {
         auto mapping = std::find_if (midiMappings.begin(),
                                      midiMappings.end(),
-                                     [this, x, y] (const MidiMapping mm) { return mm.paramId == iverson->getGridIndex (x, y) + Comp::GRID_1_1_PARAM; });
+                                     [this, x, y] (const MidiMapping mm) {
+                                         return mm.paramId == iverson->getGridIndex (x, y) + Comp::GRID_1_1_PARAM;
+                                     });
 
         if (mapping == midiMappings.end())
             return "";
@@ -601,6 +623,20 @@ namespace sspo
         std::stringstream ss;
         ss << mapping->controller << ":" << mapping->note;
         return ss.str();
+    }
+    void IversonBase::onReset()
+    {
+        for (auto i = 0; i < int (iverson->tracks.size()); ++i)
+        {
+            auto& t = iverson->tracks[i];
+            t.setIndex (-1);
+            t.reset();
+            t.setActive (true);
+            params[Comp::ACTIVE_1_PARAM + i].setValue (false);
+            params[Comp::PRIMARY_PROB_1 + i].setValue (1.0f);
+            params[Comp::ALT_PROB_1 + i].setValue (0);
+        }
+        Module::onReset();
     }
 
     struct Iverson : IversonBase
@@ -611,7 +647,7 @@ namespace sspo
             iverson->GRID_WIDTH = 16;
             iverson->TRACK_COUNT = 8;
             for (auto i = 0; i < TRACK_COUNT; ++i)
-                iverson->params[Comp::LENGTH_1_PARAM + i].setValue (iverson->GRID_WIDTH);
+                iverson->params[Comp::LENGTH_1_PARAM + i].setValue ((float) iverson->GRID_WIDTH);
         }
     };
 
@@ -623,7 +659,7 @@ namespace sspo
             iverson->GRID_WIDTH = 8;
             iverson->TRACK_COUNT = 8;
             for (auto i = 0; i < TRACK_COUNT; ++i)
-                iverson->params[Comp::LENGTH_1_PARAM + i].setValue (iverson->GRID_WIDTH);
+                iverson->params[Comp::LENGTH_1_PARAM + i].setValue ((float) iverson->GRID_WIDTH);
         }
     };
 
@@ -675,11 +711,12 @@ User Interface
         {
             Widget::step();
         }
+
         void draw (const DrawArgs& args) override
         {
             if (module == nullptr)
                 return;
-            auto beatWidth = box.size.x / module->iverson->MAX_SEQUENCE_LENGTH;
+            auto beatWidth = box.size.x / (float) module->iverson->MAX_SEQUENCE_LENGTH;
             auto trackHeight = box.size.y / module->iverson->tracks.size();
 
             for (auto t = 0; t < int (module->iverson->tracks.size()); ++t)
@@ -720,7 +757,8 @@ User Interface
 
             //draw current page
             auto page = module->iverson->page;
-            auto pageWidth = beatWidth * ((float) module->iverson->MAX_SEQUENCE_LENGTH / (float) module->iverson->pages);
+            auto pageWidth =
+                beatWidth * ((float) module->iverson->MAX_SEQUENCE_LENGTH / (float) module->iverson->pages);
             nvgFillColor (args.vg, gridColors.page);
             nvgBeginPath (args.vg);
             nvgRect (args.vg, page * pageWidth, 0, pageWidth, box.size.y);
@@ -845,6 +883,7 @@ User Interface
     struct ClearMidiMappingMenuItem : MenuItem
     {
         IversonBase* module;
+
         void onAction (const event::Action& e) override
         {
             module->iverson->isClearMapping = true;
@@ -854,9 +893,10 @@ User Interface
         }
     };
 
-    struct ClearMAllidiMappingMenuItem : MenuItem
+    struct ClearMAllMidiMappingMenuItem : MenuItem
     {
         IversonBase* module;
+
         void onAction (const event::Action& e) override
         {
             module->iverson->isClearMapping = false;
@@ -866,10 +906,11 @@ User Interface
         }
     };
 
-    struct ProbabilityNotchMeniItem : MenuItem
+    struct ProbabilityNotchMenuItem : MenuItem
     {
         float notch = 0.0f;
         IversonBase* module;
+
         void onAction (const event::Action& e) override
         {
             module->iverson->params[Comp::PROB_NOTCH_WIDTH].setValue (notch);
@@ -885,7 +926,7 @@ User Interface
         float muteX = 198.00f;
         float triggerX = 211.06f;
         int midiSelectorCount = 0;
-        std::string filename = "";
+        std::string filename;
         float summaryLength = 0;
         float summaryX = 0;
         std::vector<float> midiSelectorX;
@@ -893,7 +934,7 @@ User Interface
         float altProbX = 0.0f;
         float altOutx = 0.0f;
 
-        IversonBaseWidget (IversonBase* module)
+        explicit IversonBaseWidget (IversonBase* module)
         {
             setModule (module);
         }
@@ -907,7 +948,8 @@ User Interface
             addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, 0)));
             addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, 0)));
             addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-            addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+            addChild (createWidget<ScrewSilver> (
+                Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
             //parameter grid inputs
             Vec grid_1_1 (gridX, 23.7f);
@@ -917,22 +959,26 @@ User Interface
             for (auto t = 0; t < trackCount; ++t)
             {
                 addParam (SqHelper::createParamCentered<sspo::SmallKnob> (icomp,
-                                                                          mm2px (Vec (primaryProbX, grid_1_1.y + t * gridYDelta)),
+                                                                          mm2px (Vec (primaryProbX,
+                                                                                      grid_1_1.y + t * gridYDelta)),
                                                                           module,
                                                                           Comp::PRIMARY_PROB_1 + t));
                 addParam (SqHelper::createParamCentered<sspo::SmallKnob> (icomp,
-                                                                          mm2px (Vec (altProbX, grid_1_1.y + t * gridYDelta)),
+                                                                          mm2px (Vec (altProbX,
+                                                                                      grid_1_1.y + t * gridYDelta)),
                                                                           module,
                                                                           Comp::ALT_PROB_1 + t));
 
                 for (auto s = 0; s < gridWidth; ++s)
                 {
                     addParam (SqHelper::createParamCentered<GridButton> (icomp,
-                                                                         mm2px (Vec (grid_1_1.x + s * gridXDelta, grid_1_1.y + t * gridYDelta)),
+                                                                         mm2px (Vec (grid_1_1.x + s * gridXDelta,
+                                                                                     grid_1_1.y + t * gridYDelta)),
                                                                          module,
                                                                          Comp::GRID_1_1_PARAM + t * gridWidth + s));
 
-                    GridWidget* gridWidget = createWidget<GridWidget> (mm2px (Vec (grid_1_1.x + s * gridXDelta - 4, grid_1_1.y + t * gridYDelta - 3.5)));
+                    auto* gridWidget = createWidget<GridWidget> (mm2px (Vec (grid_1_1.x + s * gridXDelta - 4.0f,
+                                                                             grid_1_1.y + t * gridYDelta - 3.5f)));
                     gridWidget->box.size = mm2px (Vec (8, 7));
                     gridWidget->setGridLocation (s, t);
                     gridWidget->setModule (module);
@@ -960,7 +1006,8 @@ User Interface
             addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 40.40)), module, Comp::PAGE_THREE_PARAM));
             addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 48.74)), module, Comp::PAGE_FOUR_PARAM));
             addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (18.57, 118.0)), module, Comp::RESET_PARAM));
-            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (18.57, 102)), module, Comp::CLOCK_PARAM));
+            addParam (
+                SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (18.57, 102)), module, Comp::CLOCK_PARAM));
             addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 65.45)), module, Comp::SET_LENGTH_PARAM));
             addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 82.15)), module, Comp::MIDI_LEARN_PARAM));
 
@@ -970,7 +1017,8 @@ User Interface
             addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 23.70)), module, Comp::PAGE_ONE_LIGHT));
             addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 32.05)), module, Comp::PAGE_TWO_LIGHT));
             addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 40.40)), module, Comp::PAGE_THREE_LIGHT));
-            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 48.74)), module, Comp::PAGE_FOUR_LIGHT));
+            addChild (
+                createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 48.74)), module, Comp::PAGE_FOUR_LIGHT));
             addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (18.57, 118.0)), module, Comp::RESET_LIGHT));
             addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (18.57, 102.0)), module, Comp::CLOCK_LIGHT));
             addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 65.45)), module, Comp::SET_LENGTH_LIGHT));
@@ -987,21 +1035,21 @@ User Interface
                 }
             }
 
-            SummaryWidget* summaryWidget = createWidget<SummaryWidget> (mm2px (Vec (summaryX, 87.5)));
+            auto* summaryWidget = createWidget<SummaryWidget> (mm2px (Vec (summaryX, 87.5)));
             summaryWidget->box.size = mm2px (Vec (summaryLength, 4));
             summaryWidget->setModule (module);
             addChild (summaryWidget);
         }
 
         /**
-         * helper function create and add a MidiWidget to the current widget;
-         * @param module
-         * @param port The midi queue
-         * @return
-         */
+		 * helper function create and add a MidiWidget to the current widget;
+		 * @param module
+		 * @param port The midi queue
+		 * @return
+		 */
         MidiWidget* newMidiWidget (const IversonBase* module, midi::Port* port, Vec pos)
         {
-            MidiWidget* midiAInWidget = createWidget<MidiWidget> (mm2px (pos));
+            auto* midiAInWidget = createWidget<MidiWidget> (mm2px (pos));
             midiAInWidget->box.size = mm2px (Vec (40, 25));
             midiAInWidget->setMidiPort (module ? port : NULL);
             addChild (midiAInWidget);
@@ -1012,23 +1060,23 @@ User Interface
         {
             menu->addChild (new MenuEntry);
 
-            ClearMAllidiMappingMenuItem* clearAllMenuItem = new ClearMAllidiMappingMenuItem();
+            auto* clearAllMenuItem = new ClearMAllMidiMappingMenuItem();
             clearAllMenuItem->text = "Clear all Midi Mappings";
             clearAllMenuItem->module = (IversonBase*) module;
             menu->addChild (clearAllMenuItem);
 
-            ClearMidiMappingMenuItem* clearMidiMenuItem = new ClearMidiMappingMenuItem();
+            auto* clearMidiMenuItem = new ClearMidiMappingMenuItem();
             clearMidiMenuItem->text = "Clear Midi Mapping";
             clearMidiMenuItem->module = (IversonBase*) module;
             menu->addChild (clearMidiMenuItem);
 
             menu->addChild (new MenuEntry);
 
-            MenuLabel* notchWidthLabel = new MenuLabel();
+            auto* notchWidthLabel = new MenuLabel();
             notchWidthLabel->text = "Probability Notch Width";
             menu->addChild (notchWidthLabel);
 
-            ProbabilityNotchMeniItem* noNotch = new ProbabilityNotchMeniItem();
+            auto* noNotch = new ProbabilityNotchMenuItem();
             noNotch->notch = 0.0f;
             noNotch->text = "None  0%";
             noNotch->module = (IversonBase*) module;
@@ -1036,35 +1084,38 @@ User Interface
                                             == noNotch->notch);
             menu->addChild (noNotch);
 
-            ProbabilityNotchMeniItem* slimNotch = new ProbabilityNotchMeniItem();
+            auto* slimNotch = new ProbabilityNotchMenuItem();
             slimNotch->notch = 0.20f / 2.0f;
             slimNotch->text = "Slim  20%";
             slimNotch->module = (IversonBase*) module;
-            slimNotch->rightText = CHECKMARK (((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
-                                              == slimNotch->notch);
+            slimNotch->rightText = CHECKMARK (
+                ((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
+                == slimNotch->notch);
             menu->addChild (slimNotch);
 
-            ProbabilityNotchMeniItem* midNotch = new ProbabilityNotchMeniItem();
+            auto* midNotch = new ProbabilityNotchMenuItem();
             midNotch->notch = 0.35f / 2.0f;
             midNotch->text = "Mid  35%";
             midNotch->module = (IversonBase*) module;
-            midNotch->rightText = CHECKMARK (((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
-                                             == midNotch->notch);
+            midNotch->rightText = CHECKMARK (
+                ((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
+                == midNotch->notch);
             menu->addChild (midNotch);
 
-            ProbabilityNotchMeniItem* wideNotch = new ProbabilityNotchMeniItem();
+            auto* wideNotch = new ProbabilityNotchMenuItem();
             wideNotch->notch = 0.50f / 2.0f;
             wideNotch->text = "Wide  50%";
             wideNotch->module = (IversonBase*) module;
-            wideNotch->rightText = CHECKMARK (((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
-                                              == wideNotch->notch);
+            wideNotch->rightText = CHECKMARK (
+                ((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
+                == wideNotch->notch);
             menu->addChild (wideNotch);
         }
     };
 
     struct IversonWidget : IversonBaseWidget
     {
-        IversonWidget (IversonBase* module) : IversonBaseWidget (module)
+        explicit IversonWidget (IversonBase* module) : IversonBaseWidget (module)
         {
             gridWidth = 16;
             muteX = 192.380f;
@@ -1085,7 +1136,7 @@ User Interface
 
     struct IversonJrWidget : IversonBaseWidget
     {
-        IversonJrWidget (IversonBase* module) : IversonBaseWidget (module)
+        explicit IversonJrWidget (IversonBase* module) : IversonBaseWidget (module)
         {
             gridWidth = 8;
             muteX = 126.34f;
@@ -1106,5 +1157,5 @@ User Interface
     };
 
 } // namespace sspo
-Model* modelIverson = createModel<sspo::Iverson, sspo::IversonWidget> ("Iverson");
-Model* modelIversonJr = createModel<sspo::IversonJr, sspo::IversonJrWidget> ("IversonJr");
+Model* modelIverson = createModel<sspo::Iverson, sspo::IversonWidget> ("Iverson"); // NOLINT(cert-err58-cpp)
+Model* modelIversonJr = createModel<sspo::IversonJr, sspo::IversonJrWidget> ("IversonJr"); // NOLINT(cert-err58-cpp)
