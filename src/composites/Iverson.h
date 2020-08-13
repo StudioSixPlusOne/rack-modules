@@ -238,6 +238,7 @@ namespace sspo
             ALT_PROB_6,
             ALT_PROB_7,
             ALT_PROB_8,
+            PROB_NOTCH_WIDTH,
             NUM_PARAMS
         };
         enum InputIds
@@ -546,7 +547,18 @@ namespace sspo
     {
         for (auto i = 0; i < TRACK_COUNT; ++i)
         {
-            tracks[i].setPrimaryProbability (TBase::params[PRIMARY_PROB_1 + i].getValue());
+            //flat notch in center of primary probability to allow for inaccurate placement
+            //of controls during performance
+            auto prob = 0.0f;
+            auto pp = TBase::params[PRIMARY_PROB_1 + i].getValue() -1; // parameter probability
+            auto n = TBase::params[PROB_NOTCH_WIDTH].getValue();
+            if (pp < -n)
+                prob = pp * (1.0/(1-n))+(n/(1-n));
+            else if (pp > n)
+                prob = pp * (1.0/(1-n))-(n/(1-n));
+
+
+            tracks[i].setPrimaryProbability (prob + 1);
             tracks[i].setAltProbability (TBase::params[ALT_PROB_1 + i].getValue());
         }
     }
@@ -603,6 +615,9 @@ namespace sspo
                 break;
             case IversonComp<TBase>::MIDI_LEARN_PARAM:
                 ret = { 0.0f, 1.0f, 0.0f, "Midi Learn", " ", 0, 1, 0.0f };
+                break;
+            case IversonComp<TBase>::PROB_NOTCH_WIDTH:
+                ret = { 0.0f, 0.5f, 0.0f, "Probability Notch Width", " ", 0, 1, 0.0f };
                 break;
             default:
                 if (i <= IversonComp<TBase>::PRIMARY_PROB_8)
