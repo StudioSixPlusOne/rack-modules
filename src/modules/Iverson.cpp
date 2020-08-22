@@ -38,8 +38,8 @@ namespace sspo
     {
         struct MidiOutput : midi::Output
         {
-            int currentCC[Comp::MAX_MIDI];
-            bool currentNotes[Comp::MAX_MIDI];
+            int currentCC[Comp::MAX_MIDI]{};
+            bool currentNotes[Comp::MAX_MIDI]{};
 
             MidiOutput()
             {
@@ -124,210 +124,20 @@ namespace sspo
         int TRACK_COUNT = 8;
 
         std::shared_ptr<Comp> iverson;
-
         std::vector<midi::InputQueue> midiInputQueues{ 2 };
         std::vector<MidiOutput> midiOutputs{ 2 };
-
-        dsp::ClockDivider controlPageUpdateDivider;
+        dsp::ClockDivider controllerPageUpdateDivider;
         dsp::ClockDivider paramMidiUpdateDivider;
-
         std::vector<MidiMapping> midiMappings;
         MidiMapping midiLearnMapping;
 
-        IversonBase()
-        {
-            config (Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
-
-            //preallocate midi mappings, to avoid allocations during push_back
-            // occurring during the audio process loop
-            iverson = std::make_shared<Comp> (this);
-            midiMappings.reserve (iverson->MIDI_MAP_SIZE);
-            std::shared_ptr<IComposite> icomp = Comp::getDescription();
-            SqHelper::setupParams (icomp, this);
-            onSampleRateChange();
-            iverson->init();
-
-            controlPageUpdateDivider.setDivision (10000);
-            paramMidiUpdateDivider.setDivision (100);
-        }
+        IversonBase();
         void onReset() override;
-
-        void onSampleRateChange() override
-        {
-            float rate = SqHelper::engineGetSampleRate();
-            iverson->setSampleRate (rate);
-        }
-
-        json_t* dataToJson() override
-        {
-            json_t* rootJ = json_object();
-
-            json_t* activesJ = json_array();
-            json_t* lengthsJ = json_array();
-            json_t* indexJ = json_array();
-            json_t* sequenceHiJ = json_array();
-            json_t* sequenceLowJ = json_array();
-
-            for (auto i = 0; i < TRACK_COUNT; ++i)
-            {
-                json_array_insert_new (activesJ, i, json_boolean ((iverson->tracks[i].getActive())));
-                json_array_insert_new (lengthsJ, i, json_integer (iverson->tracks[i].getLength()));
-                json_array_insert_new (indexJ, i, json_integer (iverson->tracks[i].getIndex()));
-                //sequence 64bit, json integers are 32bit, store ass hi low values
-                json_array_insert_new (sequenceHiJ,
-                                       i,
-                                       json_integer (
-                                           ((iverson->tracks[i].getSequence().to_ullong()) >> 32u) & 0xffffffff));
-                json_array_insert_new (sequenceLowJ,
-                                       i,
-                                       json_integer (((iverson->tracks[i].getSequence().to_ullong())) & 0xffffffff));
-            }
-
-            json_object_set_new (rootJ, "actives", activesJ);
-            json_object_set_new (rootJ, "lengths", lengthsJ);
-            json_object_set_new (rootJ, "index", indexJ);
-            json_object_set_new (rootJ, "sequenceHi", sequenceHiJ);
-            json_object_set_new (rootJ, "sequenceLow", sequenceLowJ);
-
-            json_t* midiMapsJ = json_array();
-            for (auto i = 0; i < (int) midiMappings.size(); ++i)
-            {
-                json_t* mappingJ = json_object();
-                json_object_set_new (mappingJ, "controller", json_integer (midiMappings[i].controller));
-                json_object_set_new (mappingJ, "note", json_integer (midiMappings[i].note));
-                json_object_set_new (mappingJ, "cc", json_integer (midiMappings[i].cc));
-                json_object_set_new (mappingJ, "paramId", json_integer (midiMappings[i].paramId));
-                json_array_insert_new (midiMapsJ, i, mappingJ);
-            }
-
-            json_object_set_new (rootJ, "midiBinding", midiMapsJ);
-            json_object_set_new (rootJ, "midiInputLeft", midiInputQueues[0].toJson());
-            json_object_set_new (rootJ, "midiInputRight", midiInputQueues[1].toJson());
-            json_object_set_new (rootJ, "midiOutputLeft", midiOutputs[0].toJson());
-            json_object_set_new (rootJ, "midiOutputRight", midiOutputs[1].toJson());
-
-            return rootJ;
-        }
-
-        void dataFromJson (json_t* rootJ) override
-        {
-            json_t* activesJ = json_object_get (rootJ, "actives");
-            for (auto t = 0; t < iverson->TRACK_COUNT; ++t)
-            {
-                if (activesJ)
-                {
-                    json_t* activesArrayJ = json_array_get (activesJ, t);
-                    if (activesArrayJ)
-                        iverson->tracks[t].setActive (json_boolean_value (activesArrayJ));
-                }
-            }
-
-            json_t* lengthsJ = json_object_get (rootJ, "lengths");
-            for (auto t = 0; t < iverson->TRACK_COUNT; ++t)
-            {
-                if (lengthsJ)
-                {
-                    json_t* lengthsArrayJ = json_array_get (lengthsJ, t);
-                    if (lengthsArrayJ)
-                        iverson->tracks[t].setLength (json_integer_value (lengthsArrayJ));
-                }
-            }
-
-            json_t* indexJ = json_object_get (rootJ, "index");
-            for (auto t = 0; t < iverson->TRACK_COUNT; ++t)
-            {
-                if (indexJ)
-                {
-                    json_t* indexArrayJ = json_array_get (indexJ, t);
-                    if (indexArrayJ)
-                        iverson->tracks[t].setIndex (json_integer_value (indexArrayJ));
-                }
-            }
-            //sequence values 64 bit, split int low hi 32bits
-            json_t* sequenceLowJ = json_object_get (rootJ, "sequenceLow");
-            for (auto t = 0; t < iverson->TRACK_COUNT; ++t)
-            {
-                if (sequenceLowJ)
-                {
-                    json_t* sequenceArrayLowJ = json_array_get (sequenceLowJ, t);
-                    if (sequenceArrayLowJ)
-                        iverson->tracks[t].setSequence (json_integer_value (sequenceArrayLowJ));
-                }
-            }
-
-            json_t* sequenceHiJ = json_object_get (rootJ, "sequenceHi");
-            for (auto t = 0; t < iverson->TRACK_COUNT; ++t)
-            {
-                if (sequenceHiJ)
-                {
-                    json_t* sequenceArrayHiJ = json_array_get (sequenceHiJ, t);
-                    if (sequenceArrayHiJ)
-                        iverson->tracks[t].setSequence (iverson->tracks[t].getSequence().to_ulong()
-                                                        + ((int64_t) json_integer_value (sequenceArrayHiJ) << 32u));
-                }
-            }
-
-            json_t* midiBindingJ = json_object_get (rootJ, "midiBinding");
-            midiMappings.resize ((int) json_array_size (midiBindingJ));
-            midiMappings.reserve (iverson->MIDI_MAP_SIZE);
-            for (auto i = 0; i < (int) json_array_size (midiBindingJ); ++i)
-            {
-                if (midiBindingJ)
-                {
-                    json_t* mm = json_array_get (midiBindingJ, i);
-                    if (mm)
-                    {
-                        json_t* controllerJ = json_object_get (mm, "controller");
-                        if (controllerJ)
-                            midiMappings[i].controller = json_integer_value (controllerJ);
-
-                        json_t* noteJ = json_object_get (mm, "note");
-                        if (noteJ)
-                            midiMappings[i].note = json_integer_value (noteJ);
-
-                        json_t* ccJ = json_object_get (mm, "cc");
-                        if (ccJ)
-                            midiMappings[i].cc = json_integer_value (ccJ);
-
-                        json_t* paramJ = json_object_get (mm, "paramId");
-                        if (paramJ)
-                            midiMappings[i].paramId = json_integer_value (paramJ);
-                    }
-                }
-            }
-            json_t* midiInputLeftJ = json_object_get (rootJ, "midiInputLeft");
-            if (midiInputLeftJ)
-                midiInputQueues[0].fromJson (midiInputLeftJ);
-
-            json_t* midiInputRightJ = json_object_get (rootJ, "midiInputRight");
-            if (midiInputRightJ)
-                midiInputQueues[1].fromJson (midiInputRightJ);
-
-            json_t* midiOutputLeftJ = json_object_get (rootJ, "midiOutputLeft");
-            if (midiOutputLeftJ)
-                midiOutputs[0].fromJson (midiOutputLeftJ);
-
-            json_t* midiOutputRightJ = json_object_get (rootJ, "midiOutputRight");
-            if (midiOutputRightJ)
-                midiOutputs[1].fromJson (midiOutputRightJ);
-        }
-
+        void onSampleRateChange() override;
+        json_t* dataToJson() override;
+        void dataFromJson (json_t* rootJ) override;
         void doLearn();
-
-        void process (const ProcessArgs& args) override
-        {
-            doLearn();
-            if (paramMidiUpdateDivider.process())
-            {
-                midiToParm();
-            }
-
-            iverson->step();
-            if (controlPageUpdateDivider.process())
-            {
-                pageLights();
-            }
-        }
+        void process (const ProcessArgs& args) override;
 
         /// Midi events are used to set assigned params
         /// midi handling would require linking to RACK for unit test
@@ -336,9 +146,7 @@ namespace sspo
 
         /// sends midi to external controller to show status
         void pageLights();
-
         bool isGridMidiMapped (int x, int y);
-
         std::string getMidiAssignment (int x, int y);
     };
 
@@ -624,6 +432,7 @@ namespace sspo
         ss << mapping->controller << ":" << mapping->note;
         return ss.str();
     }
+
     void IversonBase::onReset()
     {
         for (auto i = 0; i < int (iverson->tracks.size()); ++i)
@@ -933,114 +742,11 @@ User Interface
         std::vector<float> midiSelectorX;
         float primaryProbX = 0.0f;
         float altProbX = 0.0f;
-        float altOutx = 0.0f;
+        float altOutX = 0.0f;
 
-        explicit IversonBaseWidget (IversonBase* module)
-        {
-            setModule (module);
-        }
+        explicit IversonBaseWidget (IversonBase* module);
 
-        void init (IversonBase* module)
-        {
-            std::shared_ptr<IComposite> icomp = Comp::getDescription();
-            box.size = Vec (40 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-            SqHelper::setPanel (this, filename.c_str());
-
-            addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, 0)));
-            addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-            addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-            addChild (createWidget<ScrewSilver> (
-                Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-
-            //parameter grid inputs
-            Vec grid_1_1 (gridX, 23.7f);
-            auto gridXDelta = 8.5f;
-            auto gridYDelta = 8.35f;
-
-            for (auto t = 0; t < trackCount; ++t)
-            {
-                addParam (SqHelper::createParamCentered<sspo::SmallKnob> (icomp,
-                                                                          mm2px (Vec (primaryProbX,
-                                                                                      grid_1_1.y + t * gridYDelta)),
-                                                                          module,
-                                                                          Comp::PRIMARY_PROB_1 + t));
-                addParam (SqHelper::createParamCentered<sspo::SmallKnob> (icomp,
-                                                                          mm2px (Vec (altProbX,
-                                                                                      grid_1_1.y + t * gridYDelta)),
-                                                                          module,
-                                                                          Comp::ALT_PROB_1 + t));
-
-                for (auto s = 0; s < gridWidth; ++s)
-                {
-                    addParam (SqHelper::createParamCentered<GridButton> (icomp,
-                                                                         mm2px (Vec (grid_1_1.x + s * gridXDelta,
-                                                                                     grid_1_1.y + t * gridYDelta)),
-                                                                         module,
-                                                                         Comp::GRID_1_1_PARAM + t * gridWidth + s));
-
-                    auto* gridWidget = createWidget<GridWidget> (mm2px (Vec (grid_1_1.x + s * gridXDelta - 4.0f,
-                                                                             grid_1_1.y + t * gridYDelta - 3.5f)));
-                    gridWidget->box.size = mm2px (Vec (8, 7));
-                    gridWidget->setGridLocation (s, t);
-                    gridWidget->setModule (module);
-                    addChild (gridWidget);
-                }
-                addParam (SqHelper::createParamCentered<LEDButton> (icomp,
-                                                                    mm2px (Vec (muteX, grid_1_1.y + t * gridYDelta)),
-                                                                    module,
-                                                                    Comp::ACTIVE_1_PARAM + t));
-
-                addChild (createLightCentered<LargeLight<GreenLight>> (mm2px (Vec (muteX, grid_1_1.y + t * gridYDelta)),
-                                                                       module,
-                                                                       Comp::ACTIVE_1_LIGHT + t));
-
-                addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (triggerX, grid_1_1.y + t * gridYDelta)),
-                                                             module,
-                                                             Comp::TRIGGER_1_OUTPUT + t));
-                addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (altOutx, grid_1_1.y + t * gridYDelta)),
-                                                             module,
-                                                             Comp::ALT_OUTPUT_1 + t));
-            }
-
-            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 23.70)), module, Comp::PAGE_ONE_PARAM));
-            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 32.05)), module, Comp::PAGE_TWO_PARAM));
-            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 40.40)), module, Comp::PAGE_THREE_PARAM));
-            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 48.74)), module, Comp::PAGE_FOUR_PARAM));
-            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (18.57, 118.0)), module, Comp::RESET_PARAM));
-            addParam (
-                SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (18.57, 102)), module, Comp::CLOCK_PARAM));
-            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 65.45)), module, Comp::SET_LENGTH_PARAM));
-            addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 82.15)), module, Comp::MIDI_LEARN_PARAM));
-
-            addInput (createInputCentered<PJ301MPort> (mm2px (Vec (8.57, 118.0)), module, Comp::RESET_INPUT));
-            addInput (createInputCentered<PJ301MPort> (mm2px (Vec (8.57, 102)), module, Comp::CLOCK_INPUT));
-
-            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 23.70)), module, Comp::PAGE_ONE_LIGHT));
-            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 32.05)), module, Comp::PAGE_TWO_LIGHT));
-            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 40.40)), module, Comp::PAGE_THREE_LIGHT));
-            addChild (
-                createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 48.74)), module, Comp::PAGE_FOUR_LIGHT));
-            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (18.57, 118.0)), module, Comp::RESET_LIGHT));
-            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (18.57, 102.0)), module, Comp::CLOCK_LIGHT));
-            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 65.45)), module, Comp::SET_LENGTH_LIGHT));
-            addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 82.15)), module, Comp::MIDI_LEARN_LIGHT));
-
-            if (module != nullptr)
-            {
-                newMidiWidget (module, &module->midiInputQueues[0], Vec (midiSelectorX[0], 98.094));
-                newMidiWidget (module, &module->midiOutputs[0], Vec (midiSelectorX[1], 98.094));
-                if (midiSelectorCount == 2)
-                {
-                    newMidiWidget (module, &module->midiInputQueues[1], Vec (midiSelectorX[2], 98.094));
-                    newMidiWidget (module, &module->midiOutputs[1], Vec (midiSelectorX[3], 98.094));
-                }
-            }
-
-            auto* summaryWidget = createWidget<SummaryWidget> (mm2px (Vec (summaryX, 87.5)));
-            summaryWidget->box.size = mm2px (Vec (summaryLength, 4));
-            summaryWidget->setModule (module);
-            addChild (summaryWidget);
-        }
+        void init (IversonBase* module);
 
         /**
 		 * helper function create and add a MidiWidget to the current widget;
@@ -1048,71 +754,182 @@ User Interface
 		 * @param port The midi queue
 		 * @return
 		 */
-        MidiWidget* newMidiWidget (const IversonBase* module, midi::Port* port, Vec pos)
-        {
-            auto* midiAInWidget = createWidget<MidiWidget> (mm2px (pos));
-            midiAInWidget->box.size = mm2px (Vec (40, 25));
-            midiAInWidget->setMidiPort (module ? port : NULL);
-            addChild (midiAInWidget);
-            return midiAInWidget;
-        }
+        MidiWidget* createMidiWidget (const IversonBase* module, midi::Port* port, Vec pos);
 
-        void appendContextMenu (Menu* menu) override
-        {
-            menu->addChild (new MenuEntry);
-
-            auto* clearAllMenuItem = new ClearMAllMidiMappingMenuItem();
-            clearAllMenuItem->text = "Clear all Midi Mappings";
-            clearAllMenuItem->module = (IversonBase*) module;
-            menu->addChild (clearAllMenuItem);
-
-            auto* clearMidiMenuItem = new ClearMidiMappingMenuItem();
-            clearMidiMenuItem->text = "Clear Midi Mapping";
-            clearMidiMenuItem->module = (IversonBase*) module;
-            menu->addChild (clearMidiMenuItem);
-
-            menu->addChild (new MenuEntry);
-
-            auto* notchWidthLabel = new MenuLabel();
-            notchWidthLabel->text = "Probability Notch Width";
-            menu->addChild (notchWidthLabel);
-
-            auto* noNotch = new ProbabilityNotchMenuItem();
-            noNotch->notch = 0.0f;
-            noNotch->text = "None  0%";
-            noNotch->module = (IversonBase*) module;
-            noNotch->rightText = CHECKMARK (((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
-                                            == noNotch->notch);
-            menu->addChild (noNotch);
-
-            auto* slimNotch = new ProbabilityNotchMenuItem();
-            slimNotch->notch = 0.20f / 2.0f;
-            slimNotch->text = "Slim  20%";
-            slimNotch->module = (IversonBase*) module;
-            slimNotch->rightText = CHECKMARK (
-                ((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
-                == slimNotch->notch);
-            menu->addChild (slimNotch);
-
-            auto* midNotch = new ProbabilityNotchMenuItem();
-            midNotch->notch = 0.35f / 2.0f;
-            midNotch->text = "Mid  35%";
-            midNotch->module = (IversonBase*) module;
-            midNotch->rightText = CHECKMARK (
-                ((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
-                == midNotch->notch);
-            menu->addChild (midNotch);
-
-            auto* wideNotch = new ProbabilityNotchMenuItem();
-            wideNotch->notch = 0.50f / 2.0f;
-            wideNotch->text = "Wide  50%";
-            wideNotch->module = (IversonBase*) module;
-            wideNotch->rightText = CHECKMARK (
-                ((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
-                == wideNotch->notch);
-            menu->addChild (wideNotch);
-        }
+        void appendContextMenu (Menu* menu) override;
     };
+
+    void IversonBaseWidget::init (IversonBase* module)
+    {
+        std::shared_ptr<IComposite> icomp = Comp::getDescription();
+        box.size = Vec (40 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
+        SqHelper::setPanel (this, filename.c_str());
+
+        addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, 0)));
+        addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+        addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+        addChild (createWidget<ScrewSilver> (
+            Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+
+        //parameter grid inputs
+        Vec grid_1_1 (gridX, 23.7f);
+        auto gridXDelta = 8.5f;
+        auto gridYDelta = 8.35f;
+
+        for (auto t = 0; t < trackCount; ++t)
+        {
+            addParam (SqHelper::createParamCentered<sspo::SmallKnob> (icomp,
+                                                                      mm2px (Vec (primaryProbX,
+                                                                                  grid_1_1.y + t * gridYDelta)),
+                                                                      module,
+                                                                      Comp::PRIMARY_PROB_1 + t));
+            addParam (SqHelper::createParamCentered<sspo::SmallKnob> (icomp,
+                                                                      mm2px (Vec (altProbX,
+                                                                                  grid_1_1.y + t * gridYDelta)),
+                                                                      module,
+                                                                      Comp::ALT_PROB_1 + t));
+
+            for (auto s = 0; s < gridWidth; ++s)
+            {
+                addParam (SqHelper::createParamCentered<GridButton> (icomp,
+                                                                     mm2px (Vec (grid_1_1.x + s * gridXDelta,
+                                                                                 grid_1_1.y + t * gridYDelta)),
+                                                                     module,
+                                                                     Comp::GRID_1_1_PARAM + t * gridWidth + s));
+
+                auto* gridWidget = createWidget<GridWidget> (mm2px (Vec (grid_1_1.x + s * gridXDelta - 4.0f,
+                                                                         grid_1_1.y + t * gridYDelta - 3.5f)));
+                gridWidget->box.size = mm2px (Vec (8, 7));
+                gridWidget->setGridLocation (s, t);
+                gridWidget->setModule (module);
+                addChild (gridWidget);
+            }
+            addParam (SqHelper::createParamCentered<LEDButton> (icomp,
+                                                                mm2px (Vec (muteX, grid_1_1.y + t * gridYDelta)),
+                                                                module,
+                                                                Comp::ACTIVE_1_PARAM + t));
+
+            addChild (createLightCentered<LargeLight<GreenLight>> (mm2px (Vec (muteX, grid_1_1.y + t * gridYDelta)),
+                                                                   module,
+                                                                   Comp::ACTIVE_1_LIGHT + t));
+
+            addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (triggerX, grid_1_1.y + t * gridYDelta)),
+                                                         module,
+                                                         Comp::TRIGGER_1_OUTPUT + t));
+            addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (altOutX, grid_1_1.y + t * gridYDelta)),
+                                                         module,
+                                                         Comp::ALT_OUTPUT_1 + t));
+        }
+
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 23.70)), module, Comp::PAGE_ONE_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 32.05)), module, Comp::PAGE_TWO_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 40.40)), module, Comp::PAGE_THREE_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 48.74)), module, Comp::PAGE_FOUR_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (18.57, 118.0)), module, Comp::RESET_PARAM));
+        addParam (
+            SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (18.57, 102)), module, Comp::CLOCK_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 65.45)), module, Comp::SET_LENGTH_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 82.15)), module, Comp::MIDI_LEARN_PARAM));
+
+        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (8.57, 118.0)), module, Comp::RESET_INPUT));
+        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (8.57, 102)), module, Comp::CLOCK_INPUT));
+
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 23.70)), module, Comp::PAGE_ONE_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 32.05)), module, Comp::PAGE_TWO_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 40.40)), module, Comp::PAGE_THREE_LIGHT));
+        addChild (
+            createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 48.74)), module, Comp::PAGE_FOUR_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (18.57, 118.0)), module, Comp::RESET_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (18.57, 102.0)), module, Comp::CLOCK_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 65.45)), module, Comp::SET_LENGTH_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 82.15)), module, Comp::MIDI_LEARN_LIGHT));
+
+        if (module != nullptr)
+        {
+            createMidiWidget (module, &module->midiInputQueues[0], Vec (midiSelectorX[0], 98.094));
+            createMidiWidget (module, &module->midiOutputs[0], Vec (midiSelectorX[1], 98.094));
+            if (midiSelectorCount == 2)
+            {
+                createMidiWidget (module, &module->midiInputQueues[1], Vec (midiSelectorX[2], 98.094));
+                createMidiWidget (module, &module->midiOutputs[1], Vec (midiSelectorX[3], 98.094));
+            }
+        }
+
+        auto* summaryWidget = createWidget<SummaryWidget> (mm2px (Vec (summaryX, 87.5)));
+        summaryWidget->box.size = mm2px (Vec (summaryLength, 4));
+        summaryWidget->setModule (module);
+        addChild (summaryWidget);
+    }
+
+    IversonBaseWidget::IversonBaseWidget (IversonBase* module)
+    {
+        setModule (module);
+    }
+
+    MidiWidget* IversonBaseWidget::createMidiWidget (const IversonBase* module, midi::Port* port, Vec pos)
+    {
+        auto* midiAInWidget = createWidget<MidiWidget> (mm2px (pos));
+        midiAInWidget->box.size = mm2px (Vec (40, 25));
+        midiAInWidget->setMidiPort (module ? port : NULL);
+        addChild (midiAInWidget);
+        return midiAInWidget;
+    }
+
+    void IversonBaseWidget::appendContextMenu (Menu* menu)
+    {
+        menu->addChild (new MenuEntry);
+
+        auto* clearAllMenuItem = new ClearMAllMidiMappingMenuItem();
+        clearAllMenuItem->text = "Clear all Midi Mappings";
+        clearAllMenuItem->module = (IversonBase*) module;
+        menu->addChild (clearAllMenuItem);
+
+        auto* clearMidiMenuItem = new ClearMidiMappingMenuItem();
+        clearMidiMenuItem->text = "Clear Midi Mapping";
+        clearMidiMenuItem->module = (IversonBase*) module;
+        menu->addChild (clearMidiMenuItem);
+
+        menu->addChild (new MenuEntry);
+
+        auto* notchWidthLabel = new MenuLabel();
+        notchWidthLabel->text = "Probability Notch Width";
+        menu->addChild (notchWidthLabel);
+
+        auto* noNotch = new ProbabilityNotchMenuItem();
+        noNotch->notch = 0.0f;
+        noNotch->text = "None  0%";
+        noNotch->module = (IversonBase*) module;
+        noNotch->rightText = CHECKMARK (((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
+                                        == noNotch->notch);
+        menu->addChild (noNotch);
+
+        auto* slimNotch = new ProbabilityNotchMenuItem();
+        slimNotch->notch = 0.20f / 2.0f;
+        slimNotch->text = "Slim  20%";
+        slimNotch->module = (IversonBase*) module;
+        slimNotch->rightText = CHECKMARK (
+            ((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
+            == slimNotch->notch);
+        menu->addChild (slimNotch);
+
+        auto* midNotch = new ProbabilityNotchMenuItem();
+        midNotch->notch = 0.35f / 2.0f;
+        midNotch->text = "Mid  35%";
+        midNotch->module = (IversonBase*) module;
+        midNotch->rightText = CHECKMARK (
+            ((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
+            == midNotch->notch);
+        menu->addChild (midNotch);
+
+        auto* wideNotch = new ProbabilityNotchMenuItem();
+        wideNotch->notch = 0.50f / 2.0f;
+        wideNotch->text = "Wide  50%";
+        wideNotch->module = (IversonBase*) module;
+        wideNotch->rightText = CHECKMARK (
+            ((IversonBase*) module)->iverson->params[Comp::PROB_NOTCH_WIDTH].getValue()
+            == wideNotch->notch);
+        menu->addChild (wideNotch);
+    }
 
     struct IversonWidget : IversonBaseWidget
     {
@@ -1128,7 +945,7 @@ User Interface
             midiSelectorX = { 23.12, 68.92, 114.72, 160.51 };
             primaryProbX = 20.99f;
             altProbX = 31.14f;
-            altOutx = 212.7f;
+            altOutX = 212.7f;
             gridX = 48.26f;
             pageX = 10.82f;
             init (module);
@@ -1149,7 +966,7 @@ User Interface
             midiSelectorX = { 35.90, 81.70, 0, 0 };
             primaryProbX = 20.99f;
             altProbX = 31.14f;
-            altOutx = 146.66f;
+            altOutX = 146.66f;
             gridX = 49.26f;
             pageX = 10.82f;
 
