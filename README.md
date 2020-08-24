@@ -274,7 +274,7 @@ Iverson comes in two versions: a 16 step and an 8 step (Iverson Jr).
  click menu for various controllers. User defined mappings can be set by
  clicking the MIDI learn button on the UI, then triggering the MIDI controller,
  followed by selecting the required UI element. The context menu provides
- options to clear single and all MIDI mappings. If you define a MIDI map for a
+ options to clear single and all MIDI mappings alongside changing the ordering of midi learn mode. If you define a MIDI map for a
  controller not provided in the factory presets you may, if you desire, submit
  the module preset for inclusion in a future Iverson release.
  - Independent track lengths allowing for polyrhythms. Each length can be set by
@@ -313,3 +313,18 @@ Iverson comes in two versions: a 16 step and an 8 step (Iverson Jr).
    - Iverson
      - When used with dual controllers, same as above.
      - Additional sliders are assigned to the Alt probability controls.
+ - The facory presents for Launchpad Mk3
+     - Grid Only
+ - The factory presents for the Launchpad Mk2
+     - Iverson Jr - kindly provided by TroubledMind
+        - Grid
+        - Top left, page buttons
+        - Right, track active buttons
+ - The factory presets for the Akai apc key 25
+     - Iverson Jr - kindly provided by hexdump
+        - 5 rows of matrix buttons are mapped to the first 5 rows in iverson
+        - The 5 buttons on the right to the matrix are mapped to the first 5 active buttons
+        - The four arrow buttons below the matrix are mapped to the four page buttons
+        - volume is mapped to length
+        - pan to reset
+        - the first five rotary controllers are mapped to the main probability of the first 5 rows
