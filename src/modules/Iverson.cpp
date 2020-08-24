@@ -407,6 +407,14 @@ namespace sspo
                 {
                     midiOutputs[mm.controller].setNote (mm.note, iverson->isSetLength);
                 }
+                else if (mm.paramId == iverson->RESET_PARAM)
+                {
+                    midiOutputs[mm.controller].setNote (mm.note, iverson->params[Comp::RESET_PARAM].getValue());
+                }
+                else if (mm.paramId == iverson->CLOCK_PARAM)
+                {
+                    midiOutputs[mm.controller].setNote (mm.note, iverson->params[Comp::CLOCK_PARAM].getValue());
+                }
             }
             else //midi learn
             {
