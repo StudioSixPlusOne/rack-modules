@@ -239,6 +239,7 @@ namespace sspo
             ALT_PROB_7,
             ALT_PROB_8,
             PROB_NOTCH_WIDTH,
+            MIDI_LEARN_PARAM_FIRST,
             NUM_PARAMS
         };
         enum InputIds
@@ -614,6 +615,10 @@ namespace sspo
             case IversonComp<TBase>::PROB_NOTCH_WIDTH:
                 ret = { 0.0f, 0.5f, 0.0f, "Probability Notch Width", " ", 0, 1, 0.0f };
                 break;
+            case IversonComp<TBase>::MIDI_LEARN_PARAM_FIRST:
+                ret = { 0.0f, 1.0f, 0.0f, "Midi Learn Param First", " ", 0, 1, 0.0f };
+                break;
+
             default:
                 if (i <= IversonComp<TBase>::PRIMARY_PROB_8)
                 {
