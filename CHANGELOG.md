@@ -19,3 +19,8 @@ Plugins TE (Tyrant Expander), Lala, Eva, Zazel
 Updated knobs and ports to use custom svg. 
 Fixed bug in Zazel where it was going into learn mode, when loading
 Fixed bug in Massariti removing aliasing
+
+### v1.2.0 Iverson
+
+Added Iverson and Iverson Jr
+
