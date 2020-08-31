@@ -990,14 +990,14 @@ User Interface
         }
     };
 
-    struct MidiVelocutySlider : ui::Slider
+    struct MidiVelocitySlider : ui::Slider
     {
-        MidiVelocutySlider()
+        MidiVelocitySlider()
         {
             quantity = new MidiVelocityQuantity;
         }
 
-        ~MidiVelocutySlider()
+        ~MidiVelocitySlider()
         {
             delete quantity;
         }
@@ -1174,31 +1174,31 @@ User Interface
             ((IversonBase*) module)->iverson->params[Comp::MIDI_LEARN_PARAM_FIRST].getValue());
         menu->addChild (midiParamFirst);
 
-        auto* midiVelNoneSlider = new MidiVelocutySlider;
+        auto* midiVelNoneSlider = new MidiVelocitySlider;
         dynamic_cast<MidiVelocityQuantity*> (midiVelNoneSlider->quantity)->module = module;
         dynamic_cast<MidiVelocityQuantity*> (midiVelNoneSlider->quantity)->paramId = Comp::MIDI_FEEDBACK_VELOCITY_NONE;
         midiVelNoneSlider->box.size.x = 200.0f;
         menu->addChild (midiVelNoneSlider);
 
-        auto* midiVelStepSlider = new MidiVelocutySlider;
+        auto* midiVelStepSlider = new MidiVelocitySlider;
         dynamic_cast<MidiVelocityQuantity*> (midiVelStepSlider->quantity)->module = module;
         dynamic_cast<MidiVelocityQuantity*> (midiVelStepSlider->quantity)->paramId = Comp::MIDI_FEEDBACK_VELOCITY_STEP;
         midiVelStepSlider->box.size.x = 200.0f;
         menu->addChild (midiVelStepSlider);
 
-        auto* midiVelIndexSlider = new MidiVelocutySlider;
+        auto* midiVelIndexSlider = new MidiVelocitySlider;
         dynamic_cast<MidiVelocityQuantity*> (midiVelIndexSlider->quantity)->module = module;
         dynamic_cast<MidiVelocityQuantity*> (midiVelIndexSlider->quantity)->paramId = Comp::MIDI_FEEDBACK_VELOCITY_INDEX;
         midiVelIndexSlider->box.size.x = 200.0f;
         menu->addChild (midiVelIndexSlider);
 
-        auto* midiVelLoopSlider = new MidiVelocutySlider;
+        auto* midiVelLoopSlider = new MidiVelocitySlider;
         dynamic_cast<MidiVelocityQuantity*> (midiVelLoopSlider->quantity)->module = module;
         dynamic_cast<MidiVelocityQuantity*> (midiVelLoopSlider->quantity)->paramId = Comp::MIDI_FEEDBACK_VELOCITY_LOOP;
         midiVelLoopSlider->box.size.x = 200.0f;
         menu->addChild (midiVelLoopSlider);
 
-        auto* midiVelLoopStepSlider = new MidiVelocutySlider;
+        auto* midiVelLoopStepSlider = new MidiVelocitySlider;
         dynamic_cast<MidiVelocityQuantity*> (midiVelLoopStepSlider->quantity)->module = module;
         dynamic_cast<MidiVelocityQuantity*> (midiVelLoopStepSlider->quantity)->paramId = Comp::MIDI_FEEDBACK_VELOCITY_LOOP_STEP;
         midiVelLoopStepSlider->box.size.x = 200.0f;
