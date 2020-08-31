@@ -240,6 +240,11 @@ namespace sspo
             ALT_PROB_8,
             PROB_NOTCH_WIDTH,
             MIDI_LEARN_PARAM_FIRST,
+            MIDI_FEEDBACK_VELOCITY_NONE,
+            MIDI_FEEDBACK_VELOCITY_STEP,
+            MIDI_FEEDBACK_VELOCITY_LOOP,
+            MIDI_FEEDBACK_VELOCITY_LOOP_STEP,
+            MIDI_FEEDBACK_VELOCITY_INDEX,
             NUM_PARAMS
         };
         enum InputIds
@@ -617,6 +622,22 @@ namespace sspo
                 break;
             case IversonComp<TBase>::MIDI_LEARN_PARAM_FIRST:
                 ret = { 0.0f, 1.0f, 0.0f, "Midi Learn Param First", " ", 0, 1, 0.0f };
+                break;
+
+            case IversonComp<TBase>::MIDI_FEEDBACK_VELOCITY_NONE:
+                ret = { 0.0f, 127.0f, 0.0f, "None", " ", 0, 1, 0.0f };
+                break;
+            case IversonComp<TBase>::MIDI_FEEDBACK_VELOCITY_STEP:
+                ret = { 0.0f, 127.0f, 1.0f, "Step", " ", 0, 1, 0.0f };
+                break;
+            case IversonComp<TBase>::MIDI_FEEDBACK_VELOCITY_LOOP:
+                ret = { 0.0f, 127.0f, 3.0f, "Loop", " ", 0, 1, 0.0f };
+                break;
+            case IversonComp<TBase>::MIDI_FEEDBACK_VELOCITY_LOOP_STEP:
+                ret = { 0.0f, 127.0f, 5.0f, "Step  & Loop", " ", 0, 1, 0.0f };
+                break;
+            case IversonComp<TBase>::MIDI_FEEDBACK_VELOCITY_INDEX:
+                ret = { 0.0f, 127.0f, 5.0f, "Index", " ", 0, 1, 0.0f };
                 break;
 
             default:
