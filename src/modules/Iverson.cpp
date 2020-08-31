@@ -364,6 +364,13 @@ namespace sspo
 
     void IversonBase::pageLights()
     {
+        //set colours for feedback from parameters
+        midiFeedback.none = (int) iverson->params[Comp::MIDI_FEEDBACK_VELOCITY_NONE].getValue();
+        midiFeedback.activeStep = (int) iverson->params[Comp::MIDI_FEEDBACK_VELOCITY_STEP].getValue();
+        midiFeedback.loop = (int) iverson->params[Comp::MIDI_FEEDBACK_VELOCITY_LOOP].getValue();
+        midiFeedback.loopStep = (int) iverson->params[Comp::MIDI_FEEDBACK_VELOCITY_LOOP_STEP].getValue();
+        midiFeedback.index = (int) iverson->params[Comp::MIDI_FEEDBACK_VELOCITY_INDEX].getValue();
+
         for (auto& mm : midiMappings)
         {
             if (! iverson->isLearning)
@@ -943,6 +950,59 @@ User Interface
         }
     };
 
+    struct MidiVelocityQuantity : Quantity
+    {
+        IversonBase* module;
+        Comp::ParamIds paramId = Comp::NUM_PARAMS;
+
+        void setValue (float value) override
+        {
+            if (module != nullptr)
+                module->params[paramId].setValue (clamp ((int) value, 0, 127));
+        }
+        float getValue() override
+        {
+            if (module == nullptr)
+                return 0.0f;
+            return module->params[paramId].getValue();
+        }
+        float getMinValue() override
+        {
+            return 0.0f;
+        }
+        float getMaxValue() override
+        {
+            return 127.0f;
+        }
+        float getDefaultValue() override
+        {
+            return 0;
+        }
+        int getDisplayPrecision() override
+        {
+            return 0;
+        }
+        std::string getLabel() override
+        {
+            if (module == nullptr)
+                return "";
+            return module->paramQuantities[paramId]->getLabel();
+        }
+    };
+
+    struct MidiVelocutySlider : ui::Slider
+    {
+        MidiVelocutySlider()
+        {
+            quantity = new MidiVelocityQuantity;
+        }
+
+        ~MidiVelocutySlider()
+        {
+            delete quantity;
+        }
+    };
+
     struct IversonBaseWidget : ModuleWidget
     {
         int trackCount = 8;
@@ -1093,6 +1153,8 @@ User Interface
 
     void IversonBaseWidget::appendContextMenu (Menu* menu)
     {
+        auto* module = dynamic_cast<IversonBase*> (this->module);
+
         menu->addChild (new MenuEntry);
 
         auto* clearAllMenuItem = new ClearMAllMidiMappingMenuItem();
@@ -1111,6 +1173,36 @@ User Interface
         midiParamFirst->rightText = CHECKMARK (
             ((IversonBase*) module)->iverson->params[Comp::MIDI_LEARN_PARAM_FIRST].getValue());
         menu->addChild (midiParamFirst);
+
+        auto* midiVelNoneSlider = new MidiVelocutySlider;
+        dynamic_cast<MidiVelocityQuantity*> (midiVelNoneSlider->quantity)->module = module;
+        dynamic_cast<MidiVelocityQuantity*> (midiVelNoneSlider->quantity)->paramId = Comp::MIDI_FEEDBACK_VELOCITY_NONE;
+        midiVelNoneSlider->box.size.x = 200.0f;
+        menu->addChild (midiVelNoneSlider);
+
+        auto* midiVelStepSlider = new MidiVelocutySlider;
+        dynamic_cast<MidiVelocityQuantity*> (midiVelStepSlider->quantity)->module = module;
+        dynamic_cast<MidiVelocityQuantity*> (midiVelStepSlider->quantity)->paramId = Comp::MIDI_FEEDBACK_VELOCITY_STEP;
+        midiVelStepSlider->box.size.x = 200.0f;
+        menu->addChild (midiVelStepSlider);
+
+        auto* midiVelIndexSlider = new MidiVelocutySlider;
+        dynamic_cast<MidiVelocityQuantity*> (midiVelIndexSlider->quantity)->module = module;
+        dynamic_cast<MidiVelocityQuantity*> (midiVelIndexSlider->quantity)->paramId = Comp::MIDI_FEEDBACK_VELOCITY_INDEX;
+        midiVelIndexSlider->box.size.x = 200.0f;
+        menu->addChild (midiVelIndexSlider);
+
+        auto* midiVelLoopSlider = new MidiVelocutySlider;
+        dynamic_cast<MidiVelocityQuantity*> (midiVelLoopSlider->quantity)->module = module;
+        dynamic_cast<MidiVelocityQuantity*> (midiVelLoopSlider->quantity)->paramId = Comp::MIDI_FEEDBACK_VELOCITY_LOOP;
+        midiVelLoopSlider->box.size.x = 200.0f;
+        menu->addChild (midiVelLoopSlider);
+
+        auto* midiVelLoopStepSlider = new MidiVelocutySlider;
+        dynamic_cast<MidiVelocityQuantity*> (midiVelLoopStepSlider->quantity)->module = module;
+        dynamic_cast<MidiVelocityQuantity*> (midiVelLoopStepSlider->quantity)->paramId = Comp::MIDI_FEEDBACK_VELOCITY_LOOP_STEP;
+        midiVelLoopStepSlider->box.size.x = 200.0f;
+        menu->addChild (midiVelLoopStepSlider);
 
         menu->addChild (new MenuEntry);
 
