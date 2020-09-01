@@ -39,24 +39,25 @@ namespace sspo
         struct MidiOutput : midi::Output
         {
             int currentCC[Comp::MAX_MIDI]{};
-            bool currentNotes[Comp::MAX_MIDI]{};
+            int currentNotes[Comp::MAX_MIDI]{};
 
             MidiOutput()
             {
-                reset();
+                resetState();
             }
 
-            void reset()
+            void resetState()
             {
                 for (auto i = 0; i < Comp::MAX_MIDI; ++i)
                 {
                     currentCC[i] = -1;
-                    currentNotes[i] = false;
+                    currentNotes[i] = -1;
                 }
             }
 
             void setCC (int cc, int val)
             {
+                DEBUG ("set cc %d %d", cc, val);
                 if (val == currentCC[cc])
                     return;
                 currentCC[cc] = val;
@@ -65,6 +66,15 @@ namespace sspo
                 msg.setStatus (0xb);
                 msg.setNote (cc);
                 msg.setValue (val);
+                try
+                {
+                    sendMessage (msg);
+                }
+                catch (const std::exception& e)
+                {
+                    DEBUG ("%s", e.what());
+                }
+
                 sendMessage (msg);
             }
 
@@ -74,31 +84,52 @@ namespace sspo
                 msg.setStatus (0x9);
                 msg.setNote (note);
                 msg.setValue (0);
-                sendMessage (msg);
-                currentNotes[note] = false;
+                try
+                {
+                    sendMessage (msg);
+                    currentNotes[note] = false;
+                }
+                catch (const std::exception& e)
+                {
+                    DEBUG ("%s", e.what());
+                }
             }
 
             void setNote (int note, int velocity)
             {
-                if (velocity > 0)
+                if (velocity != currentNotes[note])
                 {
                     //note on
                     midi::Message msg;
                     msg.setStatus (0x9);
                     msg.setNote (note);
                     msg.setValue (velocity);
-                    sendMessage (msg);
+                    try
+                    {
+                        sendMessage (msg);
+                    }
+                    catch (const std::exception& e)
+                    {
+                        DEBUG ("%s", e.what());
+                    }
                 }
-                else if (velocity == 0)
+                else if (velocity == -1)
                 {
                     //note off
                     midi::Message msg;
                     msg.setStatus (0x9);
                     msg.setNote (note);
                     msg.setValue (0);
-                    sendMessage (msg);
+                    try
+                    {
+                        sendMessage (msg);
+                    }
+                    catch (const std::exception& e)
+                    {
+                        DEBUG ("%s", e.what());
+                    }
                 }
-                currentNotes[note] = velocity > 0;
+                currentNotes[note] = velocity;
             }
         };
 
@@ -128,6 +159,7 @@ namespace sspo
         std::vector<MidiOutput> midiOutputs{ 2 };
         dsp::ClockDivider controllerPageUpdateDivider;
         dsp::ClockDivider paramMidiUpdateDivider;
+        dsp::ClockDivider midiOutStateResetDivider;
         std::vector<MidiMapping> midiMappings;
         MidiMapping midiLearnMapping;
 
@@ -156,7 +188,7 @@ namespace sspo
     void IversonBase::midiToParm()
     {
         midi::Message msg;
-        for (auto q = 0; q < 2; ++q)
+        for (auto q = 0; q < GRID_WIDTH / 8; ++q) // GRID_WIDTH / 8 = number of midi controllers
         {
             while (midiInputQueues[q].shift (&msg))
             {
@@ -199,7 +231,8 @@ namespace sspo
 
                     break;
                     default:
-                        break;
+                       {
+                       }
                 }
             }
         }
@@ -305,7 +338,7 @@ namespace sspo
             {
                 // if midi add to midi learn param
                 midi::Message msg;
-                for (auto q = 0; q < 2; ++q)
+                for (auto q = 0; q < GRID_WIDTH / 8; ++q) // GRID_WIDTH /8 == number of midi controllers
                 {
                     while (midiInputQueues[q].shift (&msg))
                     {
@@ -375,55 +408,58 @@ namespace sspo
         {
             if (! iverson->isLearning)
             {
-                if (mm.paramId <= iverson->GRID_16_8_PARAM)
-                // sequence
+                if (mm.cc == -1)
                 {
-                    auto t = mm.paramId / iverson->GRID_WIDTH;
-                    auto i = mm.paramId - t * iverson->GRID_WIDTH;
-                    auto midiColor = 0;
-                    if (iverson->tracks[t].getIndex() != i + iverson->page * iverson->GRID_WIDTH)
+                    if (mm.paramId <= iverson->GRID_16_8_PARAM && mm.paramId != -1)
+                    // sequence
                     {
-                        if (iverson->tracks[t].getLength() - 1 == i + iverson->page * iverson->GRID_WIDTH)
+                        auto t = mm.paramId / iverson->GRID_WIDTH;
+                        auto i = mm.paramId - t * iverson->GRID_WIDTH;
+                        auto midiColor = 0;
+                        if (iverson->tracks[t].getIndex() != i + iverson->page * iverson->GRID_WIDTH)
                         {
-                            midiColor = iverson->getStateGridIndex (iverson->page, t, i)
-                                            ? midiFeedback.loopStep
-                                            : midiFeedback.loop;
+                            if (iverson->tracks[t].getLength() - 1 == i + iverson->page * iverson->GRID_WIDTH)
+                            {
+                                midiColor = iverson->getStateGridIndex (iverson->page, t, i)
+                                                ? midiFeedback.loopStep
+                                                : midiFeedback.loop;
+                            }
+                            else
+                                midiColor = iverson->getStateGridIndex (iverson->page, t, i)
+                                                ? midiFeedback.activeStep
+                                                : midiFeedback.none;
                         }
                         else
-                            midiColor = iverson->getStateGridIndex (iverson->page, t, i)
-                                            ? midiFeedback.activeStep
-                                            : midiFeedback.none;
+                            midiColor = midiFeedback.index;
+                        midiOutputs[mm.controller].setNote (mm.note, midiColor);
                     }
-                    else
-                        midiColor = midiFeedback.index;
-                    midiOutputs[mm.controller].setNote (mm.note, midiColor);
-                }
-                //Active lights
-                else if (mm.paramId >= iverson->ACTIVE_1_PARAM && mm.paramId <= iverson->ACTIVE_8_PARAM)
-                {
-                    auto t = mm.paramId - iverson->ACTIVE_1_PARAM;
-                    midiOutputs[mm.controller].setNote (mm.note, iverson->tracks[t].getActive());
-                }
-                //Page Lights
-                else if (mm.paramId >= iverson->PAGE_ONE_PARAM && mm.paramId <= iverson->PAGE_FOUR_PARAM)
-                {
-                    auto pageIndex = mm.paramId - iverson->PAGE_ONE_PARAM;
-                    midiOutputs[mm.controller].setNote (mm.note, pageIndex == iverson->page);
-                }
-                else if (mm.paramId == iverson->SET_LENGTH_PARAM)
-                {
-                    midiOutputs[mm.controller].setNote (mm.note, iverson->isSetLength);
-                }
-                else if (mm.paramId == iverson->RESET_PARAM)
-                {
-                    midiOutputs[mm.controller].setNote (mm.note, iverson->params[Comp::RESET_PARAM].getValue());
-                }
-                else if (mm.paramId == iverson->CLOCK_PARAM)
-                {
-                    midiOutputs[mm.controller].setNote (mm.note, iverson->params[Comp::CLOCK_PARAM].getValue());
+                    //Active lights
+                    else if (mm.paramId >= iverson->ACTIVE_1_PARAM && mm.paramId <= iverson->ACTIVE_8_PARAM)
+                    {
+                        auto t = mm.paramId - iverson->ACTIVE_1_PARAM;
+                        midiOutputs[mm.controller].setNote (mm.note, iverson->tracks[t].getActive());
+                    }
+                    //Page Lights
+                    else if (mm.paramId >= iverson->PAGE_ONE_PARAM && mm.paramId <= iverson->PAGE_FOUR_PARAM)
+                    {
+                        auto pageIndex = mm.paramId - iverson->PAGE_ONE_PARAM;
+                        midiOutputs[mm.controller].setNote (mm.note, pageIndex == iverson->page);
+                    }
+                    else if (mm.paramId == iverson->SET_LENGTH_PARAM)
+                    {
+                        midiOutputs[mm.controller].setNote (mm.note, iverson->isSetLength);
+                    }
+                    else if (mm.paramId == iverson->RESET_PARAM)
+                    {
+                        midiOutputs[mm.controller].setNote (mm.note, iverson->params[Comp::RESET_PARAM].getValue());
+                    }
+                    else if (mm.paramId == iverson->CLOCK_PARAM)
+                    {
+                        midiOutputs[mm.controller].setNote (mm.note, iverson->params[Comp::CLOCK_PARAM].getValue());
+                    }
                 }
             }
-            else //midi learn
+            else if (mm.note != -1) //midi learn
             {
                 midiOutputs[mm.controller].setNote (mm.note, 1);
             }
@@ -485,6 +521,12 @@ namespace sspo
         if (controllerPageUpdateDivider.process())
         {
             pageLights();
+        }
+
+        if(midiOutStateResetDivider.process())
+        {
+            for (auto& m : midiOutputs)
+                m.resetState();
         }
     }
     void IversonBase::dataFromJson (json_t* rootJ)
@@ -659,8 +701,9 @@ namespace sspo
         onSampleRateChange();
         iverson->init();
 
-        controllerPageUpdateDivider.setDivision (2048);
+        controllerPageUpdateDivider.setDivision (4096);
         paramMidiUpdateDivider.setDivision (128);
+        midiOutStateResetDivider.setDivision (131072);
     }
 
     struct Iverson : IversonBase
