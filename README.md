@@ -55,8 +55,6 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 <br>
 <br>
 <br>
-<br>
-<br>
 
 ### Maccomo
 
@@ -233,10 +231,6 @@ A slimline mixer for audio and cv.
 - All inputs and outputs polyphonic
 - CV controllable attenuverter
 
-<br>
-<br>
-<br>
-
 
 <br>
 <br>
@@ -317,7 +311,7 @@ Iverson comes in two versions: a 16 step and an 8 step (Iverson Jr).
    - Iverson
      - When used with dual controllers, same as above.
      - Additional sliders are assigned to the Alt probability controls.
- - The facory presents for Launchpad Mk3
+ - The factory presents for Launchpad Mk3
      - Grid Only
  - The factory presents for the Launchpad Mk2
      - Iverson Jr - kindly provided by TroubledMind
