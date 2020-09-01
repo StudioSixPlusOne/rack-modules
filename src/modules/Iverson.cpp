@@ -231,8 +231,8 @@ namespace sspo
 
                     break;
                     default:
-                       {
-                       }
+                    {
+                    }
                 }
             }
         }
@@ -523,7 +523,7 @@ namespace sspo
             pageLights();
         }
 
-        if(midiOutStateResetDivider.process())
+        if (midiOutStateResetDivider.process())
         {
             for (auto& m : midiOutputs)
                 m.resetState();
