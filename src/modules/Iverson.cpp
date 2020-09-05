@@ -154,6 +154,9 @@ namespace sspo
         int GRID_WIDTH = 16;
         int TRACK_COUNT = 8;
 
+        static constexpr int MIDI_FEEDBACK_SLOW_RATE = 10000;
+        static constexpr int MIDI_FEEDBACK_FAST_RATE = 4096;
+
         std::shared_ptr<Comp> iverson;
         std::vector<midi::InputQueue> midiInputQueues{ 2 };
         std::vector<MidiOutput> midiOutputs{ 2 };
@@ -521,6 +524,10 @@ namespace sspo
         if (controllerPageUpdateDivider.process())
         {
             pageLights();
+            controllerPageUpdateDivider.setDivision ((bool) iverson->params[Comp::MIDI_FEEDBACK_DIVIDER_SLOW]
+                                                             .getValue()
+                                                         ? MIDI_FEEDBACK_SLOW_RATE
+                                                         : MIDI_FEEDBACK_FAST_RATE);
         }
 
         if (midiOutStateResetDivider.process())
@@ -989,7 +996,19 @@ User Interface
         IversonBase* module;
         void onAction (const event::Action& e) override
         {
-            module->iverson->params[Comp::MIDI_LEARN_PARAM_FIRST].setValue (! (bool) module->iverson->params[Comp::MIDI_LEARN_PARAM_FIRST].getValue());
+            module->iverson->params[Comp::MIDI_LEARN_PARAM_FIRST]
+                .setValue (! (bool) module->iverson->params[Comp::MIDI_LEARN_PARAM_FIRST].getValue());
+        }
+    };
+
+    struct MidiFeedbackDividerMenuItem : MenuItem
+    {
+        IversonBase* module;
+
+        void onAction (const event::Action& e) override
+        {
+            module->iverson->params[Comp::MIDI_FEEDBACK_DIVIDER_SLOW]
+                .setValue (! (bool) module->iverson->params[Comp::MIDI_FEEDBACK_DIVIDER_SLOW].getValue());
         }
     };
 
@@ -1216,6 +1235,13 @@ User Interface
         midiParamFirst->rightText = CHECKMARK (
             ((IversonBase*) module)->iverson->params[Comp::MIDI_LEARN_PARAM_FIRST].getValue());
         menu->addChild (midiParamFirst);
+
+        auto* slowMidiFeedback = new MidiFeedbackDividerMenuItem();
+        slowMidiFeedback->module = (IversonBase*) module;
+        slowMidiFeedback->text = "Slow midi feedback";
+        slowMidiFeedback->rightText = CHECKMARK (
+            ((IversonBase*) module)->iverson->params[Comp::MIDI_FEEDBACK_DIVIDER_SLOW].getValue());
+        menu->addChild (slowMidiFeedback);
 
         auto* midiVelNoneSlider = new MidiVelocitySlider;
         dynamic_cast<MidiVelocityQuantity*> (midiVelNoneSlider->quantity)->module = module;

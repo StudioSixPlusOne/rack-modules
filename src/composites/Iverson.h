@@ -245,6 +245,7 @@ namespace sspo
             MIDI_FEEDBACK_VELOCITY_LOOP,
             MIDI_FEEDBACK_VELOCITY_LOOP_STEP,
             MIDI_FEEDBACK_VELOCITY_INDEX,
+            MIDI_FEEDBACK_DIVIDER_SLOW,
             NUM_PARAMS
         };
         enum InputIds
@@ -638,6 +639,9 @@ namespace sspo
                 break;
             case IversonComp<TBase>::MIDI_FEEDBACK_VELOCITY_INDEX:
                 ret = { 0.0f, 127.0f, 5.0f, "Index", " ", 0, 1, 0.0f };
+                break;
+            case IversonComp<TBase>::MIDI_FEEDBACK_DIVIDER_SLOW:
+                ret = { 0.0f, 1.0f, 0.0f, "Feedback Divider", " ", 0, 1, 0.0f };
                 break;
 
             default:
