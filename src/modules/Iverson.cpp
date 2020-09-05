@@ -72,10 +72,9 @@ namespace sspo
                 }
                 catch (const std::exception& e)
                 {
-                    DEBUG ("%s", e.what());
+                    DEBUG ("Iverson %s", e.what());
+                    DEBUG ("%d", this->channel);
                 }
-
-                sendMessage (msg);
             }
 
             void resetNote (int note)
