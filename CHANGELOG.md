@@ -24,3 +24,10 @@ Fixed bug in Massariti removing aliasing
 
 Added Iverson and Iverson Jr
 
+### V1.2.1 Iverson additions
+
+optimize MIDI feedback
+user selectable MIDI feedback
+new controller templates
+
+

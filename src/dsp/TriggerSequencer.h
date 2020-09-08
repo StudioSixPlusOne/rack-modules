@@ -171,5 +171,125 @@ namespace sspo
         {
             sequence = i;
         }
+
+        /// set the pattern using Euclidean Algorithm.
+        /// clears the existing pattern
+        /// generates patten with no shift
+
+        void setEuclidean (int hits, int length)
+        {
+            auto currentHits = hits;
+
+            // check to see if valid pattern
+            if (length < 1 || hits < 1)
+            {
+                sequence.reset();
+                return;
+            }
+
+            length = rack::math::clamp (length, 1, MAX_LENGTH);
+            currentHits = rack::math::clamp (currentHits, 1, length);
+
+            //Inital pattern, all hits at the start
+
+            int remaining = length - currentHits;
+            for (int i = 0; i < MAX_LENGTH; ++i)
+                sequence[i] = (i < currentHits);
+
+            int cNumHits = currentHits;
+            int cNumRem = remaining;
+            int cHitSpan = 1;
+            int cRemSpan = 1;
+            int cHitPos = 0;
+            int cRemPos = 0;
+            int nNumHits = 0;
+            int nHitSpan = 1;
+            int nRemSpan = 1;
+
+            bool done = false;
+
+            int p = 0; // current position in the bit pattern
+            int h = 0; // hit counter
+            int r = 0; // remainder counter
+
+            std::bitset<MAX_LENGTH> prevSequence;
+
+            while (cNumRem > 0)
+            {
+                prevSequence = sequence;
+                p = 0;
+                h = cNumHits;
+                r = cNumRem;
+                cHitPos = 0;
+                cRemPos = cNumHits * cHitSpan;
+                nNumHits = 0;
+                done = false;
+
+                while (p < length)
+                {
+                    if (h > 0)
+                    {
+                        for (int i = 0; i < cHitSpan; i++)
+                            sequence[p++] = prevSequence[cHitPos++];
+
+                        h--;
+
+                        if (! done)
+                        {
+                            if (r == 1)
+                            {
+                                nNumHits = cNumRem;
+                                nHitSpan += cRemSpan;
+                                nRemSpan = cHitSpan;
+                                done = true;
+                            }
+                            else if (h == 0)
+                            {
+                                nNumHits = cNumHits;
+                                nHitSpan += cRemSpan;
+                                done = true;
+                            }
+                        }
+                    }
+
+                    if (r > 0)
+                    {
+                        for (int i = 0; i < cRemSpan; i++)
+                            sequence[p++] = prevSequence[cRemPos++];
+
+                        r--;
+
+                        if (! done)
+                        {
+                            if (h == 0)
+                            {
+                                nNumHits = cNumHits;
+                                nHitSpan = cHitSpan;
+                                done = true;
+                            }
+                            else if (r == 0)
+                            {
+                                nNumHits = cNumRem;
+                                nHitSpan += cRemSpan;
+                                nRemSpan = cHitSpan;
+                                done = true;
+                            }
+                        }
+                    }
+                }
+
+                // reset the number of hit and remainder sequences
+                cNumHits = nNumHits;
+                cHitSpan = nHitSpan;
+
+                // reset the individual sequence widths
+                cRemSpan = nRemSpan;
+                cNumRem = (length - (cNumHits * cHitSpan)) / cRemSpan;
+
+                // if either number of sequences is 1, we're done
+                if (cNumHits == 1 || cNumRem <= 1)
+                    break;
+            }
+        }
     };
 } // namespace sspo

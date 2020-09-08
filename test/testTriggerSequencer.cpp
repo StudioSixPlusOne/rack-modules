@@ -26,6 +26,7 @@
 #include <vector>
 #include "TriggerSequencer.h"
 #include "asserts.h"
+#include <bitset>
 
 static void testInit()
 {
@@ -268,6 +269,44 @@ static void testAltProbability10()
     }
 }
 
+static void testEuclideanRhythm (int hits, int length, std::bitset<64> required)
+{
+    sspo::TriggerSequencer<64> trig;
+    trig.setEuclidean (hits, length);
+    assertEQ (trig.getSequence(), required);
+}
+
+static void testEuclideanRhythm()
+{
+    //test len < 1
+    std::bitset<64> req;
+    req.reset();
+    testEuclideanRhythm (4, 0, req);
+
+    // test hits < 1
+
+    req.reset();
+    testEuclideanRhythm (0, 8, req);
+
+    // test 4/16
+    req.reset();
+    req[0] = true;
+    req[4] = true;
+    req[8] = true;
+    req[12] = true;
+    testEuclideanRhythm (4, 16, req);
+
+    //test 3/14
+
+    req.reset();
+    req[0] = true;
+    req[5] = true;
+    req[10] = true;
+    testEuclideanRhythm (3, 14, req);
+
+    printf ("static void testEuclideanRhythm complete\n");
+}
+
 void testTriggerSequencer()
 {
     printf ("test Trigger Sequencer\n");
@@ -284,4 +323,5 @@ void testTriggerSequencer()
     testPrimaryProbability0();
     testPrimaryProbability20();
     testAltProbability10();
+    testEuclideanRhythm();
 }

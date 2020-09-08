@@ -459,6 +459,10 @@ namespace sspo
                     {
                         midiOutputs[mm.controller].setNote (mm.note, iverson->params[Comp::CLOCK_PARAM].getValue());
                     }
+                    else if (mm.paramId == iverson->SET_EUCLIDEAN_HITS_PARAM)
+                    {
+                        midiOutputs[mm.controller].setNote (mm.note, iverson->isSetEuclideanHits);
+                    }
                 }
             }
             else if (mm.note != -1) //midi learn
@@ -1167,6 +1171,7 @@ User Interface
             SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (18.57, 102)), module, Comp::CLOCK_PARAM));
         addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 65.45)), module, Comp::SET_LENGTH_PARAM));
         addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 82.15)), module, Comp::MIDI_LEARN_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (triggerX + 5, 102)), module, Comp::SET_EUCLIDEAN_HITS_PARAM));
 
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (8.57, 118.0)), module, Comp::RESET_INPUT));
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (8.57, 102)), module, Comp::CLOCK_INPUT));
@@ -1180,6 +1185,7 @@ User Interface
         addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (18.57, 102.0)), module, Comp::CLOCK_LIGHT));
         addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 65.45)), module, Comp::SET_LENGTH_LIGHT));
         addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 82.15)), module, Comp::MIDI_LEARN_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (triggerX + 5, 102)), module, Comp::SET_EUCLIDEAN_HITS_LIGHT));
 
         if (module != nullptr)
         {
