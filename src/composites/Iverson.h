@@ -517,7 +517,7 @@ namespace sspo
                     }
                     else if (isSetEuclideanHits)
                     {
-                        tracks[t].setEuclidean (s + 1, tracks[t].getLength());
+                        tracks[t].setEuclidean (getStepIndex (page, s + 1), tracks[t].getLength());
                         isSetEuclideanHits = false;
                     }
                     else if (isRotateTrack)
