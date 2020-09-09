@@ -10,7 +10,7 @@
         xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
         xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
         sodipodi:docname="Iverson.svg"
-        inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+        inkscape:version="1.0.1 (4a732c3c74, 2020-09-08)"
         id="svg8"
         version="1.1"
         viewBox="0 0 223.52001 128.5"
@@ -1193,7 +1193,7 @@
           inkscape:showpageshadow="false"
           showgrid="false"
           inkscape:document-rotation="0"
-          inkscape:current-layer="layer8"
+          inkscape:current-layer="layer1"
           inkscape:document-units="mm"
           inkscape:cy="251.55297"
           inkscape:cx="466.41993"
@@ -1273,6 +1273,17 @@
             height="69.094238"
             x="207.40833"
             y="18.372349"/>
+    <text
+            xml:space="preserve"
+            style="font-size:2.82223px;line-height:1;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-decoration:none;text-decoration-line:none;text-decoration-color:#000000;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;stroke-width:0.264583;stop-color:#000000"
+            x="211.82759"
+            y="112.56857"
+            id="text1898"><tspan
+         sodipodi:role="line"
+         id="tspan1896"
+         x="211.82759"
+         y="112.56857"
+         style="stroke-width:0.264583">ROTATE</tspan></text>
   </g>
   <g
           style="display:none"
@@ -2093,6 +2104,35 @@
               d="m 205.45418,94.623873 h 0.37482 l 0.91227,1.721174 v -1.721174 h 0.27009 v 2.057417 h -0.37482 l -0.91227,-1.721175 v 1.721175 h -0.27009 z"
               style="stroke-width:0.264583"
               id="path5997"/>
+    </g>
+    <g
+            aria-label="ROTATE"
+            id="text1902"
+            style="font-size:2.82223px;line-height:1;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-decoration:none;text-decoration-line:none;text-decoration-color:#000000;letter-spacing:0px;word-spacing:0px;text-anchor:middle;display:inline;fill:#000000;stroke-width:0.264583;stop-color:#000000">
+      <path
+              d="m 207.62594,111.60394 q 0.0896,0.0303 0.17363,0.12954 0.0854,0.0992 0.17088,0.27285 l 0.2825,0.56224 h -0.29904 l -0.2632,-0.52779 q -0.10198,-0.2067 -0.19844,-0.27423 -0.0951,-0.0675 -0.26045,-0.0675 h -0.30317 v 0.86954 h -0.27836 v -2.05741 h 0.62838 q 0.35278,0 0.52642,0.14745 0.17363,0.14745 0.17363,0.4451 0,0.19431 -0.091,0.32247 -0.0896,0.12815 -0.26183,0.17776 z m -0.69729,-0.86403 v 0.73036 h 0.35002 q 0.2012,0 0.30317,-0.0923 0.10336,-0.0937 0.10336,-0.27423 0,-0.18052 -0.10336,-0.27147 -0.10197,-0.0923 -0.30317,-0.0923 z"
+              style="stroke-width:0.264583"
+              id="path1906"/>
+      <path
+              d="m 209.44771,110.69995 q -0.30317,0 -0.48231,0.226 -0.17777,0.226 -0.17777,0.61598 0,0.38861 0.17777,0.61461 0.17914,0.226 0.48231,0.226 0.30317,0 0.47956,-0.226 0.17777,-0.226 0.17777,-0.61461 0,-0.38998 -0.17777,-0.61598 -0.17639,-0.226 -0.47956,-0.226 z m 0,-0.226 q 0.43271,0 0.69178,0.29077 0.25907,0.28938 0.25907,0.77721 0,0.48645 -0.25907,0.77722 -0.25907,0.28939 -0.69178,0.28939 -0.43408,0 -0.69453,-0.28939 -0.25907,-0.28939 -0.25907,-0.77722 0,-0.48783 0.25907,-0.77721 0.26045,-0.29077 0.69453,-0.29077 z"
+              style="stroke-width:0.264583"
+              id="path1908"/>
+      <path
+              d="m 210.54877,110.51116 h 1.74047 v 0.23426 h -0.73037 v 1.82315 h -0.27974 v -1.82315 h -0.73036 z"
+              style="stroke-width:0.264583"
+              id="path1910"/>
+      <path
+              d="m 213.02649,110.78539 -0.37759,1.02388 h 0.75655 z m -0.1571,-0.27423 h 0.31557 l 0.78411,2.05741 h -0.28939 l -0.18741,-0.52779 h -0.92743 l -0.18741,0.52779 h -0.29352 z"
+              style="stroke-width:0.264583"
+              id="path1912"/>
+      <path
+              d="m 213.76236,110.51116 h 1.74047 v 0.23426 h -0.73036 v 1.82315 h -0.27975 v -1.82315 h -0.73036 z"
+              style="stroke-width:0.264583"
+              id="path1914"/>
+      <path
+              d="m 215.77293,110.51116 h 1.30087 v 0.23426 h -1.02251 v 0.6091 h 0.97979 v 0.23427 h -0.97979 v 0.74552 h 1.04731 v 0.23426 h -1.32567 z"
+              style="stroke-width:0.264583"
+              id="path1916"/>
     </g>
   </g>
   <g

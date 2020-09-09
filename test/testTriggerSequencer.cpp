@@ -31,6 +31,7 @@
 static void testInit()
 {
     sspo::TriggerSequencer<64> trig;
+    trig.setLength (8);
     assertEQ (trig.getMaxLength(), 64);
     assertEQ (trig.getSequence().size(), 64);
 }
@@ -304,7 +305,61 @@ static void testEuclideanRhythm()
     req[10] = true;
     testEuclideanRhythm (3, 14, req);
 
-    printf ("static void testEuclideanRhythm complete\n");
+    printf ("testEuclideanRhythm complete\n");
+}
+
+static void testRotate()
+{
+    sspo::TriggerSequencer<4> trig;
+    std::bitset<4> req;
+
+    //left ignore length
+    trig.resetSequence();
+    trig.setStep (0, true);
+    trig.setStep (2, true);
+    trig.setLength (2);
+    trig.rotate (false, false);
+    req.reset();
+    req[1] = true;
+    req[3] = true;
+    assertEQ (trig.getSequence(), req);
+
+    //left with length
+    trig.resetSequence();
+    trig.setStep (0, true);
+    trig.setStep (2, true);
+    trig.setLength (2);
+    trig.rotate (false, true);
+    req.reset();
+    req[1] = true;
+    req[2] = true;
+    assertEQ (trig.getSequence(), req);
+
+    //right ignore length
+
+    trig.resetSequence();
+    trig.setStep (0, true);
+    trig.setStep (2, true);
+    trig.setLength (2);
+    trig.rotate (true, false);
+    req.reset();
+    req[1] = true;
+    req[3] = true;
+    assertEQ (trig.getSequence(), req);
+
+    //right with length
+
+    trig.resetSequence();
+    trig.setStep (0, true);
+    trig.setStep (2, true);
+    trig.setLength (2);
+    trig.rotate (true, true);
+    req.reset();
+    req[1] = true;
+    req[2] = true;
+    assertEQ (trig.getSequence(), req);
+
+    printf ("loops rotated\n");
 }
 
 void testTriggerSequencer()
@@ -324,4 +379,5 @@ void testTriggerSequencer()
     testPrimaryProbability20();
     testAltProbability10();
     testEuclideanRhythm();
+    testRotate();
 }

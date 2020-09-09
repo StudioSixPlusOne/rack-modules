@@ -66,7 +66,7 @@ namespace sspo
             defaultGenerator.seed (time (nullptr));
         }
 
-        int getMaxLength() { return maxLength; }
+        int getMaxLength() { return MAX_LENGTH; }
         int getLength() { return length; }
         void setLength (int len) { length = len; }
         const std::bitset<MAX_LENGTH>& getSequence() { return sequence; }
@@ -289,6 +289,32 @@ namespace sspo
                 // if either number of sequences is 1, we're done
                 if (cNumHits == 1 || cNumRem <= 1)
                     break;
+            }
+        }
+
+        /**
+         *
+         * @param rotateRight direction of rotation
+         * @param beforeLoop true only rotates before loop, false rotate complete sequence
+         */
+        void rotate (bool rotateRight, bool beforeLoop)
+        {
+            auto rotateLength = beforeLoop ? length : MAX_LENGTH;
+            if (rotateRight)
+            {
+                bool overflow = sequence[rotateLength - 1];
+                for (auto i = rotateLength - 1; i > 0; --i)
+                    sequence[i] = sequence[i - 1];
+                sequence[0] = overflow;
+            }
+            else // rotate left
+            {
+                bool overflow = sequence[0];
+                for (auto i = 0; i < rotateLength - 1; ++i)
+                {
+                    sequence[i] = sequence[i + 1];
+                }
+                sequence[rotateLength - 1] = overflow;
             }
         }
     };
