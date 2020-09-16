@@ -27,6 +27,7 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 
  [Zazel](#zazel)
 
+
  [Iverson](#iverson)
 
 
@@ -44,11 +45,11 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  - Stretch, the nature of strings gives a natural decay, this controls the length
  - Polyphonic, the number of channels is defined by the audio input
 
- The main audio input should be triggered with noise, the color and duration of this has a large impact on the resulting sound. Try experimenting with short bursts, such as snare sounds, longer noise sounds with automated frequency can be used to emulate a bowed sound. All variations of sound input can be used to create sounds.
+ 
+ The main audio input should be triggered with noise, the color and duration of this has a large impact on the resulting sound. Try experimenting with short bursts, such as snare sounds, longer noise sounds with automated frequency can be used to emulate a bowed sound. All variations of sound input can be used to create sounds. 
+
 
 [Omri's YouTube Tutorial](https://www.youtube.com/watch?v=VKX3ii-kR1Y)
-<br>
-<br>
 <br>
 <br>
 <br>
@@ -230,10 +231,6 @@ A slimline mixer for audio and cv.
 - All inputs and outputs polyphonic
 - CV controllable attenuverter
 
-<br>
-<br>
-<br>
-
 
 <br>
 <br>
@@ -264,6 +261,7 @@ A slimline mixer for audio and cv.
 <img src="images/IversonJr.png">
 
 A performance based trigger sequencer with integrated support for MIDI grid controllers.
+
 
 Iverson comes in two versions: a 16 step and an 8 step (Iverson Jr).
 
@@ -305,15 +303,19 @@ Iverson comes in two versions: a 16 step and an 8 step (Iverson Jr).
  - The lower region of the UI contains MIDI assignment controls. Both the input
  and output must be assigned. Iverson allows for the use of two controllers for
  the sixteen steps, while Iverson Jr only allows a single grid controller.
+  - Euclidean beats. Length can set selected via the normal length control,
+   the number of sets can be selected by selecting the Euclidean control,
+    and the step number on the required track
  - The factory presets for APC Mini
    - Iverson JR
      - Maps the sequencer grid.
-     - The lower buttons map the page selection, loop length and reset.
+     - The lower buttons map the page selection, loop length reset and rotate.
+     - The shift key is used to set Euclidean patterns.
      - The faders are assigned to the main probability controls.
    - Iverson
      - When used with dual controllers, same as above.
      - Additional sliders are assigned to the Alt probability controls.
- - The facory presents for Launchpad Mk3
+ - The factory presents for Launchpad Mk3
      - Grid Only
  - The factory presents for the Launchpad Mk2
      - Iverson Jr - kindly provided by TroubledMind
@@ -328,3 +330,4 @@ Iverson comes in two versions: a 16 step and an 8 step (Iverson Jr).
         - volume is mapped to length
         - pan to reset
         - the first five rotary controllers are mapped to the main probability of the first 5 rows
+

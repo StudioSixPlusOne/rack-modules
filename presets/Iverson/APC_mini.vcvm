@@ -1,7 +1,7 @@
 {
-  "id": 1609,
+  "id": 2513,
   "plugin": "StudioSixPlusOne",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "model": "Iverson",
   "data": {
     "midiBinding": [
@@ -952,6 +952,24 @@
         "note": -1,
         "cc": 55,
         "paramId": 167
+      },
+      {
+        "controller": 1,
+        "note": 70,
+        "cc": -1,
+        "paramId": 149
+      },
+      {
+        "controller": 1,
+        "note": 71,
+        "cc": -1,
+        "paramId": 177
+      },
+      {
+        "controller": 1,
+        "note": 98,
+        "cc": -1,
+        "paramId": 176
       }
     ]
   }

@@ -240,6 +240,14 @@ namespace sspo
             ALT_PROB_8,
             PROB_NOTCH_WIDTH,
             MIDI_LEARN_PARAM_FIRST,
+            MIDI_FEEDBACK_VELOCITY_NONE,
+            MIDI_FEEDBACK_VELOCITY_STEP,
+            MIDI_FEEDBACK_VELOCITY_LOOP,
+            MIDI_FEEDBACK_VELOCITY_LOOP_STEP,
+            MIDI_FEEDBACK_VELOCITY_INDEX,
+            MIDI_FEEDBACK_DIVIDER_SLOW,
+            SET_EUCLIDEAN_HITS_PARAM,
+            ROTATE_TRACK_PARAM,
             NUM_PARAMS
         };
         enum InputIds
@@ -286,6 +294,8 @@ namespace sspo
             CLOCK_LIGHT,
             SET_LENGTH_LIGHT,
             MIDI_LEARN_LIGHT,
+            SET_EUCLIDEAN_HITS_LIGHT,
+            ROTATE_TRACK_LIGHT,
             NUM_LIGHTS
         };
 
@@ -299,6 +309,8 @@ namespace sspo
         bool isSetLength = false;
         bool isClearMapping = false;
         bool isClearAllMapping = false;
+        bool isSetEuclideanHits = false;
+        bool isRotateTrack = false;
         bool clock = false;
         dsp::ClockDivider ledDivider;
 
@@ -309,6 +321,8 @@ namespace sspo
             dsp::TSchmittTrigger<float> learn;
             dsp::TSchmittTrigger<float> reset;
             dsp::TSchmittTrigger<float> clock;
+            dsp::TSchmittTrigger<float> euclideanHits;
+            dsp::TSchmittTrigger<float> rotateTrack;
 
             std::vector<dsp::TSchmittTrigger<float>> actives;
             std::vector<dsp::TSchmittTrigger<float>> grid;
@@ -364,6 +378,10 @@ namespace sspo
         /// handles when the length button is pressed
         /// to learn the length from the next grid triggered
         void lengthInput();
+
+        void euclideanHitsInput();
+        void rotateTrackInput();
+
         /// midi assign mode
         void learnInput();
         /// reset sequencers
@@ -384,6 +402,8 @@ namespace sspo
         {
             gridInputs();
             lengthInput();
+            euclideanHitsInput();
+            rotateTrackInput();
         }
 
         pageChangeInputs();
@@ -457,6 +477,30 @@ namespace sspo
     }
 
     template <class TBase>
+    void IversonComp<TBase>::euclideanHitsInput()
+    {
+        if (triggers.euclideanHits.process (TBase::params[SET_EUCLIDEAN_HITS_PARAM].getValue())
+            && ! isSetLength && ! isLearning)
+        {
+            isSetEuclideanHits = ! isSetEuclideanHits;
+        }
+
+        TBase::lights[SET_EUCLIDEAN_HITS_LIGHT].setBrightness (isSetEuclideanHits);
+    }
+
+    template <class TBase>
+    void IversonComp<TBase>::rotateTrackInput()
+    {
+        if (triggers.rotateTrack.process (TBase::params[ROTATE_TRACK_PARAM].getValue())
+            && ! isSetLength && ! isLearning && ! isSetEuclideanHits)
+        {
+            isRotateTrack = ! isRotateTrack;
+        }
+
+        TBase::lights[ROTATE_TRACK_LIGHT].setBrightness (isRotateTrack);
+    }
+
+    template <class TBase>
     void IversonComp<TBase>::gridInputs()
     {
         for (auto t = 0; t < TRACK_COUNT; ++t)
@@ -471,6 +515,35 @@ namespace sspo
                         TBase::params[LENGTH_1_PARAM + t].setValue (getStepIndex (page, s + 1));
                         isSetLength = false;
                     }
+                    else if (isSetEuclideanHits)
+                    {
+                        tracks[t].setEuclidean (getStepIndex (page, s + 1), tracks[t].getLength());
+                        isSetEuclideanHits = false;
+                    }
+                    else if (isRotateTrack)
+                    {
+                        if (s == 0)
+                        {
+                            tracks[t].rotate (false, true);
+                        }
+                        else if (s == 1)
+                        {
+                            tracks[t].rotate (true, true);
+                        }
+                        // rotating track ignoring loop length only works for 64
+                        // step tracks due to the inheritance from a base class
+                        // this should be fixed
+
+                        //                        else if (s == GRID_WIDTH - 2)
+                        //                        {
+                        //                            tracks[t].rotate (false, false);
+                        //                        }
+                        //                        else if (s == GRID_WIDTH - 1)
+                        //                        {
+                        //                            tracks[t].rotate (true, false);
+                        //                        }
+                    }
+
                     else
                     {
                         tracks[t].invertStep (getStepIndex (page, s));
@@ -479,6 +552,7 @@ namespace sspo
             }
         }
     }
+
     template <class TBase>
     void IversonComp<TBase>::clockInput()
     {
@@ -617,6 +691,31 @@ namespace sspo
                 break;
             case IversonComp<TBase>::MIDI_LEARN_PARAM_FIRST:
                 ret = { 0.0f, 1.0f, 0.0f, "Midi Learn Param First", " ", 0, 1, 0.0f };
+                break;
+
+            case IversonComp<TBase>::MIDI_FEEDBACK_VELOCITY_NONE:
+                ret = { 0.0f, 127.0f, 0.0f, "None", " ", 0, 1, 0.0f };
+                break;
+            case IversonComp<TBase>::MIDI_FEEDBACK_VELOCITY_STEP:
+                ret = { 0.0f, 127.0f, 1.0f, "Step", " ", 0, 1, 0.0f };
+                break;
+            case IversonComp<TBase>::MIDI_FEEDBACK_VELOCITY_LOOP:
+                ret = { 0.0f, 127.0f, 3.0f, "Loop", " ", 0, 1, 0.0f };
+                break;
+            case IversonComp<TBase>::MIDI_FEEDBACK_VELOCITY_LOOP_STEP:
+                ret = { 0.0f, 127.0f, 5.0f, "Step  & Loop", " ", 0, 1, 0.0f };
+                break;
+            case IversonComp<TBase>::MIDI_FEEDBACK_VELOCITY_INDEX:
+                ret = { 0.0f, 127.0f, 5.0f, "Index", " ", 0, 1, 0.0f };
+                break;
+            case IversonComp<TBase>::MIDI_FEEDBACK_DIVIDER_SLOW:
+                ret = { 0.0f, 1.0f, 0.0f, "Feedback Divider", " ", 0, 1, 0.0f };
+                break;
+            case IversonComp<TBase>::SET_EUCLIDEAN_HITS_PARAM:
+                ret = { 0.0f, 1.0f, 0.0f, "Euclidean hits", " ", 0, 1, 0.0f };
+                break;
+            case IversonComp<TBase>::ROTATE_TRACK_PARAM:
+                ret = { 0.0f, 1.0f, 0.0f, "Rotate Track", " ", 0, 1, 0.0f };
                 break;
 
             default:
