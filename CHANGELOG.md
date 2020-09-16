@@ -24,3 +24,16 @@ Fixed bug in Massariti removing aliasing
 
 Added Iverson and Iverson Jr
 
+### V1.2.1 Iverson additions
+
+ - optimize MIDI feedback
+ - user selectable MIDI feedback
+ - new controller templates
+ - Euclidean beats
+ - Slow midi feedback mode
+ - Assignable midi controller feedback values in context menu. These can be used to select the colours shown on the controllers. These colour values vary between manufactures and models.
+ - Pattern Rotation
+  
+
+
+

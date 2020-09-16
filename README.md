@@ -303,10 +303,14 @@ Iverson comes in two versions: a 16 step and an 8 step (Iverson Jr).
  - The lower region of the UI contains MIDI assignment controls. Both the input
  and output must be assigned. Iverson allows for the use of two controllers for
  the sixteen steps, while Iverson Jr only allows a single grid controller.
+  - Euclidean beats. Length can set selected via the normal length control,
+   the number of sets can be selected by selecting the Euclidean control,
+    and the step number on the required track
  - The factory presets for APC Mini
    - Iverson JR
      - Maps the sequencer grid.
-     - The lower buttons map the page selection, loop length and reset.
+     - The lower buttons map the page selection, loop length reset and rotate.
+     - The shift key is used to set Euclidean patterns.
      - The faders are assigned to the main probability controls.
    - Iverson
      - When used with dual controllers, same as above.

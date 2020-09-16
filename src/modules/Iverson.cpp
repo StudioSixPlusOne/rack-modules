@@ -72,10 +72,9 @@ namespace sspo
                 }
                 catch (const std::exception& e)
                 {
-                    DEBUG ("%s", e.what());
+                    DEBUG ("Iverson %s", e.what());
+                    DEBUG ("%d", this->channel);
                 }
-
-                sendMessage (msg);
             }
 
             void resetNote (int note)
@@ -153,6 +152,9 @@ namespace sspo
         int MAX_SEQUENCE_LENGTH = 64;
         int GRID_WIDTH = 16;
         int TRACK_COUNT = 8;
+
+        static constexpr int MIDI_FEEDBACK_SLOW_RATE = 10000;
+        static constexpr int MIDI_FEEDBACK_FAST_RATE = 4096;
 
         std::shared_ptr<Comp> iverson;
         std::vector<midi::InputQueue> midiInputQueues{ 2 };
@@ -457,6 +459,14 @@ namespace sspo
                     {
                         midiOutputs[mm.controller].setNote (mm.note, iverson->params[Comp::CLOCK_PARAM].getValue());
                     }
+                    else if (mm.paramId == iverson->SET_EUCLIDEAN_HITS_PARAM)
+                    {
+                        midiOutputs[mm.controller].setNote (mm.note, iverson->isSetEuclideanHits);
+                    }
+                    else if (mm.paramId == iverson->ROTATE_TRACK_PARAM)
+                    {
+                        midiOutputs[mm.controller].setNote (mm.note, iverson->isRotateTrack);
+                    }
                 }
             }
             else if (mm.note != -1) //midi learn
@@ -521,6 +531,10 @@ namespace sspo
         if (controllerPageUpdateDivider.process())
         {
             pageLights();
+            controllerPageUpdateDivider.setDivision ((bool) iverson->params[Comp::MIDI_FEEDBACK_DIVIDER_SLOW]
+                                                             .getValue()
+                                                         ? MIDI_FEEDBACK_SLOW_RATE
+                                                         : MIDI_FEEDBACK_FAST_RATE);
         }
 
         if (midiOutStateResetDivider.process())
@@ -989,7 +1003,19 @@ User Interface
         IversonBase* module;
         void onAction (const event::Action& e) override
         {
-            module->iverson->params[Comp::MIDI_LEARN_PARAM_FIRST].setValue (! (bool) module->iverson->params[Comp::MIDI_LEARN_PARAM_FIRST].getValue());
+            module->iverson->params[Comp::MIDI_LEARN_PARAM_FIRST]
+                .setValue (! (bool) module->iverson->params[Comp::MIDI_LEARN_PARAM_FIRST].getValue());
+        }
+    };
+
+    struct MidiFeedbackDividerMenuItem : MenuItem
+    {
+        IversonBase* module;
+
+        void onAction (const event::Action& e) override
+        {
+            module->iverson->params[Comp::MIDI_FEEDBACK_DIVIDER_SLOW]
+                .setValue (! (bool) module->iverson->params[Comp::MIDI_FEEDBACK_DIVIDER_SLOW].getValue());
         }
     };
 
@@ -1149,6 +1175,8 @@ User Interface
             SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (18.57, 102)), module, Comp::CLOCK_PARAM));
         addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 65.45)), module, Comp::SET_LENGTH_PARAM));
         addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 82.15)), module, Comp::MIDI_LEARN_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (triggerX + 5, 102)), module, Comp::SET_EUCLIDEAN_HITS_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (triggerX + 5, 118)), module, Comp::ROTATE_TRACK_PARAM));
 
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (8.57, 118.0)), module, Comp::RESET_INPUT));
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (8.57, 102)), module, Comp::CLOCK_INPUT));
@@ -1162,6 +1190,8 @@ User Interface
         addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (18.57, 102.0)), module, Comp::CLOCK_LIGHT));
         addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 65.45)), module, Comp::SET_LENGTH_LIGHT));
         addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 82.15)), module, Comp::MIDI_LEARN_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (triggerX + 5, 102)), module, Comp::SET_EUCLIDEAN_HITS_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (triggerX + 5, 118)), module, Comp::ROTATE_TRACK_LIGHT));
 
         if (module != nullptr)
         {
@@ -1216,6 +1246,13 @@ User Interface
         midiParamFirst->rightText = CHECKMARK (
             ((IversonBase*) module)->iverson->params[Comp::MIDI_LEARN_PARAM_FIRST].getValue());
         menu->addChild (midiParamFirst);
+
+        auto* slowMidiFeedback = new MidiFeedbackDividerMenuItem();
+        slowMidiFeedback->module = (IversonBase*) module;
+        slowMidiFeedback->text = "Slow midi feedback";
+        slowMidiFeedback->rightText = CHECKMARK (
+            ((IversonBase*) module)->iverson->params[Comp::MIDI_FEEDBACK_DIVIDER_SLOW].getValue());
+        menu->addChild (slowMidiFeedback);
 
         auto* midiVelNoneSlider = new MidiVelocitySlider;
         dynamic_cast<MidiVelocityQuantity*> (midiVelNoneSlider->quantity)->module = module;
