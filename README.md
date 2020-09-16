@@ -309,7 +309,8 @@ Iverson comes in two versions: a 16 step and an 8 step (Iverson Jr).
  - The factory presets for APC Mini
    - Iverson JR
      - Maps the sequencer grid.
-     - The lower buttons map the page selection, loop length and reset.
+     - The lower buttons map the page selection, loop length reset and rotate.
+     - The shift key is used to set Euclidean patterns.
      - The faders are assigned to the main probability controls.
    - Iverson
      - When used with dual controllers, same as above.
