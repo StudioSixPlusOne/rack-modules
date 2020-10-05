@@ -1049,7 +1049,7 @@ User Interface
         }
         int getDisplayPrecision() override
         {
-            return 0;
+            return 3;
         }
         std::string getLabel() override
         {
