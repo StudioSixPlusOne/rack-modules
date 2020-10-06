@@ -232,8 +232,8 @@ namespace sspo
                                     auto currentScaledValue = paramQuantities[m.paramId]->getScaledValue();
                                     auto step = 1.0f / 127.0f; // midi cc = 127 steps
                                     currentScaledValue = msg.getValue() > 64
-                                                             ? currentScaledValue + step
-                                                             : currentScaledValue - step;
+                                                             ? currentScaledValue - step
+                                                             : currentScaledValue + step;
                                     paramQuantities[m.paramId]->setScaledValue (currentScaledValue);
                                 }
                                 else

@@ -39,6 +39,6 @@ Added Iverson and Iverson Jr
 
  - updated / added controller presets
  - Context menu sliders correctly display value
- 
+ - Option for rotary encoders added to context menu
  
 
