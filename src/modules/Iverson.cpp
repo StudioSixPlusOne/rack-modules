@@ -372,6 +372,7 @@ namespace sspo
                             {
                                 midiLearnMapping.controller = q;
                                 midiLearnMapping.cc = msg.getNote();
+                                midiLearnMapping.note = -1; // if both note and cc assigned, just use cc
                             }
                             break;
                             default:
