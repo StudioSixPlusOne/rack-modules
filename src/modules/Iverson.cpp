@@ -227,7 +227,8 @@ namespace sspo
                         {
                             if (m.cc == msg.getNote() && m.controller == q)
                             {
-                                if ((bool) iverson->params[Comp::USE_ROTARY_ENCODERS_PARAM].getValue())
+                                if ((bool) iverson->params[Comp::USE_ROTARY_ENCODERS_PARAM].getValue()
+                                    && (m.paramId >= Comp::PRIMARY_PROB_1 && m.paramId <= Comp::ALT_PROB_8))
                                 {
                                     auto currentScaledValue = paramQuantities[m.paramId]->getScaledValue();
                                     auto step = 1.0f / 127.0f; // midi cc = 127 steps
