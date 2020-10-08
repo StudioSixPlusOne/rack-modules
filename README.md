@@ -263,6 +263,8 @@ A slimline mixer for audio and cv.
 A performance based trigger sequencer with integrated support for MIDI grid controllers.
 
 
+Thanks to Steve Baker (MindMeld) for his help with the UI design.
+
 Iverson comes in two versions: a 16 step and an 8 step (Iverson Jr).
 
  - Eight individual tracks.

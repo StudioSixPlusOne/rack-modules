@@ -947,7 +947,7 @@ User Interface
 
             nvgBeginPath (args.vg);
             nvgFillPaint (args.vg, gradient);
-            nvgRoundedRect (args.vg, 0, 0, box.size.x, box.size.y, box.size.x / 10.0f);
+            nvgRoundedRect (args.vg, 0, 0, box.size.x, box.size.y, mm2px (0.5f));
             nvgFill (args.vg);
 
             //assignment text
@@ -1136,16 +1136,16 @@ User Interface
         box.size = Vec (40 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
         SqHelper::setPanel (this, filename.c_str());
 
-        addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, 0)));
-        addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-        addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-        addChild (createWidget<ScrewSilver> (
-            Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+        //        addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, 0)));
+        //        addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+        //        addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+        //        addChild (createWidget<ScrewSilver> (
+        //            Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
         //parameter grid inputs
-        Vec grid_1_1 (gridX, 23.7f);
-        auto gridXDelta = 8.5f;
-        auto gridYDelta = 8.35f;
+        Vec grid_1_1 (gridX, 18.7f);
+        auto gridXDelta = 10.35f;
+        auto gridYDelta = 9.0f;
 
         for (auto t = 0; t < trackCount; ++t)
         {
@@ -1168,9 +1168,9 @@ User Interface
                                                                      module,
                                                                      Comp::GRID_1_1_PARAM + t * gridWidth + s));
 
-                auto* gridWidget = createWidget<GridWidget> (mm2px (Vec (grid_1_1.x + s * gridXDelta - 4.0f,
-                                                                         grid_1_1.y + t * gridYDelta - 3.5f)));
-                gridWidget->box.size = mm2px (Vec (8, 7));
+                auto* gridWidget = createWidget<GridWidget> (mm2px (Vec (grid_1_1.x + s * gridXDelta - (9.55 * 0.5),
+                                                                         grid_1_1.y + t * gridYDelta - (7.8 * 0.5))));
+                gridWidget->box.size = mm2px (Vec (9.55f, 7.8f));
                 gridWidget->setGridLocation (s, t);
                 gridWidget->setModule (module);
                 addChild (gridWidget);
@@ -1191,47 +1191,56 @@ User Interface
                                                          module,
                                                          Comp::ALT_OUTPUT_1 + t));
         }
-
-        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 23.70)), module, Comp::PAGE_ONE_PARAM));
-        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 32.05)), module, Comp::PAGE_TWO_PARAM));
-        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 40.40)), module, Comp::PAGE_THREE_PARAM));
-        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 48.74)), module, Comp::PAGE_FOUR_PARAM));
-        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (18.57, 118.0)), module, Comp::RESET_PARAM));
+        // TODO page buttons for 8 pages currenly pages 5 - 8 all connected to page 4
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 18.7)), module, Comp::PAGE_ONE_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 27.7)), module, Comp::PAGE_TWO_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 36.7)), module, Comp::PAGE_THREE_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 45.7)), module, Comp::PAGE_FOUR_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 54.7)), module, Comp::PAGE_FOUR_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 63.7)), module, Comp::PAGE_FOUR_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 72.7)), module, Comp::PAGE_FOUR_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 81.7)), module, Comp::PAGE_FOUR_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (18.74, 101.34)), module, Comp::RESET_PARAM));
         addParam (
-            SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (18.57, 102)), module, Comp::CLOCK_PARAM));
-        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 65.45)), module, Comp::SET_LENGTH_PARAM));
-        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 82.15)), module, Comp::MIDI_LEARN_PARAM));
-        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (triggerX + 5, 102)), module, Comp::SET_EUCLIDEAN_HITS_PARAM));
-        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (triggerX + 5, 118)), module, Comp::ROTATE_TRACK_PARAM));
+            SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (18.74, 115.2)), module, Comp::CLOCK_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (127.58, 101.34)), module, Comp::SET_LENGTH_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (29.9, 101.34)), module, Comp::MIDI_LEARN_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (143.82, 101.34)), module, Comp::SET_EUCLIDEAN_HITS_PARAM));
+        addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (127.58, 115.2)), module, Comp::ROTATE_TRACK_PARAM));
 
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (8.57, 118.0)), module, Comp::RESET_INPUT));
-        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (8.57, 102)), module, Comp::CLOCK_INPUT));
+        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (8.58, 101.34)), module, Comp::RESET_INPUT));
+        addInput (createInputCentered<PJ301MPort> (mm2px (Vec (8.58, 115.2)), module, Comp::CLOCK_INPUT));
 
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 23.70)), module, Comp::PAGE_ONE_LIGHT));
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 32.05)), module, Comp::PAGE_TWO_LIGHT));
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 40.40)), module, Comp::PAGE_THREE_LIGHT));
-        addChild (
-            createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 48.74)), module, Comp::PAGE_FOUR_LIGHT));
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (18.57, 118.0)), module, Comp::RESET_LIGHT));
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (18.57, 102.0)), module, Comp::CLOCK_LIGHT));
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 65.45)), module, Comp::SET_LENGTH_LIGHT));
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 82.15)), module, Comp::MIDI_LEARN_LIGHT));
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (triggerX + 5, 102)), module, Comp::SET_EUCLIDEAN_HITS_LIGHT));
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (triggerX + 5, 118)), module, Comp::ROTATE_TRACK_LIGHT));
+        //TODO page led for pages 5 -8 currently page 4
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 18.7)), module, Comp::PAGE_ONE_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 27.7)), module, Comp::PAGE_TWO_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 36.7)), module, Comp::PAGE_THREE_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 45.7)), module, Comp::PAGE_FOUR_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 54.7)), module, Comp::PAGE_FOUR_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 63.7)), module, Comp::PAGE_FOUR_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 72.7)), module, Comp::PAGE_FOUR_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 81.7)), module, Comp::PAGE_FOUR_LIGHT));
+
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (18.74, 101.34)), module, Comp::RESET_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (18.74, 115.2)), module, Comp::CLOCK_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (127.58, 101.34)), module, Comp::SET_LENGTH_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (29.9, 101.34)), module, Comp::MIDI_LEARN_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (143.82, 101.34)), module, Comp::SET_EUCLIDEAN_HITS_LIGHT));
+        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (127.58, 115.2)), module, Comp::ROTATE_TRACK_LIGHT));
 
         if (module != nullptr)
         {
-            createMidiWidget (module, &module->midiInputQueues[0], Vec (midiSelectorX[0], 98.094));
-            createMidiWidget (module, &module->midiOutputs[0], Vec (midiSelectorX[1], 98.094));
+            createMidiWidget (module, &module->midiInputQueues[0], Vec (midiSelectorX[0] - 20, 110.96 - 13));
+            createMidiWidget (module, &module->midiOutputs[0], Vec (midiSelectorX[1] - 20, 110.96 - 13));
             if (midiSelectorCount == 2)
             {
-                createMidiWidget (module, &module->midiInputQueues[1], Vec (midiSelectorX[2], 98.094));
-                createMidiWidget (module, &module->midiOutputs[1], Vec (midiSelectorX[3], 98.094));
+                createMidiWidget (module, &module->midiInputQueues[1], Vec (midiSelectorX[2] - 20, 110.96 - 13));
+                createMidiWidget (module, &module->midiOutputs[1], Vec (midiSelectorX[3] - 20, 110.96 - 13));
             }
         }
 
-        auto* summaryWidget = createWidget<SummaryWidget> (mm2px (Vec (summaryX, 87.5)));
-        summaryWidget->box.size = mm2px (Vec (summaryLength, 4));
+        auto* summaryWidget = createWidget<SummaryWidget> (mm2px (Vec (summaryX - summaryLength * 0.5f, 91.7 - 3.5)));
+        summaryWidget->box.size = mm2px (Vec (summaryLength, 7));
         summaryWidget->setModule (module);
         addChild (summaryWidget);
     }
@@ -1244,7 +1253,7 @@ User Interface
     MidiWidget* IversonBaseWidget::createMidiWidget (const IversonBase* module, midi::Port* port, Vec pos)
     {
         auto* midiAInWidget = createWidget<MidiWidget> (mm2px (pos));
-        midiAInWidget->box.size = mm2px (Vec (40, 25));
+        midiAInWidget->box.size = mm2px (Vec (40, 26));
         midiAInWidget->setMidiPort (module ? port : NULL);
         addChild (midiAInWidget);
         return midiAInWidget;
@@ -1385,18 +1394,18 @@ User Interface
         explicit IversonJrWidget (IversonBase* module) : IversonBaseWidget (module)
         {
             gridWidth = 8;
-            muteX = 126.34f;
-            triggerX = 136.5f;
+            muteX = 127.58f;
+            triggerX = 138.74f;
             midiSelectorCount = 1;
             filename = "res/IversonJr.svg";
-            summaryLength = 62;
-            summaryX = 48.0;
-            midiSelectorX = { 35.90, 81.70, 0, 0 };
-            primaryProbX = 20.99f;
-            altProbX = 31.14f;
-            altOutX = 146.66f;
-            gridX = 49.26f;
-            pageX = 10.82f;
+            summaryLength = 82;
+            summaryX = 78.74;
+            midiSelectorX = { 57.74, 99.74, 0, 0 };
+            primaryProbX = 8.58f;
+            altProbX = 18.74f;
+            altOutX = 148.9f;
+            gridX = 42.49f;
+            pageX = 29.9f;
 
             init (module);
         }
