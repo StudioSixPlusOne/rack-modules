@@ -15,3 +15,5 @@ extern Model* modelZazel;
 extern Model* modelTe;
 extern Model* modelIverson;
 extern Model* modelIversonJr;
+extern Model* modelLawanda;
+

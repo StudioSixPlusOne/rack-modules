@@ -120,6 +120,12 @@
         "Controller",
         "Sequencer"
       ]
+    },
+    {
+      "slug": "Lawanda",
+      "name": "Lawanda",
+      "description": "Physical Model of a pipe delay",
+      "tags": []
     }
   ]
 }
