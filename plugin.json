@@ -122,12 +122,6 @@
       ]
     },
     {
-      "slug": "Lawanda",
-      "name": "Lawanda",
-      "description": "Physical Model of a pipe delay",
-      "tags": []
-    },
-    {
       "slug": "Cadman",
       "name": "Cadman",
       "description": "Waveguide",
