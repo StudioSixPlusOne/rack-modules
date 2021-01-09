@@ -190,7 +190,7 @@ public:
     /// when the clock input is connected, counts frames between clock ticks.
     void syncClock()
     {
-        if (TBase::inputs[CLOCK_INPUT].isConnected())
+        if (TBase::inputs[CLOCK_INPUT].isConnected() == true)
         {
             lastClockDuration = clockDuration.process (TBase::inputs[CLOCK_INPUT].getVoltage());
         }

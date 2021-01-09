@@ -54,6 +54,7 @@ static void testCycleFromFresh()
     zazel.init();
     zazel.params[zazel.ONESHOT_PARAM].setValue (-0); //cycle mode
     zazel.inputs[zazel.CLOCK_INPUT].setChannels (0);
+    zazel.inputs[zazel.CLOCK_INPUT].channels = 0;
     zazel.params[zazel.DURATION_PARAM].setValue (1.0f / freq); //100hz
     zazel.params[zazel.START_PARAM].setValue (-1.0f);
     zazel.params[zazel.END_PARAM].setValue (1.0f);
@@ -80,6 +81,7 @@ static void testOneShotAtInit()
     zazel.init();
     zazel.params[zazel.ONESHOT_PARAM].setValue (-1); //oneshot mode
     zazel.inputs[zazel.CLOCK_INPUT].setChannels (0);
+    zazel.inputs[zazel.CLOCK_INPUT].channels = 0;
     zazel.params[zazel.DURATION_PARAM].setValue (0.001); //sharp curve
     zazel.params[zazel.START_PARAM].setValue (-1.0f);
     zazel.params[zazel.END_PARAM].setValue (1.0f);
@@ -138,7 +140,7 @@ static void testOneshotRiseTime()
     zazel.setSampleRate (sr);
     zazel.init();
     zazel.params[zazel.ONESHOT_PARAM].setValue (-1); //oneshot mode
-    zazel.inputs[zazel.CLOCK_INPUT].setChannels (0);
+    zazel.inputs[zazel.CLOCK_INPUT].channels = 0;
     zazel.params[zazel.START_PARAM].setValue (-1.0f);
     zazel.params[zazel.END_PARAM].setValue (1.0f);
     auto t = ts::makeTrigger (1024, 512);
@@ -178,7 +180,7 @@ static void testOneshotFallTime()
     zazel.setSampleRate (sr);
     zazel.init();
     zazel.params[zazel.ONESHOT_PARAM].setValue (-1); //oneshot mode
-    zazel.inputs[zazel.CLOCK_INPUT].setChannels (0);
+    zazel.inputs[zazel.CLOCK_INPUT].channels = 0;
     zazel.params[zazel.START_PARAM].setValue (-1.0f);
     zazel.params[zazel.END_PARAM].setValue (1.0f);
     auto t = ts::makeTrigger (1024, 512);
@@ -210,7 +212,7 @@ static void testPauseOneshotRising()
     zazel.setSampleRate (sr);
     zazel.init();
     zazel.params[zazel.ONESHOT_PARAM].setValue (-1); //oneshot mode
-    zazel.inputs[zazel.CLOCK_INPUT].setChannels (0);
+    zazel.inputs[zazel.CLOCK_INPUT].channels = 0;
     zazel.params[zazel.START_PARAM].setValue (-1.0f);
     zazel.params[zazel.END_PARAM].setValue (1.0f);
     auto t = ts::makeTrigger (1024, 512);
@@ -275,7 +277,7 @@ static void testPauseOneshotFalling()
     zazel.setSampleRate (sr);
     zazel.init();
     zazel.params[zazel.ONESHOT_PARAM].setValue (-1); //oneshot mode
-    zazel.inputs[zazel.CLOCK_INPUT].setChannels (0);
+    zazel.inputs[zazel.CLOCK_INPUT].channels = 0;
     zazel.params[zazel.START_PARAM].setValue (-1.0f);
     zazel.params[zazel.END_PARAM].setValue (1.0f);
     auto t = ts::makeTrigger (1024, 512);
