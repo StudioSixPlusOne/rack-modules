@@ -66,7 +66,7 @@ namespace sspo
         }
 
         template <typename T>
-        inline T linearInterpolate (const T v0, const T v1, const T frac) noexcept
+        inline T linearInterpolate (const T v0, const T v1, const float frac) noexcept
         {
             return frac * (v1 - v0) + v0;
         }
@@ -108,6 +108,37 @@ namespace sspo
         {
             return std::exp (Ln10 * db / 20.0);
         }
+
+        inline float logGainFrom01Param (float param)
+        {
+            return pow (10.0f, (60.0f * param - 60.0f) / 20.0f);
+        }
+
+        template <typename T>
+        class Slew
+        {
+        public:
+            float getScale() const
+            {
+                return scale;
+            }
+            void setScale (float scale)
+            {
+                Slew::scale = scale;
+            }
+
+            T process (T target)
+            {
+                auto diff = currentValue - target;
+                diff *= scale;
+                currentValue -= diff;
+                return currentValue;
+            }
+
+        private:
+            T currentValue = 0;
+            float scale = 0.1f;
+        };
 
     } // namespace AudioMath
 } // namespace sspo

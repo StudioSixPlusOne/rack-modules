@@ -24,6 +24,7 @@
 #include "IComposite.h"
 #include "AudioMath.h"
 #include "HardLimiter.h"
+#include "ClockDuration.h"
 #include "easing.h"
 #include <memory>
 #include <vector>
@@ -144,11 +145,9 @@ public:
     int currentEasing = 0.0;
     bool oneShot = true;
     /// time between trigger or gates, used when syncing clock times
-    int lastClockDuration = 1000;
-    dsp::SchmittTrigger syncTrigger;
+    sspo::ClockDuration clockDuration;
     dsp::SchmittTrigger startContTrigger;
     dsp::SchmittTrigger pauseTrigger;
-    int framesSinceSync = 0;
     Mode mode = Mode::ONESHOT_LOW;
     Mode lastMode = Mode::ONESHOT_LOW;
     int framesSincePhaseChange = 0;
@@ -160,6 +159,7 @@ public:
     float endParam = 0.0f;
     RetriggerMode retriggerMode = RetriggerMode::RESTART;
     float durationMultiplier = 1.0f;
+    int lastClockDuration = 1000;
 
     /// mode used when triggering before current cycle is complete
     void setRetriggerMode (RetriggerMode m)
@@ -192,17 +192,7 @@ public:
     {
         if (TBase::inputs[CLOCK_INPUT].isConnected())
         {
-            if (syncTrigger.process (TBase::inputs[CLOCK_INPUT].getVoltage()
-                                     + TBase::params[SYNC_BUTTON_PARAM].getValue()))
-            {
-                framesSinceSync++;
-                lastClockDuration = framesSinceSync;
-                framesSinceSync = 0;
-            }
-            else
-            {
-                framesSinceSync++;
-            }
+            lastClockDuration = clockDuration.process (TBase::inputs[CLOCK_INPUT].getVoltage());
         }
         else
             lastClockDuration = sampleRate;

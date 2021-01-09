@@ -90,6 +90,12 @@ static void testRand01()
     //printf ("rand01 %d \n", static_cast<int>(bands.size()));
 }
 
+static void testLogGainFrom01Param()
+{
+    assertEQ (AudioMath::logGainFrom01Param (1.0f), 1.0f);
+    assertEQ (AudioMath::logGainFrom01Param (0.0f), 0.001f);
+}
+
 void testAudioMath()
 {
     printf ("AudioMath\n");
@@ -97,4 +103,5 @@ void testAudioMath()
     testFastTanh();
     testlinearInterpolate();
     testRand01();
+    testLogGainFrom01Param();
 }

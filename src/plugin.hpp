@@ -16,4 +16,4 @@ extern Model* modelTe;
 extern Model* modelIverson;
 extern Model* modelIversonJr;
 extern Model* modelLawanda;
-
+extern Model* modelCadman;

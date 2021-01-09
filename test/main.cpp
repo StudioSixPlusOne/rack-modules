@@ -86,6 +86,8 @@ int main (int argc, char** argv)
 
     // run external tests defined above
 
+    testAudioMath();
+    testCircularBuffer();
     testTriggerSequencer();
     testIverson();
     testLala();
@@ -95,8 +97,6 @@ int main (int argc, char** argv)
     testSaturator();
     testEmpty();
     testTestSignal();
-    testAudioMath();
-    testCircularBuffer();
     testLookupTable();
     testAnalyzer();
     testPolyShiftRegister();
