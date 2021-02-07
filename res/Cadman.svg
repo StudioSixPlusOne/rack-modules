@@ -15,7 +15,7 @@
         version="1.1"
         id="svg4541"
         sodipodi:docname="Cadman.svg"
-        inkscape:version="1.0.1 (179fe94779, 2021-01-06)">
+        inkscape:version="1.0.1 (4e07ae893c, 2021-01-09)">
   <title
           id="title5207">SSPO 10hp template
   </title>
@@ -391,7 +391,7 @@
           inkscape:pageshadow="2"
           inkscape:zoom="2"
           inkscape:cx="66.300998"
-          inkscape:cy="152.38948"
+          inkscape:cy="332.38948"
           inkscape:document-units="mm"
           inkscape:current-layer="layer6"
           showgrid="true"
@@ -1092,7 +1092,7 @@
           inkscape:groupmode="layer"
           id="layer6"
           inkscape:label="Text"
-          style="display:none">
+          style="display:none;opacity:0.98">
     <text
             xml:space="preserve"
             style="font-size:2.82223px;line-height:1.25;font-family:Kirsty;-inkscape-font-specification:Kirsty;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
@@ -1110,11 +1110,11 @@
             x="13.013308"
             y="30.422352"
             id="text2892"><tspan
-         sodipodi:role="line"
-         id="tspan2890"
-         x="13.013308"
-         y="30.422352"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-anchor:middle;stroke-width:0.264583">INPUT A </tspan>
+   sodipodi:role="line"
+   id="tspan2890"
+   x="13.013308"
+   y="30.422352"
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-anchor:middle;stroke-width:0.264583">INPUT A </tspan>
       <tspan
               sodipodi:role="line"
               x="13.013308"
@@ -1128,10 +1128,10 @@
             y="322.58795"
             id="text2918"
             transform="matrix(0.26458333,0,0,0.26458333,37.932107,0)"><tspan
-         sodipodi:role="line"
-         id="tspan2916"
-         x="-91.862984"
-         y="322.58795">NODE 1</tspan>
+   sodipodi:role="line"
+   id="tspan2916"
+   x="-91.862984"
+   y="322.58795">NODE 1</tspan>
       <tspan
               sodipodi:role="line"
               x="-91.862984"
@@ -1155,10 +1155,10 @@
             y="111.9979"
             id="text2944"
             transform="matrix(0.26458333,0,0,0.26458333,-20.085068,0.78957293)"><tspan
-         sodipodi:role="line"
-         id="tspan2942"
-         x="251.78267"
-         y="111.9979">OUTPUT A </tspan>
+   sodipodi:role="line"
+   id="tspan2942"
+   x="251.78267"
+   y="111.9979">OUTPUT A </tspan>
       <tspan
               sodipodi:role="line"
               x="251.78267"
@@ -1182,11 +1182,11 @@
             x="13.013308"
             y="48.593884"
             id="text1279"><tspan
-         sodipodi:role="line"
-         id="tspan1275"
-         x="13.013308"
-         y="48.593884"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-anchor:middle;stroke-width:0.264583">INPUT B </tspan>
+   sodipodi:role="line"
+   id="tspan1275"
+   x="13.013308"
+   y="48.593884"
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-anchor:middle;stroke-width:0.264583">INPUT B </tspan>
       <tspan
               sodipodi:role="line"
               x="13.013308"
@@ -1200,10 +1200,10 @@
             y="111.9979"
             id="text1285"
             transform="matrix(0.26458333,0,0,0.26458333,-20.085068,18.979709)"><tspan
-         sodipodi:role="line"
-         id="tspan1281"
-         x="251.78267"
-         y="111.9979">OUTPUT B </tspan>
+   sodipodi:role="line"
+   id="tspan1281"
+   x="251.78267"
+   y="111.9979">OUTPUT B </tspan>
       <tspan
               sodipodi:role="line"
               x="251.78267"
@@ -1216,10 +1216,10 @@
             y="111.9979"
             id="text1291"
             transform="matrix(0.26458333,0,0,0.26458333,-53.234185,37.169631)"><tspan
-         sodipodi:role="line"
-         id="tspan1287"
-         x="251.78267"
-         y="111.9979">OUTPUT A </tspan>
+   sodipodi:role="line"
+   id="tspan1287"
+   x="251.78267"
+   y="111.9979">OUTPUT A </tspan>
       <tspan
               sodipodi:role="line"
               x="251.78267"
@@ -1232,10 +1232,10 @@
             y="111.9979"
             id="text1297"
             transform="matrix(0.26458333,0,0,0.26458333,-20.085068,37.169631)"><tspan
-         sodipodi:role="line"
-         id="tspan1293"
-         x="251.78267"
-         y="111.9979">OUTPUT B </tspan>
+   sodipodi:role="line"
+   id="tspan1293"
+   x="251.78267"
+   y="111.9979">OUTPUT B </tspan>
       <tspan
               sodipodi:role="line"
               x="251.78267"
@@ -1248,10 +1248,10 @@
             y="322.58795"
             id="text1303"
             transform="matrix(0.26458333,0,0,0.26458333,70.370687,0)"><tspan
-         sodipodi:role="line"
-         id="tspan1299"
-         x="-91.862984"
-         y="322.58795">NODE 2</tspan>
+   sodipodi:role="line"
+   id="tspan1299"
+   x="-91.862984"
+   y="322.58795">NODE 2</tspan>
       <tspan
               sodipodi:role="line"
               x="-91.862984"
@@ -1366,8 +1366,7 @@
             id="text1318"
             style="font-size:2.82223px;line-height:1.25;font-family:Kirsty;-inkscape-font-specification:Kirsty;letter-spacing:0px;word-spacing:0px;display:inline;stroke-width:0.264583"/>
     <g
-            aria-label="INPUT A
-POSITION"
+            aria-label="INPUT A POSITION"
             id="text1324"
             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82223px;line-height:1.05;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;display:inline;stroke-width:0.264583">
       <path
@@ -1428,8 +1427,7 @@ POSITION"
               id="path1785"/>
     </g>
     <g
-            aria-label="NODE 1
-FEEDBACK"
+            aria-label="NODE 1 FEEDBACK"
             transform="matrix(0.26458333,0,0,0.26458333,37.932106,0)"
             id="text1330"
             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:sans-serif;-inkscape-font-specification:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:center;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:0px;word-spacing:0px;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:middle;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;display:inline;opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;stroke-width:0.999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1">
@@ -1492,8 +1490,7 @@ FEEDBACK"
               id="path1729"/>
     </g>
     <g
-            aria-label="OUTPUT A
-POSITION"
+            aria-label="OUTPUT A POSITION"
             transform="matrix(0.26458333,0,0,0.26458333,-20.085068,0.78957292)"
             id="text1340"
             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:sans-serif;-inkscape-font-specification:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:center;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:0px;word-spacing:0px;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:middle;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;display:inline;opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;stroke-width:0.999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1">
@@ -1574,8 +1571,7 @@ POSITION"
               id="path1689"/>
     </g>
     <g
-            aria-label="INPUT B
-POSITION"
+            aria-label="INPUT B POSITION"
             id="text1350"
             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82223px;line-height:1.05;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;display:inline;stroke-width:0.264583">
       <path
@@ -1636,8 +1632,7 @@ POSITION"
               id="path1676"/>
     </g>
     <g
-            aria-label="OUTPUT B
-POSITION"
+            aria-label="OUTPUT B POSITION"
             transform="matrix(0.26458333,0,0,0.26458333,-20.085068,18.979709)"
             id="text1356"
             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:sans-serif;-inkscape-font-specification:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:center;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:0px;word-spacing:0px;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:middle;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;display:inline;opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;stroke-width:0.999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1">
@@ -1688,8 +1683,7 @@ POSITION"
               id="path1647"/>
     </g>
     <g
-            aria-label="OUTPUT A
-MIX"
+            aria-label="OUTPUT A MIX"
             transform="matrix(0.26458333,0,0,0.26458333,-53.234185,37.16963)"
             id="text1362"
             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:sans-serif;-inkscape-font-specification:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:center;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:0px;word-spacing:0px;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:middle;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;display:inline;opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;stroke-width:0.999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1">
@@ -1725,8 +1719,7 @@ MIX"
               id="path1616"/>
     </g>
     <g
-            aria-label="OUTPUT B
-MIX"
+            aria-label="OUTPUT B MIX"
             transform="matrix(0.26458333,0,0,0.26458333,-20.085068,37.16963)"
             id="text1368"
             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:sans-serif;-inkscape-font-specification:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:center;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:0px;word-spacing:0px;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:middle;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;display:inline;opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;stroke-width:0.999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1">
@@ -1762,8 +1755,7 @@ MIX"
               id="path1595"/>
     </g>
     <g
-            aria-label="NODE 2
-FEEDBACK"
+            aria-label="NODE 2 FEEDBACK"
             transform="matrix(0.26458333,0,0,0.26458333,70.370687,0)"
             id="text1374"
             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:sans-serif;-inkscape-font-specification:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:center;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:0px;word-spacing:0px;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:middle;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;display:inline;opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;stroke-width:0.999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000;stop-opacity:1">
@@ -2096,7 +2088,7 @@ FEEDBACK"
          style="stroke-width:0.958553">Custom</tspan></text>
   </g>
   <g
-          style="display:inline"
+          style="display:none"
           inkscape:label="components"
           id="layer4"
           inkscape:groupmode="layer">
