@@ -1,394 +1,297 @@
 {
-  "id": 1610,
+  "id": 227,
   "plugin": "StudioSixPlusOne",
-  "version": "1.1.0",
+  "version": "1.2.1",
   "model": "IversonJr",
-
   "data": {
     "midiBinding": [
       {
         "controller": 0,
-        "note": 64,
+        "note": 32,
         "cc": -1,
         "paramId": 0
       },
       {
         "controller": 0,
-        "note": 65,
+        "note": 33,
         "cc": -1,
         "paramId": 1
       },
       {
         "controller": 0,
-        "note": 66,
+        "note": 34,
         "cc": -1,
         "paramId": 2
       },
       {
         "controller": 0,
-        "note": 67,
+        "note": 35,
         "cc": -1,
         "paramId": 3
       },
       {
         "controller": 0,
-        "note": 96,
+        "note": 36,
         "cc": -1,
         "paramId": 4
       },
       {
         "controller": 0,
-        "note": 97,
+        "note": 37,
         "cc": -1,
         "paramId": 5
       },
       {
         "controller": 0,
-        "note": 98,
+        "note": 38,
         "cc": -1,
         "paramId": 6
       },
       {
         "controller": 0,
-        "note": 99,
+        "note": 39,
         "cc": -1,
         "paramId": 7
       },
       {
         "controller": 0,
-        "note": 60,
+        "note": 24,
         "cc": -1,
         "paramId": 8
       },
       {
         "controller": 0,
-        "note": 61,
+        "note": 25,
         "cc": -1,
         "paramId": 9
       },
       {
         "controller": 0,
-        "note": 62,
+        "note": 26,
         "cc": -1,
         "paramId": 10
       },
       {
         "controller": 0,
-        "note": 63,
+        "note": 27,
         "cc": -1,
         "paramId": 11
       },
       {
         "controller": 0,
-        "note": 92,
+        "note": 28,
         "cc": -1,
         "paramId": 12
       },
       {
         "controller": 0,
-        "note": 93,
+        "note": 29,
         "cc": -1,
         "paramId": 13
       },
       {
         "controller": 0,
-        "note": 94,
+        "note": 30,
         "cc": -1,
         "paramId": 14
       },
       {
         "controller": 0,
-        "note": 95,
+        "note": 31,
         "cc": -1,
         "paramId": 15
       },
       {
         "controller": 0,
-        "note": 56,
+        "note": 16,
         "cc": -1,
         "paramId": 16
       },
       {
         "controller": 0,
-        "note": 57,
+        "note": 17,
         "cc": -1,
         "paramId": 17
       },
       {
         "controller": 0,
-        "note": 58,
+        "note": 18,
         "cc": -1,
         "paramId": 18
       },
       {
         "controller": 0,
-        "note": 59,
+        "note": 19,
         "cc": -1,
         "paramId": 19
       },
       {
         "controller": 0,
-        "note": 88,
+        "note": 20,
         "cc": -1,
         "paramId": 20
       },
       {
         "controller": 0,
-        "note": 89,
+        "note": 21,
         "cc": -1,
         "paramId": 21
       },
       {
         "controller": 0,
-        "note": 90,
+        "note": 22,
         "cc": -1,
         "paramId": 22
       },
       {
         "controller": 0,
-        "note": 91,
+        "note": 23,
         "cc": -1,
         "paramId": 23
       },
       {
         "controller": 0,
-        "note": 52,
+        "note": 8,
         "cc": -1,
         "paramId": 24
       },
       {
         "controller": 0,
-        "note": 53,
+        "note": 9,
         "cc": -1,
         "paramId": 25
       },
       {
         "controller": 0,
-        "note": 54,
+        "note": 10,
         "cc": -1,
         "paramId": 26
       },
       {
         "controller": 0,
-        "note": 55,
+        "note": 11,
         "cc": -1,
         "paramId": 27
       },
       {
         "controller": 0,
-        "note": 84,
+        "note": 12,
         "cc": -1,
         "paramId": 28
       },
       {
         "controller": 0,
-        "note": 85,
+        "note": 13,
         "cc": -1,
         "paramId": 29
       },
       {
         "controller": 0,
-        "note": 86,
+        "note": 14,
         "cc": -1,
         "paramId": 30
       },
       {
         "controller": 0,
-        "note": 87,
+        "note": 15,
         "cc": -1,
         "paramId": 31
       },
       {
         "controller": 0,
-        "note": 48,
-        "cc": -1,
-        "paramId": 32
-      },
-      {
-        "controller": 0,
-        "note": 49,
-        "cc": -1,
-        "paramId": 33
-      },
-      {
-        "controller": 0,
-        "note": 50,
-        "cc": -1,
-        "paramId": 34
-      },
-      {
-        "controller": 0,
-        "note": 51,
-        "cc": -1,
-        "paramId": 35
-      },
-      {
-        "controller": 0,
-        "note": 80,
-        "cc": -1,
-        "paramId": 36
-      },
-      {
-        "controller": 0,
-        "note": 81,
-        "cc": -1,
-        "paramId": 37
-      },
-      {
-        "controller": 0,
         "note": 82,
         "cc": -1,
-        "paramId": 38
+        "paramId": 128
       },
       {
         "controller": 0,
         "note": 83,
         "cc": -1,
-        "paramId": 39
+        "paramId": 129
       },
       {
         "controller": 0,
-        "note": 44,
+        "note": 84,
         "cc": -1,
-        "paramId": 40
+        "paramId": 130
       },
       {
         "controller": 0,
-        "note": 45,
+        "note": 85,
         "cc": -1,
-        "paramId": 41
-      },
-      {
-        "controller": 0,
-        "note": 46,
-        "cc": -1,
-        "paramId": 42
-      },
-      {
-        "controller": 0,
-        "note": 47,
-        "cc": -1,
-        "paramId": 43
-      },
-      {
-        "controller": 0,
-        "note": 76,
-        "cc": -1,
-        "paramId": 44
-      },
-      {
-        "controller": 0,
-        "note": 77,
-        "cc": -1,
-        "paramId": 45
-      },
-      {
-        "controller": 0,
-        "note": 78,
-        "cc": -1,
-        "paramId": 46
-      },
-      {
-        "controller": 0,
-        "note": 79,
-        "cc": -1,
-        "paramId": 47
-      },
-      {
-        "controller": 0,
-        "note": 40,
-        "cc": -1,
-        "paramId": 48
-      },
-      {
-        "controller": 0,
-        "note": 41,
-        "cc": -1,
-        "paramId": 49
-      },
-      {
-        "controller": 0,
-        "note": 42,
-        "cc": -1,
-        "paramId": 50
-      },
-      {
-        "controller": 0,
-        "note": 43,
-        "cc": -1,
-        "paramId": 51
-      },
-      {
-        "controller": 0,
-        "note": 72,
-        "cc": -1,
-        "paramId": 52
-      },
-      {
-        "controller": 0,
-        "note": 73,
-        "cc": -1,
-        "paramId": 53
-      },
-      {
-        "controller": 0,
-        "note": 74,
-        "cc": -1,
-        "paramId": 54
-      },
-      {
-        "controller": 0,
-        "note": 75,
-        "cc": -1,
-        "paramId": 55
-      },
-      {
-        "controller": 0,
-        "note": 36,
-        "cc": -1,
-        "paramId": 56
-      },
-      {
-        "controller": 0,
-        "note": 37,
-        "cc": -1,
-        "paramId": 57
-      },
-      {
-        "controller": 0,
-        "note": 38,
-        "cc": -1,
-        "paramId": 58
-      },
-      {
-        "controller": 0,
-        "note": 39,
-        "cc": -1,
-        "paramId": 59
+        "paramId": 131
       },
       {
         "controller": 0,
         "note": 68,
         "cc": -1,
-        "paramId": 60
+        "paramId": 150
       },
       {
         "controller": 0,
         "note": 69,
         "cc": -1,
-        "paramId": 61
+        "paramId": 148
       },
       {
         "controller": 0,
         "note": 70,
         "cc": -1,
-        "paramId": 62
+        "paramId": 176
       },
       {
         "controller": 0,
         "note": 71,
         "cc": -1,
-        "paramId": 63
+        "paramId": 177
+      },
+      {
+        "controller": 0,
+        "note": 64,
+        "cc": -1,
+        "paramId": 144
+      },
+      {
+        "controller": 0,
+        "note": 65,
+        "cc": -1,
+        "paramId": 145
+      },
+      {
+        "controller": 0,
+        "note": 66,
+        "cc": -1,
+        "paramId": 146
+      },
+      {
+        "controller": 0,
+        "note": 67,
+        "cc": -1,
+        "paramId": 147
+      },
+      {
+        "controller": 0,
+        "note": -1,
+        "cc": 48,
+        "paramId": 152
+      },
+      {
+        "controller": 0,
+        "note": -1,
+        "cc": 49,
+        "paramId": 153
+      },
+      {
+        "controller": 0,
+        "note": -1,
+        "cc": 50,
+        "paramId": 154
+      },
+      {
+        "controller": 0,
+        "note": -1,
+        "cc": 51,
+        "paramId": 155
       }
     ]
   }

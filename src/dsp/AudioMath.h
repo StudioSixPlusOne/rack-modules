@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <stdio.h>
 #include <algorithm>
 #include <cmath>
 #include <float.h>

@@ -31,7 +31,8 @@ namespace sspo
 {
     inline float fastTanh (float x)
     {
-        return x * (27 + x * x) / (27 + 9 * x * x);
+        //        return x * (27 + x * x) / (27 + 9 * x * x);
+        return std::tanh (x);
     }
 
     class SynthFilter

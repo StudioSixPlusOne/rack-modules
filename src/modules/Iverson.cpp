@@ -90,7 +90,7 @@ namespace sspo
                 }
                 catch (const std::exception& e)
                 {
-                    DEBUG ("%s", e.what());
+                    DEBUG ("Iverson reset note %s", e.what());
                 }
             }
 
@@ -109,7 +109,7 @@ namespace sspo
                     }
                     catch (const std::exception& e)
                     {
-                        DEBUG ("%s", e.what());
+                        DEBUG ("Iverson setNote %s", e.what());
                     }
                 }
                 else if (velocity == -1)
@@ -125,7 +125,7 @@ namespace sspo
                     }
                     catch (const std::exception& e)
                     {
-                        DEBUG ("%s", e.what());
+                        DEBUG ("Iverson setNote -1 %s", e.what());
                     }
                 }
                 currentNotes[note] = velocity;
@@ -226,8 +226,23 @@ namespace sspo
                         for (auto& m : midiMappings)
                         {
                             if (m.cc == msg.getNote() && m.controller == q)
-                                paramQuantities[m.paramId]->setScaledValue (
-                                    (float) msg.getValue() / 127.0f); //((msg.getValue() == 0 ? 0 : 1));
+                            {
+                                if ((bool) iverson->params[Comp::USE_ROTARY_ENCODERS_PARAM].getValue()
+                                    && (m.paramId >= Comp::PRIMARY_PROB_1 && m.paramId <= Comp::ALT_PROB_8))
+                                {
+                                    auto currentScaledValue = paramQuantities[m.paramId]->getScaledValue();
+                                    auto step = 1.0f / 127.0f; // midi cc = 127 steps
+                                    currentScaledValue = msg.getValue() > 64
+                                                             ? currentScaledValue - step
+                                                             : currentScaledValue + step;
+                                    paramQuantities[m.paramId]->setScaledValue (currentScaledValue);
+                                }
+                                else
+                                {
+                                    paramQuantities[m.paramId]->setScaledValue (
+                                        (float) msg.getValue() / 127.0f); //((msg.getValue() == 0 ? 0 : 1));
+                                }
+                            }
                         }
                     }
 
@@ -358,6 +373,7 @@ namespace sspo
                             {
                                 midiLearnMapping.controller = q;
                                 midiLearnMapping.cc = msg.getNote();
+                                midiLearnMapping.note = -1; // if both note and cc assigned, just use cc
                             }
                             break;
                             default:
@@ -1008,6 +1024,16 @@ User Interface
         }
     };
 
+    struct UseRotaryEncodersMenuItem : MenuItem
+    {
+        IversonBase* module;
+        void onAction (const event::Action& e) override
+        {
+            module->iverson->params[Comp::USE_ROTARY_ENCODERS_PARAM]
+                .setValue (! (bool) module->iverson->params[Comp::USE_ROTARY_ENCODERS_PARAM].getValue());
+        }
+    };
+
     struct MidiFeedbackDividerMenuItem : MenuItem
     {
         IversonBase* module;
@@ -1049,7 +1075,7 @@ User Interface
         }
         int getDisplayPrecision() override
         {
-            return 0;
+            return 3;
         }
         std::string getLabel() override
         {
@@ -1229,6 +1255,13 @@ User Interface
         auto* module = dynamic_cast<IversonBase*> (this->module);
 
         menu->addChild (new MenuEntry);
+
+        auto* useRotaryEncoderMenuItem = new UseRotaryEncodersMenuItem();
+        useRotaryEncoderMenuItem->text = "Use Rotary Encoders";
+        useRotaryEncoderMenuItem->module = (IversonBase*) module;
+        useRotaryEncoderMenuItem->rightText = CHECKMARK (
+            ((IversonBase*) module)->iverson->params[Comp::USE_ROTARY_ENCODERS_PARAM].getValue());
+        menu->addChild (useRotaryEncoderMenuItem);
 
         auto* clearAllMenuItem = new ClearMAllMidiMappingMenuItem();
         clearAllMenuItem->text = "Clear all Midi Mappings";

@@ -24,6 +24,7 @@ SOFTWARE.
 
 #pragma once
 
+#include <stdlib.h>
 #include <functional>
 #define __STDC_FORMAT_MACROS 
 #include <inttypes.h>

@@ -248,6 +248,7 @@ namespace sspo
             MIDI_FEEDBACK_DIVIDER_SLOW,
             SET_EUCLIDEAN_HITS_PARAM,
             ROTATE_TRACK_PARAM,
+            USE_ROTARY_ENCODERS_PARAM,
             NUM_PARAMS
         };
         enum InputIds
@@ -716,6 +717,9 @@ namespace sspo
                 break;
             case IversonComp<TBase>::ROTATE_TRACK_PARAM:
                 ret = { 0.0f, 1.0f, 0.0f, "Rotate Track", " ", 0, 1, 0.0f };
+                break;
+            case IversonComp<TBase>::USE_ROTARY_ENCODERS_PARAM:
+                ret = { 0.0f, 1.0f, 0.0f, "use rotary encoders", " ", 0, 1, 0.0f };
                 break;
 
             default:

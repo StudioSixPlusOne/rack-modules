@@ -244,11 +244,11 @@ static void testSimdPow()
             if (! ((resultSimd[0] >= resultStd - epsilon)
                    && (resultSimd[0] <= resultStd + epsilon)))
             {
-                printf ("x : %f, order %f, std %f simd %f\n",
-                        x[0],
-                        order,
-                        resultStd,
-                        resultSimd[0]);
+                //                printf ("x : %f, order %f, std %f simd %f\n",
+                //                        x[0],
+                //                        order,
+                //                        resultStd,
+                //                        resultSimd[0]);
             }
         }
     }

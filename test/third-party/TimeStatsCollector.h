@@ -24,7 +24,7 @@ SOFTWARE.
 
 #pragma once
 #include "SqTime.h"
-
+#include <stdio.h>
 /**
  * Unfinished time class. Meant to be inserted into other code (like VCV Rack).
  * Averages states over time.
