@@ -38,6 +38,8 @@ TEST_SOURCES += $(wildcard test/third-party/fft/*.cpp)
 TEST_SOURCES += test/third-party/kiss_fft130/kiss_fft.c
 TEST_SOURCES += test/third-party/kiss_fft130/tools/kiss_fftr.c
 
+FLAGS += -fpermissive
+
 # DONT USE src/.cpp files
 
 ## This is a list of full paths to the .o files we want to build

@@ -35,10 +35,12 @@ Added Iverson and Iverson Jr
  - Pattern Rotation
   
 
-### Not Yet Released Iverson
-
- - updated / added controller presets
- - Context menu sliders correctly display value
- - Option for rotary encoders added to context menu
+### V 1.2.2 Iverson and Maccomo
+ - Iverson
+   - updated / added controller presets
+   - Context menu sliders correctly display value
+   - Option for rotary encoders added to context menu
+ - Maccomo
+     - Improved Non linear distortion
  
 
