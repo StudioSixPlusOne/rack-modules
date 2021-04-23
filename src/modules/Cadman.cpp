@@ -147,7 +147,7 @@ struct Cadman : Module
     Cadman()
     {
         config (NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-        configParam (TIME_PARAM, 0.f, 4.f, 1.f, "Delay Time");
+        configParam (TIME_PARAM, 0.f, 1.f, 1.f, "Delay Time");
         configParam (IN_A_POSITION_PARAM, 0.f, 1.f, 0.f, "Input A Position");
         configParam (OUT_A_POSITION_PARAM, 0.f, 1.f, 0.f, "Output A Position");
         configParam (IN_B_POSITION_PARAM, 0.f, 1.f, 0.f, "Input B Position");
@@ -156,7 +156,7 @@ struct Cadman : Module
         configParam (OUTPUT_B_MIX_PARAM, 0.f, 1.f, 1.f, "Output B Mix");
         configParam (NODE_1_ATTENUVERTER_PARAM, -1.f, 1.f, 1.f, "Node 1 Feedback");
         configParam (NODE_2_ATTENUVERTER_PARAM, -1.f, 1.f, 1.f, "Node 2 Feedback");
-        configParam (SMOOTH_SCALE_PARAM, 0.0001f, 1.0f, 0.001, "Smoothing scale");
+        configParam (SMOOTH_SCALE_PARAM, 0.0001f, 1.0f, 0.0001, "Smoothing scale");
         //        wg.setBufferSize(10 * 44100);
         wg.resize (PORT_MAX_CHANNELS);
         firstNodes.resize (PORT_MAX_CHANNELS);
