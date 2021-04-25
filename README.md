@@ -29,6 +29,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 
 
  [Iverson](#iverson)
+ 
+ [Zilah](#zilah)
 
 
 
@@ -331,3 +333,11 @@ Iverson comes in two versions: a 16 step and an 8 step (Iverson Jr).
         - pan to reset
         - the first five rotary controllers are mapped to the main probability of the first 5 rows
 
+### Zilah
+
+<img align="left" src="images/Zilah.png">
+
+A MIDI 1.0 14 bit CC controller. The MIDI 1.0 standard defines cc 0 - 31 can be
+ used in conjunction with cc 32 - 63 to form 14 bit pairs. This gives greater 
+ resolution than the default 128 steps.
+Options are given in the context menu as to how the pair of CC values are processed, MSB wait for LSB is my personal favorite, but the MIDI 1.0 option is compliant with the specification.   
