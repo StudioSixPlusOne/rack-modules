@@ -98,6 +98,7 @@
         "Clock modulator",
         "Function generator",
         "Low-frequency oscillator",
+        "Envelope generator",
         "Controller"
       ]
     },
@@ -119,6 +120,15 @@
       "tags": [
         "Controller",
         "Sequencer"
+      ]
+    },
+    {
+      "slug": "Zilah",
+      "name": "Zilah",
+      "description": "14 bit Midi-CV input",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#zilah",
+      "tags": [
+        "MIDI"
       ]
     }
   ]
