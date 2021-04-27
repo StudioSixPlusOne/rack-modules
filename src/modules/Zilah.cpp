@@ -1,5 +1,5 @@
 #include "plugin.hpp"
-#include <cinttypes>
+#include <inttypes.h>
 
 //
 
@@ -102,6 +102,8 @@ struct Zilah : Module
     enum ParamIds
     {
         AGGREGATOR_PARAM,
+        UNIPOLAR_PARAM,
+        SMOOTHING_FILTER_TAU,
         NUM_PARAMS
     };
     enum InputIds
@@ -222,6 +224,7 @@ struct Zilah : Module
     std::vector<LsbOrMSbWithZeroingMidi10> midi10Aggregator{ 32 };
     std::vector<LsbOrMSbWithoutZeroing> lsbOrMsbWithoutZeroing{ 32 };
     std::vector<MsbFirstWaitForLsb> msbFirstWaitForLsb{ 32 };
+    std::vector<dsp::ExponentialFilter> outFilters{ 32 };
 
     enum Aggregators
     {
@@ -235,6 +238,21 @@ struct Zilah : Module
     {
         config (NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
         configParam (AGGREGATOR_PARAM, 0, NUM_AGGREGATORS - 1, 0);
+        configParam (UNIPOLAR_PARAM, 0, 1, 1);
+        configParam (SMOOTHING_FILTER_TAU, 0.0000001f, 1 / 15.0f, 1 / 30.0f, "Filter Smoothing", "Seconds");
+        for (auto& of : outFilters)
+            of.setTau (params[SMOOTHING_FILTER_TAU].getValue());
+        onReset();
+    }
+
+    void onReset() override
+    {
+        midiInputQueue.reset();
+        //default smoothing time as used by MIDI-CC
+        params[SMOOTHING_FILTER_TAU].setValue (1 / 30.0f);
+        params[UNIPOLAR_PARAM].setValue (true);
+        for (auto& of : outFilters)
+            of.reset();
     }
 
     void process (const ProcessArgs& args) override
@@ -294,20 +312,26 @@ struct Zilah : Module
             lights[MSB_00_LIGHT + i].setBrightness (msbLedPulse[i].process (args.sampleTime));
         }
 
+        // set uni / bi polar offset
+        auto ccOffset = static_cast<bool> (params[UNIPOLAR_PARAM].getValue()) ? 0.0f : -0.5f;
+
+        // set filter time
+        for (auto& of : outFilters)
+            of.setTau (params[SMOOTHING_FILTER_TAU].getValue());
+
         //output aggregators
-        //TODO case on selected aggregators
         for (auto i = 0; i < 32; ++i)
         {
             switch ((int) params[AGGREGATOR_PARAM].getValue())
             {
                 case Midi10:
-                    outputs[MIDI_OUT_00_OUTPUT + i].setVoltage (midi10Aggregator[i].get() * 10.0f);
+                    outputs[MIDI_OUT_00_OUTPUT + i].setVoltage (outFilters[i].process (args.sampleTime, midi10Aggregator[i].get() + ccOffset) * 10.0f);
                     break;
                 case lsbMsbWithoutZeroing:
-                    outputs[MIDI_OUT_00_OUTPUT + i].setVoltage (lsbOrMsbWithoutZeroing[i].get() * 10.0f);
+                    outputs[MIDI_OUT_00_OUTPUT + i].setVoltage (outFilters[i].process (args.sampleTime, lsbOrMsbWithoutZeroing[i].get() + ccOffset) * 10.0f);
                     break;
                 case msbFirstWaitForLsb_allLsbPass:
-                    outputs[MIDI_OUT_00_OUTPUT + i].setVoltage (msbFirstWaitForLsb[i].get() * 10.0f);
+                    outputs[MIDI_OUT_00_OUTPUT + i].setVoltage (outFilters[i].process (args.sampleTime, msbFirstWaitForLsb[i].get() + ccOffset) * 10.0f);
                     break;
                 default:
                     break;
@@ -342,6 +366,76 @@ struct AggregatorMenuItem : MenuItem
     void onAction (const event::Action& e) override
     {
         module->params[Zilah::AGGREGATOR_PARAM].setValue (static_cast<float> (aggregator));
+    }
+};
+
+struct UnipolarMenuItem : MenuItem
+{
+    Zilah* module = nullptr;
+
+    void onAction (const event::Action& e) override
+    {
+        module->params[Zilah::UNIPOLAR_PARAM].setValue (! static_cast<bool> (module->params[Zilah::UNIPOLAR_PARAM].getValue()));
+    }
+};
+
+//smoothing filter patameter, as slider on context menu
+
+struct SmoothingFilterQuantity : Quantity
+{
+    Zilah* module = nullptr;
+
+    void setValue (float value) override
+    {
+        if (module != nullptr)
+            module->params[Zilah::SMOOTHING_FILTER_TAU].setValue (clamp (value, 0.0001f, getMaxValue()));
+    }
+    float getValue() override
+    {
+        if (module == nullptr)
+            return 0.0f;
+        return module->params[Zilah::SMOOTHING_FILTER_TAU].getValue();
+    }
+    float getMinValue() override
+    {
+        if (module == nullptr)
+            return 0;
+        return 0.00001f;
+    }
+    float getMaxValue() override
+    {
+        if (module == nullptr)
+            return 0;
+        return module->paramQuantities[Zilah::SMOOTHING_FILTER_TAU]->getMaxValue();
+    }
+    float getDefaultValue() override
+    {
+        if (module == nullptr)
+            return 0;
+        return module->paramQuantities[Zilah::SMOOTHING_FILTER_TAU]->getDefaultValue();
+    }
+    int getDisplayPrecision() override
+    {
+        return 6;
+    }
+    std::string getLabel() override
+    {
+        if (module == nullptr)
+            return "";
+        return module->paramQuantities[Zilah::SMOOTHING_FILTER_TAU]->getLabel();
+    }
+};
+
+struct SmoothingFilterSlider : ui::Slider
+{
+    SmoothingFilterSlider()
+    {
+        quantity = new SmoothingFilterQuantity;
+    }
+
+    ~SmoothingFilterSlider() override
+    {
+        delete quantity;
     }
 };
 
@@ -492,6 +586,19 @@ struct Midi_cc_14Widget : ModuleWidget
         msbWaitForLsb->rightText = CHECKMARK (((Zilah*) module)->params[Zilah::AGGREGATOR_PARAM].getValue()
                                               == Zilah::Aggregators::msbFirstWaitForLsb_allLsbPass);
         menu->addChild (msbWaitForLsb);
+
+        menu->addChild (new MenuEntry);
+
+        auto* smoothFilterSlider = new SmoothingFilterSlider;
+        dynamic_cast<SmoothingFilterQuantity*> (smoothFilterSlider->quantity)->module = module;
+        smoothFilterSlider->box.size.x = 200.0f;
+        menu->addChild (smoothFilterSlider);
+
+        auto* unipolarMenuItem = new UnipolarMenuItem();
+        unipolarMenuItem->text = "Unipolar";
+        unipolarMenuItem->module = (Zilah*) module;
+        unipolarMenuItem->rightText = CHECKMARK (((Zilah*) module)->params[Zilah::UNIPOLAR_PARAM].getValue());
+        menu->addChild (unipolarMenuItem);
     }
 };
 
