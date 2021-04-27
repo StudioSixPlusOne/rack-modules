@@ -1,5 +1,5 @@
 #include "plugin.hpp"
-#include <inttypes.h>
+#include <stdint.h>
 
 //
 
