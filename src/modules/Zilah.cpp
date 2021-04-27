@@ -8,21 +8,21 @@
 // value is the 14 MSB, 0,0 for LSB
 struct FourteenBit
 {
-    u_int16_t value;
-    void setMsb (u_int8_t msb)
+    uint16_t value;
+    void setMsb (uint8_t msb)
     {
-        u_int16_t shiftedMsb = (u_int16_t) msb << 7U;
+        uint16_t shiftedMsb = (uint16_t) msb << 7U;
         value &= 0b0000000001111111U;
         value |= shiftedMsb;
     }
 
-    void setLsb (u_int8_t lsb)
+    void setLsb (uint8_t lsb)
     {
         value &= 0b0011111110000000U;
         value |= lsb;
     }
 
-    float getNormalised()
+    float getNormalised() const
     {
         return static_cast<float> (value) / 0b0011111111111111;
     }
@@ -42,19 +42,19 @@ struct CcAggregator
     {
         return fourteenBit.getNormalised();
     }
-    virtual void setMsb (u_int8_t) = 0;
-    virtual void setLsb (u_int8_t) = 0;
+    virtual void setMsb (uint8_t) = 0;
+    virtual void setLsb (uint8_t) = 0;
 };
 
 struct LsbOrMSbWithZeroingMidi10 : CcAggregator
 {
-    void setMsb (u_int8_t msb) override
+    void setMsb (uint8_t msb) override
     {
         fourteenBit.setMsb (msb);
         fourteenBit.setLsb (0);
     }
 
-    void setLsb (u_int8_t lsb) override
+    void setLsb (uint8_t lsb) override
     {
         fourteenBit.setLsb (lsb);
     }
@@ -62,12 +62,12 @@ struct LsbOrMSbWithZeroingMidi10 : CcAggregator
 
 struct LsbOrMSbWithoutZeroing : CcAggregator
 {
-    void setMsb (u_int8_t msb) override
+    void setMsb (uint8_t msb) override
     {
         fourteenBit.setMsb (msb);
     }
 
-    void setLsb (u_int8_t lsb) override
+    void setLsb (uint8_t lsb) override
     {
         fourteenBit.setLsb (lsb);
     }
@@ -75,14 +75,14 @@ struct LsbOrMSbWithoutZeroing : CcAggregator
 
 struct MsbFirstWaitForLsb : CcAggregator
 {
-    u_int8_t msb = 0;
+    uint8_t msb = 0;
     bool isMsbSet = false;
-    void setMsb (u_int8_t m) override
+    void setMsb (uint8_t m) override
     {
         msb = m;
         isMsbSet = true;
     }
-    void setLsb (u_int8_t l) override
+    void setLsb (uint8_t l) override
     {
         if (isMsbSet)
         {
@@ -244,17 +244,17 @@ struct Zilah : Module
         {
             switch (msg.getStatus())
             {
-                //note off
-                case 0x8:
-                {
-                }
-                break;
-
-                    //note on
-                case 0x9:
-                {
-                }
-                break;
+                    //note off
+                    //                case 0x8:
+                    //                {
+                    //                }
+                    //                break;
+                    //
+                    //                    //note on
+                    //                case 0x9:
+                    //                {
+                    //                }
+                    //                break;
                     // cc
                 case 0xb:
                 {
@@ -287,7 +287,7 @@ struct Zilah : Module
                 }
             }
         }
-        //outputLeds
+        //output Leds
         for (auto i = 0; i < 32; ++i)
         {
             lights[LSB_00_LIGHT + i].setBrightness (lsbLedPulse[i].process (args.sampleTime));
@@ -337,11 +337,11 @@ struct Zilah : Module
 struct AggregatorMenuItem : MenuItem
 {
     int aggregator = 0;
-    Zilah* module;
+    Zilah* module = nullptr;
 
     void onAction (const event::Action& e) override
     {
-        module->params[Zilah::AGGREGATOR_PARAM].setValue (aggregator);
+        module->params[Zilah::AGGREGATOR_PARAM].setValue (static_cast<float> (aggregator));
     }
 };
 
@@ -464,7 +464,7 @@ struct Midi_cc_14Widget : ModuleWidget
         }
     }
 
-    void appendContextMenu (Menu* menu)
+    void appendContextMenu (Menu* menu) override
     {
         auto* module = dynamic_cast<Zilah*> (this->module);
         menu->addChild (new MenuEntry);
