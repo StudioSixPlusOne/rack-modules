@@ -21,8 +21,8 @@
 
 #include "plugin.hpp"
 
-typedef unsigned char u_int8_t;
-typedef unsigned short int u_int16_t;
+typedef unsigned char uint8_t;
+typedef unsigned short int uint16_t;
 //
 
 // Midi cc is 7 bit, double is 14 bit
