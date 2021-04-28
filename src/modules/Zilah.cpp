@@ -22,7 +22,7 @@
 #include "plugin.hpp"
 
 typedef unsigned char uint8_t;
-typedef unsigned short int uint16_t;
+//typedef unsigned int uint16_t;
 //
 
 // Midi cc is 7 bit, double is 14 bit
@@ -30,10 +30,10 @@ typedef unsigned short int uint16_t;
 // value is the 14 MSB, 0,0 for LSB
 struct FourteenBit
 {
-    uint16_t value;
+    unsigned int value;
     void setMsb (uint8_t msb)
     {
-        uint16_t shiftedMsb = (uint16_t) msb << 7U;
+        auto shiftedMsb = (unsigned int) (msb << 7U);
         value &= 0b0000000001111111U;
         value |= shiftedMsb;
     }
