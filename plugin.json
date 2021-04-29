@@ -125,10 +125,11 @@
     {
       "slug": "Zilah",
       "name": "Zilah",
-      "description": "14 bit Midi-CV input",
+      "description": "14 bit Midi-CC input",
       "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#zilah",
       "tags": [
-        "MIDI"
+        "MIDI",
+        "external"
       ]
     }
   ]
