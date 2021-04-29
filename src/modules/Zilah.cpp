@@ -119,6 +119,38 @@ struct MsbFirstWaitForLsb : CcAggregator
     }
 };
 
+struct MsbLsbPair : CcAggregator
+{
+    uint8_t msb = 0;
+    uint8_t lsb = 0;
+    bool isMsbSet = false;
+    bool isLsbSet = false;
+
+    void process()
+    {
+        if ((isMsbSet == true) && (isLsbSet == true))
+        {
+            fourteenBit.setLsb (lsb);
+            fourteenBit.setMsb (msb);
+            isMsbSet = false;
+            isLsbSet = false;
+        }
+    }
+
+    void setMsb (uint8_t m) override
+    {
+        msb = m;
+        isMsbSet = true;
+        process();
+    }
+    void setLsb (uint8_t l) override
+    {
+        lsb = l;
+        isLsbSet = true;
+        process();
+    }
+};
+
 struct Zilah : Module
 {
     enum ParamIds
@@ -246,6 +278,7 @@ struct Zilah : Module
     std::vector<LsbOrMSbWithZeroingMidi10> midi10Aggregator{ 32 };
     std::vector<LsbOrMSbWithoutZeroing> lsbOrMsbWithoutZeroing{ 32 };
     std::vector<MsbFirstWaitForLsb> msbFirstWaitForLsb{ 32 };
+    std::vector<MsbLsbPair> msbLsbPair{ 32 };
     std::vector<dsp::ExponentialFilter> outFilters{ 32 };
 
     enum Aggregators
@@ -253,6 +286,7 @@ struct Zilah : Module
         Midi10,
         lsbMsbWithoutZeroing,
         msbFirstWaitForLsb_allLsbPass,
+        msbLsb_pair,
         NUM_AGGREGATORS
     };
 
@@ -309,6 +343,7 @@ struct Zilah : Module
                         midi10Aggregator[cc].setMsb (val);
                         lsbOrMsbWithoutZeroing[cc].setMsb (val);
                         msbFirstWaitForLsb[cc].setMsb (val);
+                        msbLsbPair[cc].setMsb (val);
                     }
                     else if (cc < 64) // LSB
                     {
@@ -318,6 +353,7 @@ struct Zilah : Module
                         midi10Aggregator[cc - 32].setLsb (val);
                         lsbOrMsbWithoutZeroing[cc - 32].setLsb (val);
                         msbFirstWaitForLsb[cc - 32].setLsb (val);
+                        msbLsbPair[cc - 32].setLsb (val);
                     }
                 }
 
@@ -354,6 +390,9 @@ struct Zilah : Module
                     break;
                 case msbFirstWaitForLsb_allLsbPass:
                     outputs[MIDI_OUT_00_OUTPUT + i].setVoltage (outFilters[i].process (args.sampleTime, msbFirstWaitForLsb[i].get() + ccOffset) * 10.0f);
+                    break;
+                case msbLsb_pair:
+                    outputs[MIDI_OUT_00_OUTPUT + i].setVoltage (outFilters[i].process (args.sampleTime, msbLsbPair[i].get() + ccOffset) * 10.0f);
                     break;
                 default:
                     break;
@@ -608,6 +647,14 @@ struct Midi_cc_14Widget : ModuleWidget
         msbWaitForLsb->rightText = CHECKMARK (((Zilah*) module)->params[Zilah::AGGREGATOR_PARAM].getValue()
                                               == Zilah::Aggregators::msbFirstWaitForLsb_allLsbPass);
         menu->addChild (msbWaitForLsb);
+
+        auto* msblsbPair = new AggregatorMenuItem();
+        msblsbPair->aggregator = Zilah::Aggregators::msbLsb_pair;
+        msblsbPair->text = "MSB LSB pair";
+        msblsbPair->module = (Zilah*) module;
+        msblsbPair->rightText = CHECKMARK (((Zilah*) module)->params[Zilah::AGGREGATOR_PARAM].getValue()
+                                           == Zilah::Aggregators::msbLsb_pair);
+        menu->addChild (msblsbPair);
 
         menu->addChild (new MenuEntry);
 

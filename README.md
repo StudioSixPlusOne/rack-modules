@@ -341,3 +341,4 @@ A MIDI 1.0 14 bit CC controller. The MIDI 1.0 standard defines cc 0 - 31 can be
  used in conjunction with cc 32 - 63 to form 14 bit pairs. This gives greater 
  resolution than the default 128 steps.
 Options are given in the context menu as to how the pair of CC values are processed, MSB wait for LSB is my personal favorite, but the MIDI 1.0 option is compliant with the specification.   
+The smoothing filter can be adjusted, and both unipolar and bipolar outputs
