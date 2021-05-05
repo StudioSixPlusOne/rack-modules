@@ -127,11 +127,13 @@ namespace sspo
             {
                 Lookup()
                 {
-                    sineTable = sspo::AudioMath::LookupTable::makeTable<float> (-k_2pi - 0.1f, k_2pi + 0.1f, 0.001f, [] (const float x) -> float { return std::sin (x); });
+                    sineTable = sspo::AudioMath::LookupTable::makeTable<float> (-4 * k_2pi - 0.1f, 4 * k_2pi + 0.1f, 0.001f, [] (const float x) -> float { return std::sin (x); });
                     pow2Table = LookupTable::makeTable<float> (-10.1f, 10.1f, 0.001f, [] (const float x) -> float { return std::pow (2.0f, x); });
                     pow10Table = LookupTable::makeTable<float> (-10.1f, 10.1f, 0.001f, [] (const float x) -> float { return std::pow (10.0f, x); });
                     log10Table = LookupTable::makeTable<float> (0.00001f, 10.1f, 0.001f, [] (const float x) -> float { return std::log10 (x); });
                     unisonSpreadTable = LookupTable::makeTable<float> (0.0f, 1.1f, 0.01f, [] (const float x) -> float { return unisonSpreadScalar (x); });
+
+                    hulaSineTable = sspo::AudioMath::LookupTable::makeTable<float> (-4 * k_2pi - 0.1f, 4 * k_2pi + 0.1f, 0.001f, [] (const float x) -> float { return std::sin (x) + (rand01() - 0.5f) * 1e-1f; });
                 }
 
                 sspo::AudioMath::LookupTable::Table<float> sineTable;
@@ -139,12 +141,14 @@ namespace sspo
                 sspo::AudioMath::LookupTable::Table<float> pow10Table;
                 sspo::AudioMath::LookupTable::Table<float> log10Table;
                 sspo::AudioMath::LookupTable::Table<float> unisonSpreadTable;
+                sspo::AudioMath::LookupTable::Table<float> hulaSineTable;
 
                 float sin (const float x) { return sspo::AudioMath::LookupTable::process (sineTable, x); }
                 float pow2 (const float x) { return sspo::AudioMath::LookupTable::process (pow2Table, x); }
                 float pow10 (const float x) { return sspo::AudioMath::LookupTable::process (pow10Table, x); }
                 float log10 (const float x) { return sspo::AudioMath::LookupTable::process (log10Table, x); }
                 float unisonSpread (const float x) { return sspo::AudioMath::LookupTable::process (unisonSpreadTable, x); }
+                float hulaSin (const float x) { return sspo::AudioMath::LookupTable::process (hulaSineTable, x); }
             };
 
         } // namespace LookupTable

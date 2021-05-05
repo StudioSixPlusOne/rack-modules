@@ -282,4 +282,43 @@ namespace sspo
         }
     };
 
+    /// IIR Decimator
+    /// oversample, upsample tate
+    /// quality, nunber of sequential filters
+    template <int oversample, int quality, typename T>
+    struct Decimator
+    {
+        BiQuad<T> filters[quality];
+
+        Decimator()
+        {
+            for (auto i = 0; i < quality; ++i)
+            {
+                // the oversample multiplier adjusts feedback resonance in Hula oscillator
+                filters[i].setButterworthLp2 (10000.0f, 10000.0f / (1.0f * oversample));
+            }
+        }
+
+        T process (const T* input)
+        {
+            T x = 0;
+            for (auto i = 0; i < oversample; ++i)
+            {
+                T y = filters[0].process (input[i]);
+                for (auto j = 1; j < quality; ++j)
+                {
+                    y = filters[j].process (y);
+                }
+                x = y;
+            }
+
+            // we simply return the last sample
+            //
+            return x;
+
+            //HACK
+            //              return input[0];
+        }
+    };
+
 } // namespace sspo
