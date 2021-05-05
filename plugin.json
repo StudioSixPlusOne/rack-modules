@@ -131,6 +131,12 @@
         "MIDI",
         "external"
       ]
+    },
+    {
+      "slug": "Hula",
+      "name": "Hula",
+      "description": "VCO unique pre instance",
+      "tags": []
     }
   ]
 }
