@@ -113,9 +113,9 @@ public:
     constexpr static int SIMD_CHANNELS = 4;
     float reciprocalSampleRate = 1;
     float sampleRate = 1;
-    std::array<float_4, SIMD_CHANNELS> lastOuts; //{ float_4 (0.0f) };
-    std::array<float_4, SIMD_CHANNELS> phases; //{ float_4 (0.0f) };
-    std::array<float_4, SIMD_CHANNELS> fineTuneVocts; //{ float_4 (0.0f) };
+    std::array<float_4, SIMD_CHANNELS> lastOuts;
+    std::array<float_4, SIMD_CHANNELS> phases;
+    std::array<float_4, SIMD_CHANNELS> fineTuneVocts;
 
     static constexpr int oversampleCount = 4;
     static constexpr int oversampleQuality = 1;
@@ -149,6 +149,12 @@ void HulaComp<TBase>::init()
     // set random detune, += 5 cent;
     for (auto& f : fineTuneVocts)
         f = (rand01() * 2.0f - 1.0f) * 5.0f / (12.0f * 100.0f);
+
+    for (auto& l : lastOuts)
+        l = float_4 (0);
+
+    for (auto& p : phases)
+        p = float_4 (0);
 }
 
 template <class TBase>
