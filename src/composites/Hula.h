@@ -113,9 +113,9 @@ public:
     constexpr static int SIMD_CHANNELS = 4;
     float reciprocalSampleRate = 1;
     float sampleRate = 1;
-    std::array<float_4, SIMD_CHANNELS> lastOuts{ float_4 (0.0f) };
-    std::array<float_4, SIMD_CHANNELS> phases{ float_4 (0.0f) };
-    std::array<float_4, SIMD_CHANNELS> fineTuneVocts{ float_4 (0.0f) };
+    std::array<float_4, SIMD_CHANNELS> lastOuts; //{ float_4 (0.0f) };
+    std::array<float_4, SIMD_CHANNELS> phases; //{ float_4 (0.0f) };
+    std::array<float_4, SIMD_CHANNELS> fineTuneVocts; //{ float_4 (0.0f) };
 
     static constexpr int oversampleCount = 4;
     static constexpr int oversampleQuality = 1;
