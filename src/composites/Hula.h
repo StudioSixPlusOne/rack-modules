@@ -35,6 +35,7 @@ namespace rack
 } // namespace rack
 using Module = ::rack::engine::Module;
 using namespace rack;
+using float_4 = ::rack::simd::float_4;
 
 using namespace sspo::AudioMath::LookupTable;
 using namespace sspo::AudioMath;
@@ -64,7 +65,6 @@ public:
 
     HulaComp() : TBase()
     {
-        //decimator = dsp::Decimator<oversampleCount, oversampleQuality>(1.0f);
     }
 
     virtual ~HulaComp()
@@ -78,23 +78,10 @@ public:
         return std::make_shared<HulaDescription<TBase>>();
     }
 
-    void setSampleRate (float rate)
-    {
-        reciprocalSampleRate = 1 / rate;
-        sampleRate = rate;
-        maxFc = std::min (rate / 2.0f, 20000.0f);
-    }
+    void setSampleRate (float rate);
 
     // must be called after setSampleRate
-    void init()
-    {
-        for (auto& dc : dcOutFilters)
-            dc.setCutoffFreq (dcOutCutoff / sampleRate);
-        // set random detune, += 5 cent;
-
-        for (auto& f : fineTuneVocts)
-            f = (rand01() * 2.0f - 1.0f) * 5.0f / (12.0f * 100.0f);
-    }
+    void init();
 
     enum ParamIds
     {
@@ -123,69 +110,89 @@ public:
         NUM_LIGHTS
     };
 
+    constexpr static int SIMD_CHANNELS = 4;
     float reciprocalSampleRate = 1;
     float sampleRate = 1;
-    float maxFc = 1;
-    std::array<float, PORT_MAX_CHANNELS> lastOuts{ 0.0f };
-
-    std::array<float, PORT_MAX_CHANNELS> phases{ 0.0f };
-    std::array<float, PORT_MAX_CHANNELS> fineTuneVocts{ 0.0f };
+    std::array<float_4, SIMD_CHANNELS> lastOuts = { float_4 (0.0f) };
+    std::array<float_4, SIMD_CHANNELS> phases = { float_4 (0.0f) };
+    std::array<float_4, SIMD_CHANNELS> fineTuneVocts = { float_4 (0.0f) };
 
     static constexpr int oversampleCount = 4;
-    static constexpr int oversampleQuality = 4;
+    static constexpr int oversampleQuality = 1;
 
-    std::array<sspo::Decimator<oversampleCount, oversampleQuality, float>, PORT_MAX_CHANNELS> decimators;
-    std::array<std::array<float, oversampleCount>, PORT_MAX_CHANNELS> oversampleBuffers;
-    std::array<dsp::RCFilter, PORT_MAX_CHANNELS> dcOutFilters;
+    std::array<sspo::Decimator<oversampleCount, oversampleQuality, float_4>, SIMD_CHANNELS> decimators;
+    std::array<std::array<float_4, oversampleCount>, SIMD_CHANNELS> oversampleBuffers;
+    std::array<sspo::BiQuad<float_4>, SIMD_CHANNELS> dcOutFilters;
+    std::array<sspo::BiQuad<float_4>, SIMD_CHANNELS> lpFilters;
+
     static constexpr float dcOutCutoff = 5.5f;
 
     void step() override;
 };
 
 template <class TBase>
+void HulaComp<TBase>::setSampleRate (float rate)
+{
+    reciprocalSampleRate = 1 / rate;
+    sampleRate = rate;
+
+    for (auto& l : lpFilters)
+        l.setButterworthLp2 (rate, std::min (18e3f, rate * 0.5f));
+
+    for (auto& dc : dcOutFilters)
+        dc.setButterworthHp2 (sampleRate, dcOutCutoff);
+}
+
+template <class TBase>
+void HulaComp<TBase>::init()
+{
+    // set random detune, += 5 cent;
+    for (auto& f : fineTuneVocts)
+        f = (rand01() * 2.0f - 1.0f) * 5.0f / (12.0f * 100.0f);
+}
+
+template <class TBase>
 inline void HulaComp<TBase>::step()
 {
     auto channels = std::max (1, TBase::inputs[VOCT_INPUT].getChannels());
 
-    for (auto c = 0; c < channels; ++c)
+    for (auto c = 0; c < channels; c += 4)
     {
         //calculate frequency
-        auto voct = TBase::inputs[VOCT_INPUT].getPolyVoltage (c) + fineTuneVocts[c];
-        voct += static_cast<int> (TBase::params[OCTAVE_PARAM].getValue());
-        voct += static_cast<int> (TBase::params[SEMITONE_PARAM].getValue()) * (1.0f / 12.0f);
-        auto freq = dsp::FREQ_C4 * lookup.pow2 (voct);
-        freq *= static_cast<int> (TBase::params[RATIO_PARAM].getValue());
-        auto phaseInc = freq * reciprocalSampleRate / oversampleCount;
+        float_4 voct = TBase::inputs[VOCT_INPUT].template getPolyVoltageSimd<float_4> (c) + fineTuneVocts[c / 4];
+        voct += simd::floor (TBase::params[OCTAVE_PARAM].getValue());
+        voct += simd::floor (TBase::params[SEMITONE_PARAM].getValue()) * (1.0f / 12.0f);
+        float_4 freq = dsp::FREQ_C4 * lookup.pow2 (voct);
+        freq *= simd::floor (TBase::params[RATIO_PARAM].getValue());
+        float_4 phaseInc = freq * reciprocalSampleRate / oversampleCount;
 
         //phase offset as fm is implemented as phase modulation
-        auto phaseOffset = TBase::params[FEEDBACK_PARAM].getValue() * 0.25 * (lastOuts[c]);
+        float_4 phaseOffset = TBase::params[FEEDBACK_PARAM].getValue() * 0.053f * (lastOuts[c / 4]);
         if (TBase::inputs[FEEDBACK_CV_INPUT].isConnected())
         {
-            phaseOffset *= std::abs (TBase::inputs[FEEDBACK_CV_INPUT].getPolyVoltage (c) * 0.1f);
+            phaseOffset *= simd::abs (TBase::inputs[FEEDBACK_CV_INPUT].template getPolyVoltageSimd<float_4> (c) * 0.1f);
         }
-        auto fmIn = TBase::inputs[FM_INPUT].getPolyVoltage (c) * 0.2; // scale from +-5 to +=1
+        float_4 fmIn = TBase::inputs[FM_INPUT].template getPolyVoltageSimd<float_4> (c) * 0.2f; // scale from +-5 to +=1
 
         if (TBase::inputs[DEPTH_CV_INPUT].isConnected())
         {
-            fmIn *= std::abs (TBase::inputs[DEPTH_CV_INPUT].getPolyVoltage (c) * 0.1f);
+            fmIn *= simd::abs (TBase::inputs[DEPTH_CV_INPUT].template getPolyVoltageSimd<float_4> (c) * 0.1f);
         }
 
-        phaseOffset += TBase::params[DEPTH_PARAM].getValue() * (fmIn);
-
-        phaseOffset = clamp (phaseOffset, -3.0f, 3.0f);
+        phaseOffset += TBase::params[DEPTH_PARAM].getValue() * fmIn;
 
         for (auto i = 0; i < oversampleCount; ++i)
         {
-            //progress
-            phases[c] += phaseInc;
-            while (phases[c] > 1.0f)
-                phases[c] -= 1.0f;
-            oversampleBuffers[c][i] = lookup.hulaSin ((phases[c] + phaseOffset) * k_2pi);
+            //generate oversampled signal
+            phases[c / 4] += phaseInc;
+            phases[c / 4] = simd::ifelse (phases[c / 4] > float_4 (1.0f), phases[c / 4] - 1.0f, phases[c / 4]);
+            oversampleBuffers[c / 4][i] = lookup.hulaSin4 ((phases[c / 4] + phaseOffset) * k_2pi);
         }
-        dcOutFilters[c].process (decimators[c].process (oversampleBuffers[c].data()));
-        lastOuts[c] = dcOutFilters[c].highpass();
-        TBase::outputs[MAIN_OUTPUT].setVoltage (lastOuts[c] * 5.0f, c);
+
+        lastOuts[c / 4] = dcOutFilters[c / 4].process (decimators[c / 4].process (oversampleBuffers[c / 4].data())) * 5.0f;
+        TBase::outputs[MAIN_OUTPUT].setVoltageSimd (lpFilters[c / 4].process (lastOuts[c / 4]), c);
     }
+
     TBase::outputs[MAIN_OUTPUT].setChannels (channels);
 }
 
