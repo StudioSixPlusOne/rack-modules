@@ -37,6 +37,11 @@ SOFTWARE.
 extern double overheadInOut;
 extern double overheadOutOnly;
 
+#include "simd/functions.hpp"
+#include "simd/sse_mathfun.h"
+#include "simd/sse_mathfun_extension.h"
+#include "simd/vector.hpp"
+
 #include "MeasureTime.h"
 #include "TestComposite.h"
 
@@ -51,6 +56,9 @@ extern double overheadOutOnly;
 #include "CombFilter.h"
 #include "Eva.h"
 #include "Zazel.h"
+
+using float_4 = rack::simd::float_4;
+using namespace rack;
 
 #ifdef _USE_WINDOWS_PERFTIME
 double SqTime::frequency = 0;
@@ -249,6 +257,23 @@ static void testFastApprox()
 
 static void testLookupTable()
 {
+    MeasureTime<float>::run (
+        overheadInOut, "lookup.hulaSin", []() {
+            float x = lookup.hulaSin (TestBuffers<float>::get());
+            return x;
+        },
+        1);
+
+    float_4 f4;
+    MeasureTime<float>::run (
+        overheadInOut, "lookup.hulaSin4", [&f4]() {
+            f4[0] = TestBuffers<float>::get();
+
+            float_4 x = lookup.hulaSin4 (f4);
+            return x[0];
+        },
+        1);
+
     MeasureTime<float>::run (
         overheadInOut, "std::sin", []() {
             float x = std::sin (TestBuffers<float>::get());
@@ -591,6 +616,7 @@ void perfTest()
     assert (overheadInOut > 0);
     assert (overheadOutOnly > 0);
 
+    testLookupTable();
     test1();
     testUtilityFilters();
     testZazel();
@@ -602,7 +628,7 @@ void perfTest()
     testHardLimiter();
     testKSDelay();
     testPolyShiftRegister();
-    testLookupTable();
+
     testCombFilter();
     testEva();
 }

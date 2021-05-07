@@ -28,6 +28,11 @@
 #include <vector>
 #include <random>
 
+#include "simd/functions.hpp"
+#include "simd/sse_mathfun.h"
+#include "simd/sse_mathfun_extension.h"
+#include "simd/vector.hpp"
+
 //#include "LookupTable.h"
 //#include "lookupTables/SineTable.h"
 

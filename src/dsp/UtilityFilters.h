@@ -284,7 +284,7 @@ namespace sspo
 
     /// IIR Decimator
     /// oversample, upsample tate
-    /// quality, nunber of sequential filters
+    /// quality, number of sequential filters
     template <int oversample, int quality, typename T>
     struct Decimator
     {
@@ -294,7 +294,8 @@ namespace sspo
         {
             for (auto i = 0; i < quality; ++i)
             {
-                // the oversample multiplier adjusts feedback resonance in Hula oscillator
+                // the oversample filter has been set at niquist, to remove unwanted
+                // noise in the audio spectrum
                 filters[i].setButterworthLp2 (10000.0f, 10000.0f / (1.0f * oversample));
             }
         }
@@ -304,21 +305,14 @@ namespace sspo
             T x = 0;
             for (auto i = 0; i < oversample; ++i)
             {
-                T y = filters[0].process (input[i]);
+                x = filters[0].process (input[i]);
                 for (auto j = 1; j < quality; ++j)
                 {
-                    y = filters[j].process (y);
+                    x = filters[j].process (x);
                 }
-                x = y;
             }
-
             // we simply return the last sample
-            //
             return x;
-
-            //HACK
-            //              return input[0];
         }
     };
-
 } // namespace sspo
