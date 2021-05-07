@@ -94,7 +94,7 @@ public:
         for (auto& f : filters)
         {
             f.setUseNonLinearProcessing (true);
-            f.setType (sspo::MoogLadderFilter::types()[0]);
+            f.setType (sspo::MoogLadderFilter<float>::types()[0]);
         }
 
         sspo::AudioMath::defaultGenerator.seed (time (NULL));
@@ -143,7 +143,7 @@ public:
     static constexpr int typeCount = 6;
     std::vector<int> currentTypes;
 
-    std::vector<sspo::MoogLadderFilter> filters;
+    std::vector<sspo::MoogLadderFilter<float>> filters;
 
     void step() override;
 
@@ -198,7 +198,7 @@ inline void MaccomoComp<TBase>::step()
         if (currentTypes[i] != modeParam + int (TBase::inputs[MODE_CV_INPUT].getPolyVoltage (i)))
         {
             currentTypes[i] = clamp (modeParam + int (TBase::inputs[MODE_CV_INPUT].getPolyVoltage (i)), 0, typeCount - 1);
-            filters[i].setType (sspo::MoogLadderFilter::types()[currentTypes[i]]);
+            filters[i].setType (sspo::MoogLadderFilter<float>::types()[currentTypes[i]]);
         }
 
         filters[i].setParameters (frequency, resonance, drive, 0, sampleRate);

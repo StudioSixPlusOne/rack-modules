@@ -26,6 +26,11 @@
 
 #include <cmath>
 #include <vector>
+#include "AudioMath.h"
+#include "simd/vector.hpp"
+#include "simd/functions.hpp"
+#include "simd/sse_mathfun.h"
+#include "simd/sse_mathfun_extension.h"
 
 namespace sspo
 {
@@ -34,17 +39,16 @@ namespace sspo
         //        return x * (27 + x * x) / (27 + 9 * x * x);
         return std::tanh (x);
     }
-
+    template <typename T>
     class SynthFilter
     {
     public:
-        constexpr static float cutoffMin = 20.0f;
-        constexpr static float cutoffMax = 20000.0f;
-        constexpr static float cutoffDefault = 20000.0f;
-        constexpr static float QDefault = 0.707f;
+        constexpr static T cutoffMin{ 20.0f };
+        constexpr static T cutoffMax = { 20000.0f };
+        constexpr static T cutoffDefault{ 20000.0f };
+        constexpr static T QDefault{ 0.707f };
         constexpr static auto LD_PI = 3.14159265358979323846264338327950288419716939937510L;
-        constexpr static auto k_pi = static_cast<float> (LD_PI);
-        constexpr static auto k_2pi = k_pi + k_pi;
+        constexpr static T k_pi = T (LD_PI);
 
         enum class Type
         {
@@ -67,52 +71,53 @@ namespace sspo
         }
 
     protected:
-        float cutoff{ cutoffDefault };
-        float Q{ QDefault };
-        float sampleRate{ 1.0f };
-        float aux{ 0.0f };
+        T cutoff{ T (cutoffDefault) };
+        T Q{ T (QDefault) };
+        T sampleRate{ T (1.0f) };
+        T aux{ T (0.0f) };
         bool useNPL{ false };
-        float saturation{ 1.0 };
+        T saturation{ T (1.0) };
         Type type{ Type::LPF2 };
     };
 
-    class OnePoleFilter : public SynthFilter
+    template <typename T>
+    class OnePoleFilter : public SynthFilter<T>
     {
     public:
         OnePoleFilter()
         {
-            type = Type::LPF1;
+            SynthFilter<T>::type = SynthFilter<T>::Type::LPF1;
             reset();
         }
 
-        void setFeedback (float newFeedback)
+        void setFeedback (T newFeedback)
         {
             feedback = newFeedback;
         }
 
-        void setPreGain (float newPreGain)
+        void setPreGain (T newPreGain)
         {
             preGain = newPreGain;
         }
 
-        void setBeta (float newBeta)
+        void setBeta (T newBeta)
         {
             beta = newBeta;
         }
 
-        float getFeedbackOut()
+        T getFeedbackOut()
         {
             return beta * (z1 + feedback * feedbackIn);
         }
 
-        void setFeedForward (float x)
+        void setFeedForward (T x)
         {
             feedforward = x;
         }
 
-        float process (const float in)
+        T process (const T in)
         {
-            if (type != Type::LPF1 && type != Type::HPF1)
+            if (SynthFilter<T>::type != SynthFilter<T>::Type::LPF1 && SynthFilter<T>::type != SynthFilter<T>::Type::HPF1)
                 return in;
             auto xn = in;
 
@@ -123,114 +128,121 @@ namespace sspo
             auto hp = xn - lp;
             z1 = vn + lp;
 
-            if (type == Type::LPF1)
+            if (SynthFilter<T>::type == SynthFilter<T>::Type::LPF1)
                 return lp;
             else
                 return hp;
         }
 
-        void setParameters (const float newCutoff, const float newQ, const float newAux, const float newSampleRate)
+        void setParameters (const T newCutoff, const T newQ, const T newAux, const T newSampleRate)
         {
-            cutoff = newCutoff;
-            Q = newQ;
-            aux = newAux;
-            sampleRate = newSampleRate;
+            SynthFilter<T>::cutoff = newCutoff;
+            SynthFilter<T>::Q = newQ;
+            SynthFilter<T>::aux = newAux;
+            SynthFilter<T>::sampleRate = newSampleRate;
             calcCoeffs();
         }
 
-        void setType (Type newType)
+        void setType (typename SynthFilter<T>::Type newType)
         {
-            type = newType;
+            SynthFilter<T>::type = newType;
         }
 
         void reset()
         {
-            z1 = 0.0f;
-            feedback = 0.0f;
+            z1 = T (0.0f);
+            feedback = T (0.0f);
         }
 
     private:
         void calcCoeffs()
         {
-            auto wd = k_2pi * cutoff;
-            auto T = 1.0f / sampleRate;
-            auto wa = (2 / T) * std::tan (wd * T / 2);
-            auto g = wa * T / 2;
+            auto wd = AudioMath::k_2pi * SynthFilter<T>::cutoff;
+            auto T1 = 1.0f / SynthFilter<T>::sampleRate;
+            auto wa = (2 / T1) * rack::simd::tan (wd * T1 / 2);
+            auto g = wa * T1 / 2;
 
             feedforward = g / (1.0f + g);
         }
 
-        float feedforward{ 1.0f };
-        float beta{ 0.0f };
-        float preGain{ 1.0f };
-        float feedbackIn{ 0.0f };
-        float feedbackOut{ 0.0f };
-        float inputGain{ 1.0f };
-        float feedback{ 0.0f };
-        float z1{ 0.0f };
+        T feedforward{ 1.0f };
+        T beta{ 0.0f };
+        T preGain{ 1.0f };
+        T feedbackIn{ 0.0f };
+        T feedbackOut{ 0.0f };
+        T inputGain{ 1.0f };
+        T feedback{ 0.0f };
+        T z1{ 0.0f };
     };
 
-    class MoogLadderFilter : public SynthFilter
+    template <typename T>
+    class MoogLadderFilter : public SynthFilter<T>
     {
     public:
-        static std::vector<Type> types()
+        static std::vector<typename SynthFilter<T>::Type> types()
         {
-            return { Type::LPF2, Type::LPF4, Type::HPF2, Type::HPF4, Type::BPF2, Type::BPF4 };
+            return { SynthFilter<T>::Type::LPF2,
+                     SynthFilter<T>::Type::LPF4,
+                     SynthFilter<T>::Type::HPF2,
+                     SynthFilter<T>::Type::HPF4,
+                     SynthFilter<T>::Type::BPF2,
+                     SynthFilter<T>::Type::BPF4 };
         }
 
         MoogLadderFilter()
         {
-            lpf1.setType (Type::LPF1);
-            lpf2.setType (Type::LPF1);
-            lpf3.setType (Type::LPF1);
-            lpf4.setType (Type::LPF1);
+            lpf1.setType (SynthFilter<T>::Type::LPF1);
+            lpf2.setType (SynthFilter<T>::Type::LPF1);
+            lpf3.setType (SynthFilter<T>::Type::LPF1);
+            lpf4.setType (SynthFilter<T>::Type::LPF1);
 
-            type = Type::LPF4;
+            SynthFilter<T>::type = SynthFilter<T>::Type::LPF4;
 
             reset();
         }
 
-        ~MoogLadderFilter()
-        {
-        }
+        ~MoogLadderFilter() = default;
 
-        void setParameters (const float newCutoff,
-                            const float newQ,
-                            const float newSaturation,
-                            const float newAux,
-                            const float newSampleRate)
+        void setParameters (const T newCutoff,
+                            const T newQ,
+                            const T newSaturation,
+                            const T newAux,
+                            const T newSampleRate)
         {
-            if ((newCutoff == cutoff) && (newQ == Q) && (newSaturation == saturation) && (newSampleRate == sampleRate))
+            if ((newCutoff == SynthFilter<T>::cutoff) && (newQ == SynthFilter<T>::Q)
+                && (newSaturation == SynthFilter<T>::saturation) && (newSampleRate == SynthFilter<T>::sampleRate))
                 return;
 
-            cutoff = newCutoff;
-            aux = newAux;
-            Q = newQ;
-            sampleRate = newSampleRate;
-            saturation = newSaturation;
-            lpf1.setParameters (cutoff, 0, 0, sampleRate);
-            lpf2.setParameters (cutoff, 0, 0, sampleRate);
-            lpf3.setParameters (cutoff, 0, 0, sampleRate);
-            lpf4.setParameters (cutoff, 0, 0, sampleRate);
+            SynthFilter<T>::cutoff = newCutoff;
+            SynthFilter<T>::aux = newAux;
+            SynthFilter<T>::Q = newQ;
+            SynthFilter<T>::sampleRate = newSampleRate;
+            SynthFilter<T>::saturation = newSaturation;
+            lpf1.setParameters (SynthFilter<T>::cutoff, 0, 0, SynthFilter<T>::sampleRate);
+            lpf2.setParameters (SynthFilter<T>::cutoff, 0, 0, SynthFilter<T>::sampleRate);
+            lpf3.setParameters (SynthFilter<T>::cutoff, 0, 0, SynthFilter<T>::sampleRate);
+            lpf4.setParameters (SynthFilter<T>::cutoff, 0, 0, SynthFilter<T>::sampleRate);
 
-            K = (4.0f) * (Q - 1.0f) / (10.0f - 1.0f);
+            K = (4.0f) * (SynthFilter<T>::Q - 1.0f) / (10.0f - 1.0f);
             calcCoeffs();
         }
 
-        float process (const float in)
+        T process (const T in)
         {
-            if (type == Type::BSF2 || type == Type::LPF1 || type == Type ::HPF1)
+            if (SynthFilter<T>::type == SynthFilter<T>::Type::BSF2
+                || SynthFilter<T>::type == SynthFilter<T>::Type::LPF1
+                || SynthFilter<T>::type == SynthFilter<T>::Type ::HPF1)
                 return in;
             auto sigma = lpf1.getFeedbackOut()
                          + lpf2.getFeedbackOut()
                          + lpf3.getFeedbackOut()
                          + lpf4.getFeedbackOut();
             auto xn = in;
-            xn *= 1.0f + aux * K;
+            xn *= 1.0f + SynthFilter<T>::aux * K;
             auto U = (xn - K * sigma) * alpha;
 
-            if (useNPL)
-                U = fastTanh (saturation * U);
+            if (SynthFilter<T>::useNPL)
+                U = fastTanh (SynthFilter<T>::saturation * U);
 
             auto f1 = lpf1.process (U);
             auto f2 = lpf2.process (f1);
@@ -244,9 +256,9 @@ namespace sspo
                    + typeCoeffs.E * f4;
         }
 
-        void setType (Type newType)
+        void setType (typename SynthFilter<T>::Type newType)
         {
-            type = newType;
+            SynthFilter<T>::type = newType;
             calcCoeffs();
         }
 
@@ -265,7 +277,7 @@ namespace sspo
             {
             }
 
-            OberheimXpander (const float a, const float b, const float c, const float d, const float e)
+            OberheimXpander (const T a, const T b, const T c, const T d, const T e)
             {
                 A = a;
                 B = b;
@@ -274,19 +286,19 @@ namespace sspo
                 E = e;
             }
 
-            float A{ 0.0f };
-            float B{ 0.0f };
-            float C{ 0.0f };
-            float D{ 0.0f };
-            float E{ 0.0f };
+            T A{ 0.0f };
+            T B{ 0.0f };
+            T C{ 0.0f };
+            T D{ 0.0f };
+            T E{ 0.0f };
         } typeCoeffs;
 
         void calcCoeffs()
         {
-            auto wd = k_2pi * cutoff;
-            auto T = 1.0f / static_cast<float> (sampleRate);
-            auto wa = (2 / T) * std::tan (wd * T / 2);
-            auto g = wa * T / 2;
+            auto wd = AudioMath::k_2pi * SynthFilter<T>::cutoff;
+            auto T1 = 1.0f / static_cast<float> (SynthFilter<T>::sampleRate);
+            auto wa = (2 / T1) * std::tan (wd * T1 / 2);
+            auto g = wa * T1 / 2;
 
             auto G = g / (1.0f + g);
 
@@ -303,39 +315,39 @@ namespace sspo
             gamma = G * G * G * G;
             alpha = 1.0f / (1.0f + K * gamma);
 
-            switch (type)
+            switch (SynthFilter<T>::type)
             {
-                case Type::LPF4:
-                    typeCoeffs = { 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
+                case SynthFilter<T>::Type::LPF4:
+                    typeCoeffs = { T (0.0f), T (0.0f), T (0.0f), T (0.0f), T (1.0f) };
                     break;
-                case Type::LPF2:
-                    typeCoeffs = { 0.0f, 0.0f, 1.0f, 0.0f, 0.0f };
+                case SynthFilter<T>::Type::LPF2:
+                    typeCoeffs = { T (0.0f), T (0.0f), T (1.0f), T (0.0f), T (0.0f) };
                     break;
-                case Type::BPF4:
-                    typeCoeffs = { 0.0f, 0.0f, 4.0f, -8.0f, 4.0f };
+                case SynthFilter<T>::Type::BPF4:
+                    typeCoeffs = { T (0.0f), T (0.0f), T (4.0f), T (-8.0f), T (4.0f) };
                     break;
-                case Type::BPF2:
-                    typeCoeffs = { 0.0f, 2.0f, -2.0f, 0.0f, 0.0f };
+                case SynthFilter<T>::Type::BPF2:
+                    typeCoeffs = { T (0.0f), T (2.0f), T (-2.0f), T (0.0f), T (0.0f) };
                     break;
-                case Type::HPF4:
-                    typeCoeffs = { 1.0f, -4.0f, 6.0f, -4.0f, 1.0f };
+                case SynthFilter<T>::Type::HPF4:
+                    typeCoeffs = { T (1.0f), T (-4.0f), T (6.0f), T (-4.0f), T (1.0f) };
                     break;
-                case Type::HPF2:
-                    typeCoeffs = { 1.0f, -2.0f, 1.0f, 0.0f, 0.0f };
+                case SynthFilter<T>::Type::HPF2:
+                    typeCoeffs = { T (1.0f), T (-2.0f), T (1.0f), T (0.0f), T (0.0f) };
                     break;
                 default: //lpf4
-                    typeCoeffs = { 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
+                    typeCoeffs = { T (0.0f), T (0.0f), T (0.0f), T (0.0f), T (1.0f) };
                     break;
             }
         }
 
-        OnePoleFilter lpf1;
-        OnePoleFilter lpf2;
-        OnePoleFilter lpf3;
-        OnePoleFilter lpf4;
+        OnePoleFilter<T> lpf1{};
+        OnePoleFilter<T> lpf2{};
+        OnePoleFilter<T> lpf3{};
+        OnePoleFilter<T> lpf4{};
 
-        float K{ 0.0f };
-        float gamma{ 0.0f };
-        float alpha{ 1.0f };
+        T K{ 0.0f };
+        T gamma{ 0.0f };
+        T alpha{ 1.0f };
     };
 } // namespace sspo
