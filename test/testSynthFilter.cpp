@@ -33,7 +33,7 @@ namespace ts = sspo::TestSignal;
 using namespace sspo;
 
 static std::string makeFilename (std::string filename,
-                                 SynthFilter::Type type,
+                                 SynthFilter<float>::Type type,
                                  const float cutoff,
                                  const float sr,
                                  const int length)
@@ -44,12 +44,12 @@ static std::string makeFilename (std::string filename,
 }
 
 static void makeOnePoleImpulse (std::string filename,
-                                SynthFilter::Type type,
+                                SynthFilter<float>::Type type,
                                 const float cutoff,
                                 const float sr,
                                 const int length)
 {
-    OnePoleFilter filter;
+    OnePoleFilter<float> filter;
     filter.setType (type);
     filter.setUseNonLinearProcessing (false);
     filter.setParameters (cutoff, 0.0f, 0.0f, sr);
@@ -65,12 +65,12 @@ static void makeOnePoleImpulse (std::string filename,
 }
 
 static void testOnePoleImpulse (std::string filename,
-                                SynthFilter::Type type,
+                                SynthFilter<float>::Type type,
                                 const float cutoff,
                                 const float sr,
                                 const int length)
 {
-    OnePoleFilter filter;
+    OnePoleFilter<float> filter;
     filter.setType (type);
     filter.setUseNonLinearProcessing (false);
     filter.setParameters (cutoff, 0.0f, 0.0f, sr);
@@ -85,13 +85,13 @@ static void testOnePoleImpulse (std::string filename,
     assert (ts::areSame (impulse, test));
 }
 
-static void testMoogLadderSlope (SynthFilter::Type type,
+static void testMoogLadderSlope (SynthFilter<float>::Type type,
                                  const float cutoff,
                                  const float sr,
                                  const float expected,
                                  const float tol = 1.5f)
 {
-    MoogLadderFilter filter;
+    MoogLadderFilter<float> filter;
     filter.setType (type);
     filter.setUseNonLinearProcessing (true);
     filter.setParameters (cutoff, 0.0f, 1.1f, 0.0f, sr);
@@ -107,7 +107,7 @@ static void testMoogLadderSlope (SynthFilter::Type type,
 
     auto response = ts::getResponse (signal);
 
-    auto slope = (type == SynthFilter::Type::LPF2 || type == SynthFilter::Type::LPF4)
+    auto slope = (type == SynthFilter<float>::Type::LPF2 || type == SynthFilter<float>::Type::LPF4)
                      ? Analyzer::getSlopeLowpass (response, cutoff, sr)
                      : Analyzer::getSlopeHighpass (response, cutoff, sr);
 
@@ -118,55 +118,55 @@ static void testMoogLadderSlope (SynthFilter::Type type,
 
 static void testMoogLPHP()
 {
-    testMoogLadderSlope (SynthFilter::Type::LPF2, 10.0, 44100.0f, -9.0);
-    testMoogLadderSlope (SynthFilter::Type::LPF2, 100.0, 44100.0f, -9.0);
-    testMoogLadderSlope (SynthFilter::Type::LPF2, 1000.0, 44100.0f, -9.0);
-    testMoogLadderSlope (SynthFilter::Type::LPF2, 2000.0, 44100.0f, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF2, 10.0, 44100.0f, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF2, 100.0, 44100.0f, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF2, 1000.0, 44100.0f, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF2, 2000.0, 44100.0f, -9.0);
 
-    testMoogLadderSlope (SynthFilter::Type::LPF2, 10.0, 22050.0f, -9.0);
-    testMoogLadderSlope (SynthFilter::Type::LPF2, 100.0, 22050.0f, -9.0);
-    testMoogLadderSlope (SynthFilter::Type::LPF2, 1000.0, 22050.0f, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF2, 10.0, 22050.0f, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF2, 100.0, 22050.0f, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF2, 1000.0, 22050.0f, -9.0);
 
-    testMoogLadderSlope (SynthFilter::Type::LPF2, 10.0, 48000.0f, -9.0);
-    testMoogLadderSlope (SynthFilter::Type::LPF2, 100.0, 48000.0f, -9.0);
-    testMoogLadderSlope (SynthFilter::Type::LPF2, 1000.0, 48000.0f, -9.0);
-    testMoogLadderSlope (SynthFilter::Type::LPF2, 2000.0, 48000.0f, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF2, 10.0, 48000.0f, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF2, 100.0, 48000.0f, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF2, 1000.0, 48000.0f, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF2, 2000.0, 48000.0f, -9.0);
 
-    testMoogLadderSlope (SynthFilter::Type::LPF4, 10.0, 44100.0f, -19.0);
-    testMoogLadderSlope (SynthFilter::Type::LPF4, 100.0, 44100, -19.0);
-    testMoogLadderSlope (SynthFilter::Type::LPF4, 1000.0, 44100, -19.0);
-    testMoogLadderSlope (SynthFilter::Type::LPF4, 2000.0, 44100, -19.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF4, 10.0, 44100.0f, -19.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF4, 100.0, 44100, -19.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF4, 1000.0, 44100, -19.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF4, 2000.0, 44100, -19.0);
 
-    testMoogLadderSlope (SynthFilter::Type::LPF4, 10.0, 22050, -19.0);
-    testMoogLadderSlope (SynthFilter::Type::LPF4, 100.0, 22050, -19.0);
-    testMoogLadderSlope (SynthFilter::Type::LPF4, 1000.0, 22050, -19.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF4, 10.0, 22050, -19.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF4, 100.0, 22050, -19.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF4, 1000.0, 22050, -19.0);
 
-    testMoogLadderSlope (SynthFilter::Type::LPF4, 10.0, 48000, -19.0);
-    testMoogLadderSlope (SynthFilter::Type::LPF4, 100.0, 48000, -19.0);
-    testMoogLadderSlope (SynthFilter::Type::LPF4, 1000.0, 48000, -19.0);
-    testMoogLadderSlope (SynthFilter::Type::LPF4, 2000.0, 48000, -19.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF4, 10.0, 48000, -19.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF4, 100.0, 48000, -19.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF4, 1000.0, 48000, -19.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::LPF4, 2000.0, 48000, -19.0);
 
-    testMoogLadderSlope (SynthFilter::Type::HPF2, 100.0, 44100, -9.0);
-    testMoogLadderSlope (SynthFilter::Type::HPF2, 1000.0, 44100, -9.0);
-    testMoogLadderSlope (SynthFilter::Type::HPF2, 2000.0, 44100, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::HPF2, 100.0, 44100, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::HPF2, 1000.0, 44100, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::HPF2, 2000.0, 44100, -9.0);
 
-    testMoogLadderSlope (SynthFilter::Type::HPF2, 100.0, 22050, -9.0);
-    testMoogLadderSlope (SynthFilter::Type::HPF2, 1000.0, 22050, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::HPF2, 100.0, 22050, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::HPF2, 1000.0, 22050, -9.0);
 
-    testMoogLadderSlope (SynthFilter::Type::HPF2, 100.0, 48000, -9.0);
-    testMoogLadderSlope (SynthFilter::Type::HPF2, 1000.0, 48000, -9.0);
-    testMoogLadderSlope (SynthFilter::Type::HPF2, 2000.0, 48000, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::HPF2, 100.0, 48000, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::HPF2, 1000.0, 48000, -9.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::HPF2, 2000.0, 48000, -9.0);
 
-    testMoogLadderSlope (SynthFilter::Type::HPF4, 100.0, 44100, -17.0);
-    testMoogLadderSlope (SynthFilter::Type::HPF4, 1000.0, 44100, -17.0);
-    testMoogLadderSlope (SynthFilter::Type::HPF4, 2000.0, 44100, -17.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::HPF4, 100.0, 44100, -17.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::HPF4, 1000.0, 44100, -17.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::HPF4, 2000.0, 44100, -17.0);
 
-    testMoogLadderSlope (SynthFilter::Type::HPF4, 100.0, 22050, -17.0);
-    testMoogLadderSlope (SynthFilter::Type::HPF4, 1000.0, 22050, -17.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::HPF4, 100.0, 22050, -17.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::HPF4, 1000.0, 22050, -17.0);
 
-    testMoogLadderSlope (SynthFilter::Type::HPF4, 100.0, 48000, -17.0);
-    testMoogLadderSlope (SynthFilter::Type::HPF4, 1000.0, 48000, -17.0);
-    testMoogLadderSlope (SynthFilter::Type::HPF4, 2000.0, 48000, -17.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::HPF4, 100.0, 48000, -17.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::HPF4, 1000.0, 48000, -17.0);
+    testMoogLadderSlope (SynthFilter<float>::Type::HPF4, 2000.0, 48000, -17.0);
 }
 
 static void testMoogBpPeak()
@@ -175,8 +175,8 @@ static void testMoogBpPeak()
 
     auto sr = 44100.0f;
 
-    MoogLadderFilter filter;
-    filter.setType (SynthFilter::Type::BPF2);
+    MoogLadderFilter<float> filter;
+    filter.setType (SynthFilter<float>::Type::BPF2);
     filter.setUseNonLinearProcessing (false);
 
     constexpr int fftSize = 1024 * 8;
@@ -213,52 +213,52 @@ void testSynthFilter()
 //set below to #if 1 to run impulse tests, #if 0 to generate impulses
 #if 1
     testOnePoleImpulse ("./test/signal/onePoleImpulse",
-                        SynthFilter::Type::LPF1,
+                        SynthFilter<float>::Type::LPF1,
                         20.0f,
                         5000,
                         3000);
     testOnePoleImpulse ("./test/signal/onePoleImpulse",
-                        SynthFilter::Type::LPF1,
+                        SynthFilter<float>::Type::LPF1,
                         20.0f,
                         22050,
                         3000);
     testOnePoleImpulse ("./test/signal/onePoleImpulse",
-                        SynthFilter::Type::LPF1,
+                        SynthFilter<float>::Type::LPF1,
                         20.0f,
                         44100,
                         3000);
     testOnePoleImpulse ("./test/signal/onePoleImpulse",
-                        SynthFilter::Type::LPF1,
+                        SynthFilter<float>::Type::LPF1,
                         200.0f,
                         96000,
                         3000);
     testOnePoleImpulse ("./test/signal/onePoleImpulse",
-                        SynthFilter::Type::LPF1,
+                        SynthFilter<float>::Type::LPF1,
                         2000.0f,
                         96000,
                         3000);
     testOnePoleImpulse ("./test/signal/onePoleImpulse",
-                        SynthFilter::Type::HPF1,
+                        SynthFilter<float>::Type::HPF1,
                         20.0f,
                         5000,
                         3000);
     testOnePoleImpulse ("./test/signal/onePoleImpulse",
-                        SynthFilter::Type::LPF1,
+                        SynthFilter<float>::Type::LPF1,
                         20.0f,
                         22050,
                         3000);
     testOnePoleImpulse ("./test/signal/onePoleImpulse",
-                        SynthFilter::Type::HPF1,
+                        SynthFilter<float>::Type::HPF1,
                         20.0f,
                         44100,
                         3000);
     testOnePoleImpulse ("./test/signal/onePoleImpulse",
-                        SynthFilter::Type::HPF1,
+                        SynthFilter<float>::Type::HPF1,
                         200.0f,
                         96000,
                         3000);
     testOnePoleImpulse ("./test/signal/onePoleImpulse",
-                        SynthFilter::Type::HPF1,
+                        SynthFilter<float>::Type::HPF1,
                         2000.0f,
                         44100,
                         3000);
