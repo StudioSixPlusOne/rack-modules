@@ -135,8 +135,12 @@
     {
       "slug": "Hula",
       "name": "Hula",
-      "description": "VCO unique pre instance",
-      "tags": []
+      "description": "fm VCO unique per instance",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#hula",
+      "tags": [
+        "VCO",
+        "Polyphonic"
+      ]
     }
   ]
 }
