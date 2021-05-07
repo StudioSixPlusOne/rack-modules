@@ -790,6 +790,38 @@ static void testSlopeButterworthHp (const float cutoff,
 #endif
 }
 
+static void testUpsampleDecimator()
+{
+    constexpr int OVERSAMPLE = 4;
+    Upsampler<OVERSAMPLE, 1, float> up;
+    Decimator<OVERSAMPLE, 1, float> decimator;
+
+    constexpr int fftSize = 1024 * 32;
+    auto s = ts::makeSine (fftSize, 1000, 44100);
+    ts::Signal result;
+
+    float buffer[OVERSAMPLE];
+
+    for (auto x : s)
+    {
+        up.process (x, buffer);
+        result.push_back (decimator.process (buffer));
+    }
+
+    assertEQ (result.size(), fftSize);
+
+    auto s_response = ts::getResponse (s);
+    auto r_response = ts::getResponse (result);
+
+    auto s_magnitude = FftAnalyzer::getMagnitude (s_response);
+    auto r_magnitude = FftAnalyzer::getMagnitude (r_response);
+
+    auto s_max_bin = std::distance (s_magnitude.begin(), std::max_element (s_magnitude.begin(), s_magnitude.end()));
+    auto r_max_bin = std::distance (r_magnitude.begin(), std::max_element (r_magnitude.begin(), r_magnitude.end()));
+
+    assertEQ (s_max_bin, r_max_bin);
+}
+
 static void testSlopeButterworthHp (const float_4 cutoff,
                                     const float_4 sr,
                                     const float expectedCorner,
@@ -881,4 +913,5 @@ void testUtilityFilter()
     testButterworthHp();
     testButterworthLpSmid();
     testButterworthHpSmid();
+    testUpsampleDecimator();
 }

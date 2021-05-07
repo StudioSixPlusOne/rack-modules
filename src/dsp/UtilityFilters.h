@@ -315,4 +315,40 @@ namespace sspo
             return x;
         }
     };
+
+    /// IIR upsample interpolator
+    /// oversample, upsample rate
+    /// quality, number of sequential filters
+    template <int oversample, int quality, typename T>
+    struct Upsampler
+    {
+        BiQuad<T> filters[quality];
+
+        Upsampler()
+        {
+            for (auto i = 0; i < quality; ++i)
+            {
+                // the oversample filter has been set at niquist, to remove unwanted
+                // noise in the audio spectrum
+                filters[i].setButterworthLp2 (10000.0f, 10000.0f / (2.0f * oversample));
+            }
+        }
+
+        void process (T in, T* buffer)
+        {
+            buffer[0] = doFilter (in);
+            for (auto i = 1; i < oversample; ++i)
+                buffer[i] = doFilter (T (0) * oversample);
+        }
+
+        T doFilter (T in)
+        {
+            T x = filters[0].process (in);
+            for (auto i = 1; i < quality; ++i)
+            {
+                x = filters[i].process (x);
+            }
+            return x;
+        }
+    };
 } // namespace sspo
