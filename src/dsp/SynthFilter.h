@@ -26,7 +26,9 @@
 
 #include <cmath>
 #include <vector>
+#include <functional>
 #include "AudioMath.h"
+#include "UtilityFilters.h"
 #include "simd/vector.hpp"
 #include "simd/functions.hpp"
 #include "simd/sse_mathfun.h"
@@ -34,21 +36,16 @@
 
 namespace sspo
 {
-    inline float fastTanh (float x)
-    {
-        //        return x * (27 + x * x) / (27 + 9 * x * x);
-        return std::tanh (x);
-    }
     template <typename T>
     class SynthFilter
     {
     public:
-        constexpr static T cutoffMin{ 20.0f };
-        constexpr static T cutoffMax = { 20000.0f };
-        constexpr static T cutoffDefault{ 20000.0f };
-        constexpr static T QDefault{ 0.707f };
+        constexpr static float cutoffMin{ 20.0f };
+        constexpr static float cutoffMax = { 20000.0f };
+        constexpr static float cutoffDefault{ 20000.0f };
+        constexpr static float QDefault{ 0.707f };
         constexpr static auto LD_PI = 3.14159265358979323846264338327950288419716939937510L;
-        constexpr static T k_pi = T (LD_PI);
+        constexpr static float k_pi = float (LD_PI);
 
         enum class Type
         {
@@ -70,12 +67,18 @@ namespace sspo
             useNPL = x;
         }
 
+        void setUseOversample (const bool x)
+        {
+            useOverSample = x;
+        }
+
     protected:
         T cutoff{ T (cutoffDefault) };
         T Q{ T (QDefault) };
-        T sampleRate{ T (1.0f) };
+        float sampleRate{ 1.0f };
         T aux{ T (0.0f) };
         bool useNPL{ false };
+        bool useOverSample{ false };
         T saturation{ T (1.0) };
         Type type{ Type::LPF2 };
     };
@@ -134,7 +137,7 @@ namespace sspo
                 return hp;
         }
 
-        void setParameters (const T newCutoff, const T newQ, const T newAux, const T newSampleRate)
+        void setParameters (const T newCutoff, const T newQ, const T newAux, const float newSampleRate)
         {
             SynthFilter<T>::cutoff = newCutoff;
             SynthFilter<T>::Q = newQ;
@@ -207,11 +210,11 @@ namespace sspo
                             const T newQ,
                             const T newSaturation,
                             const T newAux,
-                            const T newSampleRate)
+                            const float newSampleRate)
         {
-            if ((newCutoff == SynthFilter<T>::cutoff) && (newQ == SynthFilter<T>::Q)
-                && (newSaturation == SynthFilter<T>::saturation) && (newSampleRate == SynthFilter<T>::sampleRate))
-                return;
+            //            if ((newCutoff == SynthFilter<T>::cutoff) && (newQ == SynthFilter<T>::Q)
+            //                && (newSaturation == SynthFilter<T>::saturation) && (newSampleRate == SynthFilter<T>::sampleRate))
+            //                return;
 
             SynthFilter<T>::cutoff = newCutoff;
             SynthFilter<T>::aux = newAux;
@@ -226,6 +229,9 @@ namespace sspo
             K = (4.0f) * (SynthFilter<T>::Q - 1.0f) / (10.0f - 1.0f);
             calcCoeffs();
         }
+
+        //this must be defined in the module, normally as a lambda
+        std::function<T (T in, T drive)> nonLinearProcess;
 
         T process (const T in)
         {
@@ -242,7 +248,19 @@ namespace sspo
             auto U = (xn - K * sigma) * alpha;
 
             if (SynthFilter<T>::useNPL)
-                U = fastTanh (SynthFilter<T>::saturation * U);
+            {
+                if (SynthFilter<T>::useOverSample)
+                {
+                    upsampler.process (U, oversampleBuffer);
+                    for (auto i = 0; i < oversampleRate; ++i)
+                        oversampleBuffer[i] = nonLinearProcess (U, SynthFilter<T>::saturation);
+                    U = decimator.process (oversampleBuffer);
+                }
+                else
+                {
+                    U = nonLinearProcess (U, SynthFilter<T>::saturation);
+                }
+            }
 
             auto f1 = lpf1.process (U);
             auto f2 = lpf2.process (f1);
@@ -297,7 +315,7 @@ namespace sspo
         {
             auto wd = AudioMath::k_2pi * SynthFilter<T>::cutoff;
             auto T1 = 1.0f / static_cast<float> (SynthFilter<T>::sampleRate);
-            auto wa = (2 / T1) * std::tan (wd * T1 / 2);
+            auto wa = (2 / T1) * tan (wd * T1 / 2);
             auto g = wa * T1 / 2;
 
             auto G = g / (1.0f + g);
@@ -349,5 +367,10 @@ namespace sspo
         T K{ 0.0f };
         T gamma{ 0.0f };
         T alpha{ 1.0f };
+
+        static constexpr int oversampleRate = 4;
+        sspo::Upsampler<oversampleRate, 1, T> upsampler;
+        sspo::Decimator<oversampleRate, 1, T> decimator;
+        T oversampleBuffer[oversampleRate];
     };
 } // namespace sspo
