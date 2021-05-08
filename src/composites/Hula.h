@@ -124,6 +124,8 @@ public:
     std::array<std::array<float_4, oversampleCount>, SIMD_CHANNELS> oversampleBuffers;
     std::array<sspo::BiQuad<float_4>, SIMD_CHANNELS> dcOutFilters;
     std::array<sspo::BiQuad<float_4>, SIMD_CHANNELS> lpFilters;
+    std::array<sspo::BiQuad<float_4>, SIMD_CHANNELS> depthFilters;
+    std::array<sspo::BiQuad<float_4>, SIMD_CHANNELS> feedbackFilters;
 
     static constexpr float dcOutCutoff = 5.5f;
 
@@ -141,6 +143,13 @@ void HulaComp<TBase>::setSampleRate (float rate)
 
     for (auto& dc : dcOutFilters)
         dc.setButterworthHp2 (sampleRate, dcOutCutoff);
+
+    /// filter the changes in depth and feedback by fs/40
+    for (auto& d : depthFilters)
+        d.setButterworthLp2 (1000.0f, 25.0f);
+
+    for (auto& f : feedbackFilters)
+        f.setButterworthLp2 (1000.0f, 25.0f);
 }
 
 template <class TBase>
@@ -179,13 +188,13 @@ inline void HulaComp<TBase>::step()
         float_4 phaseOffset = TBase::params[FEEDBACK_PARAM].getValue() * 0.053f * (lastOuts[c / 4]);
         if (TBase::inputs[FEEDBACK_CV_INPUT].isConnected())
         {
-            phaseOffset *= simd::abs (TBase::inputs[FEEDBACK_CV_INPUT].template getPolyVoltageSimd<float_4> (c) * 0.1f);
+            phaseOffset *= feedbackFilters[c / 4].process (simd::abs (TBase::inputs[FEEDBACK_CV_INPUT].template getPolyVoltageSimd<float_4> (c) * 0.1f));
         }
         float_4 fmIn = TBase::inputs[FM_INPUT].template getPolyVoltageSimd<float_4> (c) * 0.2f; // scale from +-5 to +=1
 
         if (TBase::inputs[DEPTH_CV_INPUT].isConnected())
         {
-            fmIn *= simd::abs (TBase::inputs[DEPTH_CV_INPUT].template getPolyVoltageSimd<float_4> (c) * 0.1f);
+            fmIn *= depthFilters[c / 4].process (simd::abs (TBase::inputs[DEPTH_CV_INPUT].template getPolyVoltageSimd<float_4> (c) * 0.1f));
         }
 
         phaseOffset += TBase::params[DEPTH_PARAM].getValue() * fmIn;
