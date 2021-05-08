@@ -124,8 +124,10 @@ public:
     std::array<std::array<float_4, oversampleCount>, SIMD_CHANNELS> oversampleBuffers;
     std::array<sspo::BiQuad<float_4>, SIMD_CHANNELS> dcOutFilters;
     std::array<sspo::BiQuad<float_4>, SIMD_CHANNELS> lpFilters;
+
     std::array<sspo::BiQuad<float_4>, SIMD_CHANNELS> depthFilters;
     std::array<sspo::BiQuad<float_4>, SIMD_CHANNELS> feedbackFilters;
+
 
     static constexpr float dcOutCutoff = 5.5f;
 
@@ -150,6 +152,7 @@ void HulaComp<TBase>::setSampleRate (float rate)
 
     for (auto& f : feedbackFilters)
         f.setButterworthLp2 (1000.0f, 25.0f);
+
 }
 
 template <class TBase>
@@ -161,6 +164,7 @@ void HulaComp<TBase>::init()
                      (rand01() * 2.0f - 1.0f) * 5.0f / (12.0f * 100.0f),
                      (rand01() * 2.0f - 1.0f) * 5.0f / (12.0f * 100.0f),
                      (rand01() * 2.0f - 1.0f) * 5.0f / (12.0f * 100.0f));
+
 
     for (auto& l : lastOuts)
         l = float_4 (0);
@@ -194,6 +198,7 @@ inline void HulaComp<TBase>::step()
 
         if (TBase::inputs[DEPTH_CV_INPUT].isConnected())
         {
+
             fmIn *= depthFilters[c / 4].process (simd::abs (TBase::inputs[DEPTH_CV_INPUT].template getPolyVoltageSimd<float_4> (c) * 0.1f));
         }
 

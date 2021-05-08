@@ -36,6 +36,16 @@
       ]
     },
     {
+      "slug": "Amburgh",
+      "name": "Amburgh",
+      "description": "Non Linear Filter self oscillating vcf",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#Amburgh",
+      "tags": [
+        "Polyphonic",
+        "Filter"
+      ]
+    },
+    {
       "slug": "PolyShiftRegister",
       "name": "Tyrant",
       "description": "Polyphonic Shift Register",
