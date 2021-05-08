@@ -95,6 +95,7 @@ static void testMoogLadderSlope (SynthFilter<float>::Type type,
     filter.setType (type);
     filter.setUseNonLinearProcessing (true);
     filter.setParameters (cutoff, 0.0f, 1.1f, 0.0f, sr);
+    filter.nonLinearProcess = [] (float a, float b) { return a * b; };
 
     constexpr int fftSize = 1024 * 32;
 
@@ -178,6 +179,7 @@ static void testMoogBpPeak()
     MoogLadderFilter<float> filter;
     filter.setType (SynthFilter<float>::Type::BPF2);
     filter.setUseNonLinearProcessing (false);
+    filter.nonLinearProcess = [] (float a, float b) { return a * b; };
 
     constexpr int fftSize = 1024 * 8;
     const float binWidth = sr / fftSize;
