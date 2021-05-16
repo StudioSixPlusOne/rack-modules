@@ -203,7 +203,7 @@ namespace sspo
                     log10Table = LookupTable::makeTable<float> (0.00001f, 10.1f, 0.001f, [] (const float x) -> float { return std::log10 (x); });
                     unisonSpreadTable = LookupTable::makeTable<float> (0.0f, 1.1f, 0.01f, [] (const float x) -> float { return unisonSpreadScalar (x); });
 
-                    hulaSineTable = sspo::AudioMath::LookupTable::makeTable<float> (-4 * k_2pi - 0.1f, 4 * k_2pi + 0.1f, 0.001f, [] (const float x) -> float { return std::sin (x) + (rand01() - 0.5f) * 1e-2f; });
+                    hulaSineTable = sspo::AudioMath::LookupTable::makeTable<float> (-4 * k_2pi - 0.1f, 4 * k_2pi + 0.1f, 0.001f, [] (const float x) -> float { return std::sin (x) + (rand01() - 0.5f) * 1e-4f; });
                 }
 
                 sspo::AudioMath::LookupTable::Table<float> sineTable;
