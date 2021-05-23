@@ -46,8 +46,8 @@ Added Iverson and Iverson Jr
  ### v1.3
   - Zilah 14 bit midi cc-cv module, initial release
   
-  ### v1.4 - NOT RELEASE
-  - Hula, small fm oscillator, initial release
+  ### v1.4 
+  - Hula, small fm oscillator with small random, detune, initial release
   
  
 
