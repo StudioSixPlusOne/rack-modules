@@ -33,8 +33,10 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  [Iverson](#iverson)
  
  [Zilah](#zilah)
+
  
  [Hula](#hula)
+
 
 
 
@@ -355,6 +357,7 @@ The smoothing filter can be adjusted, and both unipolar and bipolar outputs
 
 
 
+
 ### Hula
 
 <img align="left" src="images/hula.png">
@@ -363,3 +366,4 @@ A small form fm oscillator, each instance has it's own small detune applied and 
 
 It starts emitting a sine wave, turing up the feedback will increase the harmonics.
 The fm input can be supplied an audio signal, with controllable depth. There are many guides on the web that will explain the principals of FM synthesis much better than I ever could.  
+
