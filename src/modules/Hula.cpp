@@ -49,7 +49,7 @@ struct HulaWidget : ModuleWidget
         addChild (createWidget<ScrewSilver> (Vec (0, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
         addChild (createWidget<ScrewSilver> (Vec (box.size.x - 1 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-        addParam (createParamCentered<sspo::LargeSnapKnob> (mm2px (Vec (15.235, 26.803)), module, Comp::RATIO_PARAM));
+        addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (15.235, 26.803)), module, Comp::RATIO_PARAM));
         addParam (createParamCentered<sspo::SnapKnob> (mm2px (Vec (9.26, 50.302)), module, Comp::SEMITONE_PARAM));
         addParam (createParamCentered<sspo::SnapKnob> (mm2px (Vec (21.392, 50.542)), module, Comp::OCTAVE_PARAM));
         //addParam (createParamCentered<RoundBlackKnob> (mm2px (Vec (25.135, 72.792)), module, Comp::DEPTH_CV_ATTENUVERTER_PARAM));
