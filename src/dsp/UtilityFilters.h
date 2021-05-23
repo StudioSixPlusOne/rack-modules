@@ -330,7 +330,7 @@ namespace sspo
             {
                 // the oversample filter has been set at niquist, to remove unwanted
                 // noise in the audio spectrum
-                filters[i].setButterworthLp2 (10000.0f, 10000.0f / (2.0f * oversample));
+                filters[i].setButterworthLp2 (10000.0f, 10000.0f / (1.0f * oversample));
             }
         }
 
