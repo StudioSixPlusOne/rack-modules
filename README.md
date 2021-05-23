@@ -14,6 +14,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  [Wallenda](#wallenda)
 
  [Maccomo](#maccomo)
+ 
+ [Amburg](#amburg)
 
  [Massarti](#massarti)
 
@@ -81,6 +83,12 @@ If the audio input is disconnected, the filter will still run in monophonic mode
 <br>
 <br>
 <br>
+
+### Amburg
+<img src="images/Amburg.png">
+
+Maccomo with some bite.  The resonance response has been greatly improved, 
+and the drive control now really does drive.  
 
 
 ### Massarti
