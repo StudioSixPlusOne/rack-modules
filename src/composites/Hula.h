@@ -182,7 +182,7 @@ inline void HulaComp<TBase>::step()
         voct += simd::floor (TBase::params[OCTAVE_PARAM].getValue());
         voct += simd::floor (TBase::params[SEMITONE_PARAM].getValue()) * (1.0f / 12.0f);
         float_4 freq = dsp::FREQ_C4 * lookup.pow2 (voct);
-        freq *= simd::floor (TBase::params[RATIO_PARAM].getValue());
+        freq *= TBase::params[RATIO_PARAM].getValue();
         float_4 phaseInc = freq * reciprocalSampleRate / oversampleCount;
 
         //phase offset as fm is implemented as phase modulation
@@ -229,7 +229,7 @@ IComposite::Config HulaDescription<TBase>::getParam (int i)
     {
         //TODO
         case HulaComp<TBase>::RATIO_PARAM:
-            ret = { 1.0f, 10.0f, 1.0f, "Ratio", " ", 0, 1, 0.0f };
+            ret = { 0.5f, 25.95f, 1.0f, "Ratio", " ", 0, 1, 0.0f };
             break;
         case HulaComp<TBase>::SEMITONE_PARAM:
             ret = { 0.0f, 12.0f, 0.0f, "Semitone", " ", 0, 1, 0.0f };
