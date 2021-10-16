@@ -1,6 +1,11 @@
 # StudioSixPlusOne
 VCV Rack modules
 
+These have not been updated for V2.0, and have build fails on a MAC that I am unable to test.
+If anyone uses these please request an update, and I shall update to 2.0 but will require help building for mac.
+
+
+
 A collection of modules for [VCV Rack](https://github.com/VCVRack/Rack), a cross platform opensource, modular synth emulator software.
 
 Modules are polyphonic where applicable. Early releases and beta modules can be found here on github, before being submitted to the VCV library.
