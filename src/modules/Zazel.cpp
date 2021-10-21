@@ -358,8 +358,8 @@ struct ParameterSelectWidget : Widget
         {
             APP->scene->rack->touchedParam = nullptr;
             RequestedParamId rpi;
-            rpi.moduleid = touchedParam->paramQuantity->module->id;
-            rpi.paramid = touchedParam->paramQuantity->paramId;
+            rpi.moduleid = touchedParam->getParamQuantity()->module->id;
+            rpi.paramid = touchedParam->getParamQuantity()->paramId;
             module->requestedParameter.store (rpi);
             module->updateParamHandle();
             learning = false;
@@ -409,7 +409,8 @@ struct ParameterSelectWidget : Widget
             if (paramId >= (int) m->params.size())
                 return "";
             ParamQuantity* pq = m->paramQuantities[paramId];
-            return pq->label;
+            return pq->getLabel();
+
         }
     }
 

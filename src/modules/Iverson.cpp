@@ -19,7 +19,7 @@
  *
  */
 
-#include <rack0.hpp>
+//#include <rack0.hpp>
 #include "plugin.hpp"
 #include "widgets.h"
 #include "Iverson.h"
@@ -192,7 +192,7 @@ namespace sspo
         midi::Message msg;
         for (auto q = 0; q < GRID_WIDTH / 8; ++q) // GRID_WIDTH / 8 = number of midi controllers
         {
-            while (midiInputQueues[q].shift (&msg))
+            while (midiInputQueues[q].tryPop(&msg, -1)) //TODO -1 used as placeholder
             {
                 switch (msg.getStatus())
                 {
@@ -357,7 +357,7 @@ namespace sspo
                 midi::Message msg;
                 for (auto q = 0; q < GRID_WIDTH / 8; ++q) // GRID_WIDTH /8 == number of midi controllers
                 {
-                    while (midiInputQueues[q].shift (&msg))
+                    while (midiInputQueues[q].tryPop(&msg, -1)) //TODO -1 placeholder
                     {
                         switch (msg.getStatus())
                         {
@@ -394,8 +394,8 @@ namespace sspo
                     APP->scene->rack->touchedParam = nullptr;
                     // dont learn midi learn param as turning off midi learn may result in overriding
                     // the last learnt parameter with midi learn.
-                    if (touchedParam->paramQuantity->paramId != iverson->MIDI_LEARN_PARAM)
-                        midiLearnMapping.paramId = touchedParam->paramQuantity->paramId;
+                    if (touchedParam->getParamQuantity()->paramId != iverson->MIDI_LEARN_PARAM)
+                        midiLearnMapping.paramId = touchedParam->getParamQuantity()->paramId;
                 }
             }
         }
@@ -971,7 +971,7 @@ User Interface
             momentary = true;
             shadow->opacity = 0;
 
-            addFrame (appGet()->window->loadSvg (asset::plugin (pluginInstance, "res/8X8_transparent.svg")));
+            addFrame (rack::window::Window().loadSvg (asset::plugin (pluginInstance, "res/8X8_transparent.svg")));
         }
     };
 

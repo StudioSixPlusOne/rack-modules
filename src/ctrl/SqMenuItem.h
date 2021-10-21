@@ -84,7 +84,7 @@ struct SqMenuItem_BooleanParam2 : ::rack::MenuItem {
 
     void onAction(const sq::EventAction& e) override {
         const float newValue = isOn() ? 0 : 1;
-        ::rack::appGet()->engine->setParam(module, paramId, newValue);
+        rack::engine::Engine().setParamValue(module ,paramId, newValue);
         e.consume(this);
     }
 
@@ -94,7 +94,7 @@ struct SqMenuItem_BooleanParam2 : ::rack::MenuItem {
 
 private:
     bool isOn() {
-        return ::rack::appGet()->engine->getParam(module, paramId) > .5;
+        return rack::engine::Engine().getParamValue(module, paramId) > .5;
     }
     const int paramId;
     ::rack::engine::Module* const module;
@@ -106,8 +106,8 @@ struct SqMenuItem_BooleanParam : ::rack::MenuItem {
 
     void onAction(const sq::EventAction& e) override {
         const float newValue = isOn() ? 0 : 1;
-        if (widget->paramQuantity) {
-            widget->paramQuantity->setValue(newValue);
+        if (widget->getParamQuantity()) {
+            widget->getParamQuantity()->setValue(newValue);
         }
 
         sq::EventChange ec;
@@ -122,8 +122,8 @@ struct SqMenuItem_BooleanParam : ::rack::MenuItem {
 private:
     bool isOn() {
         bool ret = false;
-        if (widget->paramQuantity) {
-            ret = widget->paramQuantity->getValue() > .5f;
+        if (widget->getParamQuantity()) {
+            ret = widget->getParamQuantity()->getValue() > .5f;
         }
 
         return ret;

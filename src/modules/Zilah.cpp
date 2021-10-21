@@ -314,7 +314,7 @@ struct Zilah : Module
     void process (const ProcessArgs& args) override
     {
         midi::Message msg;
-        while (midiInputQueue.shift (&msg))
+        while (midiInputQueue.tryPop(&msg, -1)) //-1 placeholder
         {
             switch (msg.getStatus())
             {

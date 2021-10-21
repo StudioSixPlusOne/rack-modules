@@ -56,12 +56,12 @@ public:
     };
     float engineGetSampleRate()
     {
-        return ::rack::appGet()->engine->getSampleRate();
+        return ::rack::engine::Engine().getSampleRate();
     }
     
     float engineGetSampleTime()
     {
-        return ::rack::appGet()->engine->getSampleTime();
+        return ::rack::engine::Engine().getSampleTime();
     }
     //protected:
     std::vector<Input>& inputs;
