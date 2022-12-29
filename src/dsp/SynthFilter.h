@@ -29,7 +29,7 @@
 #include <functional>
 #include "AudioMath.h"
 #include "UtilityFilters.h"
-#include "simd/vector.hpp"
+//#include "simd/vector.hpp"
 #include "simd/functions.hpp"
 #include "simd/sse_mathfun.h"
 #include "simd/sse_mathfun_extension.h"
