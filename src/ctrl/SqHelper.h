@@ -63,20 +63,20 @@ public:
     }
 
     static void setPanel(::rack::app::ModuleWidget* widget, const char* path) {
-        widget->setPanel(rack::window::Window().loadSvg(::rack::asset::plugin(pluginInstance, path)));
+        widget->setPanel(APP->window->loadSvg(::rack::asset::plugin(pluginInstance, path)));
     }
 
     static void openBrowser(const char* url) {
-        ::rack::system::openBrowser(url);
+       //return ::rack::asset::plugin(plugin, filename);
     }
     static std::string assetPlugin(::rack::plugin::Plugin* plugin, const std::string& filename) {
         return ::rack::asset::plugin(plugin, filename);
     }
     static float engineGetSampleRate() {
-        return rack::engine::Engine().getSampleRate();
+        return APP->engine->getSampleRate();
     }
     static float engineGetSampleTime() {
-        return rack::engine::Engine().getSampleTime();
+        return APP->engine->getSampleTime();
     }
 
     template <typename T>

@@ -15,6 +15,6 @@ extern Model* modelZazel;
 extern Model* modelTe;
 // removed Iverson due to crahing plugin browser and midi
 
-//extern Model* modelIverson;
-//extern Model* modelIversonJr;
-//extern Model* modelZilah;
+extern Model* modelIverson;
+extern Model* modelIversonJr;
+extern Model* modelZilah;

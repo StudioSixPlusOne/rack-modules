@@ -314,7 +314,7 @@ struct Zilah : Module
     void process (const ProcessArgs& args) override
     {
         midi::Message msg;
-        while (midiInputQueue.tryPop(&msg, -1)) //-1 placeholder
+        while (midiInputQueue.tryPop(&msg, args.frame)) //-1 placeholder
         {
             switch (msg.getStatus())
             {
@@ -612,7 +612,7 @@ struct Midi_cc_14Widget : ModuleWidget
 
         if (module)
         {
-            auto* midiAInWidget = createWidget<MidiWidget> (mm2px (Vec (30, 14.211)));
+            auto* midiAInWidget = createWidget<MidiDisplay> (mm2px (Vec (30, 14.211)));
             midiAInWidget->box.size = mm2px (Vec (40, 25));
             midiAInWidget->setMidiPort (&module->midiInputQueue);
             addChild (midiAInWidget);
