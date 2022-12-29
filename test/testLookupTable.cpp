@@ -32,7 +32,7 @@ static void testCreate()
     sspo::AudioMath::LookupTable::Table<float> sineTable = LookupTable::makeTable<float> (0.0f, 5.0f, 0.001f, [] (const float x) -> float { return std::sin (x); });
     assert (sineTable.minX == 0.0f);
     assert (sineTable.maxX == 5.0f);
-    assert (sineTable.interval = 0.001f);
+    assert (sineTable.interval == 0.001f);
 
     auto index = 0;
     for (float i = 0.000f; i < 5.0f; i += 0.001f)
@@ -83,9 +83,22 @@ static void testConsume()
     //std::cout << sspo::AudioMath::LookupTable::makeHeader(sineTable, "SineTable") << "\n\n";
 }
 
+static void testConsumeSimd()
+{
+    ///  pow2 and hulaSin have simd lookups for simultanious reading
+    float_4 a{ -3.0, -0, 1.4, 2.0 };
+    float_4 r = lookup.hulaSin4 (a);
+
+    for (auto i = 0; i < 4; ++i)
+        assertClose (lookup.hulaSin (a[i]), r[i], 0.001f);
+
+    printf ("testConsumeSimd Test Lookup ok");
+}
+
 void testLookupTable()
 {
     printf ("testLookupTable\n");
     testCreate();
     testConsume();
+    testConsumeSimd();
 }

@@ -282,4 +282,73 @@ namespace sspo
         }
     };
 
+    /// IIR Decimator
+    /// oversample, upsample tate
+    /// quality, number of sequential filters
+    template <int oversample, int quality, typename T>
+    struct Decimator
+    {
+        BiQuad<T> filters[quality];
+
+        Decimator()
+        {
+            for (auto i = 0; i < quality; ++i)
+            {
+                // the oversample filter has been set at niquist, to remove unwanted
+                // noise in the audio spectrum
+                filters[i].setButterworthLp2 (10000.0f, 10000.0f / (1.0f * oversample));
+            }
+        }
+
+        T process (const T* input)
+        {
+            T x = 0;
+            for (auto i = 0; i < oversample; ++i)
+            {
+                x = filters[0].process (input[i]);
+                for (auto j = 1; j < quality; ++j)
+                {
+                    x = filters[j].process (x);
+                }
+            }
+            // we simply return the last sample
+            return x;
+        }
+    };
+
+    /// IIR upsample interpolator
+    /// oversample, upsample rate
+    /// quality, number of sequential filters
+    template <int oversample, int quality, typename T>
+    struct Upsampler
+    {
+        BiQuad<T> filters[quality];
+
+        Upsampler()
+        {
+            for (auto i = 0; i < quality; ++i)
+            {
+                // the oversample filter has been set at niquist, to remove unwanted
+                // noise in the audio spectrum
+                filters[i].setButterworthLp2 (10000.0f, 10000.0f / (1.0f * oversample));
+            }
+        }
+
+        void process (T in, T* buffer)
+        {
+            buffer[0] = doFilter (in);
+            for (auto i = 1; i < oversample; ++i)
+                buffer[i] = doFilter (T (0) * oversample);
+        }
+
+        T doFilter (T in)
+        {
+            T x = filters[0].process (in);
+            for (auto i = 1; i < quality; ++i)
+            {
+                x = filters[i].process (x);
+            }
+            return x;
+        }
+    };
 } // namespace sspo

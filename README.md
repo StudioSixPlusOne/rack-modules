@@ -8,6 +8,11 @@ anything ready for the library will be done. This currently does not use any of 
 
 VCV Rack modules
 
+These have not been updated for V2.0, and have build fails on a MAC that I am unable to test.
+If anyone uses these please request an update, and I shall update to 2.0 but will require help building for mac.
+
+
+
 A collection of modules for [VCV Rack](https://github.com/VCVRack/Rack), a cross platform opensource, modular synth emulator software.
 
 Modules are polyphonic where applicable. Early releases and beta modules can be found here on github, before being submitted to the VCV library.
@@ -21,6 +26,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  [Wallenda](#wallenda)
 
  [Maccomo](#maccomo)
+ 
+ [Amburg](#amburg)
 
  [Massarti](#massarti)
 
@@ -38,6 +45,10 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  [Iverson](#iverson)
  
  [Zilah](#zilah)
+
+ 
+ [Hula](#hula)
+
 
 
 
@@ -86,6 +97,12 @@ If the audio input is disconnected, the filter will still run in monophonic mode
 <br>
 <br>
 <br>
+
+### Amburg
+<img src="images/Amburg.png">
+
+Maccomo with some bite.  The resonance response has been greatly improved, 
+and the drive control now really does drive.  
 
 
 ### Massarti
@@ -349,3 +366,16 @@ A MIDI 1.0 14 bit CC controller. The MIDI 1.0 standard defines cc 0 - 31 can be
  resolution than the default 128 steps.
 Options are given in the context menu as to how the pair of CC values are processed, MSB wait for LSB is my personal favorite, but the MIDI 1.0 option is compliant with the specification.   
 The smoothing filter can be adjusted, and both unipolar and bipolar outputs
+
+
+
+
+### Hula
+
+<img align="left" src="images/hula.png">
+
+A small form fm oscillator, each instance has it's own small detune applied and it's own custom noise floor, hence the lack of a fine tune control.
+
+It starts emitting a sine wave, turing up the feedback will increase the harmonics.
+The fm input can be supplied an audio signal, with controllable depth. There are many guides on the web that will explain the principals of FM synthesis much better than I ever could.  
+

@@ -27,6 +27,13 @@
 
 #include "AudioMath.h"
 
+#include "simd/functions.hpp"
+#include "simd/sse_mathfun.h"
+#include "simd/sse_mathfun_extension.h"
+#include "simd/vector.hpp"
+
+using float_4 = ::rack::simd::float_4;
+
 namespace sspo
 {
     namespace AudioMath
@@ -43,7 +50,7 @@ namespace sspo
             };
 
             template <typename T>
-            inline T process (Table<T>& source, const T x)
+            inline T process (Table<T>& source, const T x) noexcept
             {
                 assert (source.table.size() != 0 && "Lookup table empty");
                 assert (source.minX != source.maxX && "Lookup table min equal max");
@@ -54,10 +61,73 @@ namespace sspo
 
                 auto index = static_cast<int> ((x / source.interval) - source.minX / source.interval);
                 // commented out due to incressing time of lookup by 60%
-                index = rack::math::clamp (index, 0, static_cast<int> (source.table.size() - 2));
+                //                index = rack::simd::clamp (index, 0, static_cast<int> (source.table.size() - 2));
                 T fraction = ((x / source.interval) - source.minX / source.interval) - index;
-                T ret = linearInterpolate (static_cast<T> (source.table[index]), static_cast<T> (source.table[index + 1]), fraction);
-                return ret;
+                return linearInterpolate (static_cast<T> (source.table[index]), static_cast<T> (source.table[index + 1]), fraction);
+            }
+
+            // original take using slow vector access to read from table
+            // perf.exe reports 23% of 1% usage
+            //            template <typename T>
+            //            inline float_4 process (Table<T>& source,  float_4 x)
+            //            {
+            //                assert (source.table.size() != 0 && "Lookup table empty");
+            //                assert (source.minX != source.maxX && "Lookup table min equal max");
+            //                assert (source.interval != 0 && "Lookup interval 0");
+            //
+            //                //x = rack::simd::clamp(x, float_4(source.minX), float_4(source.maxX));
+            //                //assert(x >= source.minX && "Lookuptable index too low");
+            //                //assert(x <= source.maxX && "Lookuptable index too greate");
+            //
+            //                float_4 index = rack::simd::floor((x / source.interval) - source.minX / source.interval);
+            //                //index = simd::clamp(index, float_4(0), float_4(source.table.size() - 1.0f));
+            //
+            //                float_4 fraction = ((x / source.interval) - source.minX / source.interval) - index;
+            //                float_4 lower = float_4 (source.table[index[0]],
+            //                                         source.table[index[1]],
+            //                                         source.table[index[2]],
+            //                                         source.table[index[3]]);
+            //                float_4 upper = float_4 (source.table[index[0] + 1],
+            //                                         source.table[index[1] + 1],
+            //                                         source.table[index[2] + 1],
+            //                                         source.table[index[3] + 1]);
+            //                return  linearInterpolate (lower, upper, fraction);
+            //
+            //            }
+
+            // second attempt without creating new float_4;
+            // member float_4 are used, this makes Lookup tables no reentrant
+            // a separate instance is require for each module instance
+            // dont use lookup.xxx() for simd
+            // perf.exe reports 23% of 1% usage
+
+            template <typename T>
+            inline float_4 process (Table<T>& source, float_4 x)
+            {
+                //				const float_4 lower = float_4(0.0f, 0.45f, 0.33f, 0.77f);
+                //				const float_4 upper {0.1f, 0.55f, 0.45f, 0.9f};
+                float_4 fraction;
+                float_4 index;
+
+                assert (source.table.size() != 0 && "Lookup table empty");
+                assert (source.minX != source.maxX && "Lookup table min equal max");
+                assert (source.interval != 0 && "Lookup interval 0");
+
+                //x = rack::simd::clamp(x, float_4(source.minX), float_4(source.maxX));
+                //assert(x >= source.minX && "Lookuptable index too low");
+                //assert(x <= source.maxX && "Lookuptable index too greate");
+
+                index = rack::simd::floor ((x / source.interval) - source.minX / source.interval);
+                fraction = ((x / source.interval) - source.minX / source.interval) - index;
+                float_4 lower = float_4 (source.table[index[0]],
+                                         source.table[index[1]],
+                                         source.table[index[2]],
+                                         source.table[index[3]]);
+                float_4 upper = float_4 (source.table[index[0] + 1],
+                                         source.table[index[1] + 1],
+                                         source.table[index[2] + 1],
+                                         source.table[index[3] + 1]);
+                return linearInterpolate (lower, upper, fraction); // linearInterpolate (lower, upper, fraction);
             }
 
             template <typename T>
@@ -127,11 +197,13 @@ namespace sspo
             {
                 Lookup()
                 {
-                    sineTable = sspo::AudioMath::LookupTable::makeTable<float> (-k_2pi - 0.1f, k_2pi + 0.1f, 0.001f, [] (const float x) -> float { return std::sin (x); });
+                    sineTable = sspo::AudioMath::LookupTable::makeTable<float> (-4 * k_2pi - 0.1f, 4 * k_2pi + 0.1f, 0.001f, [] (const float x) -> float { return std::sin (x); });
                     pow2Table = LookupTable::makeTable<float> (-10.1f, 10.1f, 0.001f, [] (const float x) -> float { return std::pow (2.0f, x); });
                     pow10Table = LookupTable::makeTable<float> (-10.1f, 10.1f, 0.001f, [] (const float x) -> float { return std::pow (10.0f, x); });
                     log10Table = LookupTable::makeTable<float> (0.00001f, 10.1f, 0.001f, [] (const float x) -> float { return std::log10 (x); });
                     unisonSpreadTable = LookupTable::makeTable<float> (0.0f, 1.1f, 0.01f, [] (const float x) -> float { return unisonSpreadScalar (x); });
+
+                    hulaSineTable = sspo::AudioMath::LookupTable::makeTable<float> (-4 * k_2pi - 0.1f, 4 * k_2pi + 0.1f, 0.001f, [] (const float x) -> float { return std::sin (x) + (rand01() - 0.5f) * 1e-4f; });
                 }
 
                 sspo::AudioMath::LookupTable::Table<float> sineTable;
@@ -139,12 +211,16 @@ namespace sspo
                 sspo::AudioMath::LookupTable::Table<float> pow10Table;
                 sspo::AudioMath::LookupTable::Table<float> log10Table;
                 sspo::AudioMath::LookupTable::Table<float> unisonSpreadTable;
+                sspo::AudioMath::LookupTable::Table<float> hulaSineTable;
 
                 float sin (const float x) { return sspo::AudioMath::LookupTable::process (sineTable, x); }
                 float pow2 (const float x) { return sspo::AudioMath::LookupTable::process (pow2Table, x); }
+                float_4 pow2 (const float_4 x) { return sspo::AudioMath::LookupTable::process (pow2Table, x); }
                 float pow10 (const float x) { return sspo::AudioMath::LookupTable::process (pow10Table, x); }
                 float log10 (const float x) { return sspo::AudioMath::LookupTable::process (log10Table, x); }
                 float unisonSpread (const float x) { return sspo::AudioMath::LookupTable::process (unisonSpreadTable, x); }
+                float hulaSin (const float x) { return sspo::AudioMath::LookupTable::process (hulaSineTable, x); }
+                float_4 hulaSin4 (const float_4 x) { return sspo::AudioMath::LookupTable::process (hulaSineTable, x); }
             };
 
         } // namespace LookupTable

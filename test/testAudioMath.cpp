@@ -21,10 +21,17 @@
 
 #include "AudioMath.h"
 #include "asserts.h"
+#include "../src/composites/Eva.h"
 #include <assert.h>
 #include <stdio.h>
 #include <map>
 
+#include "simd/functions.hpp"
+#include "simd/sse_mathfun.h"
+#include "simd/sse_mathfun_extension.h"
+#include "simd/vector.hpp"
+
+using float_4 = rack::simd::float_4;
 using namespace sspo;
 
 static void testAreSame()
@@ -90,11 +97,26 @@ static void testRand01()
     //printf ("rand01 %d \n", static_cast<int>(bands.size()));
 }
 
+static void testlinearInterpolateSimd()
+{
+    float_4 a{ -10.4, 11.7, 0.004, 3.2 };
+    float_4 b{ 5.4, 2.7, 0.002, 5.8 };
+    float_4 x{ 0.1, 0.2, 0.3, 0.7 };
+
+    float_4 r = AudioMath::linearInterpolate (a, b, x);
+
+    for (auto i = 0; i < 4; ++i)
+    {
+        assert (AudioMath::linearInterpolate (a[i], b[i], x[i]) == r[i] && "linearInterpolate");
+    }
+}
+
 void testAudioMath()
 {
     printf ("AudioMath\n");
     testAreSame();
     testFastTanh();
     testlinearInterpolate();
+    testlinearInterpolateSimd();
     testRand01();
 }

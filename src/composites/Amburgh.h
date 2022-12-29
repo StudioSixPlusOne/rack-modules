@@ -24,9 +24,12 @@
 #include "IComposite.h"
 #include "SynthFilter.h"
 #include "AudioMath.h"
+#include "UtilityFilters.h"
 #include <memory>
 #include <vector>
 #include <time.h>
+
+using float_4 = ::rack::simd::float_4;
 
 namespace rack
 {
@@ -39,7 +42,7 @@ using Module = ::rack::engine::Module;
 using namespace rack;
 
 template <class TBase>
-class MaccomoDescription : public IComposite
+class AmburghDescription : public IComposite
 {
 public:
     Config getParam (int i) override;
@@ -47,25 +50,25 @@ public:
 };
 
 /**
- * Complete Maccomo composite
+ * Complete Amburgh composite
  *
  * If TBase is WidgetComposite, this class is used as the implementation part of the KSDelay module.
  * If TBase is TestComposite, this class may stand alone for unit tests.
  */
 
 template <class TBase>
-class MaccomoComp : public TBase
+class AmburghComp : public TBase
 {
 public:
-    MaccomoComp (Module* module) : TBase (module)
+    AmburghComp (Module* module) : TBase (module)
     {
     }
 
-    MaccomoComp() : TBase()
+    AmburghComp() : TBase()
     {
     }
 
-    virtual ~MaccomoComp()
+    virtual ~AmburghComp()
     {
     }
 
@@ -73,7 +76,7 @@ public:
      */
     static std::shared_ptr<IComposite> getDescription()
     {
-        return std::make_shared<MaccomoDescription<TBase>>();
+        return std::make_shared<AmburghDescription<TBase>>();
     }
 
     void setSampleRate (float rate)
@@ -86,16 +89,18 @@ public:
     // must be called after setSampleRate
     void init()
     {
-        currentTypes.resize (maxChannels);
-        for (auto& ct : currentTypes)
-            ct = 0;
-
-        filters.resize (maxChannels);
+        filters.resize (SIMD_MAX_CHANNELS);
         for (auto& f : filters)
         {
             f.setUseNonLinearProcessing (true);
-            f.setType (sspo::MoogLadderFilter<float>::types()[0]);
-            f.nonLinearProcess = [] (float in, float drive) { return std::tanh (in * drive); };
+            f.setType (sspo::MoogLadderFilter<float_4>::types()[0]);
+            f.setUseOversample (true);
+            float_4 asym = float_4 (1.0f);
+            f.nonLinearProcess = [asym] (float_4 in, float_4 drive) {
+                return rack::simd::ifelse (in > float_4 (0),
+                                           (atan (drive * in) / atan (drive)),
+                                           (atan ((drive * in) / asym) / atan (drive / asym)));
+            }; //end of lambda
         }
 
         sspo::AudioMath::defaultGenerator.seed (time (NULL));
@@ -137,23 +142,19 @@ public:
 
     static constexpr float minFreq = 0.0f;
     float maxFreq = 20000.0f;
-    static constexpr float maxRes = 10.0f;
-    static constexpr float maxDrive = 2.0f;
-    static constexpr int maxChannels = 16;
-
+    static constexpr float maxRes = 4.0f;
+    static constexpr float maxDrive = 30.0f;
+    static constexpr int SIMD_MAX_CHANNELS = 4;
     static constexpr int typeCount = 6;
-    std::vector<int> currentTypes;
-
-    std::vector<sspo::MoogLadderFilter<float>> filters;
-
-    void step() override;
-
+    int currentType = 1;
     float sampleRate = 1.0f;
     float sampleTime = 1.0f;
+    std::vector<sspo::MoogLadderFilter<float_4>> filters;
+    void step() override;
 };
 
 template <class TBase>
-inline void MaccomoComp<TBase>::step()
+inline void AmburghComp<TBase>::step()
 {
     auto channels = std::max (TBase::inputs[MAIN_INPUT].getChannels(),
                               TBase::inputs[VOCT_INPUT].getChannels());
@@ -166,85 +167,87 @@ inline void MaccomoComp<TBase>::step()
     auto resAttenuverterParam = TBase::params[RESONANCE_CV_ATTENUVERTER_PARAM].getValue();
     auto driveAttenuverterParam = TBase::params[DRIVE_CV_ATTENUVERTER_PARAM].getValue();
 
+    auto noise = float_4 (1e-6f * (2.0f * sspo::AudioMath::rand01() - 1.0f));
     freqParam = freqParam * 10.0f - 5.0f;
 
-    for (auto i = 0; i < channels; ++i)
+    for (auto c = 0; c < channels; c += 4)
     {
-        auto in = TBase::inputs[MAIN_INPUT].getVoltage (i);
+        auto in = TBase::inputs[MAIN_INPUT].template getPolyVoltageSimd<float_4> (c);
         // Add -120dB noise to bootstrap self-oscillation
-        in += 1e-6f * (2.f * sspo::AudioMath::rand01() - 1.f);
+        in += noise;
 
-        auto frequency = freqParam;
+        auto frequency = float_4 (freqParam);
         if (TBase::inputs[VOCT_INPUT].isConnected())
-            frequency += TBase::inputs[VOCT_INPUT].getPolyVoltage (i);
+            frequency += float_4 (TBase::inputs[VOCT_INPUT].template getPolyVoltageSimd<float_4> (c));
         if (TBase::inputs[FREQ_CV_INPUT].isConnected())
         {
-            frequency += (TBase::inputs[FREQ_CV_INPUT].getPolyVoltage (i)
+            frequency += (TBase::inputs[FREQ_CV_INPUT].template getPolyVoltageSimd<float_4> (c)
                           * freqAttenuverterParam);
         }
-        frequency = dsp::FREQ_C4 * std::pow (2.0f, frequency);
+        frequency = dsp::FREQ_C4 * rack::simd::pow (2.0f, frequency);
 
-        frequency = clamp (frequency, 0.0f, maxFreq);
+        frequency = rack::simd::clamp (frequency, float_4 (0.0f), float_4 (maxFreq));
 
-        auto resonance = resParam;
-        resonance += (TBase::inputs[RESONANCE_CV_INPUT].getPolyVoltage (i) / 5.0f)
+        auto resonance = float_4 (resParam);
+        resonance += (float_4 (TBase::inputs[RESONANCE_CV_INPUT].template getPolyVoltageSimd<float_4> (c)) / 5.0f)
                      * resAttenuverterParam * maxRes;
-        resonance = clamp (resonance, 0.0f, maxRes);
+        resonance = rack::simd::clamp (resonance, float_4 (0.5f), float_4 (maxRes));
 
-        auto drive = driveParam;
-        drive += (TBase::inputs[DRIVE_CV_INPUT].getPolyVoltage (i) / 5.0f)
+        auto drive = float_4 (driveParam);
+        drive += (TBase::inputs[DRIVE_CV_INPUT].template getPolyVoltageSimd<float_4> (c) / 5.0f)
                  * driveAttenuverterParam * maxDrive;
-        drive = clamp (drive, 0.0f, maxDrive);
+        drive = rack::simd::clamp (drive, float_4 (1.0f), float_4 (maxDrive));
 
-        if (currentTypes[i] != modeParam + int (TBase::inputs[MODE_CV_INPUT].getPolyVoltage (i)))
+        if (currentType != modeParam)
         {
-            currentTypes[i] = clamp (modeParam + int (TBase::inputs[MODE_CV_INPUT].getPolyVoltage (i)), 0, typeCount - 1);
-            filters[i].setType (sspo::MoogLadderFilter<float>::types()[currentTypes[i]]);
+            currentType = modeParam;
+            filters[c / 4].setType (sspo::MoogLadderFilter<float_4>::types()[currentType]);
         }
 
-        filters[i].setParameters (frequency, resonance, drive, 0, sampleRate);
+        filters[c / 4].setParameters (frequency, resonance, drive, float_4 (0.5f), sampleRate);
 
-        auto out = filters[i].process (in / 10.0f) * 10.0f;
-        out = std::isfinite (out) ? out : 0;
-        TBase::outputs[MAIN_OUTPUT].setVoltage (out, i);
+        auto out = filters[c / 4].process (in / 10.0f) * 10.0f;
+        //out = std::isfinite (out) ? out : 0;
+
+        TBase::outputs[MAIN_OUTPUT].setVoltageSimd (out, c);
     }
     TBase::outputs[MAIN_OUTPUT].setChannels (channels);
 }
 
 template <class TBase>
-int MaccomoDescription<TBase>::getNumParams()
+int AmburghDescription<TBase>::getNumParams()
 {
-    return MaccomoComp<TBase>::NUM_PARAMS;
+    return AmburghComp<TBase>::NUM_PARAMS;
 }
 
 template <class TBase>
-IComposite::Config MaccomoDescription<TBase>::getParam (int i)
+IComposite::Config AmburghDescription<TBase>::getParam (int i)
 {
     auto freqBase = static_cast<float> (std::pow (2, 10.0f));
     auto freqMul = static_cast<float> (dsp::FREQ_C4 / std::pow (2, 5.f));
     IComposite::Config ret = { 0.0f, 1.0f, 0.0f, "Code type", "unit", 0.0f, 1.0f, 0.0f };
     switch (i)
     {
-        case MaccomoComp<TBase>::FREQUENCY_PARAM:
+        case AmburghComp<TBase>::FREQUENCY_PARAM:
             ret = { 0.0f, 1.125f, 0.5f, "Frequency", " Hz", freqBase, freqMul };
             break;
-        case MaccomoComp<TBase>::FREQUENCY_CV_ATTENUVERTER_PARAM:
+        case AmburghComp<TBase>::FREQUENCY_CV_ATTENUVERTER_PARAM:
             ret = { -1.0f, 1.0f, 0.0f, "Frequency CV", " ", 0.0f, 1.0f, 0.0f };
             break;
-        case MaccomoComp<TBase>::RESONANCE_CV_ATTENUVERTER_PARAM:
+        case AmburghComp<TBase>::RESONANCE_CV_ATTENUVERTER_PARAM:
             ret = { -1.0f, 1.0f, 0.0f, "Resonance CV", " ", 0.0f, 1.0f, 0.0f };
             break;
-        case MaccomoComp<TBase>::RESONANCE_PARAM:
-            ret = { 0.0f, MaccomoComp<TBase>::maxRes, 0.0f, "Resonance", " ", 0.0f, 1.0f, 0.0f };
+        case AmburghComp<TBase>::RESONANCE_PARAM:
+            ret = { 0.5f, AmburghComp<TBase>::maxRes, 0.707f, "Resonance", " ", 0.0f, 1.0f, 0.0f };
             break;
-        case MaccomoComp<TBase>::DRIVE_CV_ATTENUVERTER_PARAM:
+        case AmburghComp<TBase>::DRIVE_CV_ATTENUVERTER_PARAM:
             ret = { -1.0f, 1.0f, 0.0f, "Drive CV", " ", 0.0f, 1.0f, 0.0f };
             break;
-        case MaccomoComp<TBase>::DRIVE_PARAM:
-            ret = { 0.0f, MaccomoComp<TBase>::maxDrive, 0.6f, "Drive", " ", 0.0f, 1.0f, 0.0f };
+        case AmburghComp<TBase>::DRIVE_PARAM:
+            ret = { 1.0f, AmburghComp<TBase>::maxDrive, 1.0f, "Drive", " ", 0.0f, 1.0f, 0.0f };
             break;
-        case MaccomoComp<TBase>::MODE_PARAM:
-            ret = { 0.0f, MaccomoComp<TBase>::typeCount - 1, 0.0f, "Type", " ", 0.0f, 1.0f, 0.0f };
+        case AmburghComp<TBase>::MODE_PARAM:
+            ret = { 0.0f, AmburghComp<TBase>::typeCount - 1, 0.0f, "Type", " ", 0.0f, 1.0f, 0.0f };
             break;
         default:
             assert (false);

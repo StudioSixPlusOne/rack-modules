@@ -42,5 +42,12 @@ Added Iverson and Iverson Jr
    - Option for rotary encoders added to context menu
  - Maccomo
      - Improved Non linear distortion
+     
+ ### v1.3
+  - Zilah 14 bit midi cc-cv module, initial release
+  
+  ### v1.4 
+  - Hula, small fm oscillator with small random, detune, initial release
+  
  
 
