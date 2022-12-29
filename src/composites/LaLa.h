@@ -28,7 +28,7 @@
 #include "simd/functions.hpp"
 #include "simd/sse_mathfun.h"
 #include "simd/sse_mathfun_extension.h"
-#include "simd/vector.hpp"
+//#include "simd/vector.hpp"
 
 #include <memory>
 #include <vector>

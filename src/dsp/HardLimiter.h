@@ -25,7 +25,7 @@
 #include <cmath>
 #include <utility>
 
-#include "simd/vector.hpp"
+// TODO #include "simd/vector.hpp"
 #include "simd/functions.hpp"
 #include "simd/sse_mathfun.h"
 #include "simd/sse_mathfun_extension.h"

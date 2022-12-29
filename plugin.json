@@ -1,7 +1,9 @@
 {
   "slug": "StudioSixPlusOne",
   "name": "Studio Six Plus One",
-  "version": "1.4",
+
+  "version": "2.0.1",
+
   "license": "GPL-3.0-or-later",
   "brand": "Studio Six Plus One",
   "author": "Studio Six Plus One",
@@ -113,6 +115,16 @@
       ]
     },
     {
+      "slug": "Zilah",
+      "name": "Zilah",
+      "description": "14 bit Midi-CC input",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#zilah",
+      "tags": [
+        "MIDI",
+        "external"
+      ]
+    },
+    {
       "slug": "Iverson",
       "name": "Iverson",
       "description": "Trigger Sequencer for use with midi controller",
@@ -132,16 +144,7 @@
         "Sequencer"
       ]
     },
-    {
-      "slug": "Zilah",
-      "name": "Zilah",
-      "description": "14 bit Midi-CC input",
-      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#zilah",
-      "tags": [
-        "MIDI",
-        "external"
-      ]
-    },
+
     {
       "slug": "Hula",
       "name": "Hula",

@@ -19,13 +19,13 @@
  *
  */
 
-#include <rack0.hpp>
+//#include <rack0.hpp>
 #include "plugin.hpp"
 #include "widgets.h"
 #include "Iverson.h"
 #include "WidgetComposite.h"
 #include "ctrl/SqMenuItem.h"
-#include "app/MidiWidget.hpp"
+#include "app/MidiDisplay.hpp"
 
 #include <sstream>
 
@@ -170,13 +170,13 @@ namespace sspo
         void onSampleRateChange() override;
         json_t* dataToJson() override;
         void dataFromJson (json_t* rootJ) override;
-        void doLearn();
+        void doLearn(const ProcessArgs& args);
         void process (const ProcessArgs& args) override;
 
         /// Midi events are used to set assigned params
         /// midi handling would require linking to RACK for unit test
         /// hence all midi to be processed in Iverson.cpp
-        void midiToParm();
+        void midiToParm(const ProcessArgs& args);
 
         /// sends midi to external controller to show status
         void pageLights();
@@ -187,12 +187,12 @@ namespace sspo
     /**
 	 * Checks for midi mappings and passes data to the assigned parameter
 	 */
-    void IversonBase::midiToParm()
+    void IversonBase::midiToParm(const ProcessArgs& args)
     {
         midi::Message msg;
         for (auto q = 0; q < GRID_WIDTH / 8; ++q) // GRID_WIDTH / 8 = number of midi controllers
         {
-            while (midiInputQueues[q].shift (&msg))
+            while (midiInputQueues[q].tryPop(&msg, args.frame)) //TODO -1 used as placeholder
             {
                 switch (msg.getStatus())
                 {
@@ -258,7 +258,7 @@ namespace sspo
     /**
 	 * Midi mapping from controller to parameters
 	 */
-    void IversonBase::doLearn()
+    void IversonBase::doLearn(const ProcessArgs& args)
     {
         if (! iverson->isLearning)
             midiLearnMapping.reset();
@@ -357,7 +357,7 @@ namespace sspo
                 midi::Message msg;
                 for (auto q = 0; q < GRID_WIDTH / 8; ++q) // GRID_WIDTH /8 == number of midi controllers
                 {
-                    while (midiInputQueues[q].shift (&msg))
+                    while (midiInputQueues[q].tryPop(&msg, args.frame)) //TODO -1 placeholder
                     {
                         switch (msg.getStatus())
                         {
@@ -394,8 +394,8 @@ namespace sspo
                     APP->scene->rack->touchedParam = nullptr;
                     // dont learn midi learn param as turning off midi learn may result in overriding
                     // the last learnt parameter with midi learn.
-                    if (touchedParam->paramQuantity->paramId != iverson->MIDI_LEARN_PARAM)
-                        midiLearnMapping.paramId = touchedParam->paramQuantity->paramId;
+                    if (touchedParam->getParamQuantity()->paramId != iverson->MIDI_LEARN_PARAM)
+                        midiLearnMapping.paramId = touchedParam->getParamQuantity()->paramId;
                 }
             }
         }
@@ -537,10 +537,10 @@ namespace sspo
 
     void IversonBase::process (const Module::ProcessArgs& args)
     {
-        doLearn();
+        doLearn(args);
         if (paramMidiUpdateDivider.process())
         {
-            midiToParm();
+            midiToParm(args);
         }
 
         iverson->step();
@@ -971,7 +971,7 @@ User Interface
             momentary = true;
             shadow->opacity = 0;
 
-            addFrame (appGet()->window->loadSvg (asset::plugin (pluginInstance, "res/8X8_transparent.svg")));
+            addFrame (APP->window->loadSvg (asset::plugin (pluginInstance, "res/8X8_transparent.svg")));
         }
     };
 
@@ -1125,7 +1125,7 @@ User Interface
 		 * @param port The midi queue
 		 * @return
 		 */
-        MidiWidget* createMidiWidget (const IversonBase* module, midi::Port* port, Vec pos);
+        MidiDisplay* createMidiWidget (const IversonBase* module, midi::Port* port, Vec pos);
 
         void appendContextMenu (Menu* menu) override;
     };
@@ -1241,9 +1241,9 @@ User Interface
         setModule (module);
     }
 
-    MidiWidget* IversonBaseWidget::createMidiWidget (const IversonBase* module, midi::Port* port, Vec pos)
+    MidiDisplay* IversonBaseWidget::createMidiWidget (const IversonBase* module, midi::Port* port, Vec pos)
     {
-        auto* midiAInWidget = createWidget<MidiWidget> (mm2px (pos));
+        auto* midiAInWidget = createWidget<MidiDisplay> (mm2px (pos));
         midiAInWidget->box.size = mm2px (Vec (40, 25));
         midiAInWidget->setMidiPort (module ? port : NULL);
         addChild (midiAInWidget);

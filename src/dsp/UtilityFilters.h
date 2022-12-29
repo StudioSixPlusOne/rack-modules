@@ -23,7 +23,7 @@
 
 #include "AudioMath.h"
 #include "simd/functions.hpp"
-#include "simd/vector.hpp"
+//#include "simd/vector.hpp"
 #include "simd/sse_mathfun_extension.h"
 #include "simd/sse_mathfun.h"
 

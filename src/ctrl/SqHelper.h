@@ -55,28 +55,28 @@ public:
      */
     static std::shared_ptr<::rack::Svg> loadSvg(const char* path, bool pathIsAbsolute = false) {
         if (pathIsAbsolute) {
-            return ::rack::appGet()->window->loadSvg(path);
+            rack::window::Window().loadSvg(path);
         } else {
-            return ::rack::appGet()->window->loadSvg(
+            return rack::window::Window().loadSvg(
                 SqHelper::assetPlugin(pluginInstance, path));
         }
     }
 
     static void setPanel(::rack::app::ModuleWidget* widget, const char* path) {
-        widget->setPanel(::rack::appGet()->window->loadSvg(::rack::asset::plugin(pluginInstance, path)));
+        widget->setPanel(APP->window->loadSvg(::rack::asset::plugin(pluginInstance, path)));
     }
 
     static void openBrowser(const char* url) {
-        ::rack::system::openBrowser(url);
+       //return ::rack::asset::plugin(plugin, filename);
     }
     static std::string assetPlugin(::rack::plugin::Plugin* plugin, const std::string& filename) {
         return ::rack::asset::plugin(plugin, filename);
     }
     static float engineGetSampleRate() {
-        return ::rack::appGet()->engine->getSampleRate();
+        return APP->engine->getSampleRate();
     }
     static float engineGetSampleTime() {
-        return ::rack::appGet()->engine->getSampleTime();
+        return APP->engine->getSampleTime();
     }
 
     template <typename T>
@@ -116,12 +116,13 @@ public:
     }
 
     static float getValue(::rack::app::ParamWidget* widget) {
-        return (widget->paramQuantity) ? widget->paramQuantity->getValue() : 0;
+        return (widget->getParamQuantity()) ? widget->getParamQuantity()->getValue() : 0;
+
     }
 
     static void setValue(::rack::app::ParamWidget* widget, float v) {
-        if (widget->paramQuantity) {
-            widget->paramQuantity->setValue(v);
+        if (widget->getParamQuantity()) {
+            widget->getParamQuantity()->setValue(v);
         }
     }
 };
