@@ -26,8 +26,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  [Wallenda](#wallenda)
 
  [Maccomo](#maccomo)
- 
- [Amburg](#amburg)
+
+ [Amburgh](#amburgh)
 
  [Massarti](#massarti)
 
@@ -43,10 +43,10 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 
 
  [Iverson](#iverson)
- 
+
  [Zilah](#zilah)
 
- 
+
  [Hula](#hula)
 
 
@@ -65,8 +65,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  - Stretch, the nature of strings gives a natural decay, this controls the length
  - Polyphonic, the number of channels is defined by the audio input
 
- 
- The main audio input should be triggered with noise, the color and duration of this has a large impact on the resulting sound. Try experimenting with short bursts, such as snare sounds, longer noise sounds with automated frequency can be used to emulate a bowed sound. All variations of sound input can be used to create sounds. 
+
+ The main audio input should be triggered with noise, the color and duration of this has a large impact on the resulting sound. Try experimenting with short bursts, such as snare sounds, longer noise sounds with automated frequency can be used to emulate a bowed sound. All variations of sound input can be used to create sounds.
 
 
 [Omri's YouTube Tutorial](https://www.youtube.com/watch?v=VKX3ii-kR1Y)
@@ -98,11 +98,11 @@ If the audio input is disconnected, the filter will still run in monophonic mode
 <br>
 <br>
 
-### Amburg
-<img src="images/Amburg.png">
+### Amburgh
+<img src="images/Amburgh.png">
 
-Maccomo with some bite.  The resonance response has been greatly improved, 
-and the drive control now really does drive.  
+Maccomo with some bite.  The resonance response has been greatly improved,
+and the drive control now really does drive.
 
 
 ### Massarti
@@ -362,9 +362,9 @@ Iverson comes in two versions: a 16 step and an 8 step (Iverson Jr).
 <img align="left" src="images/Zilah.png">
 
 A MIDI 1.0 14 bit CC controller. The MIDI 1.0 standard defines cc 0 - 31 can be
- used in conjunction with cc 32 - 63 to form 14 bit pairs. This gives greater 
+ used in conjunction with cc 32 - 63 to form 14 bit pairs. This gives greater
  resolution than the default 128 steps.
-Options are given in the context menu as to how the pair of CC values are processed, MSB wait for LSB is my personal favorite, but the MIDI 1.0 option is compliant with the specification.   
+Options are given in the context menu as to how the pair of CC values are processed, MSB wait for LSB is my personal favorite, but the MIDI 1.0 option is compliant with the specification.
 The smoothing filter can be adjusted, and both unipolar and bipolar outputs
 
 
@@ -377,5 +377,5 @@ The smoothing filter can be adjusted, and both unipolar and bipolar outputs
 A small form fm oscillator, each instance has it's own small detune applied and it's own custom noise floor, hence the lack of a fine tune control.
 
 It starts emitting a sine wave, turing up the feedback will increase the harmonics.
-The fm input can be supplied an audio signal, with controllable depth. There are many guides on the web that will explain the principals of FM synthesis much better than I ever could.  
+The fm input can be supplied an audio signal, with controllable depth. There are many guides on the web that will explain the principals of FM synthesis much better than I ever could.
 
