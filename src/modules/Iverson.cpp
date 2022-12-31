@@ -170,13 +170,13 @@ namespace sspo
         void onSampleRateChange() override;
         json_t* dataToJson() override;
         void dataFromJson (json_t* rootJ) override;
-        void doLearn(const ProcessArgs& args);
+        void doLearn (const ProcessArgs& args);
         void process (const ProcessArgs& args) override;
 
         /// Midi events are used to set assigned params
         /// midi handling would require linking to RACK for unit test
         /// hence all midi to be processed in Iverson.cpp
-        void midiToParm(const ProcessArgs& args);
+        void midiToParm (const ProcessArgs& args);
 
         /// sends midi to external controller to show status
         void pageLights();
@@ -187,12 +187,12 @@ namespace sspo
     /**
 	 * Checks for midi mappings and passes data to the assigned parameter
 	 */
-    void IversonBase::midiToParm(const ProcessArgs& args)
+    void IversonBase::midiToParm (const ProcessArgs& args)
     {
         midi::Message msg;
         for (auto q = 0; q < GRID_WIDTH / 8; ++q) // GRID_WIDTH / 8 = number of midi controllers
         {
-            while (midiInputQueues[q].tryPop(&msg, args.frame)) //TODO -1 used as placeholder
+            while (midiInputQueues[q].tryPop (&msg, args.frame)) //TODO -1 used as placeholder
             {
                 switch (msg.getStatus())
                 {
@@ -258,7 +258,7 @@ namespace sspo
     /**
 	 * Midi mapping from controller to parameters
 	 */
-    void IversonBase::doLearn(const ProcessArgs& args)
+    void IversonBase::doLearn (const ProcessArgs& args)
     {
         if (! iverson->isLearning)
             midiLearnMapping.reset();
@@ -275,7 +275,8 @@ namespace sspo
             {
                 auto mm = std::find_if (midiMappings.begin(),
                                         midiMappings.end(),
-                                        [this] (const MidiMapping& x) {
+                                        [this] (const MidiMapping& x)
+                                        {
                                             return (x.paramId == midiLearnMapping.paramId);
                                         });
                 if (mm != midiMappings.end())
@@ -291,7 +292,8 @@ namespace sspo
 
             auto mm = std::find_if (midiMappings.begin(),
                                     midiMappings.end(),
-                                    [this] (const MidiMapping& x) {
+                                    [this] (const MidiMapping& x)
+                                    {
                                         return x.note != -1
                                                && x.note == midiLearnMapping.note
                                                && (x.controller == midiLearnMapping.controller);
@@ -317,7 +319,8 @@ namespace sspo
                 //delete any existing map to this parameter
                 auto mm = std::find_if (midiMappings.begin(),
                                         midiMappings.end(),
-                                        [this] (const MidiMapping& x) {
+                                        [this] (const MidiMapping& x)
+                                        {
                                             return (x.paramId == midiLearnMapping.paramId);
                                         });
                 if (mm != midiMappings.end())
@@ -326,7 +329,8 @@ namespace sspo
                 //delete any existing map to this midi note
                 mm = std::find_if (midiMappings.begin(),
                                    midiMappings.end(),
-                                   [this] (const MidiMapping& x) {
+                                   [this] (const MidiMapping& x)
+                                   {
                                        return x.note != -1
                                               && x.note == midiLearnMapping.note
                                               && (x.controller == midiLearnMapping.controller);
@@ -337,7 +341,8 @@ namespace sspo
                 //delete any existing map to this midi cc
                 mm = std::find_if (midiMappings.begin(),
                                    midiMappings.end(),
-                                   [this] (const MidiMapping& x) {
+                                   [this] (const MidiMapping& x)
+                                   {
                                        return x.cc != -1
                                               && x.cc == midiLearnMapping.cc
                                               && (x.controller == midiLearnMapping.controller);
@@ -357,7 +362,7 @@ namespace sspo
                 midi::Message msg;
                 for (auto q = 0; q < GRID_WIDTH / 8; ++q) // GRID_WIDTH /8 == number of midi controllers
                 {
-                    while (midiInputQueues[q].tryPop(&msg, args.frame)) //TODO -1 placeholder
+                    while (midiInputQueues[q].tryPop (&msg, args.frame)) //TODO -1 placeholder
                     {
                         switch (msg.getStatus())
                         {
@@ -496,7 +501,8 @@ namespace sspo
     {
         auto mapping = std::find_if (midiMappings.begin(),
                                      midiMappings.end(),
-                                     [this, x, y] (const MidiMapping mm) {
+                                     [this, x, y] (const MidiMapping mm)
+                                     {
                                          return mm.paramId == iverson->getGridIndex (x, y) + Comp::GRID_1_1_PARAM;
                                      });
 
@@ -507,7 +513,8 @@ namespace sspo
     {
         auto mapping = std::find_if (midiMappings.begin(),
                                      midiMappings.end(),
-                                     [this, x, y] (const MidiMapping mm) {
+                                     [this, x, y] (const MidiMapping mm)
+                                     {
                                          return mm.paramId == iverson->getGridIndex (x, y) + Comp::GRID_1_1_PARAM;
                                      });
 
@@ -537,10 +544,10 @@ namespace sspo
 
     void IversonBase::process (const Module::ProcessArgs& args)
     {
-        doLearn(args);
+        doLearn (args);
         if (paramMidiUpdateDivider.process())
         {
-            midiToParm(args);
+            midiToParm (args);
         }
 
         iverson->step();
@@ -1187,9 +1194,18 @@ User Interface
             addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (triggerX, grid_1_1.y + t * gridYDelta)),
                                                          module,
                                                          Comp::TRIGGER_1_OUTPUT + t));
+            if (module)
+            {
+                module->configOutput (Comp::TRIGGER_1_OUTPUT + t, "Main ");
+
+            }
             addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (altOutX, grid_1_1.y + t * gridYDelta)),
                                                          module,
                                                          Comp::ALT_OUTPUT_1 + t));
+            if (module)
+            {
+                module->configOutput (Comp::ALT_OUTPUT_1 + t, "alt ");
+            }
         }
 
         addParam (SqHelper::createParamCentered<LEDButton> (icomp, mm2px (Vec (pageX, 23.70)), module, Comp::PAGE_ONE_PARAM));
@@ -1206,6 +1222,11 @@ User Interface
 
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (8.57, 118.0)), module, Comp::RESET_INPUT));
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (8.57, 102)), module, Comp::CLOCK_INPUT));
+        if (module)
+        {
+            module->configInput(Comp::RESET_INPUT, "Reset");
+            module->configInput(Comp::CLOCK_INPUT, "Clock");
+        }
 
         addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 23.70)), module, Comp::PAGE_ONE_LIGHT));
         addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 32.05)), module, Comp::PAGE_TWO_LIGHT));

@@ -91,6 +91,19 @@ struct KSDelayWidget : ModuleWidget
         addInput (createInput<sspo::PJ301MPort> (Vec (14, 266), module, Comp::STRETCH_INPUT));
 
         addOutput (createOutput<sspo::PJ301MPort> (Vec (73, 320), module, Comp::OUT_OUTPUT));
+
+        if (module)
+        {
+            module->configInput(Comp::VOCT, "Voct");
+            module->configInput(Comp::FEEDBACK_INPUT, "Feedback");
+            module->configInput(Comp::IN_INPUT, "Audio");
+            module->configInput(Comp::UNISON_INPUT, "Unison Count");
+            module->configInput(Comp::UNISON_SPREAD_INPUT, "Unison Spread");
+            module->configInput(Comp::UNISON_MIX_INPUT, "Unison Mix");
+            module->configInput(Comp::STRETCH_INPUT, "Stretch");
+
+            module->configOutput(Comp::OUT_OUTPUT, "Audio");
+        }
     }
 };
 

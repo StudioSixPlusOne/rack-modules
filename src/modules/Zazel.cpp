@@ -489,6 +489,18 @@ struct ZazelWidget : ModuleWidget
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (28.814, 112.575)), module, Comp::START_CONT_INPUT));
 
         addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (52.581, 112.422)), module, Comp::MAIN_OUTPUT));
+        if(module)
+        {
+            module->configInput(Comp::EASING_INPUT, "Easing");
+            module->configInput(Comp::START_INPUT, "Start");
+            module->configInput(Comp::END_INPUT, "End");
+            module->configInput(Comp::DURATION_INPUT, "Duration");
+            module->configInput(Comp::STOP_CONT_INPUT, "Pause");
+            module->configInput(Comp::CLOCK_INPUT, "Clock");
+            module->configInput(Comp::STOP_CONT_INPUT, "Start Cont");
+
+            module->configOutput(Comp::MAIN_OUTPUT, "Main out");
+        }
 
         addChild (createLightCentered<SmallLight<RedLight>> (mm2px (Vec (37.52, 108.25)), module, Comp::PAUSE_LIGHT));
 

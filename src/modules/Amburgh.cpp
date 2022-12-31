@@ -87,6 +87,17 @@ struct AmburghWidget : ModuleWidget
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 29.50 + 2.5)), module, Comp::FREQ_CV_INPUT));
 
         addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (41.01, 112.625)), module, Comp::MAIN_OUTPUT));
+
+        if (module)
+        {
+            module->configInput(Comp::VOCT_INPUT, "Voct");
+            module->configInput(Comp::RESONANCE_CV_INPUT, "Resonance");
+            module->configInput(Comp::DRIVE_CV_INPUT, "Drive");
+            module->configInput(Comp::MAIN_INPUT, "Main");
+            module->configInput(Comp::FREQ_CV_INPUT, "Freq");
+
+            module->configOutput(Comp::MAIN_OUTPUT, "Main");
+        }
     }
 };
 

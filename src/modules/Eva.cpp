@@ -72,6 +72,13 @@ struct MixWidget : ModuleWidget
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.635, 98.16)), module, Comp::ATTENUATION_CV));
 
         addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (7.619, 112.58)), module, Comp::MAIN_OUTPUT));
+
+        if (module)
+        {
+            module->configInput(Comp::MAIN_OUTPUT, "Attenuverter");
+
+            module->configOutput(Comp::MAIN_OUTPUT, "Main");
+        }
     }
 };
 

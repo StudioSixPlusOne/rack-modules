@@ -86,6 +86,17 @@ struct CombFilterWidget : ModuleWidget
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 112.625)), module, Comp::MAIN_INPUT));
 
         addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (41.01, 112.625)), module, Comp::MAIN_OUTPUT));
+
+        if (module)
+        {
+            module->configInput (Comp::VOCT_INPUT, "Voct");
+            module->configInput (Comp::FREQ_CV_INPUT, "Freq");
+            module->configInput (Comp::COMB_CV_INPUT, "Comb");
+            module->configInput (Comp::FEEDBACK_CV_INPUT, "Feedback");
+            module->configInput (Comp::MAIN_INPUT, "Main");
+
+            module->configOutput (Comp::MAIN_OUTPUT, "Main");
+        }
     }
 };
 
