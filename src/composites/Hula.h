@@ -21,10 +21,16 @@
 
 #pragma once
 
+#if 0
+
 #include "IComposite.h"
 #include "LookupTable.h"
 #include "AudioMath.h"
 #include "dsp/UtilityFilters.h"
+
+#include "simd/functions.hpp"
+#include "simd/sse_mathfun.h"
+#include "simd/sse_mathfun_extension.h"
 
 namespace rack
 {
@@ -249,3 +255,5 @@ IComposite::Config HulaDescription<TBase>::getParam (int i)
     }
     return ret;
 }
+
+#endif
