@@ -133,6 +133,26 @@
         "Controller",
         "Sequencer"
       ]
+    },
+    {
+      "slug": "Amburgh",
+      "name": "Amburgh",
+      "description": "Non Linear Filter self oscillating vcf",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#Amburgh",
+      "tags": [
+        "Polyphonic",
+        "Filter"
+      ]
+    },
+    {
+      "slug": "Hula",
+      "name": "Hula",
+      "description": "fm VCO unique per instance",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#hula",
+      "tags": [
+        "VCO",
+        "Polyphonic"
+      ]
     }
   ]
 }

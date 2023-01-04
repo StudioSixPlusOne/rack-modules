@@ -18,6 +18,6 @@ void init (::rack::Plugin* p)
     p->addModel (modelIverson);
     p->addModel (modelIversonJr);
     p->addModel (modelZilah);
-  //  p->addModel (modelHula);
-   // p->addModel (modelAmburgh);
+    p->addModel (modelHula);
+    p->addModel (modelAmburgh);
 }

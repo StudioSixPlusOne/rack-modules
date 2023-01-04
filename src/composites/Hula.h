@@ -21,7 +21,7 @@
 
 #pragma once
 
-#if 0
+#include <array>
 
 #include "IComposite.h"
 #include "LookupTable.h"
@@ -256,4 +256,3 @@ IComposite::Config HulaDescription<TBase>::getParam (int i)
     return ret;
 }
 
-#endif

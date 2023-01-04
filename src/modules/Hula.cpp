@@ -7,7 +7,6 @@
 #include <assert.h>
 #include "AudioMath.h"
 #include "widgets.h"
-#if 0
 
 using Comp = HulaComp<WidgetComposite>;
 
@@ -68,5 +67,3 @@ struct HulaWidget : ModuleWidget
 };
 
 Model* modelHula = createModel<Hula, HulaWidget> ("Hula");
-
-#endif

@@ -13,12 +13,11 @@ extern Model* modelLaLa;
 extern Model* modelEva;
 extern Model* modelZazel;
 extern Model* modelTe;
-// removed Iverson due to crahing plugin browser and midi
 
 extern Model* modelIverson;
 extern Model* modelIversonJr;
 extern Model* modelZilah;
-//extern Model* modelHula;
-//extern Model* modelAmburgh;
+extern Model* modelHula;
+extern Model* modelAmburgh;
 
 
