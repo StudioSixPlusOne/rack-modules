@@ -29,7 +29,7 @@
 #include "simd/functions.hpp"
 #include "simd/sse_mathfun.h"
 #include "simd/sse_mathfun_extension.h"
-#include "simd/vector.hpp"
+
 
 using float_4 = rack::simd::float_4;
 using namespace sspo;

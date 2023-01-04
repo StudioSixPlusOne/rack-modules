@@ -21,15 +21,19 @@
 #SOFTWARE.
 
 
+
 # makefile fragment to make test.exe, the unit test program.
 #include "../../arch.mk"
-include $(RACK_DIR)/arch.mk
+#include $(RACK_DIR)/arch.mk
 
-CXXFLAGS += -I$(RACK_DIR)/include/dsp/ -I./test/third-party/fft 
-CXXFLAGS += -I./test/third-party/kiss_fft130 
+CXXFLAGS += -I$(RACK_DIR)/include/dsp/
+CXXFLAGS += -I./test/third-party/fft
+CXXFLAGS += -I./test/third-party/kiss_fft130
 CXXFLAGS += -I./test/third-party/kiss_fft130/tools
 CXXFLAGS += -I./test/third-party/
 CXXFLAGS += -I./test/utils/
+
+TEST_SOURCES = $(wildcard test/main.cpp)
 
 TEST_SOURCES = $(wildcard test/*.cpp)
 TEST_SOURCES += $(wildcard test/utils/*.cpp)
@@ -63,7 +67,7 @@ FLAGS += $(PERFFLAG)
 
 test.exe : FLAGS += -D _TESTEX
 
-ifeq ($(ARCH), win)
+ifdef ARCH_WIN
 	# don't need these yet
 	#  -lcomdlg32 -lole32 -ldsound -lwinmm
 test.exe perf.exe : LDFLAGS = -static \
@@ -71,13 +75,13 @@ test.exe perf.exe : LDFLAGS = -static \
 		-lpthread -lopengl32 -lgdi32 -lws2_32
 endif
 
-ifeq ($(ARCH), lin)
+ifdef ARCH_LIN
 test.exe perf.exe : LDFLAGS = -rdynamic \
 		-lpthread -lGL -ldl \
 		$(shell pkg-config --libs gtk+-2.0)
 endif
 
-ifeq ($(ARCH), mac)
+ifdef ARCH_MAC
 test.exe perf.exe : LDFLAGS = -stdlib=libc++ -lpthread -ldl \
 		-framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo
 endif
@@ -96,6 +100,9 @@ cleantest :
 	rm -fv perf.exe
 
 test.exe : $(TEST_OBJECTS)
+	echo $(LDFLAGS)
+	echo $(ARCH)
+	echo rack dir $(RACK_DIR)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 perf.exe : $(TEST_OBJECTS)
