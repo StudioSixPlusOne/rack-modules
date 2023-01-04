@@ -287,6 +287,10 @@ struct EasingWidget : Widget
     {
         if (module == nullptr)
             return;
+
+        box.size = mm2px (Vec (14.142, 14.084));
+        lineColor = nvgRGBA (0xf0, 0xf0, 0xf0, 0xff);
+
         const auto border = 14.142f * 0.1f; //bordersize in mm
         const auto width = 11.0f;
         const auto permm = width;
@@ -318,9 +322,10 @@ struct ParameterSelectWidget : Widget
 
     ParameterSelectWidget()
     {
-        box.size = mm2px (Vec (30.408, 14.084));
-        font = APP->window->loadFont (asset::system ("res/fonts/ShareTechMono-Regular.ttf"));
-        txtColor = nvgRGBA (0xf0, 0xf0, 0xf0, 0xff);
+        // moved constructor initialization to draw()
+//        box.size = mm2px (Vec (30.408, 14.084));
+//        font = APP->window->loadFont (asset::system ("res/fonts/ShareTechMono-Regular.ttf"));
+//        txtColor = nvgRGBA (0xf0, 0xf0, 0xf0, 0xff);
     }
 
     void setModule (Zazel* module)
@@ -421,7 +426,10 @@ struct ParameterSelectWidget : Widget
 
     void draw (const DrawArgs& args) override
     {
+        box.size = mm2px (Vec (30.408, 14.084));
         font = APP->window->loadFont (asset::system ("res/fonts/ShareTechMono-Regular.ttf"));
+        txtColor = nvgRGBA (0xf0, 0xf0, 0xf0, 0xff);
+
         nvgFontSize (args.vg, fontHeight);
         nvgFontFaceId (args.vg, font->handle);
         //nvgTextLetterSpacing (args.vg, -2);
