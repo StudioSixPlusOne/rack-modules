@@ -162,12 +162,13 @@ void HulaComp<TBase>::setSampleRate (float rate)
 template <class TBase>
 void HulaComp<TBase>::init()
 {
-    // set random detune, += 5 cent;
+    // set random detune, += 3 cent;
+    auto detuneLimit = 3.0f;
     for (auto& f : fineTuneVocts)
-        f = float_4 ((rand01() * 2.0f - 1.0f) * 5.0f / (12.0f * 100.0f),
-                     (rand01() * 2.0f - 1.0f) * 5.0f / (12.0f * 100.0f),
-                     (rand01() * 2.0f - 1.0f) * 5.0f / (12.0f * 100.0f),
-                     (rand01() * 2.0f - 1.0f) * 5.0f / (12.0f * 100.0f));
+        f = float_4 ((rand01() * 2.0f - 1.0f) * detuneLimit / (12.0f * 100.0f),
+                     (rand01() * 2.0f - 1.0f) * detuneLimit / (12.0f * 100.0f),
+                     (rand01() * 2.0f - 1.0f) * detuneLimit / (12.0f * 100.0f),
+                     (rand01() * 2.0f - 1.0f) * detuneLimit / (12.0f * 100.0f));
 
     for (auto& l : lastOuts)
         l = float_4 (0);
