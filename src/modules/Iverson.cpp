@@ -803,7 +803,8 @@ User Interface
 
         SummaryWidget()
         {
-            gridColors.none = nvgRGBA (0, 0, 0, 255);
+            //move initilzation to draw()
+            //            gridColors.none = nvgRGBA (0, 0, 0, 255);
         }
 
         void setModule (IversonBase* module)
@@ -820,6 +821,9 @@ User Interface
         {
             if (module == nullptr)
                 return;
+
+            gridColors.none = nvgRGBA (0, 0, 0, 255);
+
             auto beatWidth = box.size.x / (float) module->iverson->MAX_SEQUENCE_LENGTH;
             auto trackHeight = box.size.y / module->iverson->tracks.size();
 
@@ -887,9 +891,10 @@ User Interface
 
         GridWidget()
         {
-            gridColors.none = nvgRGBA (77, 77, 77, 100);
-            font = APP->window->loadFont (asset::system ("res/fonts/ShareTechMono-Regular.ttf"));
-            txtColor = nvgRGBA (0, 0, 0, 255);
+            // move initialization to draw()
+            //            gridColors.none = nvgRGBA (77, 77, 77, 100);
+            //            font = APP->window->loadFont (asset::system ("res/fonts/ShareTechMono-Regular.ttf"));
+            //            txtColor = nvgRGBA (0, 0, 0, 255);
         }
 
         void setModule (IversonBase* mod)
@@ -905,6 +910,10 @@ User Interface
 
         void draw (const DrawArgs& args) override
         {
+            gridColors.none = nvgRGBA (77, 77, 77, 100);
+            font = APP->window->loadFont (asset::system ("res/fonts/ShareTechMono-Regular.ttf"));
+            txtColor = nvgRGBA (0, 0, 0, 255);
+
             auto color = gridColors.none;
             if (module != nullptr)
             {
@@ -1197,7 +1206,6 @@ User Interface
             if (module)
             {
                 module->configOutput (Comp::TRIGGER_1_OUTPUT + t, "Main ");
-
             }
             addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (altOutX, grid_1_1.y + t * gridYDelta)),
                                                          module,
@@ -1224,8 +1232,8 @@ User Interface
         addInput (createInputCentered<PJ301MPort> (mm2px (Vec (8.57, 102)), module, Comp::CLOCK_INPUT));
         if (module)
         {
-            module->configInput(Comp::RESET_INPUT, "Reset");
-            module->configInput(Comp::CLOCK_INPUT, "Clock");
+            module->configInput (Comp::RESET_INPUT, "Reset");
+            module->configInput (Comp::CLOCK_INPUT, "Clock");
         }
 
         addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 23.70)), module, Comp::PAGE_ONE_LIGHT));
