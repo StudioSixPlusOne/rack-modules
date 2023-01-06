@@ -1,46 +1,48 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-        xmlns:dc="http://purl.org/dc/elements/1.1/"
-        xmlns:cc="http://creativecommons.org/ns#"
-        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-        xmlns:svg="http://www.w3.org/2000/svg"
-        xmlns="http://www.w3.org/2000/svg"
-        xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-        xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-        sodipodi:docname="SspoKnob.svg"
-        inkscape:version="1.0 (6603a35c65, 2020-06-28)"
-        id="svg8910"
-        version="1.1"
-        viewBox="0 0 10 10"
-        height="10mm"
-        width="10mm">
+   sodipodi:docname="SspoKnob.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   id="svg8910"
+   version="1.1"
+   viewBox="0 0 10 10"
+   height="10mm"
+   width="10mm"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
-          id="defs8904"/>
+     id="defs8904" />
   <sodipodi:namedview
-          inkscape:snap-object-midpoints="true"
-          inkscape:snap-bbox-midpoints="true"
-          inkscape:snap-bbox="true"
-          inkscape:snap-global="true"
-          inkscape:window-maximized="1"
-          inkscape:window-y="27"
-          inkscape:window-x="0"
-          inkscape:window-height="968"
-          inkscape:window-width="1920"
-          inkscape:snap-page="true"
-          inkscape:showpageshadow="false"
-          showgrid="false"
-          inkscape:document-rotation="0"
-          inkscape:current-layer="g10272"
-          inkscape:document-units="mm"
-          inkscape:cy="14.930817"
-          inkscape:cx="-0.81739605"
-          inkscape:zoom="11.2"
-          inkscape:pageshadow="2"
-          inkscape:pageopacity="0.0"
-          borderopacity="1.0"
-          bordercolor="#666666"
-          pagecolor="#ffffff"
-          id="base"/>
+     inkscape:snap-object-midpoints="true"
+     inkscape:snap-bbox-midpoints="true"
+     inkscape:snap-bbox="true"
+     inkscape:snap-global="true"
+     inkscape:window-maximized="1"
+     inkscape:window-y="-8"
+     inkscape:window-x="-8"
+     inkscape:window-height="1009"
+     inkscape:window-width="1920"
+     inkscape:snap-page="true"
+     inkscape:showpageshadow="false"
+     showgrid="false"
+     inkscape:document-rotation="0"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="mm"
+     inkscape:cy="8.5267857"
+     inkscape:cx="5.6026786"
+     inkscape:zoom="22.4"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
   <metadata
      id="metadata8907">
     <rdf:RDF>
@@ -54,34 +56,30 @@
     </rdf:RDF>
   </metadata>
   <g
-          id="layer1"
-          inkscape:groupmode="layer"
-          inkscape:label="Layer 1">
-    <g
-            transform="matrix(0.78827923,0,0,0.78827923,-0.00557304,-0.00557304)"
-            id="g10272">
-      <circle
-              style="opacity:0.998;fill:#cdde87;fill-opacity:1;stroke:#000000;stroke-width:0.959001;stroke-opacity:1"
-              id="path9482"
-              cx="6.3499999"
-              cy="6.3499999"
-              r="5.8000002"/>
-      <rect
-              ry="0.36850327"
-              style="opacity:0.998;fill:#000000;fill-opacity:1;stroke:#202020;stroke-width:0.3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.12549"
-              id="rect10232"
-              width="1.3971639"
-              height="5.4558253"
-              x="5.6514177"
-              y="0.22049922"/>
-    </g>
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
+    <circle
+       style="opacity:0.998;fill:#008000;fill-opacity:1;stroke:#000000;stroke-width:0.755961;stroke-opacity:1"
+       id="path9482"
+       cx="5"
+       cy="5"
+       r="4.5720196" />
     <rect
-            ry="0.17279595"
-            y="0.85552609"
-            x="4.8135767"
-            height="3.3495605"
-            width="0.3455919"
-            id="rect1443"
-            style="opacity:0.998;fill:#cdde87;stroke:#f9ffd0;stroke-width:0.1;stop-color:#000000"/>
+       ry="0.29048347"
+       style="opacity:0.998;fill:#000000;fill-opacity:1;stroke:#202020;stroke-width:0.236484;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.12549"
+       id="rect10232"
+       width="1.1013553"
+       height="4.300714"
+       x="4.4493222"
+       y="0.16824192" />
+    <rect
+       ry="0.17279595"
+       y="0.85552609"
+       x="4.8135767"
+       height="3.3495605"
+       width="0.3455919"
+       id="rect1443"
+       style="opacity:0.998;fill:#008000;stroke:#f9ffd0;stroke-width:0.1;stop-color:#000000" />
   </g>
 </svg>

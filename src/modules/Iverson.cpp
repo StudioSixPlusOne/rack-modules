@@ -1236,17 +1236,17 @@ User Interface
             module->configInput (Comp::CLOCK_INPUT, "Clock");
         }
 
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 23.70)), module, Comp::PAGE_ONE_LIGHT));
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 32.05)), module, Comp::PAGE_TWO_LIGHT));
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 40.40)), module, Comp::PAGE_THREE_LIGHT));
+        addChild (createLightCentered<LargeLight<GreenLight>> (mm2px (Vec (pageX, 23.70)), module, Comp::PAGE_ONE_LIGHT));
+        addChild (createLightCentered<LargeLight<GreenLight>> (mm2px (Vec (pageX, 32.05)), module, Comp::PAGE_TWO_LIGHT));
+        addChild (createLightCentered<LargeLight<GreenLight>> (mm2px (Vec (pageX, 40.40)), module, Comp::PAGE_THREE_LIGHT));
         addChild (
-            createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 48.74)), module, Comp::PAGE_FOUR_LIGHT));
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (18.57, 118.0)), module, Comp::RESET_LIGHT));
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (18.57, 102.0)), module, Comp::CLOCK_LIGHT));
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 65.45)), module, Comp::SET_LENGTH_LIGHT));
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (pageX, 82.15)), module, Comp::MIDI_LEARN_LIGHT));
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (triggerX + 5, 102)), module, Comp::SET_EUCLIDEAN_HITS_LIGHT));
-        addChild (createLightCentered<LargeLight<RedLight>> (mm2px (Vec (triggerX + 5, 118)), module, Comp::ROTATE_TRACK_LIGHT));
+            createLightCentered<LargeLight<GreenLight>> (mm2px (Vec (pageX, 48.74)), module, Comp::PAGE_FOUR_LIGHT));
+        addChild (createLightCentered<LargeLight<GreenLight>> (mm2px (Vec (18.57, 118.0)), module, Comp::RESET_LIGHT));
+        addChild (createLightCentered<LargeLight<GreenLight>> (mm2px (Vec (18.57, 102.0)), module, Comp::CLOCK_LIGHT));
+        addChild (createLightCentered<LargeLight<GreenLight>> (mm2px (Vec (pageX, 65.45)), module, Comp::SET_LENGTH_LIGHT));
+        addChild (createLightCentered<LargeLight<GreenLight>> (mm2px (Vec (pageX, 82.15)), module, Comp::MIDI_LEARN_LIGHT));
+        addChild (createLightCentered<LargeLight<GreenLight>> (mm2px (Vec (triggerX + 5, 102)), module, Comp::SET_EUCLIDEAN_HITS_LIGHT));
+        addChild (createLightCentered<LargeLight<GreenLight>> (mm2px (Vec (triggerX + 5, 118)), module, Comp::ROTATE_TRACK_LIGHT));
 
         if (module != nullptr)
         {

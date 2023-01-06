@@ -99,7 +99,7 @@ If the audio input is disconnected, the filter will still run in monophonic mode
 <br>
 
 ### Amburg
-<img src="images/Amburg.png">
+<img src="images/Amburgh.png">
 
 Maccomo with some bite.  The resonance response has been greatly improved, 
 and the drive control now really does drive.  
@@ -159,7 +159,7 @@ A monophonic in, polyphonic out shift register, with many probability options.
 ### Te
 Tyrant Expander
 
-<img align="left" src="images/TyrantTe.png">
+<img align="left" src="images/TE.png">
 
 An expansion module when placed to the right of Tyrant, provides trigger outputs for the probability actions provided by tyrant.
 
@@ -227,7 +227,7 @@ A cascadable two way crossover, used for splitting audio frequency bands, for mu
 ### Zazel
 
 <img align="left" src="images/Zazel.png">
-<img src="images/ZazelContextMenu.png">
+
 
 
 A performance-based controller, designed to be connected to MIDI triggers, to allow smooth fades using easing functions between parameters on other modules, pairs well with VCV MIDI-Gate.
@@ -269,6 +269,9 @@ A slimline mixer for audio and cv.
 <br>
 
 
+<br>
+<br>
+<br>
 <br>
 <br>
 <br>
@@ -372,7 +375,7 @@ The smoothing filter can be adjusted, and both unipolar and bipolar outputs
 
 ### Hula
 
-<img align="left" src="images/hula.png">
+<img align="left" src="images/Hula.png">
 
 A small form fm oscillator, each instance has it's own small detune applied and it's own custom noise floor, hence the lack of a fine tune control.
 
