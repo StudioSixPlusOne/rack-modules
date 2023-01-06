@@ -2,14 +2,11 @@
 
 # Early test release for v2.0
 
-I have only compiled this on my current Ubuntu machine, where all the modules are now working, well a first glance was all good
-but I would expect some issues to appear, I have no windows for mac setups currently, and would value any feedback. There is a away to go before
-anything ready for the library will be done. This currently does not use any of the V2.0 features, labels. 
+This is the beta test for the modules, updated to VCV Rack V2.0
 
-VCV Rack modules
+All modules have had a lick of virtual paint
 
-These have not been updated for V2.0, and have build fails on a MAC that I am unable to test.
-If anyone uses these please request an update, and I shall update to 2.0 but will require help building for mac.
+
 
 
 
