@@ -55,6 +55,8 @@ The last couple of features I would like to include are independent offset to th
 frequency for each stage, and an alternate feedback path, as I implemented in a hardware DIY
 module.
 
+<img src="FourPoleLadderMixingResonanceNLDFCoffsetResPath.png">
+
 
 ## Tolerances in electronic implementations 
 
