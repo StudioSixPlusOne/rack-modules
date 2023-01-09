@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01, custom)"
+   sodipodi:docname="FourPoleLadderFilter"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.9855336"
+     inkscape:cx="232.68304"
+     inkscape:cy="176.02321"
+     inkscape:window-width="1846"
+     inkscape:window-height="1016"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g542">
+      <path
+         sodipodi:type="star"
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.264583"
+         id="path375"
+         inkscape:flatsided="false"
+         sodipodi:sides="3"
+         sodipodi:cx="49.181496"
+         sodipodi:cy="47.312992"
+         sodipodi:r1="7.3012266"
+         sodipodi:r2="3.6506133"
+         sodipodi:arg1="0.0015375684"
+         sodipodi:arg2="1.0487351"
+         inkscape:rounded="0"
+         inkscape:randomized="0"
+         d="m 56.482714,47.324218 -5.480775,3.153101 -5.480774,3.1531 0.0097,-6.32304 0.0097,-6.32304 5.471052,3.169939 z"
+         inkscape:transform-center-x="-1.8204428"
+         inkscape:transform-center-y="-0.0056136616" />
+      <text
+         xml:space="preserve"
+         style="font-size:3.175px;fill:#ffffff;stroke:#000000;stroke-width:0.264583"
+         x="46.286263"
+         y="48.364384"
+         id="text483"><tspan
+           sodipodi:role="line"
+           id="tspan481"
+           style="stroke-width:0.264583"
+           x="46.286263"
+           y="48.364384">LP 6</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:3.175px;fill:#ffffff;stroke:#000000;stroke-width:0.264583"
+       x="64.020874"
+       y="42.472042"
+       id="text487"><tspan
+         sodipodi:role="line"
+         id="tspan485"
+         style="stroke-width:0.264583"
+         x="64.020874"
+         y="42.472042" /></text>
+  </g>
+</svg>
