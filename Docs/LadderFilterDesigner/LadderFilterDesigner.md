@@ -8,7 +8,7 @@ that knowledge in previous designs. Recently I have been building a Diy modular 
 where I have discovered the joys of both non linear signal paths, and the variations
 caused by the component tolerances, no two builds of my filter have sounded the same.
 
-![alt text] (../../images/Wallenda.png "Wallander")
+<img src=../../images/Wallenda.png>
 
 ## How multimode pole mixing ladder filters work
 
@@ -17,10 +17,10 @@ while reading "Designing Software Synthesizers" is a ladder filter, where the ou
 of each stage are summed with varying weights. Each pole of a ladder filter is a 6dB 
 lowpass filter.
 
-The multimode is achieved because it is possiable to sum the stages. The following
+The multimode is achieved because it is possible to sum the stages. The following
 image, simply shows the process.
 
-![alt text] (https://electricdruid.net/wp-content/uploads/2017/04/Highpass.png "Filter summing")
+<img src=https://electricdruid.net/wp-content/uploads/2017/04/Highpass.png>
 
 A simple ladder filter can be constructed by following the diagram, not fc, the cutoff frequency 
 needs to be set on each stage.
