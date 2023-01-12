@@ -68,7 +68,7 @@ randomised offsets to all parameters on a per instance basis.
 ## VCV Rack modules(s)
 
 The intention is to have two user interfaces, a filter design interface, with a parameters 
-accessable, and a smaller interface with just the required elements for music production. I am
+accessible, and a smaller interface with just the required elements for music production. I am
 yet to decided how to implement this, maybe two modules, that can share parameters via presets, 
 or a module with two interfaces. A final thought, is a pop out interface. This shall require more investigation.
 
