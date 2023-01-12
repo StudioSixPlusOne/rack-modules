@@ -1,4 +1,26 @@
-#include "../plugin.hpp"
+/*
+* Copyright (c) 2023 Dave French <contact/dot/dave/dot/french3/at/googlemail/dot/com>
+*
+*
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public
+* License as published by the Free Software Foundation; either
+* version 3 of the License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* General Public License for more details.
+*
+* You should have received a copy of the GNU General Public
+* License along with this program (see COPYING); if not, write to the
+* Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+* Boston, MA 02110-1301 USA.
+*
+*/
+#include "plugin.hpp"
+#include "widgets.h"
+#include "WidgetComposite.h"
 
 struct BascomExpander : Module {
 	enum ParamId {
@@ -67,23 +89,23 @@ struct BascomExpanderWidget : ModuleWidget {
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(182.317, 18.642)), module, BascomExpander::OVERSAMPLE_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(57.557, 29.225)), module, BascomExpander::GAIN_A_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(82.42, 39.28)), module, BascomExpander::GAIN_B_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(107.283, 48.805)), module, BascomExpander::GAIN_C_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(137.966, 58.859)), module, BascomExpander::GAIN_D_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(27.88, 62.563)), module, BascomExpander::NLD_INPUT_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(50.634, 62.563)), module, BascomExpander::NLD_1_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(74.976, 62.563)), module, BascomExpander::NLD_2_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(100.376, 62.563)), module, BascomExpander::NLD_3_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(125.247, 62.563)), module, BascomExpander::NLD_4_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(158.604, 62.563)), module, BascomExpander::GAIN_E_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(50.634, 85.317)), module, BascomExpander::OFFSET_1_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(74.976, 85.317)), module, BascomExpander::OFFSET_2_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(100.376, 85.317)), module, BascomExpander::OFFSET_3_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(125.247, 85.317)), module, BascomExpander::OFFSET_4_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(148.53, 91.667)), module, BascomExpander::FEEDBACK_PATH_PARAM));
-		addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(27.88, 103.309)), module, BascomExpander::NLD_FEEDBACK_PARAM));
+		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(182.317, 18.642)), module, BascomExpander::OVERSAMPLE_PARAM));
+		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(82.42, 39.28)), module, BascomExpander::GAIN_B_PARAM));
+        addParam(createParamCentered<sspo::Knob>(mm2px(Vec(107.283, 48.805)), module, BascomExpander::GAIN_C_PARAM));
+        addParam(createParamCentered<sspo::Knob>(mm2px(Vec(137.966, 58.859)), module, BascomExpander::GAIN_D_PARAM));
+        addParam(createParamCentered<sspo::Knob>(mm2px(Vec(57.557, 29.225)), module, BascomExpander::GAIN_A_PARAM));
+        addParam(createParamCentered<sspo::Knob>(mm2px(Vec(27.88, 62.563)), module, BascomExpander::NLD_INPUT_PARAM));
+		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(50.634, 62.563)), module, BascomExpander::NLD_1_PARAM));
+		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(74.976, 62.563)), module, BascomExpander::NLD_2_PARAM));
+		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(100.376, 62.563)), module, BascomExpander::NLD_3_PARAM));
+		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(125.247, 62.563)), module, BascomExpander::NLD_4_PARAM));
+		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(158.604, 62.563)), module, BascomExpander::GAIN_E_PARAM));
+		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(50.634, 85.317)), module, BascomExpander::OFFSET_1_PARAM));
+		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(74.976, 85.317)), module, BascomExpander::OFFSET_2_PARAM));
+		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(100.376, 85.317)), module, BascomExpander::OFFSET_3_PARAM));
+		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(125.247, 85.317)), module, BascomExpander::OFFSET_4_PARAM));
+		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(148.53, 91.667)), module, BascomExpander::FEEDBACK_PATH_PARAM));
+		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(27.88, 103.309)), module, BascomExpander::NLD_FEEDBACK_PARAM));
 	}
 };
 

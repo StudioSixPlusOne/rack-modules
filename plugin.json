@@ -157,6 +157,14 @@
       "name": "BascomExpander",
       "description": "Filter design expander for Bascom",
       "tags": [
+        "Filter", "Expander"
+      ]
+    },
+    {
+      "slug": "Bascom",
+      "name": "Bascom",
+      "description": "Ladder Filter with various Non linear distortions, and variable pole mixer",
+      "tags": [
         "Filter"
       ]
     }
