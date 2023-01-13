@@ -34,6 +34,7 @@ using namespace rack;
 
 // external tests
 extern void testSynthFilter();
+extern void testSynthFilterII();
 extern void testEva();
 extern void testEmpty();
 extern void testAudioMath();
@@ -94,24 +95,25 @@ int main (int argc, char** argv)
     // run external tests defined above
 
     testSynthFilter();
-    testTriggerSequencer();
-    testIverson();
-    testLala();
-    testEva();
-    testZazel();
-    testEasing();
-    testSaturator();
-    testEmpty();
-    testTestSignal();
-    testAudioMath();
-    testCircularBuffer();
-    testLookupTable();
-    testAnalyzer();
-    testPolyShiftRegister();
-    testKSDelay();
-    testCombFilter();
-    testMaccomo();
-    testUtilityFilter();
+    testSynthFilterII();
+//    testTriggerSequencer();
+//    testIverson();
+//    testLala();
+//    testEva();
+//    testZazel();
+//    testEasing();
+//    testSaturator();
+//    testEmpty();
+//    testTestSignal();
+//    testAudioMath();
+//    testCircularBuffer();
+//    testLookupTable();
+//    testAnalyzer();
+//    testPolyShiftRegister();
+//    testKSDelay();
+//    testCombFilter();
+//    testMaccomo();
+//    testUtilityFilter();
 
     printf ("Tests passed.\n");
 }

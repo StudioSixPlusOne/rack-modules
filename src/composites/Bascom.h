@@ -22,9 +22,9 @@
 #pragma once
 
 #include "IComposite.h"
-#include "SynthFilter.h"
-#include "AudioMath.h"
-#include "UtilityFilters.h"
+#include "../dsp/SynthFilter.h"
+#include "../dsp/AudioMath.h"
+#include "../dsp/UtilityFilters.h"
 #include <memory>
 #include <vector>
 #include <time.h>

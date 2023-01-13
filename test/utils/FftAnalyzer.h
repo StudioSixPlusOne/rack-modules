@@ -36,7 +36,8 @@ namespace sspo
         struct FilterSlope
         {
             float cornerGain = 0.0f;
-            float slope = 0.0;
+            float slope = 0.0f;
+            float flatGain = 0.0f;
         };
 
         inline FilterSlope getSlopeLowpass (const FFTDataCpx& response,
@@ -47,13 +48,18 @@ namespace sspo
             FilterSlope ret;
             int cornerBin = FFT::freqToBin (fc, sr, response.size());
             int slopeBin = cornerBin * 4; //measure two octave
+            int flatBin = cornerBin / 4; // two octave below
             assert (slopeBin < response.size());
             float driacCornerResponse = driacResponse.getAbs (cornerBin);
             float driacSlopeResponse = driacResponse.getAbs (slopeBin);
+            float driacFlatResponse = driacResponse.getAbs (flatBin);
             float cornerResponse = response.getAbs (cornerBin);
             float slopeResponse = response.getAbs (slopeBin);
+            float flatResponse = response.getAbs (flatBin);
             ret.cornerGain = float (db (cornerResponse) - db (driacCornerResponse));
             ret.slope = float (db (slopeResponse) - db (driacSlopeResponse)) / 2.0f;
+            ret.flatGain = float (db (flatResponse) - db (driacFlatResponse));
+
             return ret;
         }
 
