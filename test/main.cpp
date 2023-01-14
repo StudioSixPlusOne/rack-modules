@@ -45,6 +45,7 @@ extern void testTestSignal();
 extern void testKSDelay();
 extern void testCombFilter();
 extern void testMaccomo();
+extern void testAmburgh();
 extern void testSaturator();
 extern void testUtilityFilter();
 extern void testLala();
@@ -93,6 +94,7 @@ int main (int argc, char** argv)
 
     // run external tests defined above
 
+    testAmburgh();
     testSynthFilter();
     testTriggerSequencer();
     testIverson();

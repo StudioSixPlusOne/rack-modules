@@ -207,7 +207,9 @@ inline void AmburghComp<TBase>::step()
         filters[c / 4].setParameters (frequency, resonance, drive, float_4 (0.5f), sampleRate);
 
         auto out = filters[c / 4].process (in / 10.0f) * 10.0f;
-        //out = std::isfinite (out) ? out : 0;
+
+        //simd'ed out = std::isfinite (out) ? out : 0;
+        out = simd::ifelse((movemask(out != out) == 0xF)  , float_4(0.0f), out);
 
         TBase::outputs[MAIN_OUTPUT].setVoltageSimd (out, c);
     }
