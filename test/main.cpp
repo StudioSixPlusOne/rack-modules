@@ -54,6 +54,7 @@ extern void testEasing();
 extern void testZazel();
 extern void testIverson();
 extern void testTriggerSequencer();
+extern void testHula();
 
 //external performance tests
 extern void initPerf();
@@ -94,6 +95,7 @@ int main (int argc, char** argv)
 
     // run external tests defined above
 
+    testHula();
     testAmburgh();
     testSynthFilter();
     testTriggerSequencer();
