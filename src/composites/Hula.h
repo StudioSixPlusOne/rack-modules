@@ -21,10 +21,18 @@
 
 #pragma once
 
+#include <array>
+
 #include "IComposite.h"
 #include "LookupTable.h"
 #include "AudioMath.h"
 #include "dsp/UtilityFilters.h"
+
+#include "simd/functions.hpp"
+#include "simd/sse_mathfun.h"
+#include "simd/sse_mathfun_extension.h"
+
+#include <memory>
 
 namespace rack
 {
@@ -118,7 +126,7 @@ public:
     std::array<float_4, SIMD_CHANNELS> fineTuneVocts;
 
     static constexpr int oversampleCount = 4;
-    static constexpr int oversampleQuality = 1;
+    static constexpr int oversampleQuality = 2;
 
     std::array<sspo::Decimator<oversampleCount, oversampleQuality, float_4>, SIMD_CHANNELS> decimators;
     std::array<std::array<float_4, oversampleCount>, SIMD_CHANNELS> oversampleBuffers;
@@ -156,12 +164,13 @@ void HulaComp<TBase>::setSampleRate (float rate)
 template <class TBase>
 void HulaComp<TBase>::init()
 {
-    // set random detune, += 5 cent;
+    // set random detune, += 3 cent;
+    auto detuneLimit = 3.0f;
     for (auto& f : fineTuneVocts)
-        f = float_4 ((rand01() * 2.0f - 1.0f) * 5.0f / (12.0f * 100.0f),
-                     (rand01() * 2.0f - 1.0f) * 5.0f / (12.0f * 100.0f),
-                     (rand01() * 2.0f - 1.0f) * 5.0f / (12.0f * 100.0f),
-                     (rand01() * 2.0f - 1.0f) * 5.0f / (12.0f * 100.0f));
+        f = float_4 ((rand01() * 2.0f - 1.0f) * detuneLimit / (12.0f * 100.0f),
+                     (rand01() * 2.0f - 1.0f) * detuneLimit / (12.0f * 100.0f),
+                     (rand01() * 2.0f - 1.0f) * detuneLimit / (12.0f * 100.0f),
+                     (rand01() * 2.0f - 1.0f) * detuneLimit / (12.0f * 100.0f));
 
     for (auto& l : lastOuts)
         l = float_4 (0);
@@ -204,7 +213,9 @@ inline void HulaComp<TBase>::step()
         {
             //generate oversampled signal
             phases[c / 4] += phaseInc;
-            phases[c / 4] = simd::ifelse (phases[c / 4] > float_4 (1.0f), phases[c / 4] - 1.0f, phases[c / 4]);
+            phases[c / 4] = simd::ifelse (phases[c / 4] > float_4 (1.0f),
+                                          phases[c / 4] - simd::trunc (phases[c / 4]),
+                                          phases[c / 4]);
             oversampleBuffers[c / 4][i] = lookup.hulaSin4 ((phases[c / 4] + phaseOffset) * k_2pi);
         }
 
@@ -229,7 +240,7 @@ IComposite::Config HulaDescription<TBase>::getParam (int i)
     {
         //TODO
         case HulaComp<TBase>::RATIO_PARAM:
-            ret = { 0.5f, 25.95f, 1.0f, "Ratio", " ", 0, 1, 0.0f };
+            ret = { 0.5f, 21.0f, 1.0f, "Ratio", " ", 0, 1, 0.0f };
             break;
         case HulaComp<TBase>::SEMITONE_PARAM:
             ret = { 0.0f, 12.0f, 0.0f, "Semitone", " ", 0, 1, 0.0f };

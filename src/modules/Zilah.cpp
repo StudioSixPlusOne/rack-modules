@@ -20,6 +20,8 @@
  */
 
 #include "plugin.hpp"
+#include "widgets.h"
+
 
 typedef unsigned char uint8_t;
 //typedef unsigned int uint16_t;
@@ -512,38 +514,38 @@ struct Midi_cc_14Widget : ModuleWidget
         addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
         addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (79.823, 54.724)), module, Zilah::MIDI_OUT_06_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (56.756, 54.725)), module, Zilah::MIDI_OUT_04_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (68.289, 54.725)), module, Zilah::MIDI_OUT_05_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (10.621, 54.872)), module, Zilah::MIDI_OUT_00_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (91.356, 54.977)), module, Zilah::MIDI_OUT_07_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (22.155, 54.997)), module, Zilah::MIDI_OUT_01_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (33.688, 54.998)), module, Zilah::MIDI_OUT_02_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (45.222, 54.998)), module, Zilah::MIDI_OUT_03_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (56.756, 72.378)), module, Zilah::MIDI_OUT_12_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (68.289, 72.378)), module, Zilah::MIDI_OUT_13_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (79.823, 72.378)), module, Zilah::MIDI_OUT_14_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (10.621, 72.525)), module, Zilah::MIDI_OUT_08_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (91.356, 72.63)), module, Zilah::MIDI_OUT_15_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (22.155, 72.651)), module, Zilah::MIDI_OUT_09_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (33.688, 72.651)), module, Zilah::MIDI_OUT_10_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (45.222, 72.652)), module, Zilah::MIDI_OUT_11_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (56.756, 90.031)), module, Zilah::MIDI_OUT_20_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (68.289, 90.031)), module, Zilah::MIDI_OUT_21_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (79.823, 90.031)), module, Zilah::MIDI_OUT_22_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (10.621, 90.179)), module, Zilah::MIDI_OUT_16_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (91.356, 90.283)), module, Zilah::MIDI_OUT_23_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (22.155, 90.304)), module, Zilah::MIDI_OUT_17_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (33.688, 90.304)), module, Zilah::MIDI_OUT_18_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (45.222, 90.305)), module, Zilah::MIDI_OUT_19_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (56.756, 107.301)), module, Zilah::MIDI_OUT_28_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (68.289, 107.301)), module, Zilah::MIDI_OUT_29_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (79.823, 107.301)), module, Zilah::MIDI_OUT_30_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (10.621, 107.449)), module, Zilah::MIDI_OUT_24_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (91.356, 107.553)), module, Zilah::MIDI_OUT_31_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (22.155, 107.574)), module, Zilah::MIDI_OUT_25_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (33.688, 107.574)), module, Zilah::MIDI_OUT_26_OUTPUT));
-        addOutput (createOutputCentered<PJ301MPort> (mm2px (Vec (45.222, 107.575)), module, Zilah::MIDI_OUT_27_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (79.823, 54.724)), module, Zilah::MIDI_OUT_06_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (56.756, 54.725)), module, Zilah::MIDI_OUT_04_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (68.289, 54.725)), module, Zilah::MIDI_OUT_05_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (10.621, 54.872)), module, Zilah::MIDI_OUT_00_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (91.356, 54.977)), module, Zilah::MIDI_OUT_07_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (22.155, 54.997)), module, Zilah::MIDI_OUT_01_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (33.688, 54.998)), module, Zilah::MIDI_OUT_02_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (45.222, 54.998)), module, Zilah::MIDI_OUT_03_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (56.756, 72.378)), module, Zilah::MIDI_OUT_12_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (68.289, 72.378)), module, Zilah::MIDI_OUT_13_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (79.823, 72.378)), module, Zilah::MIDI_OUT_14_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (10.621, 72.525)), module, Zilah::MIDI_OUT_08_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (91.356, 72.63)), module, Zilah::MIDI_OUT_15_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (22.155, 72.651)), module, Zilah::MIDI_OUT_09_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (33.688, 72.651)), module, Zilah::MIDI_OUT_10_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (45.222, 72.652)), module, Zilah::MIDI_OUT_11_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (56.756, 90.031)), module, Zilah::MIDI_OUT_20_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (68.289, 90.031)), module, Zilah::MIDI_OUT_21_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (79.823, 90.031)), module, Zilah::MIDI_OUT_22_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (10.621, 90.179)), module, Zilah::MIDI_OUT_16_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (91.356, 90.283)), module, Zilah::MIDI_OUT_23_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (22.155, 90.304)), module, Zilah::MIDI_OUT_17_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (33.688, 90.304)), module, Zilah::MIDI_OUT_18_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (45.222, 90.305)), module, Zilah::MIDI_OUT_19_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (56.756, 107.301)), module, Zilah::MIDI_OUT_28_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (68.289, 107.301)), module, Zilah::MIDI_OUT_29_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (79.823, 107.301)), module, Zilah::MIDI_OUT_30_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (10.621, 107.449)), module, Zilah::MIDI_OUT_24_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (91.356, 107.553)), module, Zilah::MIDI_OUT_31_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (22.155, 107.574)), module, Zilah::MIDI_OUT_25_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (33.688, 107.574)), module, Zilah::MIDI_OUT_26_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (45.222, 107.575)), module, Zilah::MIDI_OUT_27_OUTPUT));
 
         addChild (createLightCentered<SmallLight<GreenLight>> (mm2px (Vec (53.578, 50.547)), module, Zilah::MSB_04_LIGHT));
         addChild (createLightCentered<SmallLight<GreenLight>> (mm2px (Vec (59.933, 50.547)), module, Zilah::LSB_04_LIGHT));

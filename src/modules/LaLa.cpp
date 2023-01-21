@@ -54,6 +54,15 @@ struct LaLaWidget : ModuleWidget
 
         addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (7.62, 87.289)), module, Comp::HIGH_OUTPUT));
         addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (7.62, 105.809)), module, Comp::LOW_OUTPUT));
+
+        if (module)
+        {
+            module->configInput(Comp::FREQ_CV_INPUT, "Frequency");
+            module->configInput(Comp::MAIN_INPUT, "Main");
+
+            module->configOutput(Comp::HIGH_OUTPUT,"High");
+            module->configOutput(Comp::LOW_OUTPUT,"Low");
+        }
     }
 };
 

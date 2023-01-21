@@ -18,7 +18,7 @@
  * Boston, MA 02110-1301 USA.
  *
  */
-#include "simd/vector.hpp"
+
 #include "simd/functions.hpp"
 #include "simd/sse_mathfun.h"
 #include "simd/sse_mathfun_extension.h"

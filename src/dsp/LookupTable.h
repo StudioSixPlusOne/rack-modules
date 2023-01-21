@@ -106,8 +106,6 @@ namespace sspo
             {
                 //				const float_4 lower = float_4(0.0f, 0.45f, 0.33f, 0.77f);
                 //				const float_4 upper {0.1f, 0.55f, 0.45f, 0.9f};
-                float_4 fraction;
-                float_4 index;
 
                 assert (source.table.size() != 0 && "Lookup table empty");
                 assert (source.minX != source.maxX && "Lookup table min equal max");
@@ -117,17 +115,20 @@ namespace sspo
                 //assert(x >= source.minX && "Lookuptable index too low");
                 //assert(x <= source.maxX && "Lookuptable index too greate");
 
-                index = rack::simd::floor ((x / source.interval) - source.minX / source.interval);
-                fraction = ((x / source.interval) - source.minX / source.interval) - index;
-                float_4 lower = float_4 (source.table[index[0]],
-                                         source.table[index[1]],
-                                         source.table[index[2]],
-                                         source.table[index[3]]);
-                float_4 upper = float_4 (source.table[index[0] + 1],
-                                         source.table[index[1] + 1],
-                                         source.table[index[2] + 1],
-                                         source.table[index[3] + 1]);
-                return linearInterpolate (lower, upper, fraction); // linearInterpolate (lower, upper, fraction);
+                auto indexFull = (x / source.interval) - source.minX / source.interval;
+                auto index = rack::simd::floor (indexFull);
+                auto fraction = (indexFull) - index;
+
+                auto indexPlus1 = index + 1;
+
+                return {
+                    linearInterpolate (source.table[index[0]], source.table[indexPlus1[0]], fraction[0]),
+                    linearInterpolate (source.table[index[1]], source.table[indexPlus1[1]], fraction[1]),
+                    linearInterpolate (source.table[index[2]], source.table[indexPlus1[2]], fraction[2]),
+                    linearInterpolate (source.table[index[3]], source.table[indexPlus1[3]], fraction[3])
+                };
+
+
             }
 
             template <typename T>
@@ -197,13 +198,19 @@ namespace sspo
             {
                 Lookup()
                 {
-                    sineTable = sspo::AudioMath::LookupTable::makeTable<float> (-4 * k_2pi - 0.1f, 4 * k_2pi + 0.1f, 0.001f, [] (const float x) -> float { return std::sin (x); });
-                    pow2Table = LookupTable::makeTable<float> (-10.1f, 10.1f, 0.001f, [] (const float x) -> float { return std::pow (2.0f, x); });
-                    pow10Table = LookupTable::makeTable<float> (-10.1f, 10.1f, 0.001f, [] (const float x) -> float { return std::pow (10.0f, x); });
-                    log10Table = LookupTable::makeTable<float> (0.00001f, 10.1f, 0.001f, [] (const float x) -> float { return std::log10 (x); });
-                    unisonSpreadTable = LookupTable::makeTable<float> (0.0f, 1.1f, 0.01f, [] (const float x) -> float { return unisonSpreadScalar (x); });
+                    sineTable = sspo::AudioMath::LookupTable::makeTable<float> (-4 * k_2pi - 0.1f, 4 * k_2pi + 0.1f, 0.001f, [] (const float x) -> float
+                                                                                { return std::sin (x); });
+                    pow2Table = LookupTable::makeTable<float> (-10.1f, 10.1f, 0.001f, [] (const float x) -> float
+                                                               { return std::pow (2.0f, x); });
+                    pow10Table = LookupTable::makeTable<float> (-10.1f, 10.1f, 0.001f, [] (const float x) -> float
+                                                                { return std::pow (10.0f, x); });
+                    log10Table = LookupTable::makeTable<float> (0.00001f, 10.1f, 0.001f, [] (const float x) -> float
+                                                                { return std::log10 (x); });
+                    unisonSpreadTable = LookupTable::makeTable<float> (0.0f, 1.1f, 0.01f, [] (const float x) -> float
+                                                                       { return unisonSpreadScalar (x); });
 
-                    hulaSineTable = sspo::AudioMath::LookupTable::makeTable<float> (-4 * k_2pi - 0.1f, 4 * k_2pi + 0.1f, 0.001f, [] (const float x) -> float { return std::sin (x) + (rand01() - 0.5f) * 1e-4f; });
+                    hulaSineTable = sspo::AudioMath::LookupTable::makeTable<float> (-4 * k_2pi - 0.1f, 4 * k_2pi + 0.1f, 0.001f, [] (const float x) -> float
+                                                                                    { return std::sin (x) + (rand01() - 0.5f) * 1e-4f; });
                 }
 
                 sspo::AudioMath::LookupTable::Table<float> sineTable;

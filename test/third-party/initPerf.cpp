@@ -27,9 +27,14 @@ SOFTWARE.
 
 #include "asserts.h"
 
+#include "simd/functions.hpp"
+#include "simd/sse_mathfun.h"
+#include "simd/sse_mathfun_extension.h"
+
 
 
 double overheadInOut = 0;
+double overheadInOut4 = 0;
 double overheadOutOnly = 0;
 
 static void setup()
@@ -41,6 +46,13 @@ static void setup()
     const double scale = 1.0 / RAND_MAX;
     overheadInOut = MeasureTime<float>::run(0.0, "test1 (do nothing i/o)", [&d, scale]() {
         return TestBuffers<float>::get();
+        }, 1);
+
+
+    overheadInOut4 = MeasureTime<float>::run(0.0, "test1 (do nothing i/o float 4)", [&d, scale]() {
+            rack::simd::float_4 f4;
+            f4[0] = TestBuffers<float>::get();
+            return f4[0];
         }, 1);
 
     overheadOutOnly = MeasureTime<float>::run(0.0, "test1 (do nothing oo)", [&d, scale]() {

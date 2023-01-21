@@ -1,15 +1,12 @@
 # StudioSixPlusOne
 
-# Early test release for v2.0
+# Release for VCV rack v2.0
 
-I have only compiled this on my current Ubuntu machine, where all the modules are now working, well a first glance was all good
-but I would expect some issues to appear, I have no windows for mac setups currently, and would value any feedback. There is a away to go before
-anything ready for the library will be done. This currently does not use any of the V2.0 features, labels. 
+This is the Studio 6 Plus 1 modules, updated to VCV Rack V2.0
 
-VCV Rack modules
+All modules have had a lick of virtual paint
 
-These have not been updated for V2.0, and have build fails on a MAC that I am unable to test.
-If anyone uses these please request an update, and I shall update to 2.0 but will require help building for mac.
+
 
 
 
@@ -99,7 +96,7 @@ If the audio input is disconnected, the filter will still run in monophonic mode
 <br>
 
 ### Amburg
-<img src="images/Amburg.png">
+<img src="images/Amburgh.png">
 
 Maccomo with some bite.  The resonance response has been greatly improved, 
 and the drive control now really does drive.  
@@ -159,7 +156,7 @@ A monophonic in, polyphonic out shift register, with many probability options.
 ### Te
 Tyrant Expander
 
-<img align="left" src="images/TyrantTe.png">
+<img align="left" src="images/TE.png">
 
 An expansion module when placed to the right of Tyrant, provides trigger outputs for the probability actions provided by tyrant.
 
@@ -227,7 +224,7 @@ A cascadable two way crossover, used for splitting audio frequency bands, for mu
 ### Zazel
 
 <img align="left" src="images/Zazel.png">
-<img src="images/ZazelContextMenu.png">
+
 
 
 A performance-based controller, designed to be connected to MIDI triggers, to allow smooth fades using easing functions between parameters on other modules, pairs well with VCV MIDI-Gate.
@@ -269,6 +266,9 @@ A slimline mixer for audio and cv.
 <br>
 
 
+<br>
+<br>
+<br>
 <br>
 <br>
 <br>
@@ -372,7 +372,7 @@ The smoothing filter can be adjusted, and both unipolar and bipolar outputs
 
 ### Hula
 
-<img align="left" src="images/hula.png">
+<img align="left" src="images/Hula.png">
 
 A small form fm oscillator, each instance has it's own small detune applied and it's own custom noise floor, hence the lack of a fine tune control.
 

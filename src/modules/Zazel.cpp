@@ -35,7 +35,7 @@ using Comp = ZazelComp<WidgetComposite>;
 /// if the values are -1, no update is required
 struct RequestedParamId
 {
-    int moduleid = -1;
+    int64_t moduleid = -1;
     int paramid = -1;
 };
 
@@ -45,7 +45,7 @@ struct Zazel : Module
 {
     std::shared_ptr<Comp> zazel;
     /// request parameter from the UI
-    std::atomic<RequestedParamId> requestedParameter;
+    RequestedParamId requestedParameter;
     /// Automated Parameter
     ParamHandle paramHandle;
     ///request to clear automated parameter from the UI
@@ -57,7 +57,13 @@ struct Zazel : Module
 
     Zazel()
     {
-        assert (std::atomic<RequestedParamId>{}.is_lock_free());
+        //due to change in moduleid from int to int_64 this can no longer fit
+        //together with int paramid in a 64 bit struct, to be lock free atomic
+        //removing the assert to all ruinng with locks,
+        //this may cause the audio thread to lock when selecting the automation
+        //parameter
+
+        //  assert (std::atomic<RequestedParamId>{}.is_lock_free());
         config (Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
         zazel = std::make_shared<Comp> (this);
         std::shared_ptr<IComposite> icomp = Comp::getDescription();
@@ -84,7 +90,7 @@ struct Zazel : Module
         RequestedParamId rpi;
         rpi.moduleid = -1;
         rpi.paramid = -1;
-        requestedParameter.store (rpi);
+        requestedParameter = rpi;
     }
 
     json_t* dataToJson() override
@@ -129,7 +135,7 @@ struct Zazel : Module
     /// Called by the UI widget
     void updateParamHandle()
     {
-        RequestedParamId rpi = requestedParameter.load();
+        RequestedParamId rpi = requestedParameter;
         APP->engine->updateParamHandle (&paramHandle, rpi.moduleid, rpi.paramid, true);
 
         ParamQuantity* pq = paramHandle.module->paramQuantities[paramHandle.paramId];
@@ -154,14 +160,14 @@ struct Zazel : Module
     ///  and learn mode for end values.
     void paramChange()
     {
-        RequestedParamId rpi = requestedParameter.load();
+        RequestedParamId rpi = requestedParameter;
         if (rpi.moduleid != -1)
         // modulated parameter changed
         {
             //reset requested parameter so only updates on request.
             rpi.moduleid = -1;
             rpi.moduleid = -1;
-            requestedParameter.store (rpi);
+            requestedParameter = rpi;
 
             //setup parameter learrning
             zazel->changePhase (Comp::Mode::LEARN_END);
@@ -281,6 +287,10 @@ struct EasingWidget : Widget
     {
         if (module == nullptr)
             return;
+
+        box.size = mm2px (Vec (14.142, 14.084));
+        lineColor = nvgRGBA (0xf0, 0xf0, 0xf0, 0xff);
+
         const auto border = 14.142f * 0.1f; //bordersize in mm
         const auto width = 11.0f;
         const auto permm = width;
@@ -312,9 +322,10 @@ struct ParameterSelectWidget : Widget
 
     ParameterSelectWidget()
     {
-        box.size = mm2px (Vec (30.408, 14.084));
-        font = APP->window->loadFont (asset::system ("res/fonts/ShareTechMono-Regular.ttf"));
-        txtColor = nvgRGBA (0xf0, 0xf0, 0xf0, 0xff);
+        // moved constructor initialization to draw()
+//        box.size = mm2px (Vec (30.408, 14.084));
+//        font = APP->window->loadFont (asset::system ("res/fonts/ShareTechMono-Regular.ttf"));
+//        txtColor = nvgRGBA (0xf0, 0xf0, 0xf0, 0xff);
     }
 
     void setModule (Zazel* module)
@@ -340,7 +351,7 @@ struct ParameterSelectWidget : Widget
             RequestedParamId rpi;
             rpi.moduleid = -1;
             rpi.paramid = -1;
-            module->requestedParameter.store (rpi);
+            module->requestedParameter = rpi;
             module->clearParam.store (true);
             module->removeParam();
             e.consume (this);
@@ -353,14 +364,14 @@ struct ParameterSelectWidget : Widget
         if (module == nullptr)
             return;
 
-        ParamWidget* touchedParam = APP->scene->rack->touchedParam;
+        ParamWidget* touchedParam = APP->scene->rack->getTouchedParam(); // touchedParam;
         if (learning && touchedParam)
         {
-            APP->scene->rack->touchedParam = nullptr;
+            APP->scene->rack->setTouchedParam(nullptr);
             RequestedParamId rpi;
             rpi.moduleid = touchedParam->getParamQuantity()->module->id;
             rpi.paramid = touchedParam->getParamQuantity()->paramId;
-            module->requestedParameter.store (rpi);
+            module->requestedParameter = rpi;
             module->updateParamHandle();
             learning = false;
         }
@@ -410,12 +421,15 @@ struct ParameterSelectWidget : Widget
                 return "";
             ParamQuantity* pq = m->paramQuantities[paramId];
             return pq->getLabel();
-
         }
     }
 
     void draw (const DrawArgs& args) override
     {
+        box.size = mm2px (Vec (30.408, 14.084));
+        font = APP->window->loadFont (asset::system ("res/fonts/ShareTechMono-Regular.ttf"));
+        txtColor = nvgRGBA (0xf0, 0xf0, 0xf0, 0xff);
+
         nvgFontSize (args.vg, fontHeight);
         nvgFontFaceId (args.vg, font->handle);
         //nvgTextLetterSpacing (args.vg, -2);
@@ -489,6 +503,18 @@ struct ZazelWidget : ModuleWidget
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (28.814, 112.575)), module, Comp::START_CONT_INPUT));
 
         addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (52.581, 112.422)), module, Comp::MAIN_OUTPUT));
+        if (module)
+        {
+            module->configInput (Comp::EASING_INPUT, "Easing");
+            module->configInput (Comp::START_INPUT, "Start");
+            module->configInput (Comp::END_INPUT, "End");
+            module->configInput (Comp::DURATION_INPUT, "Duration");
+            module->configInput (Comp::STOP_CONT_INPUT, "Pause");
+            module->configInput (Comp::CLOCK_INPUT, "Clock");
+            module->configInput (Comp::STOP_CONT_INPUT, "Start Cont");
+
+            module->configOutput (Comp::MAIN_OUTPUT, "Main out");
+        }
 
         addChild (createLightCentered<SmallLight<RedLight>> (mm2px (Vec (37.52, 108.25)), module, Comp::PAUSE_LIGHT));
 

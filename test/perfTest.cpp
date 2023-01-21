@@ -35,12 +35,13 @@ SOFTWARE.
 #include "common.hpp"
 
 extern double overheadInOut;
+extern double overheadInOut4;
 extern double overheadOutOnly;
 
 #include "simd/functions.hpp"
 #include "simd/sse_mathfun.h"
 #include "simd/sse_mathfun_extension.h"
-#include "simd/vector.hpp"
+
 
 #include "MeasureTime.h"
 #include "TestComposite.h"
@@ -266,7 +267,7 @@ static void testLookupTable()
 
     float_4 f4;
     MeasureTime<float>::run (
-        overheadInOut, "lookup.hulaSin4", [&f4]() {
+        overheadInOut4, "lookup.hulaSin4", [&f4]() {
             f4[0] = TestBuffers<float>::get();
 
             float_4 x = lookup.hulaSin4 (f4);

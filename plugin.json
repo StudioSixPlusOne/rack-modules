@@ -2,7 +2,7 @@
   "slug": "StudioSixPlusOne",
   "name": "Studio Six Plus One",
 
-  "version": "2.0.1b",
+  "version": "2.0.2",
 
   "license": "GPL-3.0-or-later",
   "brand": "Studio Six Plus One",
@@ -12,7 +12,7 @@
   "pluginUrl": "https://github.com/StudioSixPlusOne/rack-modules",
   "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md",
   "sourceUrl": "https://github.com/StudioSixPlusOne/rack-modules.git",
-  "donateUrl": "",
+  "donateUrl": "https://paypal.com/paypalme/StudioSixPlusOne",
   "changelogUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/CHANGELOG.md",
   "modules": [
     {
@@ -32,16 +32,6 @@
       "name": "Maccomo",
       "description": "Ladder Filter self oscillating vcf",
       "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#maccomo",
-      "tags": [
-        "Polyphonic",
-        "Filter"
-      ]
-    },
-    {
-      "slug": "Amburgh",
-      "name": "Amburgh",
-      "description": "Non Linear Filter self oscillating vcf",
-      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#Amburgh",
       "tags": [
         "Polyphonic",
         "Filter"
@@ -144,7 +134,16 @@
         "Sequencer"
       ]
     },
-
+    {
+      "slug": "Amburgh",
+      "name": "Amburgh",
+      "description": "Non Linear Filter self oscillating vcf",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#Amburgh",
+      "tags": [
+        "Polyphonic",
+        "Filter"
+      ]
+    },
     {
       "slug": "Hula",
       "name": "Hula",
