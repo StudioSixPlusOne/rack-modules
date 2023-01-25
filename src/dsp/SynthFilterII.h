@@ -122,21 +122,15 @@ namespace sspo
 
             T process (const T in)
             {
-                if (SynthFilter<T>::type != SynthFilter<T>::Type::LPF1 && SynthFilter<T>::type != SynthFilter<T>::Type::HPF1)
-                    return in;
                 auto xn = in;
 
                 xn = xn * preGain + feedback + feedbackOut * getFeedbackOut();
                 auto vn = (inputGain * xn - z1) * feedforward;
 
                 auto lp = vn + z1;
-                auto hp = xn - lp;
                 z1 = vn + lp;
 
-                if (SynthFilter<T>::type == SynthFilter<T>::Type::LPF1)
-                    return lp;
-                else
-                    return hp;
+                return lp;
             }
 
             void setParameters (const T newCutoff, const T newQ, const T newAux, const float newSampleRate)
@@ -184,29 +178,40 @@ namespace sspo
         class LadderFilter : public SynthFilter<T>
         {
         public:
-            static std::vector<typename SynthFilter<T>::Type> types()
-            {
-                return { SynthFilter<T>::Type::LPF2,
-                         SynthFilter<T>::Type::LPF4,
-                         SynthFilter<T>::Type::HPF2,
-                         SynthFilter<T>::Type::HPF4,
-                         SynthFilter<T>::Type::BPF2,
-                         SynthFilter<T>::Type::BPF4 };
-            }
-
             LadderFilter()
             {
-                lpf1.setType (SynthFilter<T>::Type::LPF1);
-                lpf2.setType (SynthFilter<T>::Type::LPF1);
-                lpf3.setType (SynthFilter<T>::Type::LPF1);
-                lpf4.setType (SynthFilter<T>::Type::LPF1);
-
-                SynthFilter<T>::type = SynthFilter<T>::Type::LPF4;
-
                 reset();
             }
 
             ~LadderFilter() = default;
+
+            void setSampleRate(float sr)
+            {
+                SynthFilter<T>::sampleRate = sr;
+                calcCoeffs();
+            }
+
+            void setFcQSat(const T newCutoff,
+                            const T newQ,
+                            const T newSaturation)
+            {
+                SynthFilter<T>::cutoff = newCutoff;
+                SynthFilter<T>::Q = newQ;
+                SynthFilter<T>::saturation = newSaturation;
+
+                lpf1.setParameters (SynthFilter<T>::cutoff, 0, 0, SynthFilter<T>::sampleRate);
+                lpf2.setParameters (SynthFilter<T>::cutoff, 0, 0, SynthFilter<T>::sampleRate);
+                lpf3.setParameters (SynthFilter<T>::cutoff, 0, 0, SynthFilter<T>::sampleRate);
+                lpf4.setParameters (SynthFilter<T>::cutoff, 0, 0, SynthFilter<T>::sampleRate);
+
+                calcCoeffs();
+            }
+
+            void setAux(T newAux)
+            {
+                SynthFilter<T>::aux = newAux;
+                calcCoeffs();
+            }
 
             void setParameters (const T newCutoff,
                                 const T newQ,
@@ -228,7 +233,6 @@ namespace sspo
                 lpf3.setParameters (SynthFilter<T>::cutoff, 0, 0, SynthFilter<T>::sampleRate);
                 lpf4.setParameters (SynthFilter<T>::cutoff, 0, 0, SynthFilter<T>::sampleRate);
 
-                K = (4.0f) * (SynthFilter<T>::Q - 1.0f) / (10.0f - 1.0f);
                 calcCoeffs();
             }
 
@@ -237,10 +241,6 @@ namespace sspo
 
             T process (const T in)
             {
-                if (SynthFilter<T>::type == SynthFilter<T>::Type::BSF2
-                    || SynthFilter<T>::type == SynthFilter<T>::Type::LPF1
-                    || SynthFilter<T>::type == SynthFilter<T>::Type ::HPF1)
-                    return in;
                 auto sigma = lpf1.getFeedbackOut()
                              + lpf2.getFeedbackOut()
                              + lpf3.getFeedbackOut()
@@ -248,21 +248,6 @@ namespace sspo
                 auto xn = in;
                 xn *= 1.0f + SynthFilter<T>::aux * K;
                 auto U = (xn - K * sigma) * alpha;
-
-                if (SynthFilter<T>::useNPL)
-                {
-                    if (SynthFilter<T>::useOverSample)
-                    {
-                        upsampler.process (U, oversampleBuffer);
-                        for (auto i = 0; i < oversampleRate; ++i)
-                            oversampleBuffer[i] = nonLinearProcess (U, SynthFilter<T>::saturation);
-                        U = decimator.process (oversampleBuffer);
-                    }
-                    else
-                    {
-                        U = nonLinearProcess (U, SynthFilter<T>::saturation);
-                    }
-                }
 
                 auto f1 = lpf1.process (U);
                 auto f2 = lpf2.process (f1);
@@ -276,10 +261,15 @@ namespace sspo
                        + typeCoeffs.E * f4;
             }
 
-            void setType (typename SynthFilter<T>::Type newType)
+
+
+            void setCoeffs (T a, T b, T c, T d, T e)
             {
-                SynthFilter<T>::type = newType;
-                calcCoeffs();
+                typeCoeffs.A = a;
+                typeCoeffs.B = b;
+                typeCoeffs.C = c;
+                typeCoeffs.D = d;
+                typeCoeffs.E = e;
             }
 
             void reset()
@@ -335,6 +325,8 @@ namespace sspo
                 gamma = G * G * G * G;
                 alpha = 1.0f / (1.0f + K * gamma);
 
+                K = (4.0f) * (SynthFilter<T>::Q - 1.0f) / (10.0f - 1.0f);
+
                 switch (SynthFilter<T>::type)
                 {
                     case SynthFilter<T>::Type::LPF4:
@@ -369,11 +361,6 @@ namespace sspo
             T K{ 0.0f };
             T gamma{ 0.0f };
             T alpha{ 1.0f };
-
-            static constexpr int oversampleRate = 4;
-            sspo::Upsampler<oversampleRate, 1, T> upsampler;
-            sspo::Decimator<oversampleRate, 1, T> decimator;
-            T oversampleBuffer[oversampleRate];
         };
     } // namespace synthFilterII
 } // namespace sspo
