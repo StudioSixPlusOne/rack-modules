@@ -22,7 +22,7 @@
 #pragma once
 
 #include "IComposite.h"
-#include "../dsp/SynthFilter.h"
+#include "../dsp/SynthFilterII.h"
 #include "../dsp/AudioMath.h"
 #include "../dsp/UtilityFilters.h"
 #include <memory>
@@ -93,7 +93,7 @@ public:
         for (auto& f : filters)
         {
             f.setUseNonLinearProcessing (true);
-            f.setType (sspo::MoogLadderFilter<float_4>::types()[0]);
+            f.setType (sspo::synthFilterII::LadderFilter<float_4>::types()[0]);
             f.setUseOversample (true);
             float_4 asym = float_4 (1.0f);
             f.nonLinearProcess = [asym] (float_4 in, float_4 drive) {
@@ -149,7 +149,7 @@ public:
     int currentType = 1;
     float sampleRate = 1.0f;
     float sampleTime = 1.0f;
-    std::vector<sspo::MoogLadderFilter<float_4>> filters;
+    std::vector<sspo::synthFilterII::LadderFilter<float_4>> filters;
     void step() override;
 };
 
@@ -201,7 +201,7 @@ inline void BascomComp<TBase>::step()
         if (currentType != modeParam)
         {
             currentType = modeParam;
-            filters[c / 4].setType (sspo::MoogLadderFilter<float_4>::types()[currentType]);
+            filters[c / 4].setType (sspo::synthFilterII::LadderFilter<float_4>::types()[currentType]);
         }
 
         filters[c / 4].setParameters (frequency, resonance, drive, float_4 (0.5f), sampleRate);
