@@ -129,7 +129,7 @@ public:
 
     static constexpr float minFreq = 0.0f;
     float maxFreq = 20000.0f;
-    static constexpr float maxRes = 9.0f;
+    static constexpr float maxRes = 10.0001f;
     static constexpr float maxDrive = 30.0f;
     static constexpr int SIMD_MAX_CHANNELS = 4;
     float sampleRate = 1.0f;
@@ -158,7 +158,7 @@ inline void BascomComp<TBase>::step()
     auto resAttenuverterParam = TBase::params[RESONANCE_CV_ATTENUVERTER_PARAM].getValue();
     auto driveAttenuverterParam = TBase::params[DRIVE_CV_ATTENUVERTER_PARAM].getValue();
 
-    auto noise = float_4 (1e-6f * (2.0f * sspo::AudioMath::rand01() - 1.0f));
+    auto noise = float_4 (1e-3f * (2.0f * sspo::AudioMath::rand01() - 1.0f));
     freqParam = freqParam * 10.0f - 5.0f;
 
     for (auto c = 0; c < channels; c += 4)

@@ -120,7 +120,7 @@ namespace sspo
         public:
             void setDivisor(int d)
             {
-                maxPhase = clamp(d, 1, 128);
+                maxPhase = rack::math::clamp(d, 1, 128);
             }
 
             bool process()

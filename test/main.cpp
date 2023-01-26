@@ -54,6 +54,7 @@ extern void testEasing();
 extern void testZazel();
 extern void testIverson();
 extern void testTriggerSequencer();
+extern void testWaveShaper();
 
 //external performance tests
 extern void initPerf();
@@ -93,27 +94,27 @@ int main (int argc, char** argv)
     }
 
     // run external tests defined above
-
+    testWaveShaper();
     testSynthFilter();
     testSynthFilterII();
-//    testTriggerSequencer();
-//    testIverson();
-//    testLala();
-//    testEva();
-//    testZazel();
-//    testEasing();
-//    testSaturator();
-//    testEmpty();
-//    testTestSignal();
-//    testAudioMath();
-//    testCircularBuffer();
-//    testLookupTable();
-//    testAnalyzer();
-//    testPolyShiftRegister();
-//    testKSDelay();
-//    testCombFilter();
-//    testMaccomo();
-//    testUtilityFilter();
+        testTriggerSequencer();
+        testIverson();
+        testLala();
+        testEva();
+        testZazel();
+        testEasing();
+        testSaturator();
+        testEmpty();
+        testTestSignal();
+        testAudioMath();
+        testCircularBuffer();
+        testLookupTable();
+        testAnalyzer();
+        testPolyShiftRegister();
+        testKSDelay();
+        testCombFilter();
+        testMaccomo();
+        testUtilityFilter();
 
     printf ("Tests passed.\n");
 }

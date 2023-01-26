@@ -29,6 +29,7 @@
 #include <functional>
 #include "AudioMath.h"
 #include "UtilityFilters.h"
+#include "WaveShaper.h"
 //#include "simd/vector.hpp"
 #include "simd/functions.hpp"
 #include "simd/sse_mathfun.h"
@@ -267,12 +268,16 @@ namespace sspo
             //this must be defined in the module, normally as a lambda
             std::function<T (T in, T drive)> nonLinearProcess;
 
+            //Non linear Distortion waveshaper
+            sspo::AudioMath::WaveShaper::Nld nld;
+
             T process (const T in)
             {
                 auto sigma = lpf1.getFeedbackOut()
                              + lpf2.getFeedbackOut()
                              + lpf3.getFeedbackOut()
                              + lpf4.getFeedbackOut();
+                sigma = nld.
                 auto xn = in;
                 xn *= 1.0f + SynthFilter<T>::aux * K;
                 auto U = (xn - K * sigma) * alpha;
