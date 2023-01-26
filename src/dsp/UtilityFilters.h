@@ -283,27 +283,46 @@ namespace sspo
     };
 
     /// IIR Decimator
-    /// oversample, upsample tate
-    /// quality, number of sequential filters
-    template <int oversample, int quality, typename T>
+    /// maxOversample, upsample tate
+    /// maxQuality, number of sequential filters
+    template <int maxOversample, int maxQuality, typename T>
     struct Decimator
     {
-        BiQuad<T> filters[quality];
+        BiQuad<T> filters[maxQuality];
 
         Decimator()
         {
-            for (auto i = 0; i < quality; ++i)
+            for (auto i = 0; i < maxQuality; ++i)
             {
-                // the oversample filter has been set at niquist, to remove unwanted
+                // the maxOversample filter has been set at niquist, to remove unwanted
                 // noise in the audio spectrum
-                filters[i].setButterworthLp2 (10000.0f, 10000.0f / (1.0f * oversample));
+                filters[i].setButterworthLp2 (10000.0f, 10000.0f / (1.0f * maxOversample));
+            }
+        }
+
+        void setQuality (int q)
+        {
+            quality = q;
+        }
+
+        void setOverSample (int newOverSample)
+        {
+            if (newOverSample != overSampleRate)
+            {
+                overSampleRate = newOverSample;
+                for (auto i = 0; i < maxQuality; ++i)
+                {
+                    // the maxOversample filter has been set at niquist, to remove unwanted
+                    // noise in the audio spectrum
+                    filters[i].setButterworthLp2 (10000.0f, 10000.0f / (1.0f * overSampleRate));
+                }
             }
         }
 
         T process (const T* input)
         {
             T x = 0;
-            for (auto i = 0; i < oversample; ++i)
+            for (auto i = 0; i < overSampleRate; ++i)
             {
                 x = filters[0].process (input[i]);
                 for (auto j = 1; j < quality; ++j)
@@ -314,23 +333,46 @@ namespace sspo
             // we simply return the last sample
             return x;
         }
+
+    private:
+        int quality{ maxQuality };
+        int overSampleRate{ maxOversample };
     };
 
     /// IIR upsample interpolator
-    /// oversample, upsample rate
-    /// quality, number of sequential filters
-    template <int oversample, int quality, typename T>
+    /// maxOversample, upsample rate
+    /// maxQuality, number of sequential filters
+    template <int maxOversample, int maxQuality, typename T>
     struct Upsampler
     {
-        BiQuad<T> filters[quality];
+        BiQuad<T> filters[maxQuality];
 
         Upsampler()
         {
-            for (auto i = 0; i < quality; ++i)
+            for (auto i = 0; i < maxQuality; ++i)
             {
-                // the oversample filter has been set at niquist, to remove unwanted
+                // the maxOversample filter has been set at niquist, to remove unwanted
                 // noise in the audio spectrum
-                filters[i].setButterworthLp2 (10000.0f, 10000.0f / (1.0f * oversample));
+                filters[i].setButterworthLp2 (10000.0f, 10000.0f / (1.0f * maxOversample));
+            }
+        }
+
+        void setQuality (int newQuality)
+        {
+            quality = newQuality;
+        }
+
+        void setOverSample (int newOverSample)
+        {
+            if (newOverSample != oversample)
+            {
+                oversample = newOverSample;
+                for (auto i = 0; i < maxQuality; ++i)
+                {
+                    // the maxOversample filter has been set at niquist, to remove unwanted
+                    // noise in the audio spectrum
+                    filters[i].setButterworthLp2 (10000.0f, 10000.0f / (1.0f * oversample));
+                }
             }
         }
 
@@ -350,5 +392,9 @@ namespace sspo
             }
             return x;
         }
+
+    private:
+        int quality{ maxQuality };
+        int oversample{ maxOversample };
     };
 } // namespace sspo

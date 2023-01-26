@@ -21,93 +21,290 @@
 #include "plugin.hpp"
 #include "widgets.h"
 #include "WidgetComposite.h"
+#include "BascomParamEnum.h"
+#include <array>
 
-struct BascomExpander : Module {
-	enum ParamId {
-		OVERSAMPLE_PARAM,
-		GAIN_A_PARAM,
-		GAIN_B_PARAM,
-		GAIN_C_PARAM,
-		GAIN_D_PARAM,
-		NLD_INPUT_PARAM,
-		NLD_1_PARAM,
-		NLD_2_PARAM,
-		NLD_3_PARAM,
-		NLD_4_PARAM,
-		GAIN_E_PARAM,
-		OFFSET_1_PARAM,
-		OFFSET_2_PARAM,
-		OFFSET_3_PARAM,
-		OFFSET_4_PARAM,
-		FEEDBACK_PATH_PARAM,
-		NLD_FEEDBACK_PARAM,
-		PARAMS_LEN
-	};
-	enum InputId {
-		INPUTS_LEN
-	};
-	enum OutputId {
-		OUTPUTS_LEN
-	};
-	enum LightId {
-		LIGHTS_LEN
-	};
 
-	BascomExpander() {
-		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
-		configParam(OVERSAMPLE_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(GAIN_A_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(GAIN_B_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(GAIN_C_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(GAIN_D_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(NLD_INPUT_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(NLD_1_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(NLD_2_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(NLD_3_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(NLD_4_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(GAIN_E_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(OFFSET_1_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(OFFSET_2_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(OFFSET_3_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(OFFSET_4_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(FEEDBACK_PATH_PARAM, 0.f, 1.f, 0.f, "");
-		configParam(NLD_FEEDBACK_PARAM, 0.f, 1.f, 0.f, "");
-	}
 
-	void process(const ProcessArgs& args) override {
-	}
+struct BascomExpander : Module
+{
+    enum ParamId
+    {
+        OVERSAMPLE_EXPANDERPARAM,
+        DECIMATOR_FILTERS_EXPANDERPARAM,
+        PARAM_UPDATE_DIVIDER_EXPANDERPARAM,
+        GAIN_A_EXPANDERPARAM,
+        GAIN_B_EXPANDERPARAM,
+        GAIN_C_EXPANDERPARAM,
+        GAIN_D_EXPANDERPARAM,
+        NLD_INPUT_EXPANDERPARAM,
+        NLD_1_EXPANDERPARAM,
+        NLD_2_EXPANDERPARAM,
+        NLD_3_EXPANDERPARAM,
+        NLD_4_EXPANDERPARAM,
+        GAIN_E_EXPANDERPARAM,
+        OFFSET_1_EXPANDERPARAM,
+        OFFSET_2_EXPANDERPARAM,
+        OFFSET_3_EXPANDERPARAM,
+        OFFSET_4_EXPANDERPARAM,
+        FEEDBACK_PATH_EXPANDERPARAM,
+        NLD_FEEDBACK_EXPANDERPARAM,
+        PARAMS_LEN
+    };
+    enum InputId
+    {
+        INPUTS_LEN
+    };
+    enum OutputId
+    {
+        OUTPUTS_LEN
+    };
+    enum LightId
+    {
+        LIGHTS_LEN
+    };
+
+    std::array<ParamHandle, PARAMS_LEN> paramHandles;
+
+    BascomExpander()
+    {
+        config (PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
+        configParam (OVERSAMPLE_EXPANDERPARAM, 1.0f, 12.0f, 1.0f, "");
+        configParam (DECIMATOR_FILTERS_EXPANDERPARAM, 1.0f, 12.0f, 1.0f, "Decimator Filters");
+        configParam (PARAM_UPDATE_DIVIDER_EXPANDERPARAM, 1.0f, 128.0f, 1.0f, "Update Divider");
+
+        configParam (GAIN_A_EXPANDERPARAM, -18.f, 18.f, 0.f, "Mix Coeff A");
+        configParam (GAIN_B_EXPANDERPARAM, -18.f, 18.f, 0.f, "Mix Coeff B");
+        configParam (GAIN_C_EXPANDERPARAM, -18.f, 18.f, 0.f, "Mix Coeff C");
+        configParam (GAIN_D_EXPANDERPARAM, -18.f, 18.f, 0.f, "Mix Coeff D");
+        configParam (GAIN_E_EXPANDERPARAM, -18.f, 18.f, 0.f, "Mix Coeff E");
+        configParam (NLD_INPUT_EXPANDERPARAM, 0.f, 1.f, 0.f, "");
+        configParam (NLD_1_EXPANDERPARAM, 0.f, 1.f, 0.f, "");
+        configParam (NLD_2_EXPANDERPARAM, 0.f, 1.f, 0.f, "");
+        configParam (NLD_3_EXPANDERPARAM, 0.f, 1.f, 0.f, "");
+        configParam (NLD_4_EXPANDERPARAM, 0.f, 1.f, 0.f, "");
+        configParam (OFFSET_1_EXPANDERPARAM, -24.f, 24.f, 0.f, "Fc offset A");
+        configParam (OFFSET_2_EXPANDERPARAM, -24.f, 24.f, 0.f, "Fc offset B");
+        configParam (OFFSET_3_EXPANDERPARAM, -24.f, 24.f, 0.f, "Fc offset C");
+        configParam (OFFSET_4_EXPANDERPARAM, -24.f, 24.f, 0.f, "Fc offset D");
+        configParam (FEEDBACK_PATH_EXPANDERPARAM, 0.f, 1.f, 0.f, "");
+        configParam (NLD_FEEDBACK_EXPANDERPARAM, 0.f, 1.f, 0.f, "");
+
+        //register paramHandles
+
+//        testHandle.color = nvgRGB (0xcd, 0xde, 0x87);
+//        APP->engine->addParamHandle (&testHandle);
+
+        for (auto &ph : paramHandles)
+        {
+           ph.color = nvgRGB (0xcd, 0xde, 0x87);
+            APP->engine->addParamHandle (&ph);
+        }
+    }
+
+    void process (const ProcessArgs& args) override
+    {
+        //check if connected to parent
+        auto parentConnected = leftExpander.module
+                               && leftExpander.module->model == modelBascom;
+
+        //if new parent connect parameters
+        if (parentConnected && ! isConnected)
+        {
+            APP->engine->updateParamHandle_NoLock (&paramHandles[OVERSAMPLE_PARAM],
+                                                   leftExpander.module->id,
+                                                   OVERSAMPLE_PARAM,
+                                                   true);
+
+            APP->engine->updateParamHandle_NoLock (&paramHandles[DECIMATOR_FILTERS_PARAM],
+                                                   leftExpander.module->id,
+                                                   DECIMATOR_FILTERS_PARAM,
+                                                   true);
+
+            APP->engine->updateParamHandle_NoLock (&paramHandles[PARAM_UPDATE_DIVIDER_PARAM],
+                                                   leftExpander.module->id,
+                                                   PARAM_UPDATE_DIVIDER_PARAM,
+                                                   true);
+
+            APP->engine->updateParamHandle_NoLock (&paramHandles[COEFF_A_PARAM],
+                                                   leftExpander.module->id,
+                                                   COEFF_A_PARAM,
+                                                   true);
+
+            APP->engine->updateParamHandle_NoLock (&paramHandles[COEFF_B_PARAM],
+                                                   leftExpander.module->id,
+                                                   COEFF_B_PARAM,
+                                                   true);
+
+            APP->engine->updateParamHandle_NoLock (&paramHandles[COEFF_C_PARAM],
+                                                   leftExpander.module->id,
+                                                   COEFF_C_PARAM,
+                                                   true);
+
+            APP->engine->updateParamHandle_NoLock (&paramHandles[COEFF_D_PARAM],
+                                                   leftExpander.module->id,
+                                                   COEFF_D_PARAM,
+                                                   true);
+
+            APP->engine->updateParamHandle_NoLock (&paramHandles[COEFF_E_PARAM],
+                                                   leftExpander.module->id,
+                                                   COEFF_E_PARAM,
+                                                   true);
+
+            APP->engine->updateParamHandle_NoLock (&paramHandles[FC_OFFSET_1_PARAM],
+                                                   leftExpander.module->id,
+                                                   FC_OFFSET_1_PARAM,
+                                                   true);
+
+            APP->engine->updateParamHandle_NoLock (&paramHandles[FC_OFFSET_2_PARAM],
+                                                   leftExpander.module->id,
+                                                   FC_OFFSET_2_PARAM,
+                                                   true);
+
+            APP->engine->updateParamHandle_NoLock (&paramHandles[FC_OFFSET_3_PARAM],
+                                                   leftExpander.module->id,
+                                                   FC_OFFSET_3_PARAM,
+                                                   true);
+
+            APP->engine->updateParamHandle_NoLock (&paramHandles[FC_OFFSET_4_PARAM],
+                                                   leftExpander.module->id,
+                                                   FC_OFFSET_4_PARAM,
+                                                   true);
+
+
+            isConnected = true;
+        }
+
+
+
+        //if not connected but was connected disconnect
+
+        if (! parentConnected && isConnected)
+        {
+            for (auto &ph : paramHandles)
+            {
+                APP->engine->updateParamHandle_NoLock (&ph,
+                                                       -1,
+                                                       -1,
+                                                       true);
+            }
+            isConnected = false;
+        }
+
+        //update paramhandel values
+
+        if (isConnected)
+        {
+            ParamQuantity* pq = paramHandles[OVERSAMPLE_PARAM].module->paramQuantities[paramHandles[OVERSAMPLE_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue(params[OVERSAMPLE_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[DECIMATOR_FILTERS_PARAM].module->paramQuantities[paramHandles[DECIMATOR_FILTERS_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue(params[DECIMATOR_FILTERS_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[PARAM_UPDATE_DIVIDER_PARAM].module->paramQuantities[paramHandles[PARAM_UPDATE_DIVIDER_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue(params[PARAM_UPDATE_DIVIDER_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[COEFF_A_PARAM].module->paramQuantities[paramHandles[COEFF_A_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue(params[GAIN_A_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[COEFF_B_PARAM].module->paramQuantities[paramHandles[COEFF_B_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue(params[GAIN_B_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[COEFF_C_PARAM].module->paramQuantities[paramHandles[COEFF_C_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue(params[GAIN_C_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[COEFF_D_PARAM].module->paramQuantities[paramHandles[COEFF_D_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue(params[GAIN_D_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[COEFF_E_PARAM].module->paramQuantities[paramHandles[COEFF_E_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue(params[GAIN_E_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[FC_OFFSET_1_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_1_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue(params[OFFSET_1_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[FC_OFFSET_2_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_2_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue(params[OFFSET_2_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[FC_OFFSET_3_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_3_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue(params[OFFSET_3_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[FC_OFFSET_4_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_4_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue(params[OFFSET_4_EXPANDERPARAM].getValue());
+            }
+        }
+    }
+
+    bool isConnected{ false };
 };
 
+struct BascomExpanderWidget : ModuleWidget
+{
+    BascomExpanderWidget (BascomExpander* module)
+    {
+        setModule (module);
+        setPanel (createPanel (asset::plugin (pluginInstance, "res/BascomExpander.svg")));
 
-struct BascomExpanderWidget : ModuleWidget {
-	BascomExpanderWidget(BascomExpander* module) {
-		setModule(module);
-		setPanel(createPanel(asset::plugin(pluginInstance, "res/BascomExpander.svg")));
+        addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, 0)));
+        addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+        addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+        addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (195.86, 18.48)), module, BascomExpander::OVERSAMPLE_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (195.86, 29.53)), module, BascomExpander::DECIMATOR_FILTERS_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (195.86, 41.3)), module, BascomExpander::PARAM_UPDATE_DIVIDER_EXPANDERPARAM));
 
-		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(182.317, 18.642)), module, BascomExpander::OVERSAMPLE_PARAM));
-		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(82.42, 39.28)), module, BascomExpander::GAIN_B_PARAM));
-        addParam(createParamCentered<sspo::Knob>(mm2px(Vec(107.283, 48.805)), module, BascomExpander::GAIN_C_PARAM));
-        addParam(createParamCentered<sspo::Knob>(mm2px(Vec(137.966, 58.859)), module, BascomExpander::GAIN_D_PARAM));
-        addParam(createParamCentered<sspo::Knob>(mm2px(Vec(57.557, 29.225)), module, BascomExpander::GAIN_A_PARAM));
-        addParam(createParamCentered<sspo::Knob>(mm2px(Vec(27.88, 62.563)), module, BascomExpander::NLD_INPUT_PARAM));
-		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(50.634, 62.563)), module, BascomExpander::NLD_1_PARAM));
-		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(74.976, 62.563)), module, BascomExpander::NLD_2_PARAM));
-		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(100.376, 62.563)), module, BascomExpander::NLD_3_PARAM));
-		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(125.247, 62.563)), module, BascomExpander::NLD_4_PARAM));
-		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(158.604, 62.563)), module, BascomExpander::GAIN_E_PARAM));
-		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(50.634, 85.317)), module, BascomExpander::OFFSET_1_PARAM));
-		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(74.976, 85.317)), module, BascomExpander::OFFSET_2_PARAM));
-		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(100.376, 85.317)), module, BascomExpander::OFFSET_3_PARAM));
-		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(125.247, 85.317)), module, BascomExpander::OFFSET_4_PARAM));
-		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(148.53, 91.667)), module, BascomExpander::FEEDBACK_PATH_PARAM));
-		addParam(createParamCentered<sspo::Knob>(mm2px(Vec(27.88, 103.309)), module, BascomExpander::NLD_FEEDBACK_PARAM));
-	}
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (82.42, 39.28)), module, BascomExpander::GAIN_B_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (107.283, 48.805)), module, BascomExpander::GAIN_C_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (137.966, 58.859)), module, BascomExpander::GAIN_D_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (57.557, 29.225)), module, BascomExpander::GAIN_A_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (27.88, 62.563)), module, BascomExpander::NLD_INPUT_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (50.634, 62.563)), module, BascomExpander::NLD_1_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (74.976, 62.563)), module, BascomExpander::NLD_2_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (100.376, 62.563)), module, BascomExpander::NLD_3_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (125.247, 62.563)), module, BascomExpander::NLD_4_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (158.604, 62.563)), module, BascomExpander::GAIN_E_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (50.634, 85.317)), module, BascomExpander::OFFSET_1_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (74.976, 85.317)), module, BascomExpander::OFFSET_2_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (100.376, 85.317)), module, BascomExpander::OFFSET_3_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (125.247, 85.317)), module, BascomExpander::OFFSET_4_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (148.53, 91.667)), module, BascomExpander::FEEDBACK_PATH_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (27.88, 103.309)), module, BascomExpander::NLD_FEEDBACK_EXPANDERPARAM));
+    }
 };
 
-
-Model* modelBascomExpander = createModel<BascomExpander, BascomExpanderWidget>("BascomExpander");
+Model* modelBascomExpander = createModel<BascomExpander, BascomExpanderWidget> ("BascomExpander");

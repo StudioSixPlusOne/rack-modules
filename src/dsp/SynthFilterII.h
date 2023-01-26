@@ -91,7 +91,6 @@ namespace sspo
         public:
             OnePoleFilter()
             {
-                SynthFilter<T>::type = SynthFilter<T>::Type::LPF1;
                 reset();
             }
 
@@ -142,6 +141,12 @@ namespace sspo
                 calcCoeffs();
             }
 
+            void setSampleRate ( float sr)
+            {
+                SynthFilter<T>::sampleRate = sr;
+                calcCoeffs();
+            }
+
             void setType (typename SynthFilter<T>::Type newType)
             {
                 SynthFilter<T>::type = newType;
@@ -185,13 +190,17 @@ namespace sspo
 
             ~LadderFilter() = default;
 
-            void setSampleRate(float sr)
+            void setSampleRate (float sr)
             {
                 SynthFilter<T>::sampleRate = sr;
+                lpf1.setSampleRate(sr);
+                lpf2.setSampleRate(sr);
+                lpf3.setSampleRate(sr);
+                lpf4.setSampleRate(sr);
                 calcCoeffs();
             }
 
-            void setFcQSat(const T newCutoff,
+            void setFcQSat (const T newCutoff,
                             const T newQ,
                             const T newSaturation)
             {
@@ -207,7 +216,26 @@ namespace sspo
                 calcCoeffs();
             }
 
-            void setAux(T newAux)
+            void setFcQSat (const T newCutoff1,
+                            const T newCutoff2,
+                            const T newCutoff3,
+                            const T newCutoff4,
+                            const T newQ,
+                            const T newSaturation)
+            {
+                SynthFilter<T>::cutoff = newCutoff1;
+                SynthFilter<T>::Q = newQ;
+                SynthFilter<T>::saturation = newSaturation;
+
+                lpf1.setParameters (newCutoff1, 0, 0, SynthFilter<T>::sampleRate);
+                lpf2.setParameters (newCutoff2, 0, 0, SynthFilter<T>::sampleRate);
+                lpf3.setParameters (newCutoff3, 0, 0, SynthFilter<T>::sampleRate);
+                lpf4.setParameters (newCutoff4, 0, 0, SynthFilter<T>::sampleRate);
+
+                calcCoeffs();
+            }
+
+            void setAux (T newAux)
             {
                 SynthFilter<T>::aux = newAux;
                 calcCoeffs();
@@ -261,8 +289,6 @@ namespace sspo
                        + typeCoeffs.E * f4;
             }
 
-
-
             void setCoeffs (T a, T b, T c, T d, T e)
             {
                 typeCoeffs.A = a;
@@ -312,11 +338,11 @@ namespace sspo
 
                 auto G = g / (1.0f + g);
 
-                lpf1.setFeedForward (G);
-                lpf2.setFeedForward (G);
-                lpf3.setFeedForward (G);
-                lpf4.setFeedForward (G);
-
+//                lpf1.setFeedForward (G);
+//                lpf2.setFeedForward (G);
+//                lpf3.setFeedForward (G);
+//                lpf4.setFeedForward (G);
+//
                 lpf1.setBeta (G * G * G / (1.0f + g));
                 lpf2.setBeta (G * G / (1.0f + g));
                 lpf3.setBeta (G / (1.0f + g));
@@ -327,30 +353,30 @@ namespace sspo
 
                 K = (4.0f) * (SynthFilter<T>::Q - 1.0f) / (10.0f - 1.0f);
 
-                switch (SynthFilter<T>::type)
-                {
-                    case SynthFilter<T>::Type::LPF4:
-                        typeCoeffs = { T (0.0f), T (0.0f), T (0.0f), T (0.0f), T (1.0f) };
-                        break;
-                    case SynthFilter<T>::Type::LPF2:
-                        typeCoeffs = { T (0.0f), T (0.0f), T (1.0f), T (0.0f), T (0.0f) };
-                        break;
-                    case SynthFilter<T>::Type::BPF4:
-                        typeCoeffs = { T (0.0f), T (0.0f), T (4.0f), T (-8.0f), T (4.0f) };
-                        break;
-                    case SynthFilter<T>::Type::BPF2:
-                        typeCoeffs = { T (0.0f), T (2.0f), T (-2.0f), T (0.0f), T (0.0f) };
-                        break;
-                    case SynthFilter<T>::Type::HPF4:
-                        typeCoeffs = { T (1.0f), T (-4.0f), T (6.0f), T (-4.0f), T (1.0f) };
-                        break;
-                    case SynthFilter<T>::Type::HPF2:
-                        typeCoeffs = { T (1.0f), T (-2.0f), T (1.0f), T (0.0f), T (0.0f) };
-                        break;
-                    default: //lpf4
-                        typeCoeffs = { T (0.0f), T (0.0f), T (0.0f), T (0.0f), T (1.0f) };
-                        break;
-                }
+//                switch (SynthFilter<T>::type)
+//                {
+//                    case SynthFilter<T>::Type::LPF4:
+//                        typeCoeffs = { T (0.0f), T (0.0f), T (0.0f), T (0.0f), T (1.0f) };
+//                        break;
+//                    case SynthFilter<T>::Type::LPF2:
+//                        typeCoeffs = { T (0.0f), T (0.0f), T (1.0f), T (0.0f), T (0.0f) };
+//                        break;
+//                    case SynthFilter<T>::Type::BPF4:
+//                        typeCoeffs = { T (0.0f), T (0.0f), T (4.0f), T (-8.0f), T (4.0f) };
+//                        break;
+//                    case SynthFilter<T>::Type::BPF2:
+//                        typeCoeffs = { T (0.0f), T (2.0f), T (-2.0f), T (0.0f), T (0.0f) };
+//                        break;
+//                    case SynthFilter<T>::Type::HPF4:
+//                        typeCoeffs = { T (1.0f), T (-4.0f), T (6.0f), T (-4.0f), T (1.0f) };
+//                        break;
+//                    case SynthFilter<T>::Type::HPF2:
+//                        typeCoeffs = { T (1.0f), T (-2.0f), T (1.0f), T (0.0f), T (0.0f) };
+//                        break;
+//                    default: //lpf4
+//                        typeCoeffs = { T (0.0f), T (0.0f), T (0.0f), T (0.0f), T (1.0f) };
+//                        break;
+//                }
             }
 
             OnePoleFilter<T> lpf1{};
