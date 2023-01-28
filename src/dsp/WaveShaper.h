@@ -20,6 +20,7 @@
 */
 
 #pragma once
+
 #include <cassert>
 #include <functional>
 #include <sstream>
@@ -56,8 +57,9 @@ namespace sspo
 
             using Table = std::array<float, length>;
 
-            inline float process (Table& source, const float x) noexcept
+            inline float process (Table& source, const float in) noexcept
             {
+                auto x = in; // rack::simd::clamp(in, minValue, maxValue - interval);
                 auto index = (x - minValue) / interval;
                 int preIndex = index;
                 int postIndex = (preIndex + 1);
@@ -68,7 +70,7 @@ namespace sspo
                 return linearInterpolate (source[preIndex], source[preIndex + 1], fraction);
             }
 
-            Table makeTable (std::function<float (const float x)> funct)
+            inline Table makeTable (std::function<float (const float x)> funct)
             {
                 Table table;
                 float phase = minValue;
@@ -109,6 +111,18 @@ namespace sspo
                     return WaveShaper::process (shapes[definitionIndex].table, x);
                 }
 
+                float_4 process (float_4 in, int definitionIndex)
+                {
+                    if (definitionIndex == 0)
+                        return in;
+
+                    auto x = rack::simd::clamp (in, minValue, maxValue - interval);
+                    return float_4 (process (x[0], definitionIndex),
+                                    process (x[1], definitionIndex),
+                                    process (x[2], definitionIndex),
+                                    process (x[3], definitionIndex));
+                }
+
             private:
                 std::vector<Definition> shapes;
             };
@@ -124,10 +138,15 @@ namespace sspo
                     addShape (cosShape, "cos(x)");
                 };
 
-                float linearShaper (float x) {return x;}
-                float tanhShaper (float x) {return process(x,1);}
-                float tanh2Shaper (float x) {return process(x,2);}
-                float cosShaper (float x) {return process(x,3);}
+                float linearShaper (float x) { return x; }
+                float tanhShaper (float x) { return process (x, 1); }
+                float tanh2Shaper (float x) { return process (x, 2); }
+                float cosShaper (float x) { return process (x, 3); }
+
+                float_4 linearShaper (float_4 x) { return x; }
+                float_4 tanhShaper (float_4 x) { return process (x, 1); }
+                float_4 tanh2Shaper (float_4 x) { return process (x, 2); }
+                float_4 cosShaper (float_4 x) { return process (x, 3); }
 
                 Table linearShape = makeTable ([] (const float x) -> float
                                                { return x; });

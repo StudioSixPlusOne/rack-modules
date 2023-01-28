@@ -25,6 +25,7 @@
 #include "../dsp/SynthFilterII.h"
 #include "../dsp/AudioMath.h"
 #include "../dsp/UtilityFilters.h"
+#include "../dsp/WaveShaper.h"
 #include <memory>
 #include <vector>
 #include <time.h>
@@ -102,6 +103,10 @@ public:
 
         sspo::AudioMath::defaultGenerator.seed (time (NULL));
         divider.setDivisor (1);
+
+        dcOutFilters.resize (SIMD_MAX_CHANNELS);
+        for (auto& dc : dcOutFilters)
+            dc.setButterworthHp2 (sampleRate, dcInFilterCutoff);
     }
 
 #include "BascomParamEnum.h"
@@ -127,6 +132,7 @@ public:
         NUM_LIGHTS
     };
 
+    constexpr static float dcInFilterCutoff = 5.5f;
     static constexpr float minFreq = 0.0f;
     float maxFreq = 20000.0f;
     static constexpr float maxRes = 10.0001f;
@@ -143,6 +149,8 @@ public:
     sspo::Upsampler<maxUpSampleRate, maxUpSampleQuality, float_4> upsampler;
     sspo::Decimator<maxUpSampleRate, maxUpSampleQuality, float_4> decimator;
     float_4 oversampleBuffer[maxUpSampleRate];
+    std::vector<sspo::BiQuad<float_4>> dcOutFilters;
+    WaveShaper::Nld nld;
 };
 
 template <class TBase>
@@ -207,6 +215,13 @@ inline void BascomComp<TBase>::step()
 
         if (divider.process())
         {
+            filters[c / 4].setNldTypes (TBase::params[INPUT_NLD_TYPE_PARAM].getValue(),
+                                        TBase::params[RESONANCE_NLD_TYPE_PARAM].getValue(),
+                                        TBase::params[STAGE_1_NLD_TYPE_PARAM].getValue(),
+                                        TBase::params[STAGE_2_NLD_TYPE_PARAM].getValue(),
+                                        TBase::params[STAGE_3_NLD_TYPE_PARAM].getValue(),
+                                        TBase::params[STAGE_4_NLD_TYPE_PARAM].getValue());
+
             filters[c / 4].setSampleRate (sampleRate * upsampleRate);
             filters[c / 4].setFcQSat (frequency1,
                                       frequency2,
@@ -241,7 +256,7 @@ inline void BascomComp<TBase>::step()
             in = filters[c / 4].process ((drive * in) / 10.0f) * 10.0f;
         }
 
-        auto out = in;
+        float_4 out = dcOutFilters[c / 4].process (in);
         //out = std::isfinite (out) ? out : 0;
 
         TBase::outputs[MAIN_OUTPUT].setVoltageSimd (out, c);
@@ -258,6 +273,8 @@ int BascomDescription<TBase>::getNumParams()
 template <class TBase>
 IComposite::Config BascomDescription<TBase>::getParam (int i)
 {
+    WaveShaper::Nld nld;
+
     auto freqBase = static_cast<float> (std::pow (2, 10.0f));
     auto freqMul = static_cast<float> (dsp::FREQ_C4 / std::pow (2, 5.f));
     IComposite::Config ret = { 0.0f, 1.0f, 0.0f, "Code type", "unit", 0.0f, 1.0f, 0.0f };
@@ -316,6 +333,24 @@ IComposite::Config BascomDescription<TBase>::getParam (int i)
             break;
         case BascomComp<TBase>::FC_OFFSET_4_PARAM:
             ret = { -24.0f, 24.0f, 0.0f, "Fc Offset 4", " ", 0.0f, 1.0f, 0.0f };
+            break;
+        case BascomComp<TBase>::INPUT_NLD_TYPE_PARAM:
+            ret = { 0.0f, float (nld.size()), 0.0f, "Input NLD Type", " ", 0.0f, 1.0f, 0.0f };
+            break;
+        case BascomComp<TBase>::RESONANCE_NLD_TYPE_PARAM:
+            ret = { -0.0f, float (nld.size()), 0.0f, "Resonance NLD Type", " ", 0.0f, 1.0f, 0.0f };
+            break;
+        case BascomComp<TBase>::STAGE_1_NLD_TYPE_PARAM:
+            ret = { 0.0f, float (nld.size()), 0.0f, "NLD TYPE 1", " ", 0.0f, 1.0f, 0.0f };
+            break;
+        case BascomComp<TBase>::STAGE_2_NLD_TYPE_PARAM:
+            ret = { 0.0f, float (nld.size()), 0.0f, "NLD TYPE 2", " ", 0.0f, 1.0f, 0.0f };
+            break;
+        case BascomComp<TBase>::STAGE_3_NLD_TYPE_PARAM:
+            ret = { 0.0f, float (nld.size()), 0.0f, "NLD TYPE 3", " ", 0.0f, 1.0f, 0.0f };
+            break;
+        case BascomComp<TBase>::STAGE_4_NLD_TYPE_PARAM:
+            ret = { 0.0f, float (nld.size()), 0.0f, "NLD TYPE 4", " ", 0.0f, 1.0f, 0.0f };
             break;
         default:
             assert (false);

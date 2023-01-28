@@ -19,22 +19,22 @@
 *
 */
 
-#include "SynthFilterII.h"
-#include "Analyzer.h"
-#include "FftAnalyzer.h"
-#include "AudioMath.h"
-#include "testSignal.h"
-#include "asserts.h"
-#include "simd/functions.hpp"
-#include "simd/sse_mathfun.h"
-#include "simd/sse_mathfun_extension.h"
-#include <assert.h>
+//#include "SynthFilterII.h"
+//#include "Analyzer.h"
+//#include "FftAnalyzer.h"
+//#include "AudioMath.h"
+//#include "testSignal.h"
+//#include "asserts.h"
+//#include "simd/functions.hpp"
+//#include "simd/sse_mathfun.h"
+//#include "simd/sse_mathfun_extension.h"
+//#include <assert.h>
 #include <stdio.h>
-#include <algorithm>
-
-using float_4 = ::rack::simd::float_4;
-namespace ts = sspo::TestSignal;
-using namespace sspo;
+//#include <algorithm>
+//
+//using float_4 = ::rack::simd::float_4;
+//namespace ts = sspo::TestSignal;
+//using namespace sspo;
 
 //static void testSlopeOnePoleLpFilter (const float cutoff,
 //                                      const float sr,
