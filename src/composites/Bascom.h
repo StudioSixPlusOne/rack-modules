@@ -137,7 +137,7 @@ public:
     static constexpr float minFreq = 0.0f;
     float maxFreq = 20000.0f;
     static constexpr float maxRes = 10.0001f;
-    static constexpr float maxDrive = 30.0f;
+    static constexpr float maxDrive = 5.0f;
     static constexpr int SIMD_MAX_CHANNELS = 4;
     float sampleRate = 1.0f;
     float sampleTime = 1.0f;
@@ -270,7 +270,7 @@ inline void BascomComp<TBase>::step()
         float_4 out = dcOutFilters[c / 4].process (in);
         //out = std::isfinite (out) ? out : 0;
 
-        out *= vcaGain;
+        out *= vcaGain * 0.1f;
 
         TBase::outputs[MAIN_OUTPUT].setVoltageSimd (out, c);
     }
@@ -309,7 +309,7 @@ IComposite::Config BascomDescription<TBase>::getParam (int i)
             ret = { -1.0f, 1.0f, 0.0f, "Drive CV", " ", 0.0f, 1.0f, 0.0f };
             break;
         case BascomComp<TBase>::DRIVE_PARAM:
-            ret = { 1.0f, BascomComp<TBase>::maxDrive, 1.0f, "Drive", " ", 0.0f, 1.0f, 0.0f };
+            ret = { 0.1f, BascomComp<TBase>::maxDrive, 1.0f, "Drive", " ", 0.0f, 1.0f, 0.0f };
             break;
         case BascomComp<TBase>::OVERSAMPLE_PARAM:
             ret = { 1.0f, 12, 1.0f, "Oversample", " ", 0.0f, 1.0f, 0.0f };
