@@ -64,6 +64,7 @@ struct BascomExpander : Module
     };
 
     std::array<ParamHandle, NUM_PARAMS> paramHandles;
+    sspo::AudioMath::ClockDivider divider;
 
     BascomExpander()
     {
@@ -100,6 +101,8 @@ struct BascomExpander : Module
             ph.color = nvgRGB (0xcd, 0xde, 0x87);
             APP->engine->addParamHandle (&ph);
         }
+
+        divider.setDivisor(256);
     }
 
     void process (const ProcessArgs& args) override
@@ -225,7 +228,7 @@ struct BascomExpander : Module
 
         //update paramhandel values
 
-        if (isConnected)
+        if (isConnected && divider.process())
         {
             ParamQuantity* pq = paramHandles[OVERSAMPLE_PARAM].module->paramQuantities[paramHandles[OVERSAMPLE_PARAM].paramId];
             if (pq != nullptr)
