@@ -288,11 +288,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2"
-     inkscape:cx="-47.75"
-     inkscape:cy="198.25"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="42.77996"
+     inkscape:cy="235.113"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer7"
+     inkscape:current-layer="layer2"
      showgrid="true"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -344,7 +344,7 @@
        id="rect1368"
        width="50.810242"
        height="128.50943"
-       x="-0.010335271"
+       x="0.27029774"
        y="168.50136" />
     <text
        xml:space="preserve"
@@ -380,11 +380,6 @@
        d="M 10.539499,189.84375 H 30.443362"
        style="display:inline;fill:#f9f9f9;stroke:#f9f9f9;stroke-width:0.239603;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1" />
     <path
-       style="fill:#f0f0f0;fill-opacity:1;stroke:#ffffff;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 31.75,192.34375 c 2.645833,3.70417 2.645833,3.70417 0,0 z"
-       id="path6181"
-       inkscape:connector-curvature="0" />
-    <path
        style="fill:#f9f9f9;stroke:#f9f9f9;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 39.6875,195.0625 c -5.291667,0 -5.291667,0 -5.291667,0"
        id="path6189"
@@ -401,6 +396,11 @@
        id="path6204"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path449"
+       d="M 11.189108,263.51187 H 39.532227"
+       style="display:inline;fill:#f9f9f9;stroke:#f9f9f9;stroke-width:0.285922;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1" />
     <g
        style="display:inline;fill:#f9f9f9"
        id="g2119"
@@ -431,7 +431,8 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="components"
-     style="display:none">
+     style="display:none"
+     sodipodi:insensitive="true">
     <circle
        style="display:inline;opacity:1;fill:#00ff00;fill-opacity:1;stroke-width:0.264583"
        id="path1587-8-3"
@@ -476,13 +477,6 @@
        inkscape:label="FREQ_CV" />
     <circle
        style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke-width:0.264583"
-       id="path1587-8-0-3"
-       cx="25.135416"
-       cy="92.78125"
-       r="3.96875"
-       inkscape:label="MODE" />
-    <circle
-       style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke-width:0.264583"
        id="path1587-8-0-5"
        cx="41.010418"
        cy="72.791672"
@@ -516,6 +510,27 @@
        cy="50.302078"
        r="3.96875"
        inkscape:label="RESONANCE_CV_ATTENUVERTER" />
+    <circle
+       style="display:inline;opacity:1;fill:#00ff00;fill-opacity:1;stroke-width:0.264583"
+       id="circle884"
+       cx="9.260417"
+       cy="95.011871"
+       r="3.96875"
+       inkscape:label="VCA_CV" />
+    <circle
+       style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke-width:0.264583"
+       id="circle886"
+       cx="41.010418"
+       cy="95.011871"
+       r="3.96875"
+       inkscape:label="VCA" />
+    <circle
+       style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke-width:0.264583"
+       id="circle888"
+       cx="25.135416"
+       cy="95.011871"
+       r="3.96875"
+       inkscape:label="VCA_CV_ATTENUVERTER" />
     <circle
        style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke-width:0.264583"
        id="path1587-8-0-2-9-2"
@@ -598,7 +613,7 @@
     <g
        aria-label="bascom"
        id="text2190"
-       style="font-size:8.46667px;line-height:1;-inkscape-font-specification:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;stroke-width:0.264583;stop-color:#000000">
+       style="font-size:8.46667px;line-height:1;-inkscape-font-specification:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;display:inline;stroke-width:0.264583;stop-color:#000000">
       <path
          d="m 15.375628,6.7232129 h 0.8636 l 0.1016,-0.2032001 V 5.7749459 L 16.230761,5.5548124 h -0.948267 l 0.09313,0.1862668 z m 0.9652,0.922867 -0.09313,-0.1778 h -0.87207 V 8.645147 l -0.0762,0.1608667 h 0.948267 l 0.09313,-0.1778 z m 0.313267,-0.5503335 0.474133,0.2455334 0.220134,0.4233335 v 1.0837338 l -0.3556,0.7027336 H 13.94476 L 14.300361,8.8483471 V 5.5209458 L 13.94476,4.8097455 h 3.048002 l 0.3556,0.7027336 v 0.9313337 l -0.1778,0.3979335 z"
          style="font-family:Kirsty;-inkscape-font-specification:Kirsty"
@@ -624,12 +639,24 @@
          style="font-family:Kirsty;-inkscape-font-specification:Kirsty"
          id="path1102" />
     </g>
+    <text
+       xml:space="preserve"
+       style="font-size:2.82223px;line-height:1;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-decoration:none;text-decoration-line:none;text-decoration-color:#000000;letter-spacing:0px;word-spacing:0px;text-anchor:middle;display:inline;fill:#000000;stroke-width:0.264583;stop-color:#000000"
+       x="40.747208"
+       y="88.123116"
+       id="text817"><tspan
+         sodipodi:role="line"
+         id="tspan815"
+         x="40.747208"
+         y="88.123116"
+         style="stroke-width:0.264583">VCA</tspan></text>
   </g>
   <g
      inkscape:groupmode="layer"
      id="layer7"
      inkscape:label="text path"
-     style="display:inline">
+     style="display:inline"
+     sodipodi:insensitive="true">
     <g
        aria-label="V/OCT"
        id="text2205"
@@ -821,13 +848,22 @@
          style="fill:#f9f9f9;stroke-width:0.264583"
          id="path2437" />
     </g>
-    <rect
-       style="fill:#000000;stroke:#000000;stroke-width:0.22"
-       id="rect446"
-       width="28.344803"
-       height="20.265179"
-       x="11.222384"
-       y="80.709068"
-       ry="2.265511" />
+    <g
+       aria-label="VCA"
+       id="text821"
+       style="font-size:2.82223px;line-height:1;-inkscape-font-specification:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;display:inline;stroke-width:0.264583;stop-color:#000000;fill:#f2f2f2">
+      <path
+         d="m 38.638803,88.123116 -0.785484,-2.057417 h 0.290767 l 0.651814,1.732199 0.653192,-1.732199 h 0.289389 l -0.784106,2.057417 z"
+         id="path825"
+         style="fill:#f2f2f2" />
+      <path
+         d="m 41.579545,86.224174 v 0.293523 q -0.14056,-0.130914 -0.300413,-0.195682 -0.158475,-0.06477 -0.33762,-0.06477 -0.352779,0 -0.540193,0.216352 -0.187414,0.214975 -0.187414,0.622875 0,0.406523 0.187414,0.622875 0.187414,0.214975 0.540193,0.214975 0.179145,0 0.33762,-0.06477 0.159853,-0.06477 0.300413,-0.195682 v 0.290767 q -0.146072,0.09922 -0.310059,0.148828 -0.162609,0.04961 -0.344511,0.04961 -0.467156,0 -0.735874,-0.285255 -0.268719,-0.286633 -0.268719,-0.78135 0,-0.496095 0.268719,-0.78135 0.268718,-0.286632 0.735874,-0.286632 0.184658,0 0.347267,0.04961 0.163987,0.04823 0.307303,0.146073 z"
+         id="path827"
+         style="fill:#f2f2f2" />
+      <path
+         d="m 42.697137,86.339929 -0.377583,1.023885 h 0.756545 z m -0.157097,-0.27423 h 0.315572 l 0.784106,2.057417 h -0.289389 l -0.187414,-0.527791 h -0.927422 l -0.187414,0.527791 h -0.293523 z"
+         id="path829"
+         style="fill:#f2f2f2" />
+    </g>
   </g>
 </svg>

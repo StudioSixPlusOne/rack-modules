@@ -118,6 +118,7 @@ public:
         DRIVE_CV_INPUT,
         MAIN_INPUT,
         FREQ_CV_INPUT,
+        VCA_CV_INPUT,
         NUM_INPUTS
     };
 
@@ -165,12 +166,20 @@ inline void BascomComp<TBase>::step()
     auto freqAttenuverterParam = TBase::params[FREQUENCY_CV_ATTENUVERTER_PARAM].getValue();
     auto resAttenuverterParam = TBase::params[RESONANCE_CV_ATTENUVERTER_PARAM].getValue();
     auto driveAttenuverterParam = TBase::params[DRIVE_CV_ATTENUVERTER_PARAM].getValue();
+    auto vcaParam = TBase::params[VCA_PARAM].getValue();
 
     auto noise = float_4 (1e-3f * (2.0f * sspo::AudioMath::rand01() - 1.0f));
     freqParam = freqParam * 10.0f - 5.0f;
 
     for (auto c = 0; c < channels; c += 4)
     {
+        auto vcaGain = float_4(vcaParam);
+        if (TBase::inputs[VCA_CV_INPUT].isConnected())
+        {
+            vcaGain = vcaGain + (TBase::inputs[VCA_CV_INPUT].template getPolyVoltageSimd<float_4> (c)
+                        * 0.1f * TBase::params[VCA_CV_ATTENUVERTER_PARAM].getValue());
+        }
+
         auto in = TBase::inputs[MAIN_INPUT].template getPolyVoltageSimd<float_4> (c);
         // Add -120dB noise to bootstrap self-oscillation
         in += noise;
@@ -240,6 +249,8 @@ inline void BascomComp<TBase>::step()
 
             upsampler.setOverSample (upsampleRate);
             decimator.setOverSample (upsampleRate);
+
+            filters[c / 4].setFeedbackPath (TBase::params[FEEDBACK_PATH_PARAM].getValue());
         }
 
         //only oversample if needed
@@ -258,6 +269,8 @@ inline void BascomComp<TBase>::step()
 
         float_4 out = dcOutFilters[c / 4].process (in);
         //out = std::isfinite (out) ? out : 0;
+
+        out *= vcaGain;
 
         TBase::outputs[MAIN_OUTPUT].setVoltageSimd (out, c);
     }
@@ -352,6 +365,16 @@ IComposite::Config BascomDescription<TBase>::getParam (int i)
         case BascomComp<TBase>::STAGE_4_NLD_TYPE_PARAM:
             ret = { 0.0f, float (nld.size()), 0.0f, "NLD TYPE 4", " ", 0.0f, 1.0f, 0.0f };
             break;
+        case BascomComp<TBase>::VCA_CV_ATTENUVERTER_PARAM:
+            ret = { -1.0f, 1.0f, 0.0f, "VCA IN", " ", 0.0f, 1.0f, 0.0f };
+            break;
+        case BascomComp<TBase>::VCA_PARAM:
+            ret = { 0.0f, 2.0, 0.5f, "VCA GAIN", " ", 0.0f, 1.0f, 0.0f };
+            break;
+        case BascomComp<TBase>::FEEDBACK_PATH_PARAM:
+            ret = { 0.0f, 1.0, 0.0f, "Feedback Path", " ", 0.0f, 1.0f, 0.0f };
+            break;
+
         default:
             assert (false);
     }

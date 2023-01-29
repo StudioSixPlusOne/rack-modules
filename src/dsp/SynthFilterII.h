@@ -287,6 +287,7 @@ namespace sspo
                              + lpf2.getFeedbackOut()
                              + lpf3.getFeedbackOut()
                              + lpf4.getFeedbackOut();
+                sigma = linearInterpolate(sigma, z1, T(feedbackPathCrossfade));
                 nld.process (sigma, sigma, resNldType);
                 T xn;
                 nld.process (xn, in, inNldType);
@@ -301,11 +302,13 @@ namespace sspo
                 nld.process (f3, f3, s4Stype);
                 auto f4 = lpf4.process (f3);
 
-                return typeCoeffs.A * U
+                z1 = typeCoeffs.A * U
                        + typeCoeffs.B * f1
                        + typeCoeffs.C * f2
                        + typeCoeffs.D * f3
                        + typeCoeffs.E * f4;
+
+                return z1;
             }
 
             void setCoeffs (T a, T b, T c, T d, T e)
@@ -315,6 +318,11 @@ namespace sspo
                 typeCoeffs.C = c;
                 typeCoeffs.D = d;
                 typeCoeffs.E = e;
+            }
+
+            void setFeedbackPath (const float path)
+            {
+                feedbackPathCrossfade = path;
             }
 
             void reset()
@@ -388,6 +396,9 @@ namespace sspo
             T K{ 0.0f };
             T gamma{ 0.0f };
             T alpha{ 1.0f };
+            T z1{ 0.0f };
+
+            float feedbackPathCrossfade {0};
         };
     } // namespace synthFilterII
 } // namespace sspo

@@ -79,12 +79,16 @@ struct BascomWidget : ModuleWidget
         addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (25.135, 70.292 + 2.5)), module, Comp::DRIVE_CV_ATTENUVERTER_PARAM));
         addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (41.01, 70.292 + 2.5)), module, Comp::DRIVE_PARAM));
 
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (25.135, 95.082 )), module, Comp::VCA_CV_ATTENUVERTER_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (41.01, 95.082 )), module, Comp::VCA_PARAM));
+
 
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 21.344)), module, Comp::VOCT_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 47.802 + 2.5)), module, Comp::RESONANCE_CV_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 70.292 + 2.5)), module, Comp::DRIVE_CV_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 112.625)), module, Comp::MAIN_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 29.50 + 2.5)), module, Comp::FREQ_CV_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 95.082 )), module, Comp::VCA_CV_INPUT));
 
         addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (41.01, 112.625)), module, Comp::MAIN_OUTPUT));
 
@@ -95,6 +99,7 @@ struct BascomWidget : ModuleWidget
             module->configInput(Comp::DRIVE_CV_INPUT, "Drive");
             module->configInput(Comp::MAIN_INPUT, "Main");
             module->configInput(Comp::FREQ_CV_INPUT, "Freq");
+            module->configInput(Comp::VCA_CV_INPUT, "Gain");
 
             module->configOutput(Comp::MAIN_OUTPUT, "Main");
         }

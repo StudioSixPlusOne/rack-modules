@@ -201,6 +201,11 @@ struct BascomExpander : Module
                                                    STAGE_4_NLD_TYPE_PARAM,
                                                    true);
 
+            APP->engine->updateParamHandle_NoLock (&paramHandles[FEEDBACK_PATH_PARAM],
+                                                   leftExpander.module->id,
+                                                   FEEDBACK_PATH_PARAM,
+                                                   true);
+
             isConnected = true;
         }
 
@@ -329,6 +334,12 @@ struct BascomExpander : Module
             if (pq != nullptr)
             {
                 pq->setValue (params[NLD_4_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[FEEDBACK_PATH_PARAM].module->paramQuantities[paramHandles[FEEDBACK_PATH_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (params[FEEDBACK_PATH_EXPANDERPARAM].getValue());
             }
         }
     }
