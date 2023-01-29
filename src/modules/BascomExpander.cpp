@@ -78,17 +78,17 @@ struct BascomExpander : Module
         configParam (GAIN_C_EXPANDERPARAM, -18.f, 18.f, 0.f, "Mix Coeff C");
         configParam (GAIN_D_EXPANDERPARAM, -18.f, 18.f, 0.f, "Mix Coeff D");
         configParam (GAIN_E_EXPANDERPARAM, -18.f, 18.f, 0.f, "Mix Coeff E");
-        configParam (NLD_INPUT_EXPANDERPARAM, 0.f, float (nld.size()), 0.f, "Input NLD");
-        configParam (NLD_1_EXPANDERPARAM, 0.f, float (nld.size()), 0.f, "S1 NLD");
-        configParam (NLD_2_EXPANDERPARAM, 0.f, float (nld.size()), 0.f, "S2 NLD");
-        configParam (NLD_3_EXPANDERPARAM, 0.f, float (nld.size()), 0.f, "S3 NLD");
-        configParam (NLD_4_EXPANDERPARAM, 0.f, float (nld.size()), 0.f, "S4 NLD");
+        configParam (NLD_INPUT_EXPANDERPARAM, 0.f, float (nld.size()-1), 0.f, "Input NLD");
+        configParam (NLD_1_EXPANDERPARAM, 0.f, float (nld.size()-1), 0.f, "S1 NLD");
+        configParam (NLD_2_EXPANDERPARAM, 0.f, float (nld.size()-1), 0.f, "S2 NLD");
+        configParam (NLD_3_EXPANDERPARAM, 0.f, float (nld.size()-1), 0.f, "S3 NLD");
+        configParam (NLD_4_EXPANDERPARAM, 0.f, float (nld.size()-1), 0.f, "S4 NLD");
         configParam (OFFSET_1_EXPANDERPARAM, -24.f, 24.f, 0.f, "Fc offset A");
         configParam (OFFSET_2_EXPANDERPARAM, -24.f, 24.f, 0.f, "Fc offset B");
         configParam (OFFSET_3_EXPANDERPARAM, -24.f, 24.f, 0.f, "Fc offset C");
         configParam (OFFSET_4_EXPANDERPARAM, -24.f, 24.f, 0.f, "Fc offset D");
         configParam (FEEDBACK_PATH_EXPANDERPARAM, 0.f, 1, 0.f, "Feedback Path");
-        configParam (NLD_FEEDBACK_EXPANDERPARAM, 0.f, float (nld.size()), 0.f, "Feedback NLD");
+        configParam (NLD_FEEDBACK_EXPANDERPARAM, 0.f, float (nld.size() -1), 0.f, "Feedback NLD");
 
         //register paramHandles
 

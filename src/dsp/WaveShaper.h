@@ -49,25 +49,43 @@ namespace sspo
         namespace WaveShaper
         {
             static constexpr auto length = 4096U;
-            static constexpr auto mask = length - 1;
+            static constexpr auto mask = length - 2;
             static constexpr auto minValue = -1.2f;
             static constexpr auto maxValue = 1.2f;
             static constexpr auto range = maxValue - minValue;
             static constexpr auto interval = range / length;
+            static constexpr auto recpInterval = 1.0f / interval;
 
             using Table = std::array<float, length>;
 
-            inline float process (Table& source, const float in) noexcept
+            inline float process (const Table& source, const float in) noexcept
             {
                 auto x = in; // rack::simd::clamp(in, minValue, maxValue - interval);
-                auto index = (x - minValue) / interval;
-                int preIndex = index;
+                auto index = (x - minValue) * recpInterval;
+                int preIndex = int (index) & mask;
                 int postIndex = (preIndex + 1);
                 float fraction = index - preIndex;
 
-                preIndex &= mask;
-                postIndex &= mask;
-                return linearInterpolate (source[preIndex], source[preIndex + 1], fraction);
+                return linearInterpolate (source[preIndex], source[postIndex], fraction);
+            }
+
+            inline float_4 process (const Table& source, const float_4 in) noexcept
+            {
+                auto x = in;
+                auto index = (x - minValue) * recpInterval;
+                auto preIndex = rack::simd::floor (index); //& mask;
+                auto postIndex = (preIndex + 1);
+                auto fraction = index - preIndex;
+                float_4 lower = float_4 (source[preIndex[0]],
+                                         source[preIndex[1]],
+                                         source[preIndex[2]],
+                                         source[preIndex[3]]);
+                float_4 upper = float_4{ source[postIndex[0]],
+                                         source[postIndex[1]],
+                                         source[postIndex[2]],
+                                         source[postIndex[3]] };
+
+                return linearInterpolate (lower, upper, fraction);
             }
 
             inline Table makeTable (std::function<float (const float x)> funct)
@@ -111,16 +129,29 @@ namespace sspo
                     return WaveShaper::process (shapes[definitionIndex].table, x);
                 }
 
-                float_4 process (float_4 in, int definitionIndex)
+                float_4 process (const float_4 in, const int definitionIndex)
                 {
                     if (definitionIndex == 0)
                         return in;
-
                     auto x = rack::simd::clamp (in, minValue, maxValue - interval);
                     return float_4 (process (x[0], definitionIndex),
                                     process (x[1], definitionIndex),
                                     process (x[2], definitionIndex),
                                     process (x[3], definitionIndex));
+                }
+
+                void process (float_4& out, const float_4 in, const int definitionIndex)
+                {
+                    if (definitionIndex == 0)
+                    {
+                        out = in;
+                        return;
+                    }
+                    auto x = rack::simd::clamp (in, minValue, maxValue - interval);
+                    out = { process (x[0], definitionIndex),
+                            process (x[1], definitionIndex),
+                            process (x[2], definitionIndex),
+                            process (x[3], definitionIndex) };
                 }
 
             private:
@@ -136,6 +167,11 @@ namespace sspo
                     addShape (tanhShape, "tanh(x)");
                     addShape (tanh2Shape, "tanh(2x)");
                     addShape (cosShape, "cos(x)");
+
+                    addShape (arctanZeroFiveShape, "atan 0.5");
+                    addShape (arctanOneShape, "atan 1.0");
+                    addShape (arctanTwoShape, "atan 2.0");
+                    addShape (arctanFiveShape, "atan 5.0");
                 };
 
                 float linearShaper (float x) { return x; }
@@ -159,6 +195,15 @@ namespace sspo
 
                 Table cosShape = makeTable ([] (const float x) -> float
                                             { return cosf (k_pi * x); });
+
+                Table arctanZeroFiveShape = makeTable ([] (const float x) -> float
+                                                       { return atanf (x * 0.5) / atanf (0.5); });
+                Table arctanOneShape = makeTable ([] (const float x) -> float
+                                                  { return atanf (x * 1.0f) / atanf (1.0f); });
+                Table arctanTwoShape = makeTable ([] (const float x) -> float
+                                                  { return atanf (x * 2.0f) / atanf (2.0); });
+                Table arctanFiveShape = makeTable ([] (const float x) -> float
+                                                   { return atanf (x * 5.0f) / atanf (5.0f); });
             };
 
         } // namespace WaveShaper

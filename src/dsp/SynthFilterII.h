@@ -198,7 +198,7 @@ namespace sspo
                 lpf2.setSampleRate (sr);
                 lpf3.setSampleRate (sr);
                 lpf4.setSampleRate (sr);
-                calcCoeffs();
+                //                calcCoeffs();
             }
 
             void setFcQSat (const T newCutoff,
@@ -217,7 +217,7 @@ namespace sspo
                 calcCoeffs();
             }
 
-            void setNldTypes(int inNld, int resNld, int s1, int s2, int s3, int s4)
+            void setNldTypes (int inNld, int resNld, int s1, int s2, int s3, int s4)
             {
                 inNldType = inNld;
                 resNldType = resNld;
@@ -287,17 +287,18 @@ namespace sspo
                              + lpf2.getFeedbackOut()
                              + lpf3.getFeedbackOut()
                              + lpf4.getFeedbackOut();
-                sigma = nld.process(sigma, resNldType);
-                auto xn = nld.process(in, inNldType);
+                nld.process (sigma, sigma, resNldType);
+                T xn;
+                nld.process (xn, in, inNldType);
                 xn *= 1.0f + SynthFilter<T>::aux * K;
                 auto U = (xn - K * sigma) * alpha;
-                U = nld.process(U,s1Stype);
+                nld.process (U, U, s1Stype);
                 auto f1 = lpf1.process (U);
-                f1 = nld.process(f1,s2Stype);
+                nld.process (f1, f1, s2Stype);
                 auto f2 = lpf2.process (f1);
-                f2 = nld.process(f2,s3Stype);
+                nld.process (f2, f2, s3Stype);
                 auto f3 = lpf3.process (f2);
-                f3 = nld.process(f3,s4Stype);
+                nld.process (f3, f3, s4Stype);
                 auto f4 = lpf4.process (f3);
 
                 return typeCoeffs.A * U
@@ -370,7 +371,6 @@ namespace sspo
                 alpha = 1.0f / (1.0f + K * gamma);
 
                 K = (4.0f) * (SynthFilter<T>::Q - 1.0f) / (10.0f - 1.0f);
-
             }
 
             OnePoleFilter<T> lpf1{};
@@ -378,14 +378,12 @@ namespace sspo
             OnePoleFilter<T> lpf3{};
             OnePoleFilter<T> lpf4{};
 
-            int resNldType {0};
-            int inNldType {0};
-            int s1Stype{0};
-            int s2Stype{0};
-            int s3Stype{0};
-            int s4Stype{0};
-
-
+            int resNldType{ 0 };
+            int inNldType{ 0 };
+            int s1Stype{ 0 };
+            int s2Stype{ 0 };
+            int s3Stype{ 0 };
+            int s4Stype{ 0 };
 
             T K{ 0.0f };
             T gamma{ 0.0f };
