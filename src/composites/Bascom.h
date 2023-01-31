@@ -28,7 +28,7 @@
 #include "../dsp/WaveShaper.h"
 #include <memory>
 #include <vector>
-#include <time.h>
+//#include <time.h>
 
 using float_4 = ::rack::simd::float_4;
 

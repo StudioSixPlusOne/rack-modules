@@ -24,6 +24,7 @@
 #include "WidgetComposite.h"
 #include "ctrl/SqMenuItem.h"
 #include "widgets.h"
+#include "AudioMath.h"
 
 using Comp = BascomComp<WidgetComposite>;
 

@@ -153,8 +153,18 @@
       ]
     },
     {
-      "slug": "testslug",
+      "slug": "Bascom",
       "name": "Bascom",
+      "description": "Multi form Non Linear Filter self oscillating vcf",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#Bascom",
+      "tags": [
+        "Polyphonic",
+        "Filter"
+      ]
+    },
+    {
+      "slug": "BascomExpander",
+      "name": "BascomExpander",
       "description": "Multi form Non Linear Filter self oscillating vcf",
       "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#Bascom",
       "tags": [
