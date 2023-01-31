@@ -153,18 +153,12 @@
       ]
     },
     {
-      "slug": "BascomExpander",
-      "name": "BascomExpander",
-      "description": "Filter design expander for Bascom",
-      "tags": [
-        "Filter", "Expander"
-      ]
-    },
-    {
-      "slug": "Bascom",
+      "slug": "testslug",
       "name": "Bascom",
-      "description": "Ladder Filter with various Non linear distortions, and variable pole mixer",
+      "description": "Multi form Non Linear Filter self oscillating vcf",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#Bascom",
       "tags": [
+        "Polyphonic",
         "Filter"
       ]
     }

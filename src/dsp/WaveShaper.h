@@ -25,7 +25,7 @@
 #include <functional>
 #include <sstream>
 #include <vector>
-
+#include <array>
 #include "AudioMath.h"
 
 #include "simd/functions.hpp"
@@ -163,6 +163,29 @@ namespace sspo
             public:
                 Nld()
                 {
+                    Table linearShape = makeTable ([] (const float x) -> float
+                                                   { return x; });
+
+                    Table tanhShape = makeTable ([] (const float x) -> float
+                                                 { return tanhf (x); });
+
+                    Table tanh2Shape = makeTable ([] (const float x) -> float
+                                                  { return tanhf (2.0f * x); });
+
+                    Table cosShape = makeTable ([] (const float x) -> float
+                                                { return cosf (k_pi * x); });
+
+
+                    Table arctanZeroFiveShape = makeTable ([] (const float x) -> float
+                                                           { return atanf (x * 0.5) / atanf (0.5); });
+                    Table arctanOneShape = makeTable ([] (const float x) -> float
+                                                      { return atanf (x * 1.0f) / atanf (1.0f); });
+                    Table arctanTwoShape = makeTable ([] (const float x) -> float
+                                                      { return atanf (x * 2.0f) / atanf (2.0); });
+                    Table arctanFiveShape = makeTable ([] (const float x) -> float
+                                                       { return atanf (x * 5.0f) / atanf (5.0f); });
+
+
                     addShape (linearShape, "Linear");
                     addShape (tanhShape, "tanh(x)");
                     addShape (tanh2Shape, "tanh(2x)");
@@ -184,26 +207,6 @@ namespace sspo
                 float_4 tanh2Shaper (float_4 x) { return process (x, 2); }
                 float_4 cosShaper (float_4 x) { return process (x, 3); }
 
-                Table linearShape = makeTable ([] (const float x) -> float
-                                               { return x; });
-
-                Table tanhShape = makeTable ([] (const float x) -> float
-                                             { return tanhf (x); });
-
-                Table tanh2Shape = makeTable ([] (const float x) -> float
-                                              { return tanhf (2.0f * x); });
-
-                Table cosShape = makeTable ([] (const float x) -> float
-                                            { return cosf (k_pi * x); });
-
-                Table arctanZeroFiveShape = makeTable ([] (const float x) -> float
-                                                       { return atanf (x * 0.5) / atanf (0.5); });
-                Table arctanOneShape = makeTable ([] (const float x) -> float
-                                                  { return atanf (x * 1.0f) / atanf (1.0f); });
-                Table arctanTwoShape = makeTable ([] (const float x) -> float
-                                                  { return atanf (x * 2.0f) / atanf (2.0); });
-                Table arctanFiveShape = makeTable ([] (const float x) -> float
-                                                   { return atanf (x * 5.0f) / atanf (5.0f); });
             };
 
         } // namespace WaveShaper
