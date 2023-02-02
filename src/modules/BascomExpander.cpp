@@ -79,17 +79,17 @@ struct BascomExpander : Module
         configParam (GAIN_C_EXPANDERPARAM, -18.f, 18.f, 0.f, "Mix Coeff C");
         configParam (GAIN_D_EXPANDERPARAM, -18.f, 18.f, 0.f, "Mix Coeff D");
         configParam (GAIN_E_EXPANDERPARAM, -18.f, 18.f, 0.f, "Mix Coeff E");
-        configParam (NLD_INPUT_EXPANDERPARAM, 0.f, float (nld.size()-1), 0.f, "Input NLD");
-        configParam (NLD_1_EXPANDERPARAM, 0.f, float (nld.size()-1), 0.f, "S1 NLD");
-        configParam (NLD_2_EXPANDERPARAM, 0.f, float (nld.size()-1), 0.f, "S2 NLD");
-        configParam (NLD_3_EXPANDERPARAM, 0.f, float (nld.size()-1), 0.f, "S3 NLD");
-        configParam (NLD_4_EXPANDERPARAM, 0.f, float (nld.size()-1), 0.f, "S4 NLD");
+        configParam (NLD_INPUT_EXPANDERPARAM, 0.f, float (nld.size() - 1), 0.f, "Input NLD");
+        configParam (NLD_1_EXPANDERPARAM, 0.f, float (nld.size() - 1), 0.f, "S1 NLD");
+        configParam (NLD_2_EXPANDERPARAM, 0.f, float (nld.size() - 1), 0.f, "S2 NLD");
+        configParam (NLD_3_EXPANDERPARAM, 0.f, float (nld.size() - 1), 0.f, "S3 NLD");
+        configParam (NLD_4_EXPANDERPARAM, 0.f, float (nld.size() - 1), 0.f, "S4 NLD");
         configParam (OFFSET_1_EXPANDERPARAM, -24.f, 24.f, 0.f, "Fc offset A");
         configParam (OFFSET_2_EXPANDERPARAM, -24.f, 24.f, 0.f, "Fc offset B");
         configParam (OFFSET_3_EXPANDERPARAM, -24.f, 24.f, 0.f, "Fc offset C");
         configParam (OFFSET_4_EXPANDERPARAM, -24.f, 24.f, 0.f, "Fc offset D");
         configParam (FEEDBACK_PATH_EXPANDERPARAM, 0.f, 1, 0.f, "Feedback Path");
-        configParam (NLD_FEEDBACK_EXPANDERPARAM, 0.f, float (nld.size() -1), 0.f, "Feedback NLD");
+        configParam (NLD_FEEDBACK_EXPANDERPARAM, 0.f, float (nld.size() - 1), 0.f, "Feedback NLD");
 
         //register paramHandles
 
@@ -102,7 +102,7 @@ struct BascomExpander : Module
             APP->engine->addParamHandle (&ph);
         }
 
-        divider.setDivisor(256);
+        divider.setDivisor (256);
     }
 
     void process (const ProcessArgs& args) override
@@ -346,42 +346,43 @@ struct BascomExpander : Module
             }
         }
     }
-        bool isConnected{ false };
-    };
+    bool isConnected{ false };
+};
 
-    struct BascomExpanderWidget : ModuleWidget
+struct BascomExpanderWidget : ModuleWidget
+{
+    BascomExpanderWidget (BascomExpander* module)
     {
-        BascomExpanderWidget (BascomExpander* module)
-        {
-            setModule (module);
-            setPanel (createPanel (asset::plugin (pluginInstance, "res/BascomExpander.svg")));
+        setModule (module);
+        setPanel (createPanel (asset::plugin (pluginInstance, "res/BascomExpander.svg")));
 
-            addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, 0)));
-            addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-            addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-            addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+        addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, 0)));
+        addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+        addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+        addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (195.86, 18.48)), module, BascomExpander::OVERSAMPLE_EXPANDERPARAM));
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (195.86, 29.53)), module, BascomExpander::DECIMATOR_FILTERS_EXPANDERPARAM));
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (195.86, 41.3)), module, BascomExpander::PARAM_UPDATE_DIVIDER_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::SnapKnob> (mm2px (Vec (195.86, 18.48)), module, BascomExpander::OVERSAMPLE_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::SnapKnob> (mm2px (Vec (195.86, 29.53)), module, BascomExpander::DECIMATOR_FILTERS_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::SnapKnob> (mm2px (Vec (195.86, 41.3)), module, BascomExpander::PARAM_UPDATE_DIVIDER_EXPANDERPARAM));
 
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (82.42, 39.28)), module, BascomExpander::GAIN_B_EXPANDERPARAM));
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (107.283, 48.805)), module, BascomExpander::GAIN_C_EXPANDERPARAM));
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (137.966, 58.859)), module, BascomExpander::GAIN_D_EXPANDERPARAM));
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (57.557, 29.225)), module, BascomExpander::GAIN_A_EXPANDERPARAM));
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (27.88, 62.563)), module, BascomExpander::NLD_INPUT_EXPANDERPARAM));
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (50.634, 62.563)), module, BascomExpander::NLD_1_EXPANDERPARAM));
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (74.976, 62.563)), module, BascomExpander::NLD_2_EXPANDERPARAM));
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (100.376, 62.563)), module, BascomExpander::NLD_3_EXPANDERPARAM));
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (125.247, 62.563)), module, BascomExpander::NLD_4_EXPANDERPARAM));
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (158.604, 62.563)), module, BascomExpander::GAIN_E_EXPANDERPARAM));
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (50.634, 85.317)), module, BascomExpander::OFFSET_1_EXPANDERPARAM));
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (74.976, 85.317)), module, BascomExpander::OFFSET_2_EXPANDERPARAM));
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (100.376, 85.317)), module, BascomExpander::OFFSET_3_EXPANDERPARAM));
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (125.247, 85.317)), module, BascomExpander::OFFSET_4_EXPANDERPARAM));
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (148.53, 91.667)), module, BascomExpander::FEEDBACK_PATH_EXPANDERPARAM));
-            addParam (createParamCentered<sspo::Knob> (mm2px (Vec (27.88, 103.309)), module, BascomExpander::NLD_FEEDBACK_EXPANDERPARAM));
-        }
-    };
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (82.42, 39.28)), module, BascomExpander::GAIN_B_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (107.283, 48.805)), module, BascomExpander::GAIN_C_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (137.966, 58.859)), module, BascomExpander::GAIN_D_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (57.557, 29.225)), module, BascomExpander::GAIN_A_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::SnapKnob> (mm2px (Vec (27.88, 62.563)), module, BascomExpander::NLD_INPUT_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::SnapKnob> (mm2px (Vec (50.634, 62.563)), module, BascomExpander::NLD_1_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::SnapKnob> (mm2px (Vec (74.976, 62.563)), module, BascomExpander::NLD_2_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::SnapKnob> (mm2px (Vec (100.376, 62.563)), module, BascomExpander::NLD_3_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::SnapKnob> (mm2px (Vec (125.247, 62.563)), module, BascomExpander::NLD_4_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (158.604, 62.563)), module, BascomExpander::GAIN_E_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (50.634, 85.317)), module, BascomExpander::OFFSET_1_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (74.976, 85.317)), module, BascomExpander::OFFSET_2_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (100.376, 85.317)), module, BascomExpander::OFFSET_3_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (125.247, 85.317)), module, BascomExpander::OFFSET_4_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (148.53, 91.667)), module, BascomExpander::FEEDBACK_PATH_EXPANDERPARAM));
+        addParam (createParamCentered<sspo::NldKnob> (mm2px (Vec (27.88, 103.309)), module, BascomExpander::NLD_FEEDBACK_EXPANDERPARAM));
+    }
 
-    Model* modelBascomExpander = createModel<BascomExpander, BascomExpanderWidget> ("BascomExpander");
+};
+
+Model* modelBascomExpander = createModel<BascomExpander, BascomExpanderWidget> ("BascomExpander");
