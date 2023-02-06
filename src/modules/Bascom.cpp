@@ -39,6 +39,7 @@ struct Bascom : Module
         std::shared_ptr<IComposite> icomp = Comp::getDescription();
         SqHelper::setupParams (icomp, this);
 
+        configBypass(Comp::MAIN_INPUT, Comp::MAIN_OUTPUT);
         onSampleRateChange();
         ma->init();
     }
