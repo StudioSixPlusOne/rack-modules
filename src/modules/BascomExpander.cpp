@@ -119,95 +119,232 @@ struct BascomExpander : Module
                                                    OVERSAMPLE_PARAM,
                                                    true);
 
+            {
+                ParamQuantity* pq = paramHandles[OVERSAMPLE_PARAM].module->paramQuantities[paramHandles[OVERSAMPLE_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[OVERSAMPLE_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
+
             APP->engine->updateParamHandle_NoLock (&paramHandles[DECIMATOR_FILTERS_PARAM],
                                                    leftExpander.module->id,
                                                    DECIMATOR_FILTERS_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[DECIMATOR_FILTERS_PARAM].module->paramQuantities[paramHandles[DECIMATOR_FILTERS_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[DECIMATOR_FILTERS_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
 
             APP->engine->updateParamHandle_NoLock (&paramHandles[PARAM_UPDATE_DIVIDER_PARAM],
                                                    leftExpander.module->id,
                                                    PARAM_UPDATE_DIVIDER_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[PARAM_UPDATE_DIVIDER_PARAM].module->paramQuantities[paramHandles[PARAM_UPDATE_DIVIDER_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[PARAM_UPDATE_DIVIDER_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
+
 
             APP->engine->updateParamHandle_NoLock (&paramHandles[COEFF_A_PARAM],
                                                    leftExpander.module->id,
                                                    COEFF_A_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[COEFF_A_PARAM].module->paramQuantities[paramHandles[COEFF_A_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[GAIN_A_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
 
             APP->engine->updateParamHandle_NoLock (&paramHandles[COEFF_B_PARAM],
                                                    leftExpander.module->id,
                                                    COEFF_B_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[COEFF_B_PARAM].module->paramQuantities[paramHandles[COEFF_B_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[GAIN_B_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
 
             APP->engine->updateParamHandle_NoLock (&paramHandles[COEFF_C_PARAM],
                                                    leftExpander.module->id,
                                                    COEFF_C_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[COEFF_C_PARAM].module->paramQuantities[paramHandles[COEFF_C_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[GAIN_C_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
 
             APP->engine->updateParamHandle_NoLock (&paramHandles[COEFF_D_PARAM],
                                                    leftExpander.module->id,
                                                    COEFF_D_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[COEFF_D_PARAM].module->paramQuantities[paramHandles[COEFF_D_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[GAIN_D_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
 
             APP->engine->updateParamHandle_NoLock (&paramHandles[COEFF_E_PARAM],
                                                    leftExpander.module->id,
                                                    COEFF_E_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[COEFF_E_PARAM].module->paramQuantities[paramHandles[COEFF_E_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[GAIN_E_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
 
             APP->engine->updateParamHandle_NoLock (&paramHandles[FC_OFFSET_1_PARAM],
                                                    leftExpander.module->id,
                                                    FC_OFFSET_1_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[FC_OFFSET_1_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_1_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[OFFSET_1_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
 
             APP->engine->updateParamHandle_NoLock (&paramHandles[FC_OFFSET_2_PARAM],
                                                    leftExpander.module->id,
                                                    FC_OFFSET_2_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[FC_OFFSET_2_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_2_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[OFFSET_2_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
 
             APP->engine->updateParamHandle_NoLock (&paramHandles[FC_OFFSET_3_PARAM],
                                                    leftExpander.module->id,
                                                    FC_OFFSET_3_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[FC_OFFSET_3_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_3_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[OFFSET_3_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
 
             APP->engine->updateParamHandle_NoLock (&paramHandles[FC_OFFSET_4_PARAM],
                                                    leftExpander.module->id,
                                                    FC_OFFSET_4_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[FC_OFFSET_4_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_4_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[OFFSET_4_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
 
             APP->engine->updateParamHandle_NoLock (&paramHandles[INPUT_NLD_TYPE_PARAM],
                                                    leftExpander.module->id,
                                                    INPUT_NLD_TYPE_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[INPUT_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[INPUT_NLD_TYPE_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[NLD_INPUT_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
 
             APP->engine->updateParamHandle_NoLock (&paramHandles[RESONANCE_NLD_TYPE_PARAM],
                                                    leftExpander.module->id,
                                                    RESONANCE_NLD_TYPE_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[RESONANCE_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[RESONANCE_NLD_TYPE_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[RESONANCE_NLD_TYPE_PARAM].setValue (pq->getValue());
+                }
+            }
+
 
             APP->engine->updateParamHandle_NoLock (&paramHandles[STAGE_1_NLD_TYPE_PARAM],
                                                    leftExpander.module->id,
                                                    STAGE_1_NLD_TYPE_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[STAGE_1_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_1_NLD_TYPE_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[NLD_1_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
+
 
             APP->engine->updateParamHandle_NoLock (&paramHandles[STAGE_2_NLD_TYPE_PARAM],
                                                    leftExpander.module->id,
                                                    STAGE_2_NLD_TYPE_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[STAGE_2_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_2_NLD_TYPE_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[NLD_2_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
 
             APP->engine->updateParamHandle_NoLock (&paramHandles[STAGE_3_NLD_TYPE_PARAM],
                                                    leftExpander.module->id,
                                                    STAGE_3_NLD_TYPE_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[STAGE_3_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_3_NLD_TYPE_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[NLD_3_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
 
             APP->engine->updateParamHandle_NoLock (&paramHandles[STAGE_4_NLD_TYPE_PARAM],
                                                    leftExpander.module->id,
                                                    STAGE_4_NLD_TYPE_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[STAGE_4_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_4_NLD_TYPE_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[NLD_4_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
 
             APP->engine->updateParamHandle_NoLock (&paramHandles[FEEDBACK_PATH_PARAM],
                                                    leftExpander.module->id,
                                                    FEEDBACK_PATH_PARAM,
                                                    true);
+            {
+                ParamQuantity* pq = paramHandles[FEEDBACK_PATH_PARAM].module->paramQuantities[paramHandles[FEEDBACK_PATH_PARAM].paramId];
+                if (pq != nullptr)
+                {
+                    params[FEEDBACK_PATH_EXPANDERPARAM].setValue (pq->getValue());
+                }
+            }
 
             isConnected = true;
         }
