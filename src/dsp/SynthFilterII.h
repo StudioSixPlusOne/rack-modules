@@ -287,12 +287,13 @@ namespace sspo
                              + lpf2.getFeedbackOut()
                              + lpf3.getFeedbackOut()
                              + lpf4.getFeedbackOut();
+                sigma *= K;
                 sigma = linearInterpolate(sigma, z1, T(feedbackPathCrossfade));
                 nld.process (sigma, sigma, resNldType);
                 T xn;
                 nld.process (xn, in, inNldType);
                 xn *= 1.0f + SynthFilter<T>::aux * K;
-                auto U = (xn - K * sigma) * alpha;
+                auto U = (xn - sigma) * alpha;
                 nld.process (U, U, s1Stype);
                 auto f1 = lpf1.process (U);
                 nld.process (f1, f1, s2Stype);
