@@ -74,11 +74,11 @@ struct BascomExpander : Module
         configParam (DECIMATOR_FILTERS_EXPANDERPARAM, 1.0f, 12.0f, 1.0f, "Decimator Filters");
         configParam (PARAM_UPDATE_DIVIDER_EXPANDERPARAM, 1.0f, 128.0f, 1.0f, "Update Divider");
 
-        configParam (GAIN_A_EXPANDERPARAM, -18.f, 18.f, 0.f, "Mix Coeff A");
-        configParam (GAIN_B_EXPANDERPARAM, -18.f, 18.f, 0.f, "Mix Coeff B");
-        configParam (GAIN_C_EXPANDERPARAM, -18.f, 18.f, 0.f, "Mix Coeff C");
-        configParam (GAIN_D_EXPANDERPARAM, -18.f, 18.f, 0.f, "Mix Coeff D");
-        configParam (GAIN_E_EXPANDERPARAM, -18.f, 18.f, 0.f, "Mix Coeff E");
+        configParam (GAIN_A_EXPANDERPARAM, -32.f, 32.f, 0.f, "Mix Coeff A");
+        configParam (GAIN_B_EXPANDERPARAM, -32.f, 32.f, 0.f, "Mix Coeff B");
+        configParam (GAIN_C_EXPANDERPARAM, -32 .f, 32.f, 0.f, "Mix Coeff C");
+        configParam (GAIN_D_EXPANDERPARAM, -32.f, 32.f, 0.f, "Mix Coeff D");
+        configParam (GAIN_E_EXPANDERPARAM, -32.f, 32.f, 0.f, "Mix Coeff E");
         configParam (NLD_INPUT_EXPANDERPARAM, 0.f, float (nld.size() - 1), 0.f, "Input NLD");
         configParam (NLD_1_EXPANDERPARAM, 0.f, float (nld.size() - 1), 0.f, "S1 NLD");
         configParam (NLD_2_EXPANDERPARAM, 0.f, float (nld.size() - 1), 0.f, "S2 NLD");
