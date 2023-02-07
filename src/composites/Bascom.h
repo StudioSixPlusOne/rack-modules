@@ -270,7 +270,7 @@ inline void BascomComp<TBase>::step()
         float_4 out = dcOutFilters[c / 4].process (in);
         //out = std::isfinite (out) ? out : 0;
 
-        out *= vcaGain * 0.1f;
+        out *= vcaGain;
 
         TBase::outputs[MAIN_OUTPUT].setVoltageSimd (out, c);
     }

@@ -76,7 +76,7 @@ struct BascomExpander : Module
 
         configParam (GAIN_A_EXPANDERPARAM, -32.f, 32.f, 0.f, "Mix Coeff A");
         configParam (GAIN_B_EXPANDERPARAM, -32.f, 32.f, 0.f, "Mix Coeff B");
-        configParam (GAIN_C_EXPANDERPARAM, -32 .f, 32.f, 0.f, "Mix Coeff C");
+        configParam (GAIN_C_EXPANDERPARAM, -32.f, 32.f, 0.f, "Mix Coeff C");
         configParam (GAIN_D_EXPANDERPARAM, -32.f, 32.f, 0.f, "Mix Coeff D");
         configParam (GAIN_E_EXPANDERPARAM, -32.f, 32.f, 0.f, "Mix Coeff E");
         configParam (NLD_INPUT_EXPANDERPARAM, 0.f, float (nld.size() - 1), 0.f, "Input NLD");
