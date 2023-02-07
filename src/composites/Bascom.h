@@ -260,7 +260,7 @@ inline void BascomComp<TBase>::step()
             upsampler.process (in, oversampleBuffer);
             for (auto i = 0; i < upsampleRate; ++i)
                 oversampleBuffer[i] = filters[c / 4].process ((drive * oversampleBuffer[i]) / 10.0f) * 10.0f;
-            in = decimator.process (oversampleBuffer) * upsampleRate;
+            in = decimator.process (oversampleBuffer);
         }
         else
         {
