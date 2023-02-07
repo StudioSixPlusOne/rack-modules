@@ -1,4 +1,4 @@
-{
+    {
   "plugin": "StudioSixPlusOne",
   "model": "Bascom",
   "version": "2.0.1h",
@@ -111,5 +111,8 @@
       "value": 0.0,
       "id": 26
     }
-  ]
+  ],
+     "data": {
+       "runDataFromJson": 1
+     }
 }

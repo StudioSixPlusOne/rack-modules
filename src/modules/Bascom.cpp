@@ -44,6 +44,16 @@ struct Bascom : Module
         ma->init();
     }
 
+    json_t * dataToJson() override
+    {
+        return ma->dataToJson();
+    }
+
+    void dataFromJson(json_t *rootJ) override
+    {
+        ma->dataFromJson(rootJ);
+    }
+
     void onSampleRateChange() override
     {
         float rate = SqHelper::engineGetSampleRate();

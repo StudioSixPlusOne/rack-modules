@@ -109,6 +109,18 @@ public:
             dc.setButterworthHp2 (sampleRate, dcInFilterCutoff);
     }
 
+    json_t* dataToJson()
+    {
+        json_t* rootJ = json_object();
+        json_object_set_new (rootJ, "runDataFromJson", json_integer (1));
+        return rootJ;
+    }
+
+    void dataFromJson (json_t* rootJ)
+    {
+        TBase::params[HAS_LOADED].setValue (1);
+    }
+
 #include "BascomParamEnum.h"
 
     enum InputIds
@@ -173,11 +185,10 @@ inline void BascomComp<TBase>::step()
 
     for (auto c = 0; c < channels; c += 4)
     {
-        auto vcaGain = float_4(vcaParam);
+        auto vcaGain = float_4 (vcaParam);
         if (TBase::inputs[VCA_CV_INPUT].isConnected())
         {
-            vcaGain = vcaGain + (TBase::inputs[VCA_CV_INPUT].template getPolyVoltageSimd<float_4> (c)
-                        * 0.1f * TBase::params[VCA_CV_ATTENUVERTER_PARAM].getValue());
+            vcaGain = vcaGain + (TBase::inputs[VCA_CV_INPUT].template getPolyVoltageSimd<float_4> (c) * 0.1f * TBase::params[VCA_CV_ATTENUVERTER_PARAM].getValue());
         }
 
         auto in = TBase::inputs[MAIN_INPUT].template getPolyVoltageSimd<float_4> (c);
@@ -373,6 +384,9 @@ IComposite::Config BascomDescription<TBase>::getParam (int i)
             break;
         case BascomComp<TBase>::FEEDBACK_PATH_PARAM:
             ret = { 0.0f, 1.0, 0.0f, "Feedback Path", " ", 0.0f, 1.0f, 0.0f };
+            break;
+        case BascomComp<TBase>::HAS_LOADED:
+            ret = { 0.0f, 1.0, 0.0f, "Has preset loaded", " ", 0.0f, 1.0f, 0.0f };
             break;
 
         default:

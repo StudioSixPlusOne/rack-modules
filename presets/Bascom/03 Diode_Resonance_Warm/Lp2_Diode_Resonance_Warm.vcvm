@@ -111,5 +111,8 @@
       "value": 0.0,
       "id": 26
     }
-  ]
+  ],
+     "data": {
+       "runDataFromJson": 1
+     }
 }
