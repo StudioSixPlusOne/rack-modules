@@ -30,6 +30,8 @@
 #include <vector>
 //#include <time.h>
 
+#include "jansson.h"
+
 using float_4 = ::rack::simd::float_4;
 
 namespace rack
@@ -282,6 +284,8 @@ inline void BascomComp<TBase>::step()
         //out = std::isfinite (out) ? out : 0;
 
         out *= vcaGain;
+        //simd'ed out = std::isfinite (out) ? out : 0;
+        out = rack::simd::ifelse((movemask(out == out) != 0xF)  , float_4(0.0f), out);
 
         TBase::outputs[MAIN_OUTPUT].setVoltageSimd (out, c);
     }

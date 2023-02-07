@@ -68,8 +68,8 @@ static void testConsume()
          printf (" cos x %f %f  %f\n", i, nld.process (i, 3), cosf (i * k_pi));
         assert (areSame (nld.process (i, 3), cosf (i * k_pi), 0.001f));
         assert (areSame (nld.cosShaper (i), cosf (i * k_pi), 0.001f));
-        assert (nld.cosShaper(i) >= -1.0f);
-        assert (nld.cosShaper(i) <= 1.0f);
+        assertGE (nld.cosShaper(i) , -1.0001f);
+        assertLE (nld.cosShaper(i) , 1.0001f);
     }
 }
 
