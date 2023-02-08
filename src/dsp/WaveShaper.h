@@ -64,7 +64,7 @@ namespace sspo
 
             using Table = std::array<float, length>;
 
-            inline float process (const Table& source, const float in) noexcept
+            inline float process (const Table* source, const float in) noexcept
             {
                 auto x = in; // rack::simd::clamp(in, minValue, maxValue - interval);
                 auto index = (x - minValue) * recpInterval;
@@ -72,27 +72,29 @@ namespace sspo
                 int postIndex = (preIndex + 1);
                 float fraction = index - preIndex;
 
-                return linearInterpolate (source[preIndex], source[postIndex], fraction);
+                return linearInterpolate (*(source->data() + preIndex), *(source->data() + postIndex), fraction);
             }
 
-            inline float_4 process (const Table& source, const float_4 in) noexcept
-            {
-                auto x = in;
-                auto index = (x - minValue) * recpInterval;
-                auto preIndex = rack::simd::floor (index); //& mask;
-                auto postIndex = (preIndex + 1);
-                auto fraction = index - preIndex;
-                float_4 lower = float_4 (source[preIndex[0]],
-                                         source[preIndex[1]],
-                                         source[preIndex[2]],
-                                         source[preIndex[3]]);
-                float_4 upper = float_4{ source[postIndex[0]],
-                                         source[postIndex[1]],
-                                         source[postIndex[2]],
-                                         source[postIndex[3]] };
-
-                return linearInterpolate (lower, upper, fraction);
-            }
+            // NOT WORKING
+//            inline float_4 process (const Table* source, const float_4 in) noexcept
+//            {
+//                auto x = in;
+//                auto index = (x - minValue) * recpInterval;
+//                auto preIndex = rack::simd::floor (index); //& mask;
+//                auto postIndex = (preIndex + 1);
+//                auto fraction = index - preIndex;
+//                auto* s = source->data();
+//                float_4 lower = float_4 (*(s + static_cast<int> (preIndex[0])),
+//                                         *(s + static_cast<int> (preIndex[1])),
+//                                         *(s + static_cast<int> (preIndex[2])),
+//                                         *(s + static_cast<int> (preIndex[3])));
+//                float_4 upper = float_4{ *(s + static_cast<int> (postIndex[0])),
+//                                         *(s + static_cast<int> (postIndex[1])),
+//                                         *(s + static_cast<int> (postIndex[2])),
+//                                         *(s + static_cast<int> (postIndex[3])) };
+//
+//                return linearInterpolate (lower, upper, fraction);
+//            }
 
             inline Table makeTable (std::function<float (const float x)> funct)
             {
@@ -111,12 +113,12 @@ namespace sspo
             public:
                 struct Definition
                 {
-                    Definition (Table newTable, std::string newName)
+                    Definition (Table* newTable, std::string newName)
                     {
                         table = newTable;
                         name = newName;
                     }
-                    Table table;
+                    Table* table;
                     std::string name;
                 };
 
@@ -125,7 +127,7 @@ namespace sspo
                     return shapes.size();
                 }
 
-                void addShape (Table table, std::string name)
+                void addShape (Table* table, std::string name)
                 {
                     shapes.push_back (Definition (table, name));
                 }
@@ -154,10 +156,11 @@ namespace sspo
                         return;
                     }
                     auto x = rack::simd::clamp (in, minValue, maxValue - interval);
-                    out = { process (x[0], definitionIndex),
-                            process (x[1], definitionIndex),
-                            process (x[2], definitionIndex),
-                            process (x[3], definitionIndex) };
+                                        out = { process (x[0], definitionIndex),
+                                                process (x[1], definitionIndex),
+                                                process (x[2], definitionIndex),
+                                                process (x[3], definitionIndex) };
+//                    out = WaveShaper::process (shapes[definitionIndex].table, x);
                 }
 
             private:
@@ -169,40 +172,40 @@ namespace sspo
             public:
                 Nld()
                 {
-                    Table linearShape = makeTable ([] (const float x) -> float
-                                                   { return x; });
+                    linearShape = makeTable ([] (const float x) -> float
+                                             { return x; });
 
-                    Table tanhShape = makeTable ([] (const float x) -> float
-                                                 { return tanhf (x); });
+                    tanhShape = makeTable ([] (const float x) -> float
+                                           { return tanhf (x); });
 
-                    Table tanh2Shape = makeTable ([] (const float x) -> float
-                                                  { return tanhf (2.0f * x); });
+                    tanh2Shape = makeTable ([] (const float x) -> float
+                                            { return tanhf (2.0f * x); });
 
-                    Table cosShape = makeTable ([] (const float x) -> float
-                                                { return cosf (k_pi * x); });
+                    cosShape = makeTable ([] (const float x) -> float
+                                          { return cosf (k_pi * x); });
 
-                    Table arctanZeroFiveShape = makeTable ([] (const float x) -> float
-                                                           { return atanf (x * 0.5) / atanf (0.5); });
-                    Table arctanOneShape = makeTable ([] (const float x) -> float
-                                                      { return atanf (x * 1.0f) / atanf (1.0f); });
-                    Table arctanTwoShape = makeTable ([] (const float x) -> float
-                                                      { return atanf (x * 2.0f) / atanf (2.0); });
-                    Table arctanFiveShape = makeTable ([] (const float x) -> float
-                                                       { return atanf (x * 5.0f) / atanf (5.0f); });
+                    arctanZeroFiveShape = makeTable ([] (const float x) -> float
+                                                     { return atanf (x * 0.5) / atanf (0.5); });
+                    arctanOneShape = makeTable ([] (const float x) -> float
+                                                { return atanf (x * 1.0f) / atanf (1.0f); });
+                    arctanTwoShape = makeTable ([] (const float x) -> float
+                                                { return atanf (x * 2.0f) / atanf (2.0); });
+                    arctanFiveShape = makeTable ([] (const float x) -> float
+                                                 { return atanf (x * 5.0f) / atanf (5.0f); });
 
-                    addShape (linearShape, "Linear");
-                    addShape (tanhShape, "tanh(x)");
-                    addShape (tanh2Shape, "tanh(2x)");
-                    addShape (cosShape, "cos(x)");
+                    addShape (&linearShape, "Linear");
+                    addShape (&tanhShape, "tanh(x)");
+                    addShape (&tanh2Shape, "tanh(2x)");
+                    addShape (&cosShape, "cos(x)");
 
-                    addShape (arctanZeroFiveShape, "atan 0.5");
-                    addShape (arctanOneShape, "atan 1.0");
-                    addShape (arctanTwoShape, "atan 2.0");
-                    addShape (arctanFiveShape, "atan 5.0");
-                    addShape (PassThroughShape, "sampled passthrough");
-                    addShape (BascomGreenRedLEDShape, "Green Red Led");
-                    addShape (BascomDiodeOneAndOneShape, "Ona and One Diode");
-                    addShape (BascomDiodeOneAndThreeShape, "One and Three Diode");
+                    addShape (&arctanZeroFiveShape, "atan 0.5");
+                    addShape (&arctanOneShape, "atan 1.0");
+                    addShape (&arctanTwoShape, "atan 2.0");
+                    addShape (&arctanFiveShape, "atan 5.0");
+                    addShape (&PassThroughShape, "sampled passthrough");
+                    addShape (&BascomGreenRedLEDShape, "Green Red Led");
+                    addShape (&BascomDiodeOneAndOneShape, "Ona and One Diode");
+                    addShape (&BascomDiodeOneAndThreeShape, "One and Three Diode");
                 };
 
                 float linearShaper (float x) { return x; }
@@ -215,8 +218,15 @@ namespace sspo
                 float_4 tanh2Shaper (float_4 x) { return process (x, 2); }
                 float_4 cosShaper (float_4 x) { return process (x, 3); }
 
-
-
+            private:
+                Table linearShape;
+                Table tanhShape;
+                Table tanh2Shape;
+                Table cosShape;
+                Table arctanZeroFiveShape;
+                Table arctanOneShape;
+                Table arctanTwoShape;
+                Table arctanFiveShape;
             };
 
             static Nld nld;
