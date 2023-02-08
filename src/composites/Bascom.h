@@ -301,7 +301,7 @@ int BascomDescription<TBase>::getNumParams()
 template <class TBase>
 IComposite::Config BascomDescription<TBase>::getParam (int i)
 {
-    WaveShaper::Nld nld;
+
 
     auto freqBase = static_cast<float> (std::pow (2, 10.0f));
     auto freqMul = static_cast<float> (dsp::FREQ_C4 / std::pow (2, 5.f));
@@ -363,22 +363,22 @@ IComposite::Config BascomDescription<TBase>::getParam (int i)
             ret = { -24.0f, 24.0f, 0.0f, "Fc Offset 4", " ", 0.0f, 1.0f, 0.0f };
             break;
         case BascomComp<TBase>::INPUT_NLD_TYPE_PARAM:
-            ret = { 0.0f, float (nld.size()), 0.0f, "Input NLD Type", " ", 0.0f, 1.0f, 0.0f };
+            ret = { 0.0f, float (WaveShaper::nld.size()), 0.0f, "Input NLD Type", " ", 0.0f, 1.0f, 0.0f };
             break;
         case BascomComp<TBase>::RESONANCE_NLD_TYPE_PARAM:
-            ret = { -0.0f, float (nld.size()), 0.0f, "Resonance NLD Type", " ", 0.0f, 1.0f, 0.0f };
+            ret = { -0.0f, float (WaveShaper::nld.size()), 0.0f, "Resonance NLD Type", " ", 0.0f, 1.0f, 0.0f };
             break;
         case BascomComp<TBase>::STAGE_1_NLD_TYPE_PARAM:
-            ret = { 0.0f, float (nld.size()), 0.0f, "NLD TYPE 1", " ", 0.0f, 1.0f, 0.0f };
+            ret = { 0.0f, float (WaveShaper::nld.size()), 0.0f, "NLD TYPE 1", " ", 0.0f, 1.0f, 0.0f };
             break;
         case BascomComp<TBase>::STAGE_2_NLD_TYPE_PARAM:
-            ret = { 0.0f, float (nld.size()), 0.0f, "NLD TYPE 2", " ", 0.0f, 1.0f, 0.0f };
+            ret = { 0.0f, float (WaveShaper::nld.size()), 0.0f, "NLD TYPE 2", " ", 0.0f, 1.0f, 0.0f };
             break;
         case BascomComp<TBase>::STAGE_3_NLD_TYPE_PARAM:
-            ret = { 0.0f, float (nld.size()), 0.0f, "NLD TYPE 3", " ", 0.0f, 1.0f, 0.0f };
+            ret = { 0.0f, float (WaveShaper::nld.size()), 0.0f, "NLD TYPE 3", " ", 0.0f, 1.0f, 0.0f };
             break;
         case BascomComp<TBase>::STAGE_4_NLD_TYPE_PARAM:
-            ret = { 0.0f, float (nld.size()), 0.0f, "NLD TYPE 4", " ", 0.0f, 1.0f, 0.0f };
+            ret = { 0.0f, float (WaveShaper::nld.size()), 0.0f, "NLD TYPE 4", " ", 0.0f, 1.0f, 0.0f };
             break;
         case BascomComp<TBase>::VCA_CV_ATTENUVERTER_PARAM:
             ret = { -1.0f, 1.0f, 0.0f, "VCA IN", " ", 0.0f, 1.0f, 0.0f };

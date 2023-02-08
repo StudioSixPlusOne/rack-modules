@@ -278,8 +278,6 @@ namespace sspo
             //this must be defined in the module, normally as a lambda
             std::function<T (T in, T drive)> nonLinearProcess;
 
-            //Non linear Distortion waveshaper
-            sspo::AudioMath::WaveShaper::Nld nld;
 
             T process (const T in)
             {
@@ -289,18 +287,18 @@ namespace sspo
                              + lpf4.getFeedbackOut();
                 sigma *= K;
                 sigma = linearInterpolate(sigma, z1, T(feedbackPathCrossfade));
-                nld.process (sigma, sigma, resNldType);
+                WaveShaper::nld.process (sigma, sigma, resNldType);
                 T xn;
-                nld.process (xn, in, inNldType);
+                WaveShaper::nld.process (xn, in, inNldType);
                 xn *= 1.0f + SynthFilter<T>::aux * K;
                 auto U = (xn - sigma) * alpha;
-                nld.process (U, U, s1Stype);
+                WaveShaper::nld.process (U, U, s1Stype);
                 auto f1 = lpf1.process (U);
-                nld.process (f1, f1, s2Stype);
+                WaveShaper::nld.process (f1, f1, s2Stype);
                 auto f2 = lpf2.process (f1);
-                nld.process (f2, f2, s3Stype);
+                WaveShaper::nld.process (f2, f2, s3Stype);
                 auto f3 = lpf3.process (f2);
-                nld.process (f3, f3, s4Stype);
+                WaveShaper::nld.process (f3, f3, s4Stype);
                 auto f4 = lpf4.process (f3);
 
                 z1 = typeCoeffs.A * U

@@ -169,7 +169,6 @@ namespace sspo
             public:
                 Nld()
                 {
-                    initShapes();
                     Table linearShape = makeTable ([] (const float x) -> float
                                                    { return x; });
 
@@ -218,16 +217,9 @@ namespace sspo
 
 
 
-                void initShapes()
-                {
-
-
-
-
-
-
-                }
             };
+
+            static Nld nld;
 
         } // namespace WaveShaper
     } // namespace AudioMath
