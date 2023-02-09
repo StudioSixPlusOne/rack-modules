@@ -34,10 +34,11 @@
 //#include "simd/vector.hpp"
 
 // Wave Shapes
-extern std::array<float, 4096> PassThroughShape;
-extern std::array<float, 4096> BascomGreenRedLEDShape;
-extern std::array<float, 4096> BascomDiodeOneAndOneShape;
-extern std::array<float, 4096> BascomDiodeOneAndThreeShape;
+extern std::array<float, 4096> ThroughShape;
+extern std::array<float, 4096> DiodeFeedbackRedGreenShape;
+extern std::array<float, 4096> DiodeFeedbackOneAndOne;
+extern std::array<float, 4096> DiodeFeedbackOneAndTwo;
+extern std::array<float, 4096> DiodeFeedbackOneAndThree;
 
 using float_4 = ::rack::simd::float_4;
 
@@ -202,10 +203,11 @@ namespace sspo
                     addShape (&arctanOneShape, "atan 1.0");
                     addShape (&arctanTwoShape, "atan 2.0");
                     addShape (&arctanFiveShape, "atan 5.0");
-                    addShape (&PassThroughShape, "sampled passthrough");
-                    addShape (&BascomGreenRedLEDShape, "Green Red Led");
-                    addShape (&BascomDiodeOneAndOneShape, "Ona and One Diode");
-                    addShape (&BascomDiodeOneAndThreeShape, "One and Three Diode");
+                    addShape (&ThroughShape, "sampled passthrough");
+                    addShape (&DiodeFeedbackOneAndOne, "Ona and One Diode");
+                    addShape (&DiodeFeedbackRedGreenShape, "Green Red Led");
+                    addShape (&DiodeFeedbackOneAndTwo, "One and Two Diode");
+                    addShape (&DiodeFeedbackOneAndThree, "One and Three Diode");
                 };
 
                 float linearShaper (float x) { return x; }
