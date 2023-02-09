@@ -3,7 +3,7 @@
 //4096 bin waveshaper -1.2 +1.2
 
 #include <array>
-std::array<float, 4096>  DiodeFeedbackOneAndTwo{  -0.9205078124999999,
+std::array<float, 4096>  DiodeFeedbackOneAndTwoShape{  -0.9205078124999999,
 				-0.9205078124999999,
 				-0.9210937499999999,
 				-0.9210937499999999,

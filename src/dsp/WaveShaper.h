@@ -36,9 +36,9 @@
 // Wave Shapes
 extern std::array<float, 4096> ThroughShape;
 extern std::array<float, 4096> DiodeFeedbackRedGreenShape;
-extern std::array<float, 4096> DiodeFeedbackOneAndOne;
-extern std::array<float, 4096> DiodeFeedbackOneAndTwo;
-extern std::array<float, 4096> DiodeFeedbackOneAndThree;
+extern std::array<float, 4096> DiodeFeedbackOneAndOneShape;
+extern std::array<float, 4096> DiodeFeedbackOneAndTwoShape;
+extern std::array<float, 4096> DiodeFeedbackOneAndThreeShape;
 
 using float_4 = ::rack::simd::float_4;
 
@@ -204,10 +204,10 @@ namespace sspo
                     addShape (&arctanTwoShape, "atan 2.0");
                     addShape (&arctanFiveShape, "atan 5.0");
                     addShape (&ThroughShape, "sampled passthrough");
-                    addShape (&DiodeFeedbackOneAndOne, "Ona and One Diode");
+                    addShape (&DiodeFeedbackOneAndOneShape, "Ona and One Diode");
                     addShape (&DiodeFeedbackRedGreenShape, "Green Red Led");
-                    addShape (&DiodeFeedbackOneAndTwo, "One and Two Diode");
-                    addShape (&DiodeFeedbackOneAndThree, "One and Three Diode");
+                    addShape (&DiodeFeedbackOneAndTwoShape, "One and Two Diode");
+                    addShape (&DiodeFeedbackOneAndThreeShape, "One and Three Diode");
                 };
 
                 float linearShaper (float x) { return x; }
