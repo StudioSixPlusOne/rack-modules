@@ -77,25 +77,25 @@ namespace sspo
             }
 
             // NOT WORKING
-//            inline float_4 process (const Table* source, const float_4 in) noexcept
-//            {
-//                auto x = in;
-//                auto index = (x - minValue) * recpInterval;
-//                auto preIndex = rack::simd::floor (index); //& mask;
-//                auto postIndex = (preIndex + 1);
-//                auto fraction = index - preIndex;
-//                auto* s = source->data();
-//                float_4 lower = float_4 (*(s + static_cast<int> (preIndex[0])),
-//                                         *(s + static_cast<int> (preIndex[1])),
-//                                         *(s + static_cast<int> (preIndex[2])),
-//                                         *(s + static_cast<int> (preIndex[3])));
-//                float_4 upper = float_4{ *(s + static_cast<int> (postIndex[0])),
-//                                         *(s + static_cast<int> (postIndex[1])),
-//                                         *(s + static_cast<int> (postIndex[2])),
-//                                         *(s + static_cast<int> (postIndex[3])) };
-//
-//                return linearInterpolate (lower, upper, fraction);
-//            }
+            //            inline float_4 process (const Table* source, const float_4 in) noexcept
+            //            {
+            //                auto x = in;
+            //                auto index = (x - minValue) * recpInterval;
+            //                auto preIndex = rack::simd::floor (index); //& mask;
+            //                auto postIndex = (preIndex + 1);
+            //                auto fraction = index - preIndex;
+            //                auto* s = source->data();
+            //                float_4 lower = float_4 (*(s + static_cast<int> (preIndex[0])),
+            //                                         *(s + static_cast<int> (preIndex[1])),
+            //                                         *(s + static_cast<int> (preIndex[2])),
+            //                                         *(s + static_cast<int> (preIndex[3])));
+            //                float_4 upper = float_4{ *(s + static_cast<int> (postIndex[0])),
+            //                                         *(s + static_cast<int> (postIndex[1])),
+            //                                         *(s + static_cast<int> (postIndex[2])),
+            //                                         *(s + static_cast<int> (postIndex[3])) };
+            //
+            //                return linearInterpolate (lower, upper, fraction);
+            //            }
 
             inline Table makeTable (std::function<float (const float x)> funct)
             {
@@ -156,12 +156,12 @@ namespace sspo
                         out = in;
                         return;
                     }
-                    auto x = rack::simd::clamp (in, minValue, maxValue - interval);
-                                        out = { process (x[0], definitionIndex),
-                                                process (x[1], definitionIndex),
-                                                process (x[2], definitionIndex),
-                                                process (x[3], definitionIndex) };
-//                    out = WaveShaper::process (shapes[definitionIndex].table, x);
+                    auto x = rack::simd::clamp (in, minValue, maxValue - interval * 3);
+                    out = { process (x[0], definitionIndex),
+                            process (x[1], definitionIndex),
+                            process (x[2], definitionIndex),
+                            process (x[3], definitionIndex) };
+                    //                    out = WaveShaper::process (shapes[definitionIndex].table, x);
                 }
 
             private:
@@ -180,10 +180,10 @@ namespace sspo
                                            { return tanhf (x); });
 
                     tanh2Shape = makeTable ([] (const float x) -> float
-                                            { return tanhf (2.0f * x); });
+                                            { return tanhf (2.0f * x) / tanhf (2.0f); });
 
                     cosShape = makeTable ([] (const float x) -> float
-                                          { return cosf (k_pi * x); });
+                                          { return 1.5f * x * (1.0f - (x * x * 0.33333333f)); });
 
                     arctanZeroFiveShape = makeTable ([] (const float x) -> float
                                                      { return atanf (x * 0.5) / atanf (0.5); });
