@@ -64,8 +64,7 @@ struct BascomExpander : Module
         LIGHTS_LEN
     };
 
-    std::array<ParamHandle, NUM_PARAMS> paramHandles;
-    sspo::AudioMath::ClockDivider divider;
+
 
     BascomExpander()
     {
@@ -92,456 +91,18 @@ struct BascomExpander : Module
         configParam (FEEDBACK_PATH_EXPANDERPARAM, 0.f, 1, 0.f, "Feedback Path");
         configParam (NLD_FEEDBACK_EXPANDERPARAM, 0.f, float (WaveShaper::nld.size() - 1), 0.f, "Feedback NLD");
 
-        //register paramHandles
 
-        //        testHandle.color = nvgRGB (0xcd, 0xde, 0x87);
-        //        APP->engine->addParamHandle (&testHandle);
-
-        for (auto& ph : paramHandles)
-        {
-            ph.color = nvgRGB (0xcd, 0xde, 0x87);
-            APP->engine->addParamHandle (&ph);
-        }
-
-        divider.setDivisor (256);
     }
 
-    void process (const ProcessArgs& args) override
-    {
-        //check if connected to parent
-        auto parentConnected = leftExpander.module
-                               && leftExpander.module->model == modelBascom;
 
-        if(parentConnected && isConnected)
-        {
-            if(leftExpander.module->params[HAS_LOADED].getValue() == 1)
-            {
-                getParametersFromBascom();
-                leftExpander.module->params[HAS_LOADED].setValue(0);
-            }
-        }
-
-        //if new parent connect parameters
-        if (parentConnected && ! isConnected)
-        {
-            APP->engine->updateParamHandle_NoLock (&paramHandles[OVERSAMPLE_PARAM],
-                                                   leftExpander.module->id,
-                                                   OVERSAMPLE_PARAM,
-                                                   true);
-
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[DECIMATOR_FILTERS_PARAM],
-                                                   leftExpander.module->id,
-                                                   DECIMATOR_FILTERS_PARAM,
-                                                   true);
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[PARAM_UPDATE_DIVIDER_PARAM],
-                                                   leftExpander.module->id,
-                                                   PARAM_UPDATE_DIVIDER_PARAM,
-                                                   true);
-
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[COEFF_A_PARAM],
-                                                   leftExpander.module->id,
-                                                   COEFF_A_PARAM,
-                                                   true);
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[COEFF_B_PARAM],
-                                                   leftExpander.module->id,
-                                                   COEFF_B_PARAM,
-                                                   true);
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[COEFF_C_PARAM],
-                                                   leftExpander.module->id,
-                                                   COEFF_C_PARAM,
-                                                   true);
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[COEFF_D_PARAM],
-                                                   leftExpander.module->id,
-                                                   COEFF_D_PARAM,
-                                                   true);
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[COEFF_E_PARAM],
-                                                   leftExpander.module->id,
-                                                   COEFF_E_PARAM,
-                                                   true);
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[FC_OFFSET_1_PARAM],
-                                                   leftExpander.module->id,
-                                                   FC_OFFSET_1_PARAM,
-                                                   true);
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[FC_OFFSET_2_PARAM],
-                                                   leftExpander.module->id,
-                                                   FC_OFFSET_2_PARAM,
-                                                   true);
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[FC_OFFSET_3_PARAM],
-                                                   leftExpander.module->id,
-                                                   FC_OFFSET_3_PARAM,
-                                                   true);
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[FC_OFFSET_4_PARAM],
-                                                   leftExpander.module->id,
-                                                   FC_OFFSET_4_PARAM,
-                                                   true);
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[INPUT_NLD_TYPE_PARAM],
-                                                   leftExpander.module->id,
-                                                   INPUT_NLD_TYPE_PARAM,
-                                                   true);
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[RESONANCE_NLD_TYPE_PARAM],
-                                                   leftExpander.module->id,
-                                                   RESONANCE_NLD_TYPE_PARAM,
-                                                   true);
-
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[STAGE_1_NLD_TYPE_PARAM],
-                                                   leftExpander.module->id,
-                                                   STAGE_1_NLD_TYPE_PARAM,
-                                                   true);
-
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[STAGE_2_NLD_TYPE_PARAM],
-                                                   leftExpander.module->id,
-                                                   STAGE_2_NLD_TYPE_PARAM,
-                                                   true);
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[STAGE_3_NLD_TYPE_PARAM],
-                                                   leftExpander.module->id,
-                                                   STAGE_3_NLD_TYPE_PARAM,
-                                                   true);
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[STAGE_4_NLD_TYPE_PARAM],
-                                                   leftExpander.module->id,
-                                                   STAGE_4_NLD_TYPE_PARAM,
-                                                   true);
-
-
-            APP->engine->updateParamHandle_NoLock (&paramHandles[FEEDBACK_PATH_PARAM],
-                                                   leftExpander.module->id,
-                                                   FEEDBACK_PATH_PARAM,
-                                                   true);
-
-            getParametersFromBascom();
-            isConnected = true;
-        }
-
-        //if not connected but was connected disconnect
-
-        if (! parentConnected && isConnected)
-        {
-            for (auto& ph : paramHandles)
-            {
-                APP->engine->updateParamHandle_NoLock (&ph,
-                                                       -1,
-                                                       -1,
-                                                       true);
-            }
-            isConnected = false;
-        }
-
-        //update paramhandel values
-
-        if (isConnected && divider.process())
-        {
-            ParamQuantity* pq = paramHandles[OVERSAMPLE_PARAM].module->paramQuantities[paramHandles[OVERSAMPLE_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[OVERSAMPLE_EXPANDERPARAM].getValue());
-            }
-
-            pq = paramHandles[DECIMATOR_FILTERS_PARAM].module->paramQuantities[paramHandles[DECIMATOR_FILTERS_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[DECIMATOR_FILTERS_EXPANDERPARAM].getValue());
-            }
-
-            pq = paramHandles[PARAM_UPDATE_DIVIDER_PARAM].module->paramQuantities[paramHandles[PARAM_UPDATE_DIVIDER_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[PARAM_UPDATE_DIVIDER_EXPANDERPARAM].getValue());
-            }
-
-            pq = paramHandles[COEFF_A_PARAM].module->paramQuantities[paramHandles[COEFF_A_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[GAIN_A_EXPANDERPARAM].getValue());
-            }
-
-            pq = paramHandles[COEFF_B_PARAM].module->paramQuantities[paramHandles[COEFF_B_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[GAIN_B_EXPANDERPARAM].getValue());
-            }
-
-            pq = paramHandles[COEFF_C_PARAM].module->paramQuantities[paramHandles[COEFF_C_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[GAIN_C_EXPANDERPARAM].getValue());
-            }
-
-            pq = paramHandles[COEFF_D_PARAM].module->paramQuantities[paramHandles[COEFF_D_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[GAIN_D_EXPANDERPARAM].getValue());
-            }
-
-            pq = paramHandles[COEFF_E_PARAM].module->paramQuantities[paramHandles[COEFF_E_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[GAIN_E_EXPANDERPARAM].getValue());
-            }
-
-            pq = paramHandles[FC_OFFSET_1_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_1_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[OFFSET_1_EXPANDERPARAM].getValue());
-            }
-
-            pq = paramHandles[FC_OFFSET_2_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_2_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[OFFSET_2_EXPANDERPARAM].getValue());
-            }
-
-            pq = paramHandles[FC_OFFSET_3_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_3_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[OFFSET_3_EXPANDERPARAM].getValue());
-            }
-
-            pq = paramHandles[FC_OFFSET_4_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_4_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[OFFSET_4_EXPANDERPARAM].getValue());
-            }
-
-            //nld types
-            pq = paramHandles[INPUT_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[INPUT_NLD_TYPE_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[NLD_INPUT_EXPANDERPARAM].getValue());
-            }
-
-            pq = paramHandles[RESONANCE_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[RESONANCE_NLD_TYPE_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[NLD_FEEDBACK_EXPANDERPARAM].getValue());
-            }
-
-            pq = paramHandles[STAGE_1_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_1_NLD_TYPE_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[NLD_1_EXPANDERPARAM].getValue());
-            }
-
-            pq = paramHandles[STAGE_2_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_2_NLD_TYPE_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[NLD_2_EXPANDERPARAM].getValue());
-            }
-
-            pq = paramHandles[STAGE_3_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_3_NLD_TYPE_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[NLD_3_EXPANDERPARAM].getValue());
-            }
-
-            pq = paramHandles[STAGE_4_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_4_NLD_TYPE_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[NLD_4_EXPANDERPARAM].getValue());
-            }
-
-            pq = paramHandles[FEEDBACK_PATH_PARAM].module->paramQuantities[paramHandles[FEEDBACK_PATH_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                pq->setValue (params[FEEDBACK_PATH_EXPANDERPARAM].getValue());
-            }
-        }
-    }
-
-    void getParametersFromBascom()
-    {
-        {
-            ParamQuantity* pq = paramHandles[OVERSAMPLE_PARAM].module->paramQuantities[paramHandles[OVERSAMPLE_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[OVERSAMPLE_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[DECIMATOR_FILTERS_PARAM].module->paramQuantities[paramHandles[DECIMATOR_FILTERS_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[DECIMATOR_FILTERS_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[PARAM_UPDATE_DIVIDER_PARAM].module->paramQuantities[paramHandles[PARAM_UPDATE_DIVIDER_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[PARAM_UPDATE_DIVIDER_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[COEFF_A_PARAM].module->paramQuantities[paramHandles[COEFF_A_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[GAIN_A_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[COEFF_B_PARAM].module->paramQuantities[paramHandles[COEFF_B_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[GAIN_B_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[COEFF_C_PARAM].module->paramQuantities[paramHandles[COEFF_C_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[GAIN_C_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[COEFF_D_PARAM].module->paramQuantities[paramHandles[COEFF_D_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[GAIN_D_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[COEFF_E_PARAM].module->paramQuantities[paramHandles[COEFF_E_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[GAIN_E_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[FC_OFFSET_1_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_1_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[OFFSET_1_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[FC_OFFSET_2_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_2_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[OFFSET_2_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[FC_OFFSET_3_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_3_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[OFFSET_3_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[FC_OFFSET_4_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_4_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[OFFSET_4_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[INPUT_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[INPUT_NLD_TYPE_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[NLD_INPUT_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[RESONANCE_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[RESONANCE_NLD_TYPE_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[RESONANCE_NLD_TYPE_PARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[STAGE_1_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_1_NLD_TYPE_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[NLD_1_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[STAGE_2_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_2_NLD_TYPE_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[NLD_2_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[STAGE_3_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_3_NLD_TYPE_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[NLD_3_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[STAGE_4_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_4_NLD_TYPE_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[NLD_4_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-        {
-            ParamQuantity* pq = paramHandles[FEEDBACK_PATH_PARAM].module->paramQuantities[paramHandles[FEEDBACK_PATH_PARAM].paramId];
-            if (pq != nullptr)
-            {
-                params[FEEDBACK_PATH_EXPANDERPARAM].setValue (pq->getValue());
-            }
-        }
-
-
-
-    }
-    bool isConnected{ false };
 };
 
 struct BascomExpanderWidget : ModuleWidget
 {
+    std::array<ParamHandle, NUM_PARAMS> paramHandles;
+    sspo::AudioMath::ClockDivider divider;
+
+
     BascomExpanderWidget (BascomExpander* module)
     {
         setModule (module);
@@ -572,7 +133,457 @@ struct BascomExpanderWidget : ModuleWidget
         addParam (createParamCentered<sspo::Knob> (mm2px (Vec (125.247, 85.317)), module, BascomExpander::OFFSET_4_EXPANDERPARAM));
         addParam (createParamCentered<sspo::Knob> (mm2px (Vec (148.53, 91.667)), module, BascomExpander::FEEDBACK_PATH_EXPANDERPARAM));
         addParam (createParamCentered<sspo::NldKnob> (mm2px (Vec (27.88, 103.309)), module, BascomExpander::NLD_FEEDBACK_EXPANDERPARAM));
+
+        //register paramHandles
+
+        //        testHandle.color = nvgRGB (0xcd, 0xde, 0x87);
+        //        APP->engine->addParamHandle (&testHandle);
+
+        for (auto& ph : paramHandles)
+        {
+            ph.color = nvgRGB (0xcd, 0xde, 0x87);
+            APP->engine->addParamHandle (&ph);
+        }
+
+        divider.setDivisor (1);
     }
+
+    void step() override
+    {
+        if(!module)
+            return;
+
+        //check if connected to parent
+        auto parentConnected = module->leftExpander.module
+                               && module->leftExpander.module->model == modelBascom;
+
+        if(parentConnected && isConnected)
+        {
+            if(module->leftExpander.module->params[HAS_LOADED].getValue() == 1)
+            {
+                getParametersFromBascom();
+                module->leftExpander.module->params[HAS_LOADED].setValue(0);
+            }
+        }
+
+        //if new parent connect parameters
+        if (parentConnected && ! isConnected)
+        {
+            APP->engine->updateParamHandle (&paramHandles[OVERSAMPLE_PARAM],
+                                            module->leftExpander.module->id,
+                                            OVERSAMPLE_PARAM,
+                                            true);
+
+
+
+            APP->engine->updateParamHandle (&paramHandles[DECIMATOR_FILTERS_PARAM],
+                                            module->leftExpander.module->id,
+                                            DECIMATOR_FILTERS_PARAM,
+                                            true);
+
+
+            APP->engine->updateParamHandle (&paramHandles[PARAM_UPDATE_DIVIDER_PARAM],
+                                            module->leftExpander.module->id,
+                                            PARAM_UPDATE_DIVIDER_PARAM,
+                                            true);
+
+
+
+            APP->engine->updateParamHandle (&paramHandles[COEFF_A_PARAM],
+                                            module->leftExpander.module->id,
+                                            COEFF_A_PARAM,
+                                            true);
+
+
+            APP->engine->updateParamHandle (&paramHandles[COEFF_B_PARAM],
+                                            module->leftExpander.module->id,
+                                            COEFF_B_PARAM,
+                                            true);
+
+
+            APP->engine->updateParamHandle (&paramHandles[COEFF_C_PARAM],
+                                            module->leftExpander.module->id,
+                                            COEFF_C_PARAM,
+                                            true);
+
+
+            APP->engine->updateParamHandle (&paramHandles[COEFF_D_PARAM],
+                                            module->leftExpander.module->id,
+                                            COEFF_D_PARAM,
+                                            true);
+
+
+            APP->engine->updateParamHandle (&paramHandles[COEFF_E_PARAM],
+                                            module->leftExpander.module->id,
+                                            COEFF_E_PARAM,
+                                            true);
+
+
+            APP->engine->updateParamHandle (&paramHandles[FC_OFFSET_1_PARAM],
+                                            module->leftExpander.module->id,
+                                            FC_OFFSET_1_PARAM,
+                                            true);
+
+
+            APP->engine->updateParamHandle (&paramHandles[FC_OFFSET_2_PARAM],
+                                            module->leftExpander.module->id,
+                                            FC_OFFSET_2_PARAM,
+                                            true);
+
+
+            APP->engine->updateParamHandle (&paramHandles[FC_OFFSET_3_PARAM],
+                                            module->leftExpander.module->id,
+                                            FC_OFFSET_3_PARAM,
+                                            true);
+
+
+            APP->engine->updateParamHandle(&paramHandles[FC_OFFSET_4_PARAM],
+                                            module->leftExpander.module->id,
+                                            FC_OFFSET_4_PARAM,
+                                            true);
+
+
+            APP->engine->updateParamHandle(&paramHandles[INPUT_NLD_TYPE_PARAM],
+                                            module->leftExpander.module->id,
+                                            INPUT_NLD_TYPE_PARAM,
+                                            true);
+
+
+            APP->engine->updateParamHandle (&paramHandles[RESONANCE_NLD_TYPE_PARAM],
+                                            module->leftExpander.module->id,
+                                            RESONANCE_NLD_TYPE_PARAM,
+                                            true);
+
+
+
+            APP->engine->updateParamHandle (&paramHandles[STAGE_1_NLD_TYPE_PARAM],
+                                            module->leftExpander.module->id,
+                                            STAGE_1_NLD_TYPE_PARAM,
+                                            true);
+
+
+
+            APP->engine->updateParamHandle (&paramHandles[STAGE_2_NLD_TYPE_PARAM],
+                                            module->leftExpander.module->id,
+                                            STAGE_2_NLD_TYPE_PARAM,
+                                            true);
+
+
+            APP->engine->updateParamHandle (&paramHandles[STAGE_3_NLD_TYPE_PARAM],
+                                            module->leftExpander.module->id,
+                                            STAGE_3_NLD_TYPE_PARAM,
+                                            true);
+
+
+            APP->engine->updateParamHandle (&paramHandles[STAGE_4_NLD_TYPE_PARAM],
+                                            module->leftExpander.module->id,
+                                            STAGE_4_NLD_TYPE_PARAM,
+                                            true);
+
+
+            APP->engine->updateParamHandle (&paramHandles[FEEDBACK_PATH_PARAM],
+                                            module->leftExpander.module->id,
+                                            FEEDBACK_PATH_PARAM,
+                                            true);
+
+            getParametersFromBascom();
+            isConnected = true;
+        }
+
+        //if not connected but was connected disconnect
+
+        if (! parentConnected && isConnected)
+        {
+            for (auto& ph : paramHandles)
+            {
+                APP->engine->updateParamHandle (&ph,
+                                                -1,
+                                                -1,
+                                                true);
+            }
+            isConnected = false;
+        }
+
+        //update paramhandel values
+
+        if (isConnected && divider.process())
+        {
+            ParamQuantity* pq = paramHandles[OVERSAMPLE_PARAM].module->paramQuantities[paramHandles[OVERSAMPLE_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::OVERSAMPLE_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[DECIMATOR_FILTERS_PARAM].module->paramQuantities[paramHandles[DECIMATOR_FILTERS_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::DECIMATOR_FILTERS_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[PARAM_UPDATE_DIVIDER_PARAM].module->paramQuantities[paramHandles[PARAM_UPDATE_DIVIDER_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::PARAM_UPDATE_DIVIDER_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[COEFF_A_PARAM].module->paramQuantities[paramHandles[COEFF_A_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::GAIN_A_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[COEFF_B_PARAM].module->paramQuantities[paramHandles[COEFF_B_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::GAIN_B_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[COEFF_C_PARAM].module->paramQuantities[paramHandles[COEFF_C_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::GAIN_C_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[COEFF_D_PARAM].module->paramQuantities[paramHandles[COEFF_D_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::GAIN_D_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[COEFF_E_PARAM].module->paramQuantities[paramHandles[COEFF_E_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::GAIN_E_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[FC_OFFSET_1_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_1_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::OFFSET_1_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[FC_OFFSET_2_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_2_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::OFFSET_2_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[FC_OFFSET_3_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_3_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::OFFSET_3_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[FC_OFFSET_4_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_4_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::OFFSET_4_EXPANDERPARAM].getValue());
+            }
+
+            //nld types
+            pq = paramHandles[INPUT_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[INPUT_NLD_TYPE_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::NLD_INPUT_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[RESONANCE_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[RESONANCE_NLD_TYPE_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::NLD_FEEDBACK_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[STAGE_1_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_1_NLD_TYPE_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::NLD_1_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[STAGE_2_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_2_NLD_TYPE_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::NLD_2_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[STAGE_3_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_3_NLD_TYPE_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::NLD_3_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[STAGE_4_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_4_NLD_TYPE_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::NLD_4_EXPANDERPARAM].getValue());
+            }
+
+            pq = paramHandles[FEEDBACK_PATH_PARAM].module->paramQuantities[paramHandles[FEEDBACK_PATH_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                pq->setValue (module->params[BascomExpander::FEEDBACK_PATH_EXPANDERPARAM].getValue());
+            }
+        }
+        ModuleWidget::step();
+    }
+
+    void getParametersFromBascom()
+    {
+        {
+            ParamQuantity* pq = paramHandles[OVERSAMPLE_PARAM].module->paramQuantities[paramHandles[OVERSAMPLE_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::OVERSAMPLE_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[DECIMATOR_FILTERS_PARAM].module->paramQuantities[paramHandles[DECIMATOR_FILTERS_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::DECIMATOR_FILTERS_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[PARAM_UPDATE_DIVIDER_PARAM].module->paramQuantities[paramHandles[PARAM_UPDATE_DIVIDER_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::PARAM_UPDATE_DIVIDER_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[COEFF_A_PARAM].module->paramQuantities[paramHandles[COEFF_A_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::GAIN_A_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[COEFF_B_PARAM].module->paramQuantities[paramHandles[COEFF_B_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::GAIN_B_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[COEFF_C_PARAM].module->paramQuantities[paramHandles[COEFF_C_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::GAIN_C_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[COEFF_D_PARAM].module->paramQuantities[paramHandles[COEFF_D_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::GAIN_D_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[COEFF_E_PARAM].module->paramQuantities[paramHandles[COEFF_E_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::GAIN_E_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[FC_OFFSET_1_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_1_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::OFFSET_1_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[FC_OFFSET_2_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_2_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::OFFSET_2_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[FC_OFFSET_3_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_3_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::OFFSET_3_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[FC_OFFSET_4_PARAM].module->paramQuantities[paramHandles[FC_OFFSET_4_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::OFFSET_4_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[INPUT_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[INPUT_NLD_TYPE_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::NLD_INPUT_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[RESONANCE_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[RESONANCE_NLD_TYPE_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::NLD_FEEDBACK_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[STAGE_1_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_1_NLD_TYPE_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::NLD_1_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[STAGE_2_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_2_NLD_TYPE_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::NLD_2_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[STAGE_3_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_3_NLD_TYPE_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::NLD_3_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[STAGE_4_NLD_TYPE_PARAM].module->paramQuantities[paramHandles[STAGE_4_NLD_TYPE_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::NLD_4_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+        {
+            ParamQuantity* pq = paramHandles[FEEDBACK_PATH_PARAM].module->paramQuantities[paramHandles[FEEDBACK_PATH_PARAM].paramId];
+            if (pq != nullptr)
+            {
+                module->params[BascomExpander::FEEDBACK_PATH_EXPANDERPARAM].setValue (pq->getValue());
+            }
+        }
+
+
+
+    }
+    bool isConnected{ false };
 
 };
 
