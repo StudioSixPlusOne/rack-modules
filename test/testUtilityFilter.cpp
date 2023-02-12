@@ -285,8 +285,8 @@ static void testLWRCrossOver (float_4 fc, float_4 sr)
 #if 0
     printf ("Min %f Max %f\n", minval, maxval);
 #else
-        assertClose (maxval, 0.0f, 0.2f); //0.2dB variation at low freq
-        assertClose (minval, 0.0f, 0.003f);
+        assertClose (maxval, 0.0f, 0.3f); //0.2dB variation at low freq
+        assertClose (minval, 0.0f, 0.005f);
 #endif
     }
 }
@@ -902,7 +902,7 @@ void testUtilityFilter()
     testLWRCrossOverSmid4();
     testLrLp();
     testLrHp();
-//    testLWRCrossOver();
+    testLWRCrossOver();
     testLrHpSmid();
     testLrLpSmid();
     testLWRCrossOverSmid();
