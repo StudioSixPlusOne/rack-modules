@@ -134,12 +134,7 @@ static void testSlopeLrHp (const float cutoff,
             slope.slope);
 #else
     assertClose (slope.cornerGain, expectedCorner, 0.2f);
-    assertClose (slope.slope, expectedSlope, 0.8
-
-
-
-
-                 f);
+    assertClose (slope.slope, expectedSlope, 0.8f);
 #endif
 }
 
