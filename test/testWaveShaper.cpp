@@ -65,7 +65,7 @@ static void testConsume()
     //cos x
     for (float i = WaveShaper::minValue; i < WaveShaper::maxValue - WaveShaper::interval; i += WaveShaper::interval)
     {
-         printf (" cos x %f %f  %f\n", i, nld.process (i, 3), cosf (i * k_pi));
+//         printf (" cos x %f %f  %f\n", i, nld.process (i, 3), cosf (i * k_pi));
         assert (areSame (nld.process (i, 3), 1.5f * i * (1.0f - (i * i * 0.33333333f)), 0.001f));
         assert (areSame (nld.cosShaper (i), 1.5f * i * (1.0f - (i * i * 0.33333333f)), 0.001f));
         assertGE (nld.cosShaper(i) , -1.0001f);
