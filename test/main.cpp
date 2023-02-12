@@ -47,6 +47,7 @@ extern void testKSDelay();
 extern void testCombFilter();
 extern void testMaccomo();
 extern void testBascom();
+extern void testAmburgh();
 extern void testSaturator();
 extern void testUtilityFilter();
 extern void testLala();
@@ -56,6 +57,8 @@ extern void testZazel();
 extern void testIverson();
 extern void testTriggerSequencer();
 extern void testWaveShaper();
+extern void testHula();
+
 
 //external performance tests
 extern void initPerf();
@@ -95,8 +98,11 @@ int main (int argc, char** argv)
     }
 
     // run external tests defined above
+
     testBascom();
     testWaveShaper();
+    testHula();
+    testAmburgh();
     testSynthFilter();
     testSynthFilterII();
     testTriggerSequencer();

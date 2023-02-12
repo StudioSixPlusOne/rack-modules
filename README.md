@@ -1,8 +1,10 @@
 # StudioSixPlusOne
 
-# Early test release for v2.0
+# Release for VCV rack v2.0
 
-This is the beta test for the modules, updated to VCV Rack V2.0
+
+This is the Studio 6 Plus 1 modules, updated to VCV Rack V2.0
+
 
 All modules have had a lick of virtual paint
 
@@ -147,7 +149,9 @@ A monophonic in, polyphonic out shift register, with many probability options.
 ### Te
 Tyrant Expander
 
+
 <img src="images/TE.png">
+
 
 An expansion module when placed to the right of Tyrant, provides trigger outputs for the probability actions provided by tyrant.
 
@@ -175,7 +179,11 @@ A cascadable two way crossover, used for splitting audio frequency bands, for mu
 
 ### Zazel
 
+
 <img  src="images/Zazel.png">
+
+<img align="left" src="images/Zazel.png">
+
 
 
 
@@ -207,7 +215,6 @@ A slimline mixer for audio and cv.
 - CV controllable attenuverter
 
 
-<br>
 <br>
 
 
@@ -306,7 +313,9 @@ The smoothing filter can be adjusted, and both unipolar and bipolar outputs.
 
 ### Hula
 
+
 <img  src="images/Hula.png">
+
 
 A small form fm oscillator, each instance has it's own small detune applied and it's own custom noise floor, hence the lack of a fine tune control.
 

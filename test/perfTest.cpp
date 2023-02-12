@@ -35,11 +35,13 @@ SOFTWARE.
 #include "common.hpp"
 
 extern double overheadInOut;
+extern double overheadInOut4;
 extern double overheadOutOnly;
 
 #include "simd/functions.hpp"
 #include "simd/sse_mathfun.h"
 #include "simd/sse_mathfun_extension.h"
+
 
 #include "MeasureTime.h"
 #include "TestComposite.h"
@@ -273,6 +275,7 @@ static void testWaveShaper()
             return x[0]; },
         1);
 }
+
 
 static void testLookupTable()
 {

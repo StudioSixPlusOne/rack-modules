@@ -43,6 +43,7 @@ namespace sspo
         constexpr auto LD_PI = 3.14159265358979323846264338327950288419716939937510L;
         constexpr auto k_pi = static_cast<float> (LD_PI);
         constexpr auto k_2pi = k_pi + k_pi;
+        constexpr auto base_c4 = 261.6256f;
         constexpr auto base_a4 = 440.0f;
         constexpr auto base_a4Midi = 69.0f;
         constexpr auto semitonesPerOctave = 12.0f;

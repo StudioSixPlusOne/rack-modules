@@ -4,7 +4,7 @@ on:
     branches:
       - main
       - 'releases/**'
-      - LadderFilterDesigner
+      - Development
     tags:
       - 'v**'
   pull_request:
