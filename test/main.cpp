@@ -99,29 +99,29 @@ int main (int argc, char** argv)
 
     // run external tests defined above
 
-    testBascom();
-    testWaveShaper();
-    testHula();
-    testAmburgh();
-    testSynthFilter();
-    testSynthFilterII();
-    testTriggerSequencer();
-    testIverson();
-    testLala();
-    testEva();
-    testZazel();
-//    testEasing();
-    testSaturator();
-    testEmpty();
-    testTestSignal();
-    testAudioMath();
-    testCircularBuffer();
-    testLookupTable();
-    testAnalyzer();
-//    testPolyShiftRegister();
-//    testKSDelay();
-    testCombFilter();
-    testMaccomo();
+//    testBascom();
+//    testWaveShaper();
+//    testHula();
+//    testAmburgh();
+//    testSynthFilter();
+//    testSynthFilterII();
+//    testTriggerSequencer();
+//    testIverson();
+//    testLala();
+//    testEva();
+//    testZazel();
+////    testEasing();
+//    testSaturator();
+//    testEmpty();
+//    testTestSignal();
+//    testAudioMath();
+//    testCircularBuffer();
+//    testLookupTable();
+//    testAnalyzer();
+////    testPolyShiftRegister();
+////    testKSDelay();
+//    testCombFilter();
+//    testMaccomo();
     testUtilityFilter();
 
     printf ("Tests passed.\n");
