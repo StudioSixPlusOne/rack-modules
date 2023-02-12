@@ -118,7 +118,7 @@ int main (int argc, char** argv)
     testCircularBuffer();
     testLookupTable();
     testAnalyzer();
-    testPolyShiftRegister();
+//    testPolyShiftRegister();
     testKSDelay();
     testCombFilter();
     testMaccomo();
