@@ -33,35 +33,33 @@ using Light = ::rack::engine::Light;
 using Module = ::rack::engine::Module;
 
 /**
- * Base class for composites embedable in a VCV Widget
+ * Base class for composites embeddable in a VCV Widget
  * This is used for "real" implementations
  */
 class WidgetComposite
 {
 public:
-
     using Port = ::rack::engine::Port;
-    
-    WidgetComposite(::rack::engine::Module * parent) :
-        inputs(parent->inputs),
-        outputs(parent->outputs),
-        params(parent->params),
-        lights(parent->lights),
-        paramQuantities(parent->paramQuantities)
+
+    WidgetComposite (::rack::engine::Module* parent) : inputs (parent->inputs),
+                                                       outputs (parent->outputs),
+                                                       params (parent->params),
+                                                       lights (parent->lights),
+                                                       paramQuantities (parent->paramQuantities)
     {
     }
     virtual ~WidgetComposite() {}
-    virtual void step()
-    {
-    };
+
+    virtual void step(){};
+
     float engineGetSampleRate()
     {
-        return ::rack::engine::Engine().getSampleRate();
+        return APP->engine->getSampleRate();
     }
-    
+
     float engineGetSampleTime()
     {
-        return ::rack::engine::Engine().getSampleTime();
+        return APP->engine->getSampleTime();
     }
     //protected:
     std::vector<Input>& inputs;
