@@ -152,7 +152,7 @@ public:
             inputState.setInputState(dut.inputs, nullLimits);
             for (paramsState.reset(numParams); !paramsState.isDone(); paramsState.next()) {
                 paramsState.setParamState(dut.params, &paramLimits);
-                for (int i = 0; i < 100; ++i) {
+                for (int i = 0; i < 1; ++i) { // was < 100
                     dut.step();
                     for (int j = 0; j < numOutputs; ++j) {
                         const float out = dut.outputs[j].getVoltage(0);

@@ -2,7 +2,9 @@
 
 # Release for VCV rack v2.0
 
+
 This is the Studio 6 Plus 1 modules, updated to VCV Rack V2.0
+
 
 All modules have had a lick of virtual paint
 
@@ -46,13 +48,17 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
  
  [Hula](#hula)
 
+[Bascom](#bascom)
+
+[Bascom Expander](#bascomexpander)
+
 
 
 
 
  ### Wallenda
 
-  <img align="left" src="images/Wallenda.png">
+  <img src="images/Wallenda.png">
 
  A delay plugin designed for use when using [Karplus–Strong string synthesis](https://en.wikipedia.org/wiki/Karplus%E2%80%93Strong_string_synthesis) featuring:
 
@@ -69,13 +75,11 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 [Omri's YouTube Tutorial](https://www.youtube.com/watch?v=VKX3ii-kR1Y)
 <br>
 <br>
-<br>
-<br>
-<br>
+
 
 ### Maccomo
 
- <img align="left" src="images/Maccomo.png">
+ <img  src="images/Maccomo.png">
 
 An emulation of a ladder filter, based on the descriptions and block diagrams in Will Pirkles book "Designing Software Synthesizers Plugins in C++" featuring:
 
@@ -90,10 +94,7 @@ If the audio input is disconnected, the filter will still run in monophonic mode
 
 <br>
 <br>
-<br>
-<br>
-<br>
-<br>
+
 
 ### Amburg
 <img src="images/Amburgh.png">
@@ -104,7 +105,7 @@ and the drive control now really does drive.
 
 ### Massarti
 
- <img align="left" src="images/Massarti.png">
+ <img src="images/Massarti.png">
 
 
 A feedforward comb filter with added feedback loop, can be used to create pitched sounds from noise, or for the adding of overtones
@@ -117,19 +118,11 @@ A feedforward comb filter with added feedback loop, can be used to create pitche
 
 <br>
 <br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
+
 
 ### Tyrant
 
-<img align="left" src="images/Tyrant.png">
+<img  src="images/Tyrant.png">
 
 
 A monophonic in, polyphonic out shift register, with many probability options.
@@ -156,7 +149,9 @@ A monophonic in, polyphonic out shift register, with many probability options.
 ### Te
 Tyrant Expander
 
-<img align="left" src="images/TE.png">
+
+<img src="images/TE.png">
+
 
 An expansion module when placed to the right of Tyrant, provides trigger outputs for the probability actions provided by tyrant.
 
@@ -166,29 +161,10 @@ An expansion module when placed to the right of Tyrant, provides trigger outputs
 
 <br>
 <br>
-<br>
-
-
-<br>
-<br>
-<br>
-
-
-
-<br>
-<br>
-<br>
-
-
-<br>
-<br>
-<br>
-
-
 
 ### Lala
 
-<img align="left" src="images/Lala.png">
+<img src="images/Lala.png">
 
 A cascadable two way crossover, used for splitting audio frequency bands, for multiband processing
 
@@ -200,30 +176,14 @@ A cascadable two way crossover, used for splitting audio frequency bands, for mu
 
 <br>
 <br>
-<br>
-
-
-<br>
-<br>
-<br>
-
-
-
-<br>
-<br>
-<br>
-
-
-<br>
-<br>
-<br>
-
-
-
 
 ### Zazel
 
+
+<img  src="images/Zazel.png">
+
 <img align="left" src="images/Zazel.png">
+
 
 
 
@@ -247,7 +207,7 @@ A performance-based controller, designed to be connected to MIDI triggers, to al
 
 ### Eva
 
-<img align="left" src="images/Eva.png">
+<img src="images/Eva.png">
 
 A slimline mixer for audio and cv.
 
@@ -255,25 +215,6 @@ A slimline mixer for audio and cv.
 - CV controllable attenuverter
 
 
-<br>
-<br>
-<br>
-
-
-
-<br>
-<br>
-<br>
-
-
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
 <br>
 
 
@@ -283,7 +224,7 @@ A slimline mixer for audio and cv.
 
 ### Iverson
 
-<img align="left" src="images/Iverson.png">
+<img src="images/Iverson.png">
 <img src="images/IversonJr.png">
 
 A performance based trigger sequencer with integrated support for MIDI grid controllers.
@@ -359,23 +300,55 @@ Iverson comes in two versions: a 16 step and an 8 step (Iverson Jr).
 
 ### Zilah
 
-<img align="left" src="images/Zilah.png">
+<img src="images/Zilah.png">
 
 A MIDI 1.0 14 bit CC controller. The MIDI 1.0 standard defines cc 0 - 31 can be
  used in conjunction with cc 32 - 63 to form 14 bit pairs. This gives greater 
  resolution than the default 128 steps.
 Options are given in the context menu as to how the pair of CC values are processed, MSB wait for LSB is my personal favorite, but the MIDI 1.0 option is compliant with the specification.   
-The smoothing filter can be adjusted, and both unipolar and bipolar outputs
+The smoothing filter can be adjusted, and both unipolar and bipolar outputs.
 
 
 
 
 ### Hula
 
-<img align="left" src="images/Hula.png">
+
+<img  src="images/Hula.png">
+
 
 A small form fm oscillator, each instance has it's own small detune applied and it's own custom noise floor, hence the lack of a fine tune control.
 
 It starts emitting a sine wave, turing up the feedback will increase the harmonics.
 The fm input can be supplied an audio signal, with controllable depth. There are many guides on the web that will explain the principals of FM synthesis much better than I ever could.  
 
+### Bascom
+
+<img src="images/Bascom.png">
+
+A performance filter, with analog sampled Non linear distortions at every stage.
+
+Having spent the last 18 months building a DIY modular, I wanted to bring some of 
+the analog world to my modules. One of the big differences I noticed was the additional 
+character caused by the inaccuracies. In the physical world all cores of a filter may 
+have slightly different tunings and gaines, caused by component tolerance and age. 
+Good musical filters are known for adding colour, Bascom bases this colour on the sampling of 
+various analog circuits.
+
+To keep the UI simple, Bascom has limited controls, with a library of presets covering
+various modes and colourings. If you wish to dig deeper and design your own filter model, 
+then Bascom Expander 
+
+A note on stereo, only the left input is polyphonic, with the right input copied to the
+second channel
+
+### BascomExpander
+
+<img src="images/BascomExpander.png">
+
+Bascom Expander must be placed to the right of a Bascom module, and gives you the tools
+to design your own filter mode and colouring. While designing this module I have prepared #
+a document explaining how Bascom works as a filter, and the various controls. At the end
+of the link is a list of additional material that explain ladder filters in depth.
+
+[Ladder Filter Design](/Docs/LadderFilterDesigner/LadderFilterDesigner.md)

@@ -1,0 +1,27 @@
+{
+  "plugin": "StudioSixPlusOne",
+  "model": "BascomExpander",
+  "version": "2.0.1h",
+  "params": [
+    {
+      "value": 1.0,
+      "id": 3
+    },
+    {
+      "value": -6.0,
+      "id": 4
+    },
+    {
+      "value": 12.0,
+      "id": 5
+    },
+    {
+      "value": -8.0,
+      "id": 6
+    },
+    {
+      "value": 0.0,
+      "id": 12
+    }
+  ]
+}

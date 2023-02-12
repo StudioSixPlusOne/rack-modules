@@ -19,5 +19,8 @@ extern Model* modelIversonJr;
 extern Model* modelZilah;
 extern Model* modelHula;
 extern Model* modelAmburgh;
+extern Model* modelBascomExpander;
+extern Model* modelBascom;
+
 
 
