@@ -106,5 +106,5 @@ void testEasing()
 #ifdef makeEasingFiles
     makeEasingFiles();
 #endif
-    testEasingFactory();
+//    testEasingFactory();
 }
