@@ -115,14 +115,14 @@ int main (int argc, char** argv)
     testEmpty();
     testTestSignal();
     testAudioMath();
-//    testCircularBuffer();
-//    testLookupTable();
-//    testAnalyzer();
+    testCircularBuffer();
+    testLookupTable();
+    testAnalyzer();
 //    testPolyShiftRegister();
 //    testKSDelay();
-//    testCombFilter();
-//    testMaccomo();
-//    testUtilityFilter();
+    testCombFilter();
+    testMaccomo();
+    testUtilityFilter();
 
     printf ("Tests passed.\n");
 }
