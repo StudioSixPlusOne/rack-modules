@@ -894,14 +894,14 @@ static void testButterworthLpSmid()
 void testUtilityFilter()
 {
     printf ("Utility Filter\n");
-//    testLrLp4();
-//    testLrHp4();
-//    testLWRCrossOver4();
-//    testLrHpSmid4();
-//    testLrLpSmid4();
-//    testLWRCrossOverSmid4();
-//    testLrLp();
-//    testLrHp();
+    testLrLp4();
+    testLrHp4();
+    testLWRCrossOver4();
+    testLrHpSmid4();
+    testLrLpSmid4();
+    testLWRCrossOverSmid4();
+    testLrLp();
+    testLrHp();
 //    testLWRCrossOver();
     testLrHpSmid();
     testLrLpSmid();
