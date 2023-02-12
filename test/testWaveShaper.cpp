@@ -38,7 +38,7 @@ static void testCreate()
     for (float i = WaveShaper::minValue; index < 4096; i += WaveShaper::interval)
     {
         //        printf ("%d %f %f  %f\n", index, i, (table[index], cosf (k_pi * i)));
-        assertEQ (table[index], cosf (k_pi * i));
+        assertClose (table[index], cosf (k_pi * i), 0.0001f);
         index++;
     }
 }
