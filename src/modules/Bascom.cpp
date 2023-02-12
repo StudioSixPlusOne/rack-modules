@@ -39,19 +39,19 @@ struct Bascom : Module
         std::shared_ptr<IComposite> icomp = Comp::getDescription();
         SqHelper::setupParams (icomp, this);
 
-        configBypass(Comp::MAIN_INPUT, Comp::MAIN_OUTPUT);
+        configBypass (Comp::MAIN_INPUT, Comp::MAIN_OUTPUT);
         onSampleRateChange();
         ma->init();
     }
 
-    json_t * dataToJson() override
+    json_t* dataToJson() override
     {
         return ma->dataToJson();
     }
 
-    void dataFromJson(json_t *rootJ) override
+    void dataFromJson (json_t* rootJ) override
     {
-        ma->dataFromJson(rootJ);
+        ma->dataFromJson (rootJ);
     }
 
     void onSampleRateChange() override
@@ -91,9 +91,8 @@ struct BascomWidget : ModuleWidget
         addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (25.135, 70.292 + 2.5)), module, Comp::DRIVE_CV_ATTENUVERTER_PARAM));
         addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (41.01, 70.292 + 2.5)), module, Comp::DRIVE_PARAM));
 
-        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (25.135, 95.082 )), module, Comp::VCA_CV_ATTENUVERTER_PARAM));
-        addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (41.01, 95.082 )), module, Comp::VCA_PARAM));
-
+        addParam (SqHelper::createParamCentered<sspo::Knob> (icomp, mm2px (Vec (25.135, 95.082)), module, Comp::VCA_CV_ATTENUVERTER_PARAM));
+        addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (41.01, 95.082)), module, Comp::VCA_PARAM));
 
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 21.344)), module, Comp::VOCT_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 47.802 + 2.5)), module, Comp::RESONANCE_CV_INPUT));
@@ -101,23 +100,23 @@ struct BascomWidget : ModuleWidget
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 112.625)), module, Comp::MAIN_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (19.74, 112.625)), module, Comp::RIGHT_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 29.50 + 2.5)), module, Comp::FREQ_CV_INPUT));
-        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 95.082 )), module, Comp::VCA_CV_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 95.082)), module, Comp::VCA_CV_INPUT));
 
         addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (30.41, 112.625)), module, Comp::MAIN_OUTPUT));
         addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (41.01, 112.625)), module, Comp::RIGHT_OUTPUT));
 
         if (module)
         {
-            module->configInput(Comp::VOCT_INPUT, "Voct");
-            module->configInput(Comp::RESONANCE_CV_INPUT, "Resonance");
-            module->configInput(Comp::DRIVE_CV_INPUT, "Drive");
-            module->configInput(Comp::MAIN_INPUT, "Main");
-            module->configOutput(Comp::RIGHT_OUTPUT, "Right");
-            module->configInput(Comp::FREQ_CV_INPUT, "Freq");
-            module->configInput(Comp::VCA_CV_INPUT, "Gain");
+            module->configInput (Comp::VOCT_INPUT, "Voct");
+            module->configInput (Comp::RESONANCE_CV_INPUT, "Resonance");
+            module->configInput (Comp::DRIVE_CV_INPUT, "Drive");
+            module->configInput (Comp::MAIN_INPUT, "Main");
+            module->configOutput (Comp::RIGHT_OUTPUT, "Right");
+            module->configInput (Comp::FREQ_CV_INPUT, "Freq");
+            module->configInput (Comp::VCA_CV_INPUT, "Gain");
 
-            module->configOutput(Comp::MAIN_OUTPUT, "Main");
-            module->configOutput(Comp::MAIN_OUTPUT, "Right");
+            module->configOutput (Comp::MAIN_OUTPUT, "Main");
+            module->configOutput (Comp::MAIN_OUTPUT, "Right");
         }
     }
 };

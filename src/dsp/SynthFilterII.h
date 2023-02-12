@@ -278,7 +278,6 @@ namespace sspo
             //this must be defined in the module, normally as a lambda
             std::function<T (T in, T drive)> nonLinearProcess;
 
-
             T process (const T in)
             {
                 auto sigma = lpf1.getFeedbackOut()
@@ -286,7 +285,7 @@ namespace sspo
                              + lpf3.getFeedbackOut()
                              + lpf4.getFeedbackOut();
                 sigma *= K;
-                sigma = linearInterpolate(sigma, z1, T(feedbackPathCrossfade));
+                sigma = linearInterpolate (sigma, z1, T (feedbackPathCrossfade));
                 WaveShaper::nld.process (sigma, sigma, resNldType);
                 T xn;
                 WaveShaper::nld.process (xn, in, inNldType);
@@ -302,10 +301,10 @@ namespace sspo
                 auto f4 = lpf4.process (f3);
 
                 z1 = typeCoeffs.A * U
-                       + typeCoeffs.B * f1
-                       + typeCoeffs.C * f2
-                       + typeCoeffs.D * f3
-                       + typeCoeffs.E * f4;
+                     + typeCoeffs.B * f1
+                     + typeCoeffs.C * f2
+                     + typeCoeffs.D * f3
+                     + typeCoeffs.E * f4;
 
                 return z1;
             }
@@ -397,7 +396,7 @@ namespace sspo
             T alpha{ 1.0f };
             T z1{ 0.0f };
 
-            float feedbackPathCrossfade {0};
+            float feedbackPathCrossfade{ 0 };
         };
     } // namespace synthFilterII
 } // namespace sspo

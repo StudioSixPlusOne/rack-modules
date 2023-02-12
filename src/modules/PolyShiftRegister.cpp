@@ -99,27 +99,26 @@ struct PolyShiftRegisterWidget : ModuleWidget
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (37.86, 109.865 + 2.71)), module, Comp::RESET_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (22.79, 110.008 + 2.71)), module, Comp::TRIGGER_INPUT));
 
-        if(module)
+        if (module)
         {
-            module->configInput(Comp::CHANNELS_INPUT, "Channels");
-            module->configInput(Comp::TRIGGER_PROB_INPUT, "Trigger Prob");
-            module->configInput(Comp::SHUFFLE_PROB_INPUT, "Shuffle");
-            module->configInput(Comp::ACCENT_A_PROB_INPUT, "Accent A Prob");
-            module->configInput(Comp::ACCENT_A_OFFSET_INPUT, "Accent A Offset");
-            module->configInput(Comp::ACCENT_B_PROB_INPUT, "Accent B Prob");
-            module->configInput(Comp::ACCENT_B_OFFSET_INPUT, "Accent B Offset");
-            module->configInput(Comp::ACCENT_RNG_PROB_INPUT, "Accent Rng Prob");
-            module->configInput(Comp::ACCENT_RNG_MAX_INPUT, "Accent Rng Max");
-            module->configInput(Comp::MAIN_INPUT, "In");
-            module->configInput(Comp::RESET_INPUT, "Reset");
-            module->configInput(Comp::TRIGGER_INPUT, "Trigger");
-
+            module->configInput (Comp::CHANNELS_INPUT, "Channels");
+            module->configInput (Comp::TRIGGER_PROB_INPUT, "Trigger Prob");
+            module->configInput (Comp::SHUFFLE_PROB_INPUT, "Shuffle");
+            module->configInput (Comp::ACCENT_A_PROB_INPUT, "Accent A Prob");
+            module->configInput (Comp::ACCENT_A_OFFSET_INPUT, "Accent A Offset");
+            module->configInput (Comp::ACCENT_B_PROB_INPUT, "Accent B Prob");
+            module->configInput (Comp::ACCENT_B_OFFSET_INPUT, "Accent B Offset");
+            module->configInput (Comp::ACCENT_RNG_PROB_INPUT, "Accent Rng Prob");
+            module->configInput (Comp::ACCENT_RNG_MAX_INPUT, "Accent Rng Max");
+            module->configInput (Comp::MAIN_INPUT, "In");
+            module->configInput (Comp::RESET_INPUT, "Reset");
+            module->configInput (Comp::TRIGGER_INPUT, "Trigger");
         }
 
         addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (42.764 + 10.16, 109.865 + 2.71)), module, Comp::MAIN_OUTPUT));
         if (module)
         {
-            module->configOutput(Comp::MAIN_OUTPUT, "Main");
+            module->configOutput (Comp::MAIN_OUTPUT, "Main");
         }
     }
 };

@@ -64,11 +64,8 @@ struct BascomExpander : Module
         LIGHTS_LEN
     };
 
-
-
     BascomExpander()
     {
-
         config (PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
         configParam (OVERSAMPLE_EXPANDERPARAM, 1.0f, 12.0f, 1.0f, "");
         configParam (DECIMATOR_FILTERS_EXPANDERPARAM, 1.0f, 12.0f, 1.0f, "Decimator Filters");
@@ -90,18 +87,13 @@ struct BascomExpander : Module
         configParam (OFFSET_4_EXPANDERPARAM, -24.f, 24.f, 0.f, "Fc offset D");
         configParam (FEEDBACK_PATH_EXPANDERPARAM, 0.f, 1, 0.f, "Feedback Path");
         configParam (NLD_FEEDBACK_EXPANDERPARAM, 0.f, float (WaveShaper::nld.size() - 1), 0.f, "Feedback NLD");
-
-
     }
-
-
 };
 
 struct BascomExpanderWidget : ModuleWidget
 {
     std::array<ParamHandle, NUM_PARAMS> paramHandles;
     sspo::AudioMath::ClockDivider divider;
-
 
     BascomExpanderWidget (BascomExpander* module)
     {
@@ -150,19 +142,19 @@ struct BascomExpanderWidget : ModuleWidget
 
     void step() override
     {
-        if(!module)
+        if (! module)
             return;
 
         //check if connected to parent
         auto parentConnected = module->leftExpander.module
                                && module->leftExpander.module->model == modelBascom;
 
-        if(parentConnected && isConnected)
+        if (parentConnected && isConnected)
         {
-            if(module->leftExpander.module->params[HAS_LOADED].getValue() == 1)
+            if (module->leftExpander.module->params[HAS_LOADED].getValue() == 1)
             {
                 getParametersFromBascom();
-                module->leftExpander.module->params[HAS_LOADED].setValue(0);
+                module->leftExpander.module->params[HAS_LOADED].setValue (0);
             }
         }
 
@@ -174,112 +166,90 @@ struct BascomExpanderWidget : ModuleWidget
                                             OVERSAMPLE_PARAM,
                                             true);
 
-
-
             APP->engine->updateParamHandle (&paramHandles[DECIMATOR_FILTERS_PARAM],
                                             module->leftExpander.module->id,
                                             DECIMATOR_FILTERS_PARAM,
                                             true);
-
 
             APP->engine->updateParamHandle (&paramHandles[PARAM_UPDATE_DIVIDER_PARAM],
                                             module->leftExpander.module->id,
                                             PARAM_UPDATE_DIVIDER_PARAM,
                                             true);
 
-
-
             APP->engine->updateParamHandle (&paramHandles[COEFF_A_PARAM],
                                             module->leftExpander.module->id,
                                             COEFF_A_PARAM,
                                             true);
-
 
             APP->engine->updateParamHandle (&paramHandles[COEFF_B_PARAM],
                                             module->leftExpander.module->id,
                                             COEFF_B_PARAM,
                                             true);
 
-
             APP->engine->updateParamHandle (&paramHandles[COEFF_C_PARAM],
                                             module->leftExpander.module->id,
                                             COEFF_C_PARAM,
                                             true);
-
 
             APP->engine->updateParamHandle (&paramHandles[COEFF_D_PARAM],
                                             module->leftExpander.module->id,
                                             COEFF_D_PARAM,
                                             true);
 
-
             APP->engine->updateParamHandle (&paramHandles[COEFF_E_PARAM],
                                             module->leftExpander.module->id,
                                             COEFF_E_PARAM,
                                             true);
-
 
             APP->engine->updateParamHandle (&paramHandles[FC_OFFSET_1_PARAM],
                                             module->leftExpander.module->id,
                                             FC_OFFSET_1_PARAM,
                                             true);
 
-
             APP->engine->updateParamHandle (&paramHandles[FC_OFFSET_2_PARAM],
                                             module->leftExpander.module->id,
                                             FC_OFFSET_2_PARAM,
                                             true);
-
 
             APP->engine->updateParamHandle (&paramHandles[FC_OFFSET_3_PARAM],
                                             module->leftExpander.module->id,
                                             FC_OFFSET_3_PARAM,
                                             true);
 
-
-            APP->engine->updateParamHandle(&paramHandles[FC_OFFSET_4_PARAM],
+            APP->engine->updateParamHandle (&paramHandles[FC_OFFSET_4_PARAM],
                                             module->leftExpander.module->id,
                                             FC_OFFSET_4_PARAM,
                                             true);
 
-
-            APP->engine->updateParamHandle(&paramHandles[INPUT_NLD_TYPE_PARAM],
+            APP->engine->updateParamHandle (&paramHandles[INPUT_NLD_TYPE_PARAM],
                                             module->leftExpander.module->id,
                                             INPUT_NLD_TYPE_PARAM,
                                             true);
-
 
             APP->engine->updateParamHandle (&paramHandles[RESONANCE_NLD_TYPE_PARAM],
                                             module->leftExpander.module->id,
                                             RESONANCE_NLD_TYPE_PARAM,
                                             true);
 
-
-
             APP->engine->updateParamHandle (&paramHandles[STAGE_1_NLD_TYPE_PARAM],
                                             module->leftExpander.module->id,
                                             STAGE_1_NLD_TYPE_PARAM,
                                             true);
-
-
 
             APP->engine->updateParamHandle (&paramHandles[STAGE_2_NLD_TYPE_PARAM],
                                             module->leftExpander.module->id,
                                             STAGE_2_NLD_TYPE_PARAM,
                                             true);
 
-
             APP->engine->updateParamHandle (&paramHandles[STAGE_3_NLD_TYPE_PARAM],
                                             module->leftExpander.module->id,
                                             STAGE_3_NLD_TYPE_PARAM,
                                             true);
 
-
             APP->engine->updateParamHandle (&paramHandles[STAGE_4_NLD_TYPE_PARAM],
                                             module->leftExpander.module->id,
                                             STAGE_4_NLD_TYPE_PARAM,
                                             true);
-
 
             APP->engine->updateParamHandle (&paramHandles[FEEDBACK_PATH_PARAM],
                                             module->leftExpander.module->id,
@@ -579,12 +549,8 @@ struct BascomExpanderWidget : ModuleWidget
                 module->params[BascomExpander::FEEDBACK_PATH_EXPANDERPARAM].setValue (pq->getValue());
             }
         }
-
-
-
     }
     bool isConnected{ false };
-
 };
 
 Model* modelBascomExpander = createModel<BascomExpander, BascomExpanderWidget> ("BascomExpander");

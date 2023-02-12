@@ -94,15 +94,15 @@ struct KSDelayWidget : ModuleWidget
 
         if (module)
         {
-            module->configInput(Comp::VOCT, "Voct");
-            module->configInput(Comp::FEEDBACK_INPUT, "Feedback");
-            module->configInput(Comp::IN_INPUT, "Audio");
-            module->configInput(Comp::UNISON_INPUT, "Unison Count");
-            module->configInput(Comp::UNISON_SPREAD_INPUT, "Unison Spread");
-            module->configInput(Comp::UNISON_MIX_INPUT, "Unison Mix");
-            module->configInput(Comp::STRETCH_INPUT, "Stretch");
+            module->configInput (Comp::VOCT, "Voct");
+            module->configInput (Comp::FEEDBACK_INPUT, "Feedback");
+            module->configInput (Comp::IN_INPUT, "Audio");
+            module->configInput (Comp::UNISON_INPUT, "Unison Count");
+            module->configInput (Comp::UNISON_SPREAD_INPUT, "Unison Spread");
+            module->configInput (Comp::UNISON_MIX_INPUT, "Unison Mix");
+            module->configInput (Comp::STRETCH_INPUT, "Stretch");
 
-            module->configOutput(Comp::OUT_OUTPUT, "Audio");
+            module->configOutput (Comp::OUT_OUTPUT, "Audio");
         }
     }
 };

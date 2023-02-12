@@ -199,9 +199,10 @@ inline void BascomComp<TBase>::step()
 
         auto in = TBase::inputs[MAIN_INPUT].template getPolyVoltageSimd<float_4> (c);
 
-       // copy right input to poly channel 1
-       in[1] = simd::ifelse(c == 0 && TBase::inputs[RIGHT_INPUT].isConnected(),
-                              TBase::inputs[RIGHT_INPUT].getVoltage(), in[1]);
+        // copy right input to poly channel 1
+        in[1] = simd::ifelse (c == 0 && TBase::inputs[RIGHT_INPUT].isConnected(),
+                              TBase::inputs[RIGHT_INPUT].getVoltage(),
+                              in[1]);
         // Add -120dB noise to bootstrap self-oscillation
         in += noise;
 

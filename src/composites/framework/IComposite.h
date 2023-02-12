@@ -34,31 +34,30 @@ public:
     class Config
     {
     public:
-        Config(float a, float b, float c, const char* n, const char* u 
-        , const float base = 0.0f, const float dm = 1.0f, const float offset = 0.0f)
+        Config (float a, float b, float c, const char* n, const char* u, const float base = 0.0f, const float dm = 1.0f, const float offset = 0.0f)
         {
-            min=a;
-            max=b;
-            def=c;
-            name=n;
-            unit=u;
+            min = a;
+            max = b;
+            def = c;
+            name = n;
+            unit = u;
             displayBase = base;
             displayMultiplier = dm;
             displayOffset = offset;
         }
-        float min=0;
-        float max=0;
-        float def=0;
-        const char* name=nullptr; 
+        float min = 0;
+        float max = 0;
+        float def = 0;
+        const char* name = nullptr;
         const char* unit = nullptr;
         float displayBase = 0.0f;
         float displayMultiplier = 1.0f;
         float displayOffset = 0.0f;
-        // When you add more fields here, make sure 
+        // When you add more fields here, make sure
         // to add them to testIComposite.cpp
         bool active = true;
     };
-    virtual Config getParam(int i)=0;
-    virtual int getNumParams()=0;
-    virtual ~IComposite() {};
+    virtual Config getParam (int i) = 0;
+    virtual int getNumParams() = 0;
+    virtual ~IComposite(){};
 };
