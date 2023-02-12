@@ -899,11 +899,11 @@ void testUtilityFilter()
 //    testLWRCrossOver4();
 //    testLrHpSmid4();
 //    testLrLpSmid4();
-//    testLWRCrossOverSmid4();
-//    testLrLp();
-//    testLrHp();
-//    testLWRCrossOver();
-//    testLrHpSmid();
+    testLWRCrossOverSmid4();
+    testLrLp();
+    testLrHp();
+    testLWRCrossOver();
+    testLrHpSmid();
     testLrLpSmid();
     testLWRCrossOverSmid();
     testAllPass();
