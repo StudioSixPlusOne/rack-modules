@@ -84,7 +84,7 @@ jobs:
       - name: Build plugin
         run: |
          export PLUGIN_DIR=$GITHUB_WORKSPACE
-         pushd ${{ env.rack-plugin-toolchain-dir }}
+          pwd
           make test
           ./test.exe
 
