@@ -2,7 +2,9 @@
   "slug": "StudioSixPlusOne",
   "name": "Studio Six Plus One",
 
+
   "version": "2.0.900",
+
 
   "license": "GPL-3.0-or-later",
   "brand": "Studio Six Plus One",
@@ -152,6 +154,26 @@
       "tags": [
         "VCO",
         "Polyphonic"
+      ]
+    },
+    {
+      "slug": "Bascom",
+      "name": "Bascom",
+      "description": "Multi form Non Linear Filter self oscillating vcf",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#Bascom",
+      "tags": [
+        "Polyphonic",
+        "Filter"
+      ]
+    },
+    {
+      "slug": "BascomExpander",
+      "name": "BascomExpander",
+      "description": "Multi form Non Linear Filter self oscillating vcf",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#Bascom",
+      "tags": [
+        "Polyphonic",
+        "Filter"
       ]
     }
   ]

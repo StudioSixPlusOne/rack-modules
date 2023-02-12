@@ -68,6 +68,8 @@ struct CcAggregator
     }
     virtual void setMsb (uint8_t) = 0;
     virtual void setLsb (uint8_t) = 0;
+
+    virtual ~CcAggregator() = default;
 };
 
 struct LsbOrMSbWithZeroingMidi10 : CcAggregator
@@ -442,7 +444,7 @@ struct UnipolarMenuItem : MenuItem
     }
 };
 
-//smoothing filter patameter, as slider on context menu
+//smoothing filter parameter, as slider on context menu
 
 struct SmoothingFilterQuantity : Quantity
 {

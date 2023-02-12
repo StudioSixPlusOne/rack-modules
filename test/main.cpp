@@ -34,6 +34,7 @@ using namespace rack;
 
 // external tests
 extern void testSynthFilter();
+extern void testSynthFilterII();
 extern void testEva();
 extern void testEmpty();
 extern void testAudioMath();
@@ -45,6 +46,7 @@ extern void testTestSignal();
 extern void testKSDelay();
 extern void testCombFilter();
 extern void testMaccomo();
+extern void testBascom();
 extern void testAmburgh();
 extern void testSaturator();
 extern void testUtilityFilter();
@@ -54,7 +56,9 @@ extern void testEasing();
 extern void testZazel();
 extern void testIverson();
 extern void testTriggerSequencer();
+extern void testWaveShaper();
 extern void testHula();
+
 
 //external performance tests
 extern void initPerf();
@@ -95,9 +99,12 @@ int main (int argc, char** argv)
 
     // run external tests defined above
 
+    testBascom();
+    testWaveShaper();
     testHula();
     testAmburgh();
     testSynthFilter();
+    testSynthFilterII();
     testTriggerSequencer();
     testIverson();
     testLala();

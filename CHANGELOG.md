@@ -49,5 +49,11 @@ Added Iverson and Iverson Jr
   ### v1.4 
   - Hula, small fm oscillator with small random, detune, initial release
   
- 
+### v2.0.1
+ - The update
+ - Amburgh filter
+
+### v2.1.0
+ - Bascom Ladder filter designer
+ - 
 

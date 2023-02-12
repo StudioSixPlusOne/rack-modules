@@ -41,6 +41,7 @@ TEST_SOURCES += $(wildcard test/third-party/*.cpp)
 TEST_SOURCES += $(wildcard test/third-party/fft/*.cpp)
 TEST_SOURCES += test/third-party/kiss_fft130/kiss_fft.c
 TEST_SOURCES += test/third-party/kiss_fft130/tools/kiss_fftr.c
+TEST_SOURCES += $(wildcard src/dsp/WaveShapes/*.cpp)
 
 FLAGS += -fpermissive
 

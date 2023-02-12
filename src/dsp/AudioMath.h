@@ -116,5 +116,29 @@ namespace sspo
             return std::exp (Ln10 * db / 20.0);
         }
 
+        class ClockDivider
+        {
+        public:
+            void setDivisor(int d)
+            {
+                maxPhase = rack::math::clamp(d, 1, 128);
+            }
+
+            bool process()
+            {
+                ++phase;
+                if (phase > maxPhase)
+                {
+                    phase = 0;
+                    return true;
+                }
+                return false;
+            }
+
+        private:
+            int phase = 0;
+            int maxPhase = 1;
+        };
+
     } // namespace AudioMath
 } // namespace sspo
