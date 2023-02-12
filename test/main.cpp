@@ -102,12 +102,12 @@ int main (int argc, char** argv)
     testBascom();
     testWaveShaper();
     testHula();
-//    testAmburgh();
-//    testSynthFilter();
-//    testSynthFilterII();
-//    testTriggerSequencer();
-//    testIverson();
-//    testLala();
+    testAmburgh();
+    testSynthFilter();
+    testSynthFilterII();
+    testTriggerSequencer();
+    testIverson();
+    testLala();
 //    testEva();
 //    testZazel();
 //    testEasing();
