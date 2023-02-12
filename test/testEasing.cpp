@@ -104,7 +104,7 @@ void testEasing()
     printf ("testEasing\n");
 
 #ifdef makeEasingFiles
-//    makeEasingFiles();
+   makeEasingFiles();
 #endif
-//    testEasingFactory();
+   testEasingFactory();
 }
