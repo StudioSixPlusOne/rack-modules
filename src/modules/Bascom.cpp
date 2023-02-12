@@ -99,10 +99,12 @@ struct BascomWidget : ModuleWidget
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 47.802 + 2.5)), module, Comp::RESONANCE_CV_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 70.292 + 2.5)), module, Comp::DRIVE_CV_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 112.625)), module, Comp::MAIN_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (19.74, 112.625)), module, Comp::RIGHT_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 29.50 + 2.5)), module, Comp::FREQ_CV_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 95.082 )), module, Comp::VCA_CV_INPUT));
 
-        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (41.01, 112.625)), module, Comp::MAIN_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (30.41, 112.625)), module, Comp::MAIN_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (41.01, 112.625)), module, Comp::RIGHT_OUTPUT));
 
         if (module)
         {
@@ -110,10 +112,12 @@ struct BascomWidget : ModuleWidget
             module->configInput(Comp::RESONANCE_CV_INPUT, "Resonance");
             module->configInput(Comp::DRIVE_CV_INPUT, "Drive");
             module->configInput(Comp::MAIN_INPUT, "Main");
+            module->configOutput(Comp::RIGHT_OUTPUT, "Right");
             module->configInput(Comp::FREQ_CV_INPUT, "Freq");
             module->configInput(Comp::VCA_CV_INPUT, "Gain");
 
             module->configOutput(Comp::MAIN_OUTPUT, "Main");
+            module->configOutput(Comp::MAIN_OUTPUT, "Right");
         }
     }
 };

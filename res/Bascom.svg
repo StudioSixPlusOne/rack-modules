@@ -5,7 +5,7 @@
    viewBox="0 0 50.799999 128.5"
    version="1.1"
    id="svg821"
-   inkscape:version="1.2.2 (b0a8486541, 2022-12-01, custom)"
+   inkscape:version="1.2.2 (b0a84865, 2022-12-01)"
    sodipodi:docname="Bascom.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -288,11 +288,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="42.77996"
-     inkscape:cy="235.113"
+     inkscape:zoom="2.0000001"
+     inkscape:cx="222.24999"
+     inkscape:cy="280.74999"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      showgrid="true"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -302,10 +302,10 @@
      inkscape:bbox-nodes="true"
      inkscape:snap-others="false"
      inkscape:snap-nodes="true"
-     inkscape:window-width="1846"
-     inkscape:window-height="1016"
-     inkscape:window-x="74"
-     inkscape:window-y="27"
+     inkscape:window-width="1920"
+     inkscape:window-height="1027"
+     inkscape:window-x="1440"
+     inkscape:window-y="25"
      inkscape:window-maximized="1"
      inkscape:snap-global="false"
      inkscape:showpageshadow="false"
@@ -363,12 +363,12 @@
        d="M 11.189108,241.28673 H 39.532227"
        style="display:inline;fill:#f9f9f9;stroke:#f9f9f9;stroke-width:0.285922;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1" />
     <rect
-       style="display:inline;opacity:1;fill:#333333;fill-opacity:1;stroke:#f9f9f9;stroke-width:0.322035"
+       style="display:inline;opacity:1;fill:#333333;fill-opacity:1;stroke:#f9f9f9;stroke-width:0.432376"
        id="rect5287"
-       width="10.583333"
-       height="10.596378"
-       x="35.71875"
-       y="275.60226" />
+       width="20.857889"
+       height="9.6922874"
+       x="25.389025"
+       y="276.45117" />
     <path
        inkscape:connector-curvature="0"
        id="path25971-0"
@@ -431,8 +431,7 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="components"
-     style="display:none"
-     sodipodi:insensitive="true">
+     style="display:inline">
     <circle
        style="display:inline;opacity:1;fill:#00ff00;fill-opacity:1;stroke-width:0.264583"
        id="path1587-8-3"
@@ -453,7 +452,7 @@
        cx="41.010418"
        cy="112.625"
        r="3.96875"
-       inkscape:label="MAIN" />
+       inkscape:label="RIGHT" />
     <circle
        style="display:inline;opacity:1;fill:#00ff00;fill-opacity:1;stroke-width:0.264583"
        id="path1389-8"
@@ -538,6 +537,20 @@
        cy="72.791672"
        r="3.96875"
        inkscape:label="SATURATION_CV_ATTENUVERTER" />
+    <circle
+       style="display:inline;opacity:1;fill:#0000ff;fill-opacity:1;stroke-width:0.264583"
+       id="circle545"
+       cx="30.427084"
+       cy="112.625"
+       r="3.96875"
+       inkscape:label="MAIN" />
+    <circle
+       style="display:inline;opacity:1;fill:#00ff00;fill-opacity:1;stroke-width:0.264583"
+       id="circle547"
+       cx="19.84375"
+       cy="112.625"
+       r="3.96875"
+       inkscape:label="RIGHT" />
   </g>
   <g
      inkscape:groupmode="layer"

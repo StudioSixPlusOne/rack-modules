@@ -319,7 +319,7 @@ The fm input can be supplied an audio signal, with controllable depth. There are
 
 A performance filter, with analog sampled Non linear distortions at every stage.
 
-Having spent the last 18 months building a DIY modular, I wanted to bring so of 
+Having spent the last 18 months building a DIY modular, I wanted to bring some of 
 the analog world to my modules. One of the big differences I noticed was the additional 
 character caused by the inaccuracies. In the physical world all cores of a filter may 
 have slightly different tunings and gaines, caused by component tolerance and age. 
@@ -329,6 +329,9 @@ various analog circuits.
 To keep the UI simple, Bascom has limited controls, with a library of presets covering
 various modes and colourings. If you wish to dig deeper and design your own filter model, 
 then Bascom Expander 
+
+A note on stereo, only the left input is polyphonic, with the right input copied to the
+second channel
 
 ### BascomExpander
 

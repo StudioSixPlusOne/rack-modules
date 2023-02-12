@@ -133,12 +133,14 @@ public:
         MAIN_INPUT,
         FREQ_CV_INPUT,
         VCA_CV_INPUT,
+        RIGHT_INPUT,
         NUM_INPUTS
     };
 
     enum OutputIds
     {
         MAIN_OUTPUT,
+        RIGHT_OUTPUT,
         NUM_OUTPUTS
     };
 
@@ -185,6 +187,8 @@ inline void BascomComp<TBase>::step()
     auto noise = float_4 (1e-3f * (2.0f * sspo::AudioMath::rand01() - 1.0f));
     freqParam = freqParam * 10.0f - 5.0f;
 
+    auto rightOut = 0.0f;
+
     for (auto c = 0; c < channels; c += 4)
     {
         auto vcaGain = float_4 (vcaParam);
@@ -194,6 +198,10 @@ inline void BascomComp<TBase>::step()
         }
 
         auto in = TBase::inputs[MAIN_INPUT].template getPolyVoltageSimd<float_4> (c);
+
+       // copy right input to poly channel 1
+       in[1] = simd::ifelse(c == 0 && TBase::inputs[RIGHT_INPUT].isConnected(),
+                              TBase::inputs[RIGHT_INPUT].getVoltage(), in[1]);
         // Add -120dB noise to bootstrap self-oscillation
         in += noise;
 
@@ -285,10 +293,14 @@ inline void BascomComp<TBase>::step()
 
         out *= vcaGain;
         //simd'ed out = std::isfinite (out) ? out : 0;
-        out = rack::simd::ifelse((movemask(out == out) != 0xF)  , float_4(0.0f), out);
+        out = rack::simd::ifelse ((movemask (out == out) != 0xF), float_4 (0.0f), out);
 
         TBase::outputs[MAIN_OUTPUT].setVoltageSimd (out, c);
+
+        rightOut = simd::ifelse (c == 0, out[1], rightOut);
     }
+    TBase::outputs[RIGHT_OUTPUT].setVoltage (rightOut);
+    TBase::outputs[RIGHT_OUTPUT].setChannels (TBase::inputs[RIGHT_INPUT].isConnected());
     TBase::outputs[MAIN_OUTPUT].setChannels (channels);
 }
 
@@ -301,8 +313,6 @@ int BascomDescription<TBase>::getNumParams()
 template <class TBase>
 IComposite::Config BascomDescription<TBase>::getParam (int i)
 {
-
-
     auto freqBase = static_cast<float> (std::pow (2, 10.0f));
     auto freqMul = static_cast<float> (dsp::FREQ_C4 / std::pow (2, 5.f));
     IComposite::Config ret = { 0.0f, 1.0f, 0.0f, "Code type", "unit", 0.0f, 1.0f, 0.0f };
