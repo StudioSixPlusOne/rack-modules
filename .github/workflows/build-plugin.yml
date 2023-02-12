@@ -83,7 +83,8 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}
       - name: Build plugin
         run: |
-         export PLUGIN_DIR=$GITHUB_WORKSPACE
+          export PLUGIN_DIR=$GITHUB_WORKSPACE
+          pushd ${{ env.rack-plugin-toolchain-dir }}
           pwd
           make test
           ./test.exe
