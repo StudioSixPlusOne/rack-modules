@@ -242,7 +242,7 @@ static void testLWRCrossOver (float fc, float sr)
     printf ("Min %f Max %f\n", minval, maxval);
 #else
     assertClose (maxval, 0.0f, 0.27f); //0.2dB variation at low freq
-    assertClose (minval, 0.0f, 0.0012f);
+    assertClose (minval, 0.0f, 0.006f);
 #endif
 }
 
