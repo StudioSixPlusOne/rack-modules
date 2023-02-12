@@ -57,11 +57,11 @@ struct LaLaWidget : ModuleWidget
 
         if (module)
         {
-            module->configInput(Comp::FREQ_CV_INPUT, "Frequency");
-            module->configInput(Comp::MAIN_INPUT, "Main");
+            module->configInput (Comp::FREQ_CV_INPUT, "Frequency");
+            module->configInput (Comp::MAIN_INPUT, "Main");
 
-            module->configOutput(Comp::HIGH_OUTPUT,"High");
-            module->configOutput(Comp::LOW_OUTPUT,"Low");
+            module->configOutput (Comp::HIGH_OUTPUT, "High");
+            module->configOutput (Comp::LOW_OUTPUT, "Low");
         }
     }
 };

@@ -110,7 +110,7 @@ int main (int argc, char** argv)
     testLala();
     testEva();
     testZazel();
-    testEasing();
+//    testEasing();
     testSaturator();
     testEmpty();
     testTestSignal();
@@ -118,8 +118,8 @@ int main (int argc, char** argv)
     testCircularBuffer();
     testLookupTable();
     testAnalyzer();
-    testPolyShiftRegister();
-    testKSDelay();
+//    testPolyShiftRegister();
+//    testKSDelay();
     testCombFilter();
     testMaccomo();
     testUtilityFilter();

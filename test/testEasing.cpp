@@ -42,6 +42,7 @@ static void makeEasingFiles (std::string filename,
                              float duration,
                              float interval)
 {
+    printf("Making easing file %s\n", filename.c_str());
     ts::Signal easedin;
     ts::Signal easedout;
     ts::Signal easedinout;
@@ -103,7 +104,7 @@ void testEasing()
     printf ("testEasing\n");
 
 #ifdef makeEasingFiles
-    makeEasingFiles();
+   makeEasingFiles();
 #endif
-    testEasingFactory();
+   testEasingFactory();
 }

@@ -29,6 +29,5 @@ enum ParamIds
     FEEDBACK_PATH_PARAM,
     HAS_LOADED,
 
-
     NUM_PARAMS
 };

@@ -39,26 +39,22 @@ using Module = ::rack::engine::Module;
 class WidgetComposite
 {
 public:
-
     using Port = ::rack::engine::Port;
-    
-    WidgetComposite(::rack::engine::Module * parent) :
-        inputs(parent->inputs),
-        outputs(parent->outputs),
-        params(parent->params),
-        lights(parent->lights),
-        paramQuantities(parent->paramQuantities)
+
+    WidgetComposite (::rack::engine::Module* parent) : inputs (parent->inputs),
+                                                       outputs (parent->outputs),
+                                                       params (parent->params),
+                                                       lights (parent->lights),
+                                                       paramQuantities (parent->paramQuantities)
     {
     }
     virtual ~WidgetComposite() {}
-    virtual void step()
-    {
-    };
+    virtual void step(){};
     float engineGetSampleRate()
     {
         return ::rack::engine::Engine().getSampleRate();
     }
-    
+
     float engineGetSampleTime()
     {
         return ::rack::engine::Engine().getSampleTime();

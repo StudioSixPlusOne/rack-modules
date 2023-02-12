@@ -117,7 +117,7 @@ namespace sspo
 
                 auto indexFull = (x / source.interval) - source.minX / source.interval;
                 auto index = rack::simd::floor (indexFull);
-                auto fraction = (indexFull) - index;
+                auto fraction = (indexFull) -index;
 
                 auto indexPlus1 = index + 1;
 
@@ -127,8 +127,6 @@ namespace sspo
                     linearInterpolate (source.table[index[2]], source.table[indexPlus1[2]], fraction[2]),
                     linearInterpolate (source.table[index[3]], source.table[indexPlus1[3]], fraction[3])
                 };
-
-
             }
 
             template <typename T>
