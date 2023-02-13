@@ -59,7 +59,7 @@ public:
 /**
  * Complete Hulacomposite
  *
- * If TBase is WidgetComposite, this class is used as the implementation part of the KSDelay module.
+ * If TBase is WidgetComposite, this class is used as the implementation part of the Hula module.
  * If TBase is TestComposite, this class may stand alone for unit tests.
  */
 
@@ -98,6 +98,7 @@ public:
         OCTAVE_PARAM,
         DEPTH_PARAM,
         FEEDBACK_PARAM,
+        UNISON_PARAM,
         NUM_PARAMS
     };
     enum InputIds
@@ -165,7 +166,7 @@ template <class TBase>
 void HulaComp<TBase>::init()
 {
     // set random detune, += 3 cent;
-    auto detuneLimit = 3.0f;
+    auto detuneLimit = 1.0f;
     for (auto& f : fineTuneVocts)
         f = float_4 ((rand01() * 2.0f - 1.0f) * detuneLimit / (12.0f * 100.0f),
                      (rand01() * 2.0f - 1.0f) * detuneLimit / (12.0f * 100.0f),
@@ -183,6 +184,15 @@ template <class TBase>
 inline void HulaComp<TBase>::step()
 {
     auto channels = std::max (1, TBase::inputs[VOCT_INPUT].getChannels());
+
+    //we trade unison for polyphonic channels, so if we have unison
+    //this becomes the channel count
+
+    auto isUnison = TBase::params[UNISON_PARAM].getValue() > 1.5f;
+
+    channels = simd::ifelse (isUnison,
+                             TBase::params[UNISON_PARAM].getValue(),
+                             channels);
 
     for (auto c = 0; c < channels; c += 4)
     {
@@ -224,6 +234,13 @@ inline void HulaComp<TBase>::step()
     }
 
     TBase::outputs[MAIN_OUTPUT].setChannels (channels);
+
+    // sum channels if unison
+    if (isUnison)
+    {
+        TBase::outputs[MAIN_OUTPUT].setVoltage (TBase::outputs[MAIN_OUTPUT].getVoltageSum() / std::sqrtf (channels));
+        TBase::outputs[MAIN_OUTPUT].setChannels (1);
+    }
 }
 
 template <class TBase>
@@ -253,6 +270,9 @@ IComposite::Config HulaDescription<TBase>::getParam (int i)
             break;
         case HulaComp<TBase>::FEEDBACK_PARAM:
             ret = { 0.0f, 1.0f, 0.0f, "Feedback", " ", 0, 1, 0.0f };
+            break;
+        case HulaComp<TBase>::UNISON_PARAM:
+            ret = { 1.0f, 16.0f, 7.0f, "Unison", " ", 0, 1, 0.0f };
             break;
 
         default:

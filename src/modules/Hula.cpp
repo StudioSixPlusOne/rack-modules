@@ -36,6 +36,8 @@ struct Hula : Module
     }
 };
 
+// *************** UI
+
 struct HulaWidget : ModuleWidget
 {
     HulaWidget (Hula* module)
@@ -64,6 +66,20 @@ struct HulaWidget : ModuleWidget
 
         addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (25.188, 112.865)), module, Comp::MAIN_OUTPUT));
     }
+
+    void appendContextMenu (Menu* menu) override;
 };
+
+void HulaWidget::appendContextMenu (Menu* menu)
+{
+    auto* module = dynamic_cast<Hula*> (this->module);
+
+    menu->addChild (new MenuEntry);
+
+    auto* unisonSlider = new sspo::IntSlider;
+    unisonSlider->quantity = module->getParamQuantity (Comp::UNISON_PARAM);
+    unisonSlider->box.size.x = 200.0f;
+    menu->addChild (unisonSlider);
+}
 
 Model* modelHula = createModel<Hula, HulaWidget> ("Hula");
