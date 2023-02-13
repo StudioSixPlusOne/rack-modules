@@ -99,6 +99,7 @@ public:
         DEPTH_PARAM,
         FEEDBACK_PARAM,
         UNISON_PARAM,
+        OVERSAMPLE_PARAM,
         NUM_PARAMS
     };
     enum InputIds
@@ -238,7 +239,7 @@ inline void HulaComp<TBase>::step()
     // sum channels if unison
     if (isUnison)
     {
-        TBase::outputs[MAIN_OUTPUT].setVoltage (TBase::outputs[MAIN_OUTPUT].getVoltageSum() / std::sqrtf (channels));
+        TBase::outputs[MAIN_OUTPUT].setVoltage (TBase::outputs[MAIN_OUTPUT].getVoltageSum() / simd::sqrt (channels));
         TBase::outputs[MAIN_OUTPUT].setChannels (1);
     }
 }
@@ -273,6 +274,9 @@ IComposite::Config HulaDescription<TBase>::getParam (int i)
             break;
         case HulaComp<TBase>::UNISON_PARAM:
             ret = { 1.0f, 16.0f, 7.0f, "Unison", " ", 0, 1, 0.0f };
+            break;
+        case HulaComp<TBase>::OVERSAMPLE_PARAM:
+            ret = { 1.0f, 8.0f, 4.0f, "Over Sample Rate", " ", 0, 1, 0.0f };
             break;
 
         default:
