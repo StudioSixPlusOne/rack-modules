@@ -107,8 +107,8 @@ namespace sspo
             //            ui::Slider::onDragMove (e);
             if (quantity)
             {
-                quantity->moveScaledValue (0.001 * e.mouseDelta.x * 3.0f);
-                quantity->setValue (std::round (quantity->getValue()));
+                quantity->moveScaledValue (0.001 * e.mouseDelta.x * 30.0f);
+                quantity->setValue (std::max (1.0f, std::round (quantity->getValue())));
             }
         }
     };
