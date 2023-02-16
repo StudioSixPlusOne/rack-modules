@@ -19,6 +19,7 @@
 *
 */
 
+#include <array>
 #include <assert.h>
 #include <stdio.h>
 #include "digital.hpp"

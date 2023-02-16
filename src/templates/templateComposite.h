@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020, 2023 Dave French <contact/dot/dave/dot/french3/at/googlemail/dot/com>
+* Copyright (c) YEAR Dave French <contact/dot/dave/dot/french3/at/googlemail/dot/com>
 *
 *
 * This program is free software; you can redistribute it and/or
@@ -52,7 +52,7 @@ public:
 /**
 * Complete composite
 *
-* If TBase is WidgetComposite, this class is used as the implementation part of the KSDelay module.
+* If TBase is WidgetComposite, this class is used as the implementation part of the  module.
 * If TBase is TestComposite, this class may stand alone for unit tests.
 */
 
@@ -123,16 +123,16 @@ public:
     static constexpr int SIMD_MAX_CHANNELS = 4;
     float sampleRate = 1.0f;
     float sampleTime = 1.0f;
-    ClockDivider divider;
     static constexpr auto semitoneVoltage = 1.0 / 12.0f;
-    std::vector<sspo::BiQuad<float_4>> dcOutFilters;
     static constexpr int maxUpSampleRate = 12;
     static constexpr int maxUpSampleQuality = 12;
+    int upSampleRate = 1;
+    int upSampleQuality = 1;
     sspo::Upsampler<maxUpSampleRate, maxUpSampleQuality, float_4> upsampler;
     sspo::Decimator<maxUpSampleRate, maxUpSampleQuality, float_4> decimator;
     float_4 oversampleBuffer[maxUpSampleRate];
-    int upSampleRate = 4;
-    int upSampleQuality = 1;
+    std::vector<sspo::BiQuad<float_4>> dcOutFilters;
+    ClockDivider divider;
 };
 
 template <class TBase>
@@ -163,10 +163,10 @@ inline void SLUGComp<TBase>::step()
         //process audio
         //only oversample if needed
 
-        if (upsampleRate > 1)
+        if (upSampleRate > 1)
         {
             upsampler.process (in, oversampleBuffer);
-            for (auto i = 0; i < upsampleRate; ++i)
+            for (auto i = 0; i < upSampleRate; ++i)
                 oversampleBuffer[i] = 0.0f; //add processing
             in = decimator.process (oversampleBuffer);
         }
@@ -188,7 +188,7 @@ inline void SLUGComp<TBase>::step()
 template <class TBase>
 int SLUGDescription<TBase>::getNumParams()
 {
-    return BascomComp<TBase>::NUM_PARAMS;
+    return SLUGComp<TBase>::NUM_PARAMS;
 }
 
 template <class TBase>
@@ -200,9 +200,6 @@ IComposite::Config SLUGDescription<TBase>::getParam (int i)
     switch (i)
     {
         CASEPARAMDESCRIPTIONS
-        case BascomComp<TBase>::FREQUENCY_PARAM:
-            ret = { 0.0f, 1.125f, 0.5f, "Frequency", " Hz", freqBase, freqMul };
-            break;
 
         default:
             assert (false);

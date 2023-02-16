@@ -263,16 +263,31 @@ def components_to_modulecpp(components, slug):
 
     # replace date
     year = str(datetime.datetime.now().year)
-    source.replace("YEAR", year)
+    source = source.replace("YEAR", year)
 
     # replace slug
-    source.replace("SLUG", identifier)
+    source = source.replace("SLUG", identifier)
     # replace ADDWIDGETS
-    source.replace("ADDWIDGETS", components_to_paramwidgets(components, identifier))
+    source = source.replace("ADDWIDGETS", components_to_paramwidgets(components, identifier))
 
     # replace CONFIGWIDGETNAME
-    source.replace("CONFIGWIDGETNAME", "//configure input and output names\n")
+    source = source.replace("CONFIGWIDGETNAME", components_to_PortNaming(components))
 
+    return source
+
+
+def components_to_PortNaming(components):
+    source = ""
+
+    for c in components['inputs']:
+        source += f"""module->configInput (Comp::{c['name']}_INPUT, "{c['name']}");
+    """
+    for c in components['outputs']:
+        source += f"""module->configOutput (Comp::{c['name']}_OUTPUT, "{c['name']}");
+    """
+    for c in components['lights']:
+        source += f"""module->configLight (Comp::{c['name']}_LIGHT, "{c['name']}");
+    """
     return source
 
 
@@ -286,16 +301,16 @@ def components_to_composite(components, slug):
 
     # replace date
     year = str(datetime.datetime.now().year)
-    source.replace("YEAR", year)
+    source = source.replace("YEAR", year)
 
     # replace slug
-    source.replace("SLUG", identifier)
+    source = source.replace("SLUG", identifier)
 
     # replace PORTENUMS
-    source.replace("PORTENUMS", components_to_portenums(components, identifier))
+    source = source.replace("PORTENUMS", components_to_portenums(components, identifier))
 
     # replace CASEPARAMDESCRIPTIONS
-    source.replace("CASEPARAMDESCRIPTIONS", components_to_paramdescriptions(components, identifier))
+    source = source.replace("CASEPARAMDESCRIPTIONS", components_to_paramdescriptions(components, identifier))
 
     return source
 
@@ -305,15 +320,15 @@ def components_to_test(components, slug):
     source = ""
 
     # read templateModule.cpp
-    with open("src/templates/templateComposite.h") as f:
+    with open("src/templates/templateTest.cpp") as f:
         source = f.read()
 
     # replace date
     year = str(datetime.datetime.now().year)
-    source.replace("YEAR", year)
+    source = source.replace("YEAR", year)
 
     # replace slug
-    source.replace("SLUG", identifier)
+    source = source.replace("SLUG", identifier)
 
     return source
 
@@ -323,7 +338,7 @@ def components_to_paramdescriptions(components, identifier):
 
     for c in components['params']:
         source += f"""case {identifier}Comp<TBase>::{c['name']}_PARAM:
-            ret = {{0.0f, 1.0f, 0.5f, "{c['name']}", " ", freqBase, freqMul}};
+            ret = {{0.0f, 1.0f, 0.5f, "{c['name']}", " ", 0.0f, 1.0f, 0.0f }};
             break;
 
     """
@@ -340,7 +355,7 @@ def components_to_portenums(components, identifier):
         source += f"""
 		    {c['name']}_PARAM,"""
     source += """
-		PARAMS_LEN
+		NUM_PARAMS
 	};"""
 
     # Inputs
@@ -350,7 +365,7 @@ def components_to_portenums(components, identifier):
         source += f"""
             {c['name']}_INPUT,"""
     source += """
-            INPUTS_LEN
+            NUM_INPUTS
         };"""
 
     # Outputs
@@ -360,7 +375,7 @@ def components_to_portenums(components, identifier):
         source += f"""
             {c['name']}_OUTPUT,"""
     source += """
-            OUTPUTS_LEN
+            NUM_OUTPUTS
         };"""
 
     # Lights
@@ -370,7 +385,7 @@ def components_to_portenums(components, identifier):
         source += f"""
             {c['name']}_LIGHT,"""
     source += """
-            LIGHTS_LEN
+            NUM_LIGHTS
         };"""
 
     return source
@@ -384,10 +399,10 @@ def components_to_paramwidgets(components, identifier):
     for c in components['params']:
         if 'x' in c:
             source += f"""
-		addParam(createParam<{c.get('cls', 'RoundBlackKnob')}>(mm2px(Vec({c['x']}, {c['y']})), module, {identifier}::{c['name']}_PARAM));"""
+		addParam(createParam<{c.get('cls', 'sspo::Knob')}>(mm2px(Vec({c['x']}, {c['y']})), module, Comp::{c['name']}_PARAM));"""
         else:
             source += f"""
-		addParam(createParamCentered<{c.get('cls', 'RoundBlackKnob')}>(mm2px(Vec({c['cx']}, {c['cy']})), module, {identifier}::{c['name']}_PARAM));"""
+		addParam(createParamCentered<{c.get('cls', 'sspo::Knob')}>(mm2px(Vec({c['cx']}, {c['cy']})), module, Comp::{c['name']}_PARAM));"""
 
     # Inputs
     if len(components['inputs']) > 0:
@@ -395,10 +410,10 @@ def components_to_paramwidgets(components, identifier):
     for c in components['inputs']:
         if 'x' in c:
             source += f"""
-		addInput(createInput<{c.get('cls', 'PJ301MPort')}>(mm2px(Vec({c['x']}, {c['y']})), module, {identifier}::{c['name']}_INPUT));"""
+		addInput(createInput<{c.get('cls', 'sspo::PJ301MPort')}>(mm2px(Vec({c['x']}, {c['y']})), module, Comp::{c['name']}_INPUT));"""
         else:
             source += f"""
-		addInput(createInputCentered<{c.get('cls', 'PJ301MPort')}>(mm2px(Vec({c['cx']}, {c['cy']})), module, {identifier}::{c['name']}_INPUT));"""
+		addInput(createInputCentered<{c.get('cls', 'sspo::PJ301MPort')}>(mm2px(Vec({c['cx']}, {c['cy']})), module, Comp::{c['name']}_INPUT));"""
 
     # Outputs
     if len(components['outputs']) > 0:
@@ -406,10 +421,10 @@ def components_to_paramwidgets(components, identifier):
     for c in components['outputs']:
         if 'x' in c:
             source += f"""
-		addOutput(createOutput<{c.get('cls', 'PJ301MPort')}>(mm2px(Vec({c['x']}, {c['y']})), module, {identifier}::{c['name']}_OUTPUT));"""
+		addOutput(createOutput<{c.get('cls', 'sspo::PJ301MPort')}>(mm2px(Vec({c['x']}, {c['y']})), module, Comp::{c['name']}_OUTPUT));"""
         else:
             source += f"""
-		addOutput(createOutputCentered<{c.get('cls', 'PJ301MPort')}>(mm2px(Vec({c['cx']}, {c['cy']})), module, {identifier}::{c['name']}_OUTPUT));"""
+		addOutput(createOutputCentered<{c.get('cls', 'sspo::PJ301MPort')}>(mm2px(Vec({c['cx']}, {c['cy']})), module, Comp::{c['name']}_OUTPUT));"""
 
     # Lights
     if len(components['lights']) > 0:
@@ -417,10 +432,10 @@ def components_to_paramwidgets(components, identifier):
     for c in components['lights']:
         if 'x' in c:
             source += f"""
-		addChild(createLight<{c.get('cls', 'MediumLight<RedLight>')}>(mm2px(Vec({c['x']}, {c['y']})), module, {identifier}::{c['name']}_LIGHT));"""
+		addChild(createLight<{c.get('cls', 'SmallLight<GreenLight>')}>(mm2px(Vec({c['x']}, {c['y']})), module, Comp::{c['name']}_LIGHT));"""
         else:
             source += f"""
-		addChild(createLightCentered<{c.get('cls', 'MediumLight<RedLight>')}>(mm2px(Vec({c['cx']}, {c['cy']})), module, {identifier}::{c['name']}_LIGHT));"""
+		addChild(createLightCentered<{c.get('cls', 'SmallLight<GreenLight>')}>(mm2px(Vec({c['cx']}, {c['cy']})), module, Comp::{c['name']}_LIGHT));"""
 
     # Widgets
     if len(components['widgets']) > 0:
@@ -442,190 +457,91 @@ def components_to_sourcefiles(components, slug):
     with open(f"""src/modules/{identifier}.cpp""", "w") as f:
         f.write(components_to_modulecpp(components, slug))
 
-    with open(f"""src/compositers/{identifier}.h""", "w") as f:
+    with open(f"""src/composites/{identifier}.h""", "w") as f:
         f.write(components_to_composite(components, slug))
 
-    with open(f"""test/{identifier}Test.cpp""", "w") as f:
-        f.write(components_to_modulecpp(components, slug))
+    with open(f"""test/test{identifier}.cpp""", "w") as f:
+        f.write(components_to_test(components, slug))
+
+    edit_plugin_and_testmain_files(identifier)
 
 
-def components_to_source(components, slug):
-    identifier = str_to_identifier(slug)
-    source = ""
+def edit_plugin_and_testmain_files(identifier):
+    with open(f"""src/plugin.cpp""", "r") as f:
+        source = f.read()
+        source = source.replace("// ADD ADDMODEL", f"""
+    p->addModel(model{identifier});
+    // ADD ADDMODEL
+        """)
 
-    source += f"""#include "plugin.hpp"
+    with open(f"""src/plugin.cpp""", "w") as f:
+        f.write(source)
 
+    with open(f"""src/plugin.hpp""", "r") as f:
+        source = f.read()
+        source = source.replace("//ADD EXTERNS", f"""
+extern Model* model{identifier};
+//ADD EXTERNS
+        """)
 
-struct {identifier} : Module {{"""
+    with open(f"""src/plugin.hpp""", "w") as f:
+        f.write(source)
 
-    # Params
-    source += """
-	enum ParamId {"""
-    for c in components['params']:
-        source += f"""
-		{c['name']}_PARAM,"""
-    source += """
-		PARAMS_LEN
-	};"""
+    with open(f"""test/main.cpp""", "r") as f:
+        source = f.read()
+        source = source.replace("// ADD EXTERN", f"""// ADD EXTERN
+extern void test{identifier}();
+        """)
 
-    # Inputs
-    source += """
-	enum InputId {"""
-    for c in components['inputs']:
-        source += f"""
-		{c['name']}_INPUT,"""
-    source += """
-		INPUTS_LEN
-	};"""
+        source = source.replace("// ADD NEWTEST", f"""    // ADD NEWTEST
+    test{identifier}();
+        """)
 
-    # Outputs
-    source += """
-	enum OutputId {"""
-    for c in components['outputs']:
-        source += f"""
-		{c['name']}_OUTPUT,"""
-    source += """
-		OUTPUTS_LEN
-	};"""
-
-    # Lights
-    source += """
-	enum LightId {"""
-    for c in components['lights']:
-        source += f"""
-		{c['name']}_LIGHT,"""
-    source += """
-		LIGHTS_LEN
-	};"""
-
-    source += f"""
-
-	{identifier}() {{
-		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);"""
-
-    for c in components['params']:
-        source += f"""
-		configParam({c['name']}_PARAM, 0.f, 1.f, 0.f, "");"""
-
-    for c in components['inputs']:
-        source += f"""
-		configInput({c['name']}_INPUT, "");"""
-
-    for c in components['outputs']:
-        source += f"""
-		configOutput({c['name']}_OUTPUT, "");"""
-
-    source += """
-	}
-
-	void process(const ProcessArgs& args) override {
-	}
-};"""
-
-    source += f"""
-
-
-struct {identifier}Widget : ModuleWidget {{
-	{identifier}Widget({identifier}* module) {{
-		setModule(module);
-		setPanel(createPanel(asset::plugin(pluginInstance, "res/{slug}.svg")));
-
-		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));"""
-
-    # Params
-    if len(components['params']) > 0:
-        source += "\n"
-    for c in components['params']:
-        if 'x' in c:
-            source += f"""
-		addParam(createParam<{c.get('cls', 'RoundBlackKnob')}>(mm2px(Vec({c['x']}, {c['y']})), module, {identifier}::{c['name']}_PARAM));"""
-        else:
-            source += f"""
-		addParam(createParamCentered<{c.get('cls', 'RoundBlackKnob')}>(mm2px(Vec({c['cx']}, {c['cy']})), module, {identifier}::{c['name']}_PARAM));"""
-
-    # Inputs
-    if len(components['inputs']) > 0:
-        source += "\n"
-    for c in components['inputs']:
-        if 'x' in c:
-            source += f"""
-		addInput(createInput<{c.get('cls', 'PJ301MPort')}>(mm2px(Vec({c['x']}, {c['y']})), module, {identifier}::{c['name']}_INPUT));"""
-        else:
-            source += f"""
-		addInput(createInputCentered<{c.get('cls', 'PJ301MPort')}>(mm2px(Vec({c['cx']}, {c['cy']})), module, {identifier}::{c['name']}_INPUT));"""
-
-    # Outputs
-    if len(components['outputs']) > 0:
-        source += "\n"
-    for c in components['outputs']:
-        if 'x' in c:
-            source += f"""
-		addOutput(createOutput<{c.get('cls', 'PJ301MPort')}>(mm2px(Vec({c['x']}, {c['y']})), module, {identifier}::{c['name']}_OUTPUT));"""
-        else:
-            source += f"""
-		addOutput(createOutputCentered<{c.get('cls', 'PJ301MPort')}>(mm2px(Vec({c['cx']}, {c['cy']})), module, {identifier}::{c['name']}_OUTPUT));"""
-
-    # Lights
-    if len(components['lights']) > 0:
-        source += "\n"
-    for c in components['lights']:
-        if 'x' in c:
-            source += f"""
-		addChild(createLight<{c.get('cls', 'MediumLight<RedLight>')}>(mm2px(Vec({c['x']}, {c['y']})), module, {identifier}::{c['name']}_LIGHT));"""
-        else:
-            source += f"""
-		addChild(createLightCentered<{c.get('cls', 'MediumLight<RedLight>')}>(mm2px(Vec({c['cx']}, {c['cy']})), module, {identifier}::{c['name']}_LIGHT));"""
-
-    # Widgets
-    if len(components['widgets']) > 0:
-        source += "\n"
-    for c in components['widgets']:
-        if 'x' in c:
-            source += f"""
-		// mm2px(Vec({c['width']}, {c['height']}))
-		addChild(createWidget<{c.get('cls', 'Widget')}>(mm2px(Vec({c['x']}, {c['y']}))));"""
-        else:
-            source += f"""
-		addChild(createWidgetCentered<{c.get('cls', 'Widget')}>(mm2px(Vec({c['cx']}, {c['cy']}))));"""
-
-    source += f"""
-	}}
-}};
-
-
-Model* model{identifier} = createModel<{identifier}, {identifier}Widget>("{slug}");"""
-
-    return source
+    with open(f"""test/main.cpp""", "w") as f:
+        f.write(source)
 
 
 def usage(script):
-    text = f"""VCV Rack Plugin Development Helper
+    text = f"""
+        VCV
+        Rack
+        Plugin
+        Development
+        Helper
 
-Usage: {script} <command> ...
-Commands:
+        Usage: {script} < command > ...
+        Commands:
 
-createplugin <slug> [plugin dir]
+        createplugin < slug > [plugin dir]
 
-	A directory will be created and initialized with a minimal plugin template.
-	If no plugin directory is given, the slug is used.
+        A
+        directory
+        will
+        be
+        created and initialized
+        with a minimal plugin template.
+        If no plugin directory is given, the slug is used.
 
-createmanifest <slug> [plugin dir]
+        createmanifest < slug >[plugin dir]
 
-	Creates a `plugin.json` manifest file in an existing plugin directory.
-	If no plugin directory is given, the current directory is used.
+        Creates a `plugin.json` manifest file in an existing plugin directory.
+        If no plugin directory is given, the current directory is used.
 
-createmodule <module slug> [panel file] [source file]
+        createmodule < module slug >[panel file][source file]
 
-	Adds a new module to the plugin manifest in the current directory.
-	If a panel and source file are given, generates a template source file initialized with components from a panel file.
-	Example:
-		{script} createmodule MyModule res/MyModule.svg src/MyModule.cpp
+        Adds a new module to the plugin manifest in the current directory.
+        If a panel and source file are given, generates a template source file initialized with components from a panel file.
+        Example:
+            {script}
+        createmodule
+        MyModule
+        res / MyModule.svg
+        src / MyModule.cpp
 
-	See https://vcvrack.com/manual/PanelTutorial.html for creating SVG panel files.
-"""
+        See
+        https: // vcvrack.com / manual / PanelTutorial.html
+        for creating SVG panel files.
+        """
     eprint(text)
 
 

@@ -3,8 +3,10 @@
 ./dep/*
 ./src/third-party/sqsrc/util/*
 ./src/ctrl/*
+./src/templates/*
 ./test/third-party/fft/*
 ./test/third-party/kiss_fft130/*
 ./test/third-party/kiss_fft130/test/*
 ./test/third-party/kiss_fft130/tools/*
 ./test/third-party/*
+./helper.py

@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 Dave French <contact/dot/dave/dot/french3/at/googlemail/dot/com>
+* Copyright (c) YEAR Dave French <contact/dot/dave/dot/french3/at/googlemail/dot/com>
 *
 *
 * This program is free software; you can redistribute it and/or
@@ -84,21 +84,13 @@ struct SLUGWidget : ModuleWidget
         addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
         addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-        addParam (SqHelper::createParamCentered<sspo::LargeKnob> (icomp, mm2px (Vec (41.01, 25.14 + 1.25)), module, Comp::FREQUENCY_PARAM));
-
-        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (9.26, 95.082)), module, Comp::VCA_CV_INPUT));
-
-        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (30.41, 112.625)), module, Comp::MAIN_OUTPUT));
-
         ADDWIDGETS
 
         if (module)
         {
-            //            module->configInput (Comp::VOCT_INPUT, "Voct");
             CONFIGWIDGETNAME
-
         }
     }
 };
 
-Model* modelSlug = createModel<Bascom, SLUGWidget> ("SLUG");
+Model* modelSLUG = createModel<SLUG, SLUGWidget> ("SLUG");
