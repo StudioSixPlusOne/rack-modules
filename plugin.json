@@ -148,7 +148,8 @@
       "description": "fm VCO unique per instance",
       "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#hula",
       "tags": [
-        "VCO",
+        "Low-frequency oscillator",
+        "Oscillator",
         "Polyphonic"
       ]
     },
@@ -171,12 +172,6 @@
         "Polyphonic",
         "Filter"
       ]
-    },
-    {
-      "slug": "Ht",
-      "name": "Ht",
-      "description": "testing helper.py",
-      "tags": []
     }
   ]
 }

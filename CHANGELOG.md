@@ -64,5 +64,7 @@ Added Iverson and Iverson Jr
     - variable oversample
     - lfo
     - Ratio knob now has sensible behavior
+    - offset and scale output
+    - detune +- 2 cents
 - 
 

@@ -86,6 +86,16 @@ void HulaWidget::appendContextMenu (Menu* menu)
 
     menu->addChild (new MenuEntry);
 
+    auto* dcOffsetSlider = new ui::Slider;
+    dcOffsetSlider->quantity = module->getParamQuantity (Comp::DC_OFFSET_PARAM);
+    dcOffsetSlider->box.size.x = 200.0f;
+    menu->addChild (dcOffsetSlider);
+
+    auto* scaleSlider = new ui::Slider;
+    scaleSlider->quantity = module->getParamQuantity (Comp::SCALE_PARAM);
+    scaleSlider->box.size.x = 200.0f;
+    menu->addChild (scaleSlider);
+
     auto* unisonSlider = new sspo::IntSlider;
     unisonSlider->quantity = module->getParamQuantity (Comp::UNISON_PARAM);
     unisonSlider->box.size.x = 200.0f;
@@ -125,7 +135,7 @@ void HulaWidget::appendContextMenu (Menu* menu)
     tuningSlowLfoMenuItem->text = "Slow Lfo 0.125hz";
     tuningSlowLfoMenuItem->module = module;
     tuningSlowLfoMenuItem->rightText = CHECKMARK (module->hula->params[Comp::DEFAULT_TUNING_PARAM].getValue()
-                                                  == 0.124f);
+                                                  == 0.125f);
     menu->addChild (tuningSlowLfoMenuItem);
 }
 

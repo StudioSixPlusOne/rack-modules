@@ -312,7 +312,7 @@ The smoothing filter can be adjusted, and both unipolar and bipolar outputs.
 A small form fm oscillator that can be used both as a VCO and LFO, each instance has it's own small detune applied and
 it's own custom noise
 floor, hence the lack of a fine tune control. The context menu gives options to use as a vco or lfo, trade
-polyphony for unison, and adjustable oversample rate.
+polyphony for unison, adjustable oversample rate, scale and offset, and a selection of speeds.
 
 It starts emitting a sine wave, turing up the feedback will increase the harmonics.
 The fm input can be supplied an audio signal, with controllable depth. There are many guides on the web that will

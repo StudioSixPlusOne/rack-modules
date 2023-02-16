@@ -101,6 +101,8 @@ public:
         UNISON_PARAM,
         OVERSAMPLE_PARAM,
         DEFAULT_TUNING_PARAM,
+        DC_OFFSET_PARAM,
+        SCALE_PARAM,
         NUM_PARAMS
     };
     enum InputIds
@@ -168,7 +170,7 @@ template <class TBase>
 void HulaComp<TBase>::init()
 {
     // set random detune, += 3 cent;
-    auto detuneLimit = 1.0f;
+    auto detuneLimit = 2.0f; //cents
     for (auto& f : fineTuneVocts)
         f = float_4 ((rand01() * 2.0f - 1.0f) * detuneLimit / (12.0f * 100.0f),
                      (rand01() * 2.0f - 1.0f) * detuneLimit / (12.0f * 100.0f),
@@ -253,7 +255,9 @@ inline void HulaComp<TBase>::step()
 
         //only dc block for audio
         lastOuts[c / 4] = processed * 5.0f;
-        TBase::outputs[MAIN_OUTPUT].setVoltageSimd (lpFilters[c / 4].process (lastOuts[c / 4]), c);
+        processed = lastOuts[c / 4] * TBase::params[SCALE_PARAM].getValue()
+                    + TBase::params[DC_OFFSET_PARAM].getValue();
+        TBase::outputs[MAIN_OUTPUT].setVoltageSimd (lpFilters[c / 4].process (processed), c);
     }
 
     TBase::outputs[MAIN_OUTPUT].setChannels (channels);
@@ -295,7 +299,7 @@ IComposite::Config HulaDescription<TBase>::getParam (int i)
             ret = { 0.0f, 1.0f, 0.0f, "Feedback", " ", 0, 1, 0.0f };
             break;
         case HulaComp<TBase>::UNISON_PARAM:
-            ret = { 1.0f, 16.0f, 7.0f, "Unison", " ", 0, 1, 0.0f };
+            ret = { 1.0f, 16.0f, 1.0f, "Unison", " ", 0, 1, 0.0f };
             break;
         case HulaComp<TBase>::OVERSAMPLE_PARAM:
             ret = { 1.0f, 8.0f, 4.0f, "Over Sample Rate", " ", 0, 1, 0.0f };
@@ -303,7 +307,12 @@ IComposite::Config HulaDescription<TBase>::getParam (int i)
         case HulaComp<TBase>::DEFAULT_TUNING_PARAM:
             ret = { 0.00001f, 10000.0f, dsp::FREQ_C4, "Over Sample Rate", " ", 0, 1, 0.0f };
             break;
-
+        case HulaComp<TBase>::DC_OFFSET_PARAM:
+            ret = { -10.0f, 10.0f, 0.0f, "Output DC Offset", " ", 0, 1, 0.0f };
+            break;
+        case HulaComp<TBase>::SCALE_PARAM:
+            ret = { -2.0f, 2.0f, 1.0f, "Scale", " ", 0, 1, 0.0f };
+            break;
         default:
             assert (false);
     }
