@@ -59,7 +59,7 @@ public:
 /**
  * Complete Hulacomposite
  *
- * If TBase is WidgetComposite, this class is used as the implementation part of the KSDelay module.
+ * If TBase is WidgetComposite, this class is used as the implementation part of the Hula module.
  * If TBase is TestComposite, this class may stand alone for unit tests.
  */
 
@@ -98,6 +98,11 @@ public:
         OCTAVE_PARAM,
         DEPTH_PARAM,
         FEEDBACK_PARAM,
+        UNISON_PARAM,
+        OVERSAMPLE_PARAM,
+        DEFAULT_TUNING_PARAM,
+        DC_OFFSET_PARAM,
+        SCALE_PARAM,
         NUM_PARAMS
     };
     enum InputIds
@@ -125,11 +130,11 @@ public:
     std::array<float_4, SIMD_CHANNELS> phases;
     std::array<float_4, SIMD_CHANNELS> fineTuneVocts;
 
-    static constexpr int oversampleCount = 4;
-    static constexpr int oversampleQuality = 2;
+    static constexpr int maxOversampleCount = 16;
+    static constexpr int oversampleQuality = 1;
 
-    std::array<sspo::Decimator<oversampleCount, oversampleQuality, float_4>, SIMD_CHANNELS> decimators;
-    std::array<std::array<float_4, oversampleCount>, SIMD_CHANNELS> oversampleBuffers;
+    std::array<sspo::Decimator<maxOversampleCount, oversampleQuality, float_4>, SIMD_CHANNELS> decimators;
+    std::array<std::array<float_4, maxOversampleCount>, SIMD_CHANNELS> oversampleBuffers;
     std::array<sspo::BiQuad<float_4>, SIMD_CHANNELS> dcOutFilters;
     std::array<sspo::BiQuad<float_4>, SIMD_CHANNELS> lpFilters;
 
@@ -165,7 +170,7 @@ template <class TBase>
 void HulaComp<TBase>::init()
 {
     // set random detune, += 3 cent;
-    auto detuneLimit = 3.0f;
+    auto detuneLimit = 2.0f; //cents
     for (auto& f : fineTuneVocts)
         f = float_4 ((rand01() * 2.0f - 1.0f) * detuneLimit / (12.0f * 100.0f),
                      (rand01() * 2.0f - 1.0f) * detuneLimit / (12.0f * 100.0f),
@@ -184,14 +189,26 @@ inline void HulaComp<TBase>::step()
 {
     auto channels = std::max (1, TBase::inputs[VOCT_INPUT].getChannels());
 
+    //we trade unison for polyphonic channels, so if we have unison
+    //this becomes the channel count
+
+    auto isUnison = TBase::params[UNISON_PARAM].getValue() > 1.5f;
+
+    channels = simd::ifelse (isUnison,
+                             TBase::params[UNISON_PARAM].getValue(),
+                             channels);
+
+    int oversampleCount = std::max (TBase::params[OVERSAMPLE_PARAM].getValue(), 1.0f);
+
     for (auto c = 0; c < channels; c += 4)
     {
         //calculate frequency
         float_4 voct = TBase::inputs[VOCT_INPUT].template getPolyVoltageSimd<float_4> (c) + fineTuneVocts[c / 4];
         voct += simd::floor (TBase::params[OCTAVE_PARAM].getValue());
         voct += simd::floor (TBase::params[SEMITONE_PARAM].getValue()) * (1.0f / 12.0f);
-        float_4 freq = dsp::FREQ_C4 * lookup.pow2 (voct);
-        freq *= TBase::params[RATIO_PARAM].getValue();
+        float_4 freq = lookup.pow2 (voct) * TBase::params[DEFAULT_TUNING_PARAM].getValue();
+        freq *= lookup.pow2 (TBase::params[RATIO_PARAM].getValue());
+
         float_4 phaseInc = freq * reciprocalSampleRate / oversampleCount;
 
         //phase offset as fm is implemented as phase modulation
@@ -209,21 +226,48 @@ inline void HulaComp<TBase>::step()
 
         phaseOffset += TBase::params[DEPTH_PARAM].getValue() * fmIn;
 
-        for (auto i = 0; i < oversampleCount; ++i)
+        decimators[c / 4].setOverSample (oversampleCount);
+
+        float_4 processed;
+
+        if (oversampleCount > 1)
         {
-            //generate oversampled signal
+            for (auto i = 0; i < oversampleCount; ++i)
+            {
+                //generate oversampled signal
+                phases[c / 4] += phaseInc;
+                phases[c / 4] = simd::ifelse (phases[c / 4] > float_4 (1.0f),
+                                              phases[c / 4] - simd::trunc (phases[c / 4]),
+                                              phases[c / 4]);
+                oversampleBuffers[c / 4][i] = lookup.hulaSin4 ((phases[c / 4] + phaseOffset) * k_2pi);
+            }
+
+            processed = decimators[c / 4].process (oversampleBuffers[c / 4].data());
+        }
+        else
+        {
             phases[c / 4] += phaseInc;
             phases[c / 4] = simd::ifelse (phases[c / 4] > float_4 (1.0f),
                                           phases[c / 4] - simd::trunc (phases[c / 4]),
                                           phases[c / 4]);
-            oversampleBuffers[c / 4][i] = lookup.hulaSin4 ((phases[c / 4] + phaseOffset) * k_2pi);
+            processed = lookup.hulaSin4 ((phases[c / 4] + phaseOffset) * k_2pi);
         }
 
-        lastOuts[c / 4] = dcOutFilters[c / 4].process (decimators[c / 4].process (oversampleBuffers[c / 4].data())) * 5.0f;
-        TBase::outputs[MAIN_OUTPUT].setVoltageSimd (lpFilters[c / 4].process (lastOuts[c / 4]), c);
+        //only dc block for audio
+        lastOuts[c / 4] = processed * 5.0f;
+        processed = lastOuts[c / 4] * TBase::params[SCALE_PARAM].getValue()
+                    + TBase::params[DC_OFFSET_PARAM].getValue();
+        TBase::outputs[MAIN_OUTPUT].setVoltageSimd (lpFilters[c / 4].process (processed), c);
     }
 
     TBase::outputs[MAIN_OUTPUT].setChannels (channels);
+
+    // sum channels if unison
+    if (isUnison)
+    {
+        TBase::outputs[MAIN_OUTPUT].setVoltage (TBase::outputs[MAIN_OUTPUT].getVoltageSum() / simd::sqrt (channels));
+        TBase::outputs[MAIN_OUTPUT].setChannels (1);
+    }
 }
 
 template <class TBase>
@@ -240,7 +284,7 @@ IComposite::Config HulaDescription<TBase>::getParam (int i)
     {
         //TODO
         case HulaComp<TBase>::RATIO_PARAM:
-            ret = { 0.5f, 21.0f, 1.0f, "Ratio", " ", 0, 1, 0.0f };
+            ret = { -4, 4, 0.0f, "Ratio", " ", 2.0f, 1, 0.0f };
             break;
         case HulaComp<TBase>::SEMITONE_PARAM:
             ret = { 0.0f, 12.0f, 0.0f, "Semitone", " ", 0, 1, 0.0f };
@@ -254,7 +298,21 @@ IComposite::Config HulaDescription<TBase>::getParam (int i)
         case HulaComp<TBase>::FEEDBACK_PARAM:
             ret = { 0.0f, 1.0f, 0.0f, "Feedback", " ", 0, 1, 0.0f };
             break;
-
+        case HulaComp<TBase>::UNISON_PARAM:
+            ret = { 1.0f, 16.0f, 1.0f, "Unison", " ", 0, 1, 0.0f };
+            break;
+        case HulaComp<TBase>::OVERSAMPLE_PARAM:
+            ret = { 1.0f, 8.0f, 4.0f, "Over Sample Rate", " ", 0, 1, 0.0f };
+            break;
+        case HulaComp<TBase>::DEFAULT_TUNING_PARAM:
+            ret = { 0.00001f, 10000.0f, dsp::FREQ_C4, "Over Sample Rate", " ", 0, 1, 0.0f };
+            break;
+        case HulaComp<TBase>::DC_OFFSET_PARAM:
+            ret = { -10.0f, 10.0f, 0.0f, "Output DC Offset", " ", 0, 1, 0.0f };
+            break;
+        case HulaComp<TBase>::SCALE_PARAM:
+            ret = { -2.0f, 2.0f, 1.0f, "Scale", " ", 0, 1, 0.0f };
+            break;
         default:
             assert (false);
     }

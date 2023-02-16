@@ -20,6 +20,7 @@
  */
 #pragma once
 #include "componentlibrary.hpp"
+#include "ui/Slider.hpp"
 
 namespace sspo
 {
@@ -96,6 +97,19 @@ namespace sspo
         {
             setSvg (APP->window->loadSvg (asset::plugin (pluginInstance,
                                                          "res/SspoPort.svg")));
+        }
+    };
+
+    struct IntSlider : ui::Slider
+    {
+        void onDragMove (const DragMoveEvent& e) override
+        {
+            //            ui::Slider::onDragMove (e);
+            if (quantity)
+            {
+                quantity->moveScaledValue (0.001 * e.mouseDelta.x * 30.0f);
+                quantity->setValue (std::max (1.0f, std::round (quantity->getValue())));
+            }
         }
     };
 } // namespace sspo

@@ -1,11 +1,7 @@
 {
   "slug": "StudioSixPlusOne",
   "name": "Studio Six Plus One",
-
-
   "version": "2.0.900",
-
-
   "license": "GPL-3.0-or-later",
   "brand": "Studio Six Plus One",
   "author": "Studio Six Plus One",
@@ -152,7 +148,8 @@
       "description": "fm VCO unique per instance",
       "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#hula",
       "tags": [
-        "VCO",
+        "Low-frequency oscillator",
+        "Oscillator",
         "Polyphonic"
       ]
     },

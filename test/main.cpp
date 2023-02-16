@@ -33,6 +33,7 @@ using float_4 = rack::simd::float_4;
 using namespace rack;
 
 // external tests
+// ADD EXTERN
 extern void testSynthFilter();
 extern void testSynthFilterII();
 extern void testEva();
@@ -58,7 +59,6 @@ extern void testIverson();
 extern void testTriggerSequencer();
 extern void testWaveShaper();
 extern void testHula();
-
 
 //external performance tests
 extern void initPerf();
@@ -99,6 +99,7 @@ int main (int argc, char** argv)
 
     // run external tests defined above
 
+    // ADD NEWTEST
     testBascom();
     testWaveShaper();
     testHula();
@@ -110,7 +111,7 @@ int main (int argc, char** argv)
     testLala();
     testEva();
     testZazel();
-//    testEasing();
+    //    testEasing();
     testSaturator();
     testEmpty();
     testTestSignal();
@@ -118,8 +119,8 @@ int main (int argc, char** argv)
     testCircularBuffer();
     testLookupTable();
     testAnalyzer();
-//    testPolyShiftRegister();
-//    testKSDelay();
+    //    testPolyShiftRegister();
+    //    testKSDelay();
     testCombFilter();
     testMaccomo();
     testUtilityFilter();
