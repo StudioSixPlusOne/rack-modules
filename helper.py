@@ -465,6 +465,17 @@ def components_to_sourcefiles(components, slug):
 
     edit_plugin_and_testmain_files(identifier)
 
+    edit_readme(identifier)
+
+
+def edit_readme(identifier):
+    with open(f"""README.md""", "r") as f:
+        source = f.read()
+        source = source.replace("[Next](#next)", f"""[{identifier}](#{identifier})\n\n[Next](#next)""")
+        source = source.replace("### Next", f"""### {identifier}\n\n<img src="images/{identifier}.png">\n\n### Next""")
+    with open(f"""README.md""", "w") as f:
+        f.write(source)
+
 
 def edit_plugin_and_testmain_files(identifier):
     with open(f"""src/plugin.cpp""", "r") as f:
