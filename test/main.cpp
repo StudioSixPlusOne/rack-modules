@@ -34,6 +34,8 @@ using namespace rack;
 
 // external tests
 // ADD EXTERN
+extern void testMix();
+        
 extern void testSynthFilter();
 extern void testSynthFilterII();
 extern void testEva();
@@ -99,7 +101,9 @@ int main (int argc, char** argv)
 
     // run external tests defined above
 
-    // ADD NEWTEST
+        // ADD NEWTEST
+    testMix();
+        
     testBascom();
     testWaveShaper();
     testHula();

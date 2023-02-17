@@ -46,6 +46,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 
 [Bascom Expander](#bascomexpander)
 
+[Mix](#Mix)
+
 [Next](#next)
 
 ### Wallenda
@@ -348,6 +350,10 @@ a document explaining how Bascom works as a filter, and the various controls. At
 of the link is a list of additional material that explain ladder filters in depth.
 
 [Ladder Filter Design](/Docs/LadderFilterDesigner/LadderFilterDesigner.md)
+
+### Mix
+
+<img src="images/Mix.png">
 
 ### Next
 

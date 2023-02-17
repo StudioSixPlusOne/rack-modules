@@ -172,6 +172,14 @@
         "Polyphonic",
         "Filter"
       ]
+    },
+    {
+      "slug": "Mix",
+      "name": "Mix",
+      "description": "A simple 5 channel mixer with non linear characters",
+      "tags": [
+        "Mixer"
+      ]
     }
   ]
 }
