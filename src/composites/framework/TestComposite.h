@@ -30,7 +30,7 @@ SOFTWARE.
 #include "common.hpp"
 #include "random.hpp"
 #include "filter.hpp"
-#include "digital.hpp"
+//#include "digital.hpp"
 #include "math.hpp"
 
 struct Light
