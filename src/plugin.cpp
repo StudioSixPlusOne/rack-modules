@@ -22,8 +22,7 @@ void init (::rack::Plugin* p)
     p->addModel (modelAmburgh);
     p->addModel (modelBascom);
     p->addModel (modelBascomExpander);
-    
-    p->addModel(modelMix);
+
+    p->addModel (modelMix);
     // ADD ADDMODEL
-        
 }
