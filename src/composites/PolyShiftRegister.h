@@ -331,8 +331,6 @@ inline void PolyShiftRegisterComp<TBase>::step()
     //write ignore status to channel 0
     //expMessage->triggerAccent[0] = ignoreTrigger;
 
-
-
     auto shifted = false;
     for (auto c = 0; c < maxChannels; ++c)
     {
