@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <array>
 #include <vector>
-#include "digital.hpp"
+#include "dsp/digital.hpp"
 #include "../src/composites/framework/TestComposite.h"
 #include "ExtremeTester.h"
 #include "Analyzer.h"

@@ -25,7 +25,7 @@
 #include <bitset>
 #include "IComposite.h"
 #include "TriggerSequencer.h"
-//#include "digital.hpp"
+#include "dsp/digital.hpp"
 
 namespace rack
 {

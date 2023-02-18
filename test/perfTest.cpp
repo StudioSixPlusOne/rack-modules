@@ -28,8 +28,8 @@ SOFTWARE.
 #include <limits>
 #include <random>
 
-#include "filter.hpp"
-#include "digital.hpp"
+#include "dsp/filter.hpp"
+#include "dsp/digital.hpp"
 #include "random.hpp"
 #include "math.hpp"
 #include "common.hpp"

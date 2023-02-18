@@ -28,6 +28,7 @@
 #include <vector>
 #include <memory>
 #include <time.h>
+#include "dsp/digital.hpp"
 
 using namespace sspo::AudioMath;
 
@@ -329,6 +330,8 @@ inline void PolyShiftRegisterComp<TBase>::step()
     auto useShuffle = shuffleProb > rand01();
     //write ignore status to channel 0
     //expMessage->triggerAccent[0] = ignoreTrigger;
+
+
 
     auto shifted = false;
     for (auto c = 0; c < maxChannels; ++c)

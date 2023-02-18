@@ -29,7 +29,7 @@ SOFTWARE.
 
 #include "common.hpp"
 #include "random.hpp"
-#include "filter.hpp"
+#include "dsp/filter.hpp"
 //#include "digital.hpp"
 #include "math.hpp"
 
