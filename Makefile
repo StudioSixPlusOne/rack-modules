@@ -1,7 +1,7 @@
 
 
 # FLAGS will be passed to both the C and C++ compiler
-FLAGS += 
+FLAGS +=
 CFLAGS +=
 CXXFLAGS += -I./src/third-party/sqsrc/util -I./src/composites -I./src -I./src/dsp
 CXXFLAGS += -I./src/modules -I./src/composites/framework

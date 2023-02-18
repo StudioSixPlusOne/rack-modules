@@ -25,7 +25,7 @@
 #include "CircularBuffer.h"
 #include "HardLimiter.h"
 #include "LookupTable.h"
-#include "resampler.hpp"
+//#include "resampler.hpp"
 
 namespace rack
 {

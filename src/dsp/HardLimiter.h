@@ -29,8 +29,8 @@
 #include "simd/functions.hpp"
 #include "simd/sse_mathfun.h"
 #include "simd/sse_mathfun_extension.h"
-#include "digital.hpp"
 #include "LookupTable.h"
+#include "AudioMath.h"
 
 using namespace rack;
 
@@ -46,7 +46,7 @@ namespace sspo
     {
         Compressor()
         {
-            divider.setDivision (divFreq);
+            divider.setDivisor (divFreq);
         }
 
         void calcCoeffs()
@@ -103,7 +103,7 @@ namespace sspo
         float currentEnv{ 0.0f };
         float sampleRate{ 1.0f };
         static constexpr int divFreq = 4;
-        dsp::ClockDivider divider;
+        sspo::AudioMath::ClockDivider divider;
 
         static constexpr float TC{ -0.9996723408f }; // { std::log (0.368f); } //capacitor discharge to 36.8%
     };

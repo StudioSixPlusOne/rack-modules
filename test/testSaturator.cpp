@@ -21,8 +21,8 @@
 
 #include "common.hpp"
 #include "random.hpp"
-#include "filter.hpp"
-#include "digital.hpp"
+#include "dsp/filter.hpp"
+#include "dsp/digital.hpp"
 #include "math.hpp"
 
 #include "asserts.h"

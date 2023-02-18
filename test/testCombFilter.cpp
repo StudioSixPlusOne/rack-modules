@@ -23,8 +23,8 @@
 
 #include <assert.h>
 #include <stdio.h>
-#include "filter.hpp"
-#include "digital.hpp"
+#include "dsp/filter.hpp"
+#include "dsp/digital.hpp"
 #include "TestComposite.h"
 #include "ExtremeTester.h"
 #include "Analyzer.h"

@@ -21,7 +21,7 @@
 
 #include <assert.h>
 #include <stdio.h>
-#include "digital.hpp"
+#include "dsp/digital.hpp"
 #include "TestComposite.h"
 #include "ExtremeTester.h"
 #include "Analyzer.h"

@@ -20,15 +20,15 @@
 */
 
 #include <array>
-#include <assert.h>
-#include <stdio.h>
-#include "digital.hpp"
+#include <cassert>
+#include <cstdio>
+#include "dsp/digital.hpp"
 #include "../src/composites/framework/TestComposite.h"
 #include "ExtremeTester.h"
 #include "Analyzer.h"
 #include "testSignal.h"
 
-#include "../src/composites/Mix.h"
+#include "Mix.h"
 
 using MA = MixComp<TestComposite>;
 namespace ts = sspo::TestSignal;
