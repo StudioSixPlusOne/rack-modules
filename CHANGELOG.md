@@ -66,5 +66,5 @@ Added Iverson and Iverson Jr
     - Ratio knob now has sensible behavior
     - offset and scale output
     - detune +- 2 cents
-- 
+- Mix, a simple five channel mixer
 

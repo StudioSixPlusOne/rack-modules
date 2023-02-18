@@ -46,6 +46,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 
 [Bascom Expander](#bascomexpander)
 
+[Mix](#Mix)
+
 [Next](#next)
 
 ### Wallenda
@@ -348,6 +350,14 @@ a document explaining how Bascom works as a filter, and the various controls. At
 of the link is a list of additional material that explain ladder filters in depth.
 
 [Ladder Filter Design](/Docs/LadderFilterDesigner/LadderFilterDesigner.md)
+
+### Mix
+
+<img src="images/Mix.png">
+
+A simple 5 channel mixer build after my own diy module. The context menu has options for various flavours of
+non linear distortion. The mixer is ac coupled and is sutiable for use with both audio and cv
+data.
 
 ### Next
 

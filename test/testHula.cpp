@@ -136,7 +136,7 @@ static void testVoct (float_4 vocts, float sr)
         auto maxResponseBin = Analyzer::getMax (response);
         auto minRequiredBin = FFT::freqToBin (minFreqs[i], sr, size);
         auto maxRequiredBin = FFT::freqToBin (maxFreqs[i], sr, size) + 2;
-#if 1
+#if 0
         printf ("SR: %f   Voct: %f   Freq: %f  Min Expected bin: %d  Mxn Expected bin: %d   Actual bin: %d  Pass %d\n",
                 sr,
                 vocts[i],
