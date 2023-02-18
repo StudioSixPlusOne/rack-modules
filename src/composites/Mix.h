@@ -23,6 +23,7 @@
 
 #include "IComposite.h"
 #include "../dsp/UtilityFilters.h"
+#include "../dsp/WaveShaper.h"
 #include <memory>
 #include <vector>
 
@@ -99,6 +100,8 @@ public:
         sspo::AudioMath::defaultGenerator.seed (time (NULL));
         dcOutFilters.resize (SIMD_MAX_CHANNELS);
         divider.setDivisor (divisorRate);
+        upsampler.setQuality (upSampleQuality);
+        decimator.setQuality (upSampleQuality);
     }
 
     void step() override;
@@ -122,6 +125,7 @@ public:
         FOUR_PARAM,
         FIVE_PARAM,
         MAIN_PARAM,
+        NLD_PARAM,
         NUM_PARAMS
     };
     enum InputId
@@ -176,13 +180,16 @@ inline void MixComp<TBase>::step()
     //loop over poly channels, using float_4. so 4 channels
     for (auto c = 0; c < channels; c += 4)
     {
-        // Read inputs
-        //        if (TBase::inputs[VCA_CV_INPUT].isConnected())
-        //        {
-        //            vcaGain = vcaGain + (TBase::inputs[VCA_CV_INPUT].template getPolyVoltageSimd<float_4> (c) * 0.1f * TBase::params[VCA_CV_ATTENUVERTER_PARAM].getValue());
-        //        }
-        //
-        auto in = TBase::inputs[ONE_INPUT].template getPolyVoltageSimd<float_4> (c);
+        auto in = TBase::inputs[ONE_INPUT].template getPolyVoltageSimd<float_4> (c)
+                  * TBase::params[ONE_PARAM].getValue();
+        in += TBase::inputs[TWO_INPUT].template getPolyVoltageSimd<float_4> (c)
+              * TBase::params[TWO_PARAM].getValue();
+        in += TBase::inputs[THREE_INPUT].template getPolyVoltageSimd<float_4> (c)
+              * TBase::params[THREE_PARAM].getValue();
+        in += TBase::inputs[FOUR_INPUT].template getPolyVoltageSimd<float_4> (c)
+              * TBase::params[FOUR_PARAM].getValue();
+        in += TBase::inputs[FIVE_INPUT].template getPolyVoltageSimd<float_4> (c)
+              * TBase::params[FIVE_PARAM].getValue();
 
         if (divider.process())
         {
@@ -192,19 +199,27 @@ inline void MixComp<TBase>::step()
         //process audio
         //only oversample if needed
 
+        // set the upsample rate if NLD used, else 0
+        upSampleRate = (TBase::params[NLD_PARAM].getValue() > 0.0f) ? 3 : 0;
+        upsampler.setOverSample (upSampleRate);
         if (upSampleRate > 1)
         {
             upsampler.process (in, oversampleBuffer);
             for (auto i = 0; i < upSampleRate; ++i)
-                oversampleBuffer[i] = 0.0f; //add processing
-            in = decimator.process (oversampleBuffer);
+            {
+                oversampleBuffer[i] = WaveShaper::nld.process (in * 0.1f,
+                                                               TBase::params[NLD_PARAM].getValue())
+                                      * TBase::params[MAIN_PARAM].getValue();
+            }
+            decimator.setOverSample (upSampleRate);
+            in = decimator.process (oversampleBuffer) * 10.0f;
         }
         else
         {
-            in = 0.0f; //add processing
+            in *= TBase::params[MAIN_PARAM].getValue();
         }
 
-        float_4 out = dcOutFilters[c / 4].process (in);
+        float_4 out = in; //dcOutFilters[c / 4].process (in);
 
         //simd'ed out = std::isfinite (out) ? out : 0;
         out = rack::simd::ifelse ((movemask (out == out) != 0xF), float_4 (0.0f), out);
@@ -229,27 +244,31 @@ IComposite::Config MixDescription<TBase>::getParam (int i)
     switch (i)
     {
         case MixComp<TBase>::ONE_PARAM:
-            ret = { 0.0f, 1.0f, 0.5f, "ONE", " ", 0.0f, 1.0f, 0.0f };
+            ret = { 0.0f, 2.0f, 0.5f, "ONE", " ", 0.0f, 1.0f, 0.0f };
             break;
 
         case MixComp<TBase>::TWO_PARAM:
-            ret = { 0.0f, 1.0f, 0.5f, "TWO", " ", 0.0f, 1.0f, 0.0f };
+            ret = { 0.0f, 2.0f, 0.5f, "TWO", " ", 0.0f, 1.0f, 0.0f };
             break;
 
         case MixComp<TBase>::THREE_PARAM:
-            ret = { 0.0f, 1.0f, 0.5f, "THREE", " ", 0.0f, 1.0f, 0.0f };
+            ret = { 0.0f, 2.0f, 0.5f, "THREE", " ", 0.0f, 1.0f, 0.0f };
             break;
 
         case MixComp<TBase>::FOUR_PARAM:
-            ret = { 0.0f, 1.0f, 0.5f, "FOUR", " ", 0.0f, 1.0f, 0.0f };
+            ret = { 0.0f, 2.0f, 0.5f, "FOUR", " ", 0.0f, 1.0f, 0.0f };
             break;
 
         case MixComp<TBase>::FIVE_PARAM:
-            ret = { 0.0f, 1.0f, 0.5f, "FIVE", " ", 0.0f, 1.0f, 0.0f };
+            ret = { 0.0f, 2.0f, 0.5f, "FIVE", " ", 0.0f, 1.0f, 0.0f };
             break;
 
         case MixComp<TBase>::MAIN_PARAM:
-            ret = { 0.0f, 1.0f, 0.5f, "MAIN", " ", 0.0f, 1.0f, 0.0f };
+            ret = { 0.0f, 2.0f, 0.5f, "MAIN", " ", 0.0f, 1.0f, 0.0f };
+            break;
+
+        case MixComp<TBase>::NLD_PARAM:
+            ret = { 0.0f, static_cast<float> (sspo::AudioMath::WaveShaper::nld.size() - 1), 0.0f, "NLD TYPE", " ", 0.0f, 1.0f, 0.0f };
             break;
 
         default:

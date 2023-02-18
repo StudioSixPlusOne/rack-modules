@@ -21,6 +21,8 @@
 #pragma once
 #include "componentlibrary.hpp"
 #include "ui/Slider.hpp"
+#include <string>
+#include "dsp/WaveShaper.h"
 
 namespace sspo
 {
@@ -102,14 +104,58 @@ namespace sspo
 
     struct IntSlider : ui::Slider
     {
-        void onDragMove (const DragMoveEvent& e) override
+        void draw (const DrawArgs& args) override
         {
-            //            ui::Slider::onDragMove (e);
-            if (quantity)
-            {
-                quantity->moveScaledValue (0.001 * e.mouseDelta.x * 30.0f);
-                quantity->setValue (std::max (1.0f, std::round (quantity->getValue())));
-            }
+            BNDwidgetState state = BND_DEFAULT;
+            if (APP->event->hoveredWidget == this)
+                state = BND_HOVER;
+            if (APP->event->draggedWidget == this)
+                state = BND_ACTIVE;
+
+            float progress = quantity ? quantity->getScaledValue() : 0.0f;
+            std::string text = quantity ? quantity->getLabel() + " : " : "";
+            text += quantity ? std::to_string (int (quantity->getValue())) : "";
+
+            bndSlider (args.vg,
+                       0.0,
+                       0.0,
+                       box.size.x,
+                       box.size.y,
+                       BND_CORNER_NONE,
+                       state,
+                       progress,
+                       text.c_str(),
+                       NULL);
         }
     };
+
+    struct NldSlider : ui::Slider
+    {
+        void draw (const DrawArgs& args) override
+        {
+            BNDwidgetState state = BND_DEFAULT;
+            if (APP->event->hoveredWidget == this)
+                state = BND_HOVER;
+            if (APP->event->draggedWidget == this)
+                state = BND_ACTIVE;
+
+            float progress = quantity ? quantity->getScaledValue() : 0.0f;
+            std::string text = quantity ? quantity->getLabel() + " : " : "";
+            text += quantity
+                        ? sspo::AudioMath::WaveShaper::nld.getShapeName (int (quantity->getValue()))
+                        : "";
+
+            bndSlider (args.vg,
+                       0.0,
+                       0.0,
+                       box.size.x,
+                       box.size.y,
+                       BND_CORNER_NONE,
+                       state,
+                       progress,
+                       text.c_str(),
+                       NULL);
+        }
+    };
+
 } // namespace sspo

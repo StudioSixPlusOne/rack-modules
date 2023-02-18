@@ -23,12 +23,12 @@
 #include <assert.h>
 #include <stdio.h>
 #include "digital.hpp"
-#include "TestComposite.h"
+#include "../src/composites/framework/TestComposite.h"
 #include "ExtremeTester.h"
 #include "Analyzer.h"
 #include "testSignal.h"
 
-#include "Mix.h"
+#include "../src/composites/Mix.h"
 
 using MA = MixComp<TestComposite>;
 namespace ts = sspo::TestSignal;
@@ -75,8 +75,95 @@ static void testExtreme()
         testExtreme (sr);
 }
 
+static void testAllinputsMono()
+{
+    MA mixer;
+    mixer.setSampleRate (sampleRates[3]);
+    mixer.init();
+
+    mixer.params[MA::NLD_PARAM].setValue (0.0);
+
+    float gains[] = { 0.2f, 0.4f, 1.8f, 1.0f, 1.6f };
+
+    for (auto i = 0; i < 5; ++i)
+    {
+        mixer.params[i].setValue (gains[i]);
+    }
+
+    float inputs[] = { -3.5f, 7.4f, 3.2f, 0.0f, -2.76f };
+    for (auto i = 0; i < 5; ++i)
+    {
+        mixer.inputs[i].setVoltage (inputs[i]);
+        mixer.inputs[i].setChannels (1);
+    }
+
+    auto mainGain = 0.6f;
+    mixer.params[MA::MAIN_PARAM].setValue (mainGain);
+
+    mixer.step();
+
+    auto expected = 0.0f;
+
+    for (auto i = 0; i < 5; ++i)
+    {
+        expected += inputs[i] * gains[i];
+    }
+    expected *= mainGain;
+
+    assertEQ (mixer.outputs[MA::MAIN_OUTPUT].getVoltage(), expected);
+}
+
+static void testAllInputsPoly()
+{
+    MA mixer;
+    mixer.setSampleRate (sampleRates[3]);
+    mixer.init();
+
+    mixer.params[MA::NLD_PARAM].setValue (0.0);
+
+    float gains[] = { 0.2f, 0.4f, 1.8f, 1.0f, 1.6f };
+
+    for (auto i = 0; i < 5; ++i)
+    {
+        mixer.params[i].setValue (gains[i]);
+    }
+
+    float_4 inputs[] = { float_4 (-3.5f, 7.4f, 3.2f, 0.0f),
+                         float_4 (0.5f, -7.4f, -4.1f, 2.1f),
+                         float_4 (-2.76f, 4.8564f, -2.3456f, 7.2345f),
+                         float_4 (3.6456f, -6.234236f, 3.4567f, 3.56436f),
+                         float_4 (4.45645f, -4.456745f, -6.23423f, 0.234f) };
+    for (auto i = 0; i < 5; ++i)
+    {
+        mixer.inputs[i].setVoltageSimd (inputs[i], 0);
+        mixer.inputs[i].setChannels (4);
+    }
+
+    auto mainGain = 0.6f;
+    mixer.params[MA::MAIN_PARAM].setValue (mainGain);
+
+    mixer.step();
+
+    float_4 expected = float_4 (0);
+
+    for (auto i = 0; i < 5; ++i)
+    {
+        expected += inputs[i] * gains[i];
+    }
+    expected *= mainGain;
+
+    float_4 result = mixer.outputs[MA::MAIN_OUTPUT].getVoltageSimd<float_4> (0);
+
+    auto same = result - expected;
+    auto delta = 0.000001f;
+
+    assert (same[0] < delta && same[1] < delta && same[2] < delta && same[3] < delta);
+}
+
 void testMix()
 {
     printf ("test Mix\n");
     testExtreme();
+    testAllinputsMono();
+    testAllInputsPoly();
 }

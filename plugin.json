@@ -178,7 +178,8 @@
       "name": "Mix",
       "description": "A simple 5 channel mixer with non linear characters",
       "tags": [
-        "Mixer"
+        "Mixer",
+        "Polyphonic"
       ]
     }
   ]

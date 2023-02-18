@@ -78,17 +78,17 @@ struct MixWidget : ModuleWidget
         box.size = Vec (10 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
         SqHelper::setPanel (this, "res/Mix.svg");
 
-        addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, 0)));
-        addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-        addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-        addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+        addChild (createWidget<ScrewSilver> (Vec (0, 0)));
+        addChild (createWidget<ScrewSilver> (Vec (box.size.x - 1 * RACK_GRID_WIDTH, 0)));
+        addChild (createWidget<ScrewSilver> (Vec (0, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+        addChild (createWidget<ScrewSilver> (Vec (box.size.x - 1 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (7.587, 24.391)), module, Comp::ONE_PARAM));
-        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (22.883, 24.391)), module, Comp::TWO_PARAM));
-        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (7.587, 44.183)), module, Comp::THREE_PARAM));
-        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (22.883, 44.183)), module, Comp::FOUR_PARAM));
-        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (7.587, 63.975)), module, Comp::FIVE_PARAM));
-        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (22.883, 63.975)), module, Comp::MAIN_PARAM));
+        addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (7.587, 24.391)), module, Comp::ONE_PARAM));
+        addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (22.883, 24.391)), module, Comp::TWO_PARAM));
+        addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (7.587, 44.183)), module, Comp::THREE_PARAM));
+        addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (22.883, 44.183)), module, Comp::FOUR_PARAM));
+        addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (7.587, 63.975)), module, Comp::FIVE_PARAM));
+        addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (22.883, 63.975)), module, Comp::MAIN_PARAM));
 
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.587, 83.096)), module, Comp::ONE_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (22.883, 83.096)), module, Comp::TWO_INPUT));
@@ -108,6 +108,17 @@ struct MixWidget : ModuleWidget
             module->configOutput (Comp::MAIN_OUTPUT, "MAIN");
         }
     }
+    void appendContextMenu (Menu* menu) override;
 };
+
+void MixWidget::appendContextMenu (Menu* menu)
+{
+    menu->addChild (new MenuEntry);
+
+    auto* nldSlider = new sspo::NldSlider;
+    nldSlider->quantity = module->getParamQuantity (Comp::NLD_PARAM);
+    nldSlider->box.size.x = 200.0f;
+    menu->addChild (nldSlider);
+}
 
 Model* modelMix = createModel<Mix, MixWidget> ("Mix");
