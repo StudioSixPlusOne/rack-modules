@@ -35,7 +35,7 @@ namespace ts = sspo::TestSignal;
 static void testConstructor()
 {
     sspo::CLASSNAME testclass;
-    assertEQ(1, 1);
+    assertEQ (1, 1);
 }
 
 void testCLASSNAME()
