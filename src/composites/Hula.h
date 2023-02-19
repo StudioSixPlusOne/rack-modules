@@ -181,7 +181,7 @@ void HulaComp<TBase>::init()
         l = float_4 (0);
 
     for (auto& p : phases)
-        p = float_4 (0);
+        p = float_4 (rand01(), rand01(), rand01(), rand01());
 }
 
 template <class TBase>
@@ -282,7 +282,6 @@ IComposite::Config HulaDescription<TBase>::getParam (int i)
     IComposite::Config ret = { 0.0f, 1.0f, 0.0f, "Code type", "unit", 0.0f, 1.0f, 0.0f };
     switch (i)
     {
-        //TODO
         case HulaComp<TBase>::RATIO_PARAM:
             ret = { -4, 4, 0.0f, "Ratio", " ", 2.0f, 1, 0.0f };
             break;
