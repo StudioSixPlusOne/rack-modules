@@ -38,6 +38,5 @@ namespace sspo
 {
     class CLASSNAME
     {
-
     };
-}
+} // namespace sspo
