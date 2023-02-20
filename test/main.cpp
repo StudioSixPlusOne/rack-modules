@@ -34,6 +34,10 @@ using namespace rack;
 
 // external tests
 // ADD EXTERN
+extern void testSchmittTrigger_4();
+        
+extern void testSampleAndHold();
+        
 extern void testBose();
 extern void testMix();
 extern void testSynthFilter();
@@ -100,7 +104,11 @@ int main (int argc, char** argv)
     }
 
     // run external tests defined above
-    // ADD NEWTEST
+            // ADD NEWTEST
+    testSchmittTrigger_4();
+        
+    testSampleAndHold();
+        
     testBose();
     testMix();
     testBascom();
