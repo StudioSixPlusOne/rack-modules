@@ -21,6 +21,7 @@ extern Model* modelHula;
 extern Model* modelAmburgh;
 extern Model* modelBascomExpander;
 extern Model* modelBascom;
-
 extern Model* modelMix;
+extern Model* modelBose;
 //ADD EXTERNS
+        

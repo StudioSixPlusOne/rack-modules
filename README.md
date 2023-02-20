@@ -48,6 +48,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 
 [Mix](#Mix)
 
+[Bose](#Bose)
+
 [Next](#next)
 
 ### Wallenda
@@ -358,6 +360,10 @@ of the link is a list of additional material that explain ladder filters in dept
 A simple 5 channel mixer build after my own diy module. The context menu has options for various flavours of
 non linear distortion. The mixer is ac coupled and is sutiable for use with both audio and cv
 data.
+
+### Bose
+
+<img src="images/Bose.png">
 
 ### Next
 
