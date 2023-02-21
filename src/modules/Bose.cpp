@@ -85,11 +85,11 @@ struct BoseWidget : ModuleWidget
 
         addParam (createParam<sspo::TwoWaySwitch> (mm2px (Vec (19.241, 13.265)), module, Comp::POLAR_PARAM));
         addParam (createParam<sspo::TwoWaySwitch> (mm2px (Vec (19.241, 19.829)), module, Comp::DROOP_PARAM));
-        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (7.729, 41.251)), module, Comp::SCALE_ONE_PARAM));
-        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (7.729, 57.92)), module, Comp::SCALE_TWO_PARAM));
-        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (7.729, 74.589)), module, Comp::SCALE_THREE_PARAM));
-        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (7.729, 91.257)), module, Comp::SCALE_FOUR_PARAM));
-        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (7.729, 107.926)), module, Comp::SCALE_FIVE_PARAM));
+        addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (7.729, 41.251)), module, Comp::SCALE_ONE_PARAM));
+        addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (7.729, 57.92)), module, Comp::SCALE_TWO_PARAM));
+        addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (7.729, 74.589)), module, Comp::SCALE_THREE_PARAM));
+        addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (7.729, 91.257)), module, Comp::SCALE_FOUR_PARAM));
+        addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (7.729, 107.926)), module, Comp::SCALE_FIVE_PARAM));
 
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.729, 20.96)), module, Comp::TRIGGER_INPUT));
 

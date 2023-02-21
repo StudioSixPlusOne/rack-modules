@@ -358,12 +358,20 @@ of the link is a list of additional material that explain ladder filters in dept
 <img src="images/Mix.png">
 
 A simple 5 channel mixer build after my own diy module. The context menu has options for various flavours of
-non linear distortion. The mixer is ac coupled and is sutiable for use with both audio and cv
+non linear distortion. The mixer is ac coupled and is suitable for use with both audio and cv
 data.
 
 ### Bose
 
 <img src="images/Bose.png">
+
+Bose is a randon voltage generator, based on a couple of sample and hold diy modules I made. One was
+an analogue sample and hold, that had a droop. I didnt like the droop so I made one with with a
+microcontroller, no droop, more outputs and just noise as the sample source. Thing was I missed 
+droop.
+
+A single polyphonic trigger input generates and holds five random voltages, these can be uni or bi polar
+and with or without droop. Each output has it's own attenuverter. 
 
 ### Next
 

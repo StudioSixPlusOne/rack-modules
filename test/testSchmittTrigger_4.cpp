@@ -126,12 +126,8 @@ void testSchmittTrigger_4()
 {
     printf ("test SchmittTrigger_4\n");
     testConstructor();
-    printf("1\n");
     testReset();
-    printf("2\n");
     testFalseOnZero();
-    printf("3\n");
     testTrueFirstOne();
-    printf("4\n");
     testFalseSecondOne();
 }

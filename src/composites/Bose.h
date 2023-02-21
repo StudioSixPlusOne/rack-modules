@@ -25,8 +25,12 @@
 #include "../dsp/UtilityFilters.h"
 #include <memory>
 #include <vector>
+#include <array>
 
 #include "jansson.h"
+
+#include "SchmittTrigger_4.h"
+#include "SampleAndHold.h"
 
 using float_4 = ::rack::simd::float_4;
 
@@ -81,11 +85,6 @@ public:
 
     void setSampleRate (float rate)
     {
-        sampleRate = rate;
-        sampleTime = 1.0f / rate;
-        maxFreq = std::min (rate / 2.0f, 20000.0f);
-
-        // set samplerate on any dsp objects
     }
 
     // must be called after setSampleRate
@@ -140,13 +139,13 @@ public:
         NUM_LIGHTS
     };
 
-    static constexpr auto divisorRate = 4U;
-    constexpr static float dcInFilterCutoff = 5.5f;
-    static constexpr float minFreq = 0.0f;
-    float maxFreq = 20000.0f;
+
     static constexpr int SIMD_MAX_CHANNELS = 4;
-    float sampleRate = 1.0f;
-    float sampleTime = 1.0f;
+    std::array<sspo::SchmittTrigger_4, SIMD_MAX_CHANNELS> schmitts;
+    std::array<std::array<sspo::SampleAndHold<float_4>,  SIMD_MAX_CHANNELS>, 5> shs;
+    std::array<float,5> gains;
+    float_4 nextRandom;
+
 };
 
 template <class TBase>
@@ -154,20 +153,43 @@ inline void BoseComp<TBase>::step()
 {
     auto channels = TBase::inputs[TRIGGER_INPUT].getChannels();
 
-    channels = std::max (channels, 1);
-
     //read parameters as these are constant across all poly channels
+    auto useDroop = float_4(TBase::params[DROOP_PARAM].getValue());
+    auto offset = float_4(TBase::params[POLAR_PARAM].getValue() * 5.0f);
+    for (auto i = 0U; i < 5; ++i)
+    {
+        gains[i] = TBase::params[SCALE_ONE_PARAM + i].getValue();
+    }
 
     //loop over poly channels, using float_4. so 4 channels
     for (auto c = 0; c < channels; c += 4)
     {
-        //auto in = TBase::inputs[MAIN_INPUT].template getPolyVoltageSimd<float_4> (c);
+        auto trigger = TBase::inputs[TRIGGER_INPUT].template getPolyVoltageSimd<float_4> (c);
+        trigger = schmitts[c/4].process(trigger);
 
-        //process audio
+        for (auto i = 0U; i < 5; ++i)
+        {
 
-        //TBase::outputs[MAIN_OUTPUT].setVoltageSimd (out, c);
+            if (TBase::outputs[ONE_OUTPUT + i].isConnected())
+            {
+                for (auto j = 0U; j < 4; ++j)
+                {
+                    if(trigger.s[j] >= 0.9f)
+                        nextRandom.s[j] = rand01();
+                }
+                shs[i][c / 4].setUseDroop (useDroop);
+                auto out = shs[i][c / 4].step (nextRandom, trigger);
+
+                //process audio
+
+                TBase::outputs[ONE_OUTPUT + i].setVoltageSimd ((out * 10.0f - offset) * gains[i], c);
+            }
+        }
     }
-    //TBase::outputs[MAIN_OUTPUT].setChannels (channels);
+    for (auto i = 0U; i < 5; ++i)
+    {
+        TBase::outputs[ONE_OUTPUT + i].setChannels (channels);
+    }
 }
 
 template <class TBase>

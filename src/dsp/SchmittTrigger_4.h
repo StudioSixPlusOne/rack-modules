@@ -40,7 +40,7 @@ namespace sspo
     {
     public:
         void reset();
-        const float_4& process(float_4 triggers);
+        const float_4 process(float_4 triggers);
         void setOnThreshold(float_4 thresholds);
         void setOffThreshold(float_4 thresholds);
         const float_4& isHigh();
@@ -77,7 +77,7 @@ namespace sspo
 /// when initially triggered
 /// \param triggers
 /// \return
-    const float_4& SchmittTrigger_4::process (float_4 triggers)
+    const float_4 SchmittTrigger_4::process (float_4 triggers)
     {
         auto oldState = state;
         state = simd::ifelse( (state == onState),
