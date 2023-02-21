@@ -139,13 +139,11 @@ public:
         NUM_LIGHTS
     };
 
-
     static constexpr int SIMD_MAX_CHANNELS = 4;
     std::array<sspo::SchmittTrigger_4, SIMD_MAX_CHANNELS> schmitts;
-    std::array<std::array<sspo::SampleAndHold<float_4>,  SIMD_MAX_CHANNELS>, 5> shs;
-    std::array<float,5> gains;
+    std::array<std::array<sspo::SampleAndHold<float_4>, SIMD_MAX_CHANNELS>, 5> shs;
+    std::array<float, 5> gains;
     float_4 nextRandom;
-
 };
 
 template <class TBase>
@@ -154,8 +152,8 @@ inline void BoseComp<TBase>::step()
     auto channels = TBase::inputs[TRIGGER_INPUT].getChannels();
 
     //read parameters as these are constant across all poly channels
-    auto useDroop = float_4(TBase::params[DROOP_PARAM].getValue());
-    auto offset = float_4(TBase::params[POLAR_PARAM].getValue() * 5.0f);
+    auto useDroop = float_4 (TBase::params[DROOP_PARAM].getValue());
+    auto offset = float_4 (TBase::params[POLAR_PARAM].getValue() * 5.0f);
     for (auto i = 0U; i < 5; ++i)
     {
         gains[i] = TBase::params[SCALE_ONE_PARAM + i].getValue();
@@ -165,16 +163,15 @@ inline void BoseComp<TBase>::step()
     for (auto c = 0; c < channels; c += 4)
     {
         auto trigger = TBase::inputs[TRIGGER_INPUT].template getPolyVoltageSimd<float_4> (c);
-        trigger = schmitts[c/4].process(trigger);
+        trigger = schmitts[c / 4].process (trigger);
 
         for (auto i = 0U; i < 5; ++i)
         {
-
             if (TBase::outputs[ONE_OUTPUT + i].isConnected())
             {
                 for (auto j = 0U; j < 4; ++j)
                 {
-                    if(trigger.s[j] >= 0.9f)
+                    if (trigger.s[j] >= 0.9f)
                         nextRandom.s[j] = rand01();
                 }
                 shs[i][c / 4].setUseDroop (useDroop);
