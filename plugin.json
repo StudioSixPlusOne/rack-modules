@@ -192,6 +192,15 @@
         "noise",
         "random"
       ]
+    },
+    {
+      "slug": "Duffy",
+      "name": "Duffy",
+      "description": "Transposes incoming voct, the amount increased by a set number of semitones, can be used to traverse the circle of fifths",
+      "tags": [
+        "Polyphonic",
+        "Utility"
+      ]
     }
   ]
 }

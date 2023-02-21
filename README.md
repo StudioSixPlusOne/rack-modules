@@ -50,6 +50,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 
 [Bose](#Bose)
 
+[Duffy](#Duffy)
+
 [Next](#next)
 
 ### Wallenda
@@ -367,11 +369,19 @@ data.
 
 Bose is a randon voltage generator, based on a couple of sample and hold diy modules I made. One was
 an analogue sample and hold, that had a droop. I didnt like the droop so I made one with with a
-microcontroller, no droop, more outputs and just noise as the sample source. Thing was I missed 
+microcontroller, no droop, more outputs and just noise as the sample source. Thing was I missed
 droop.
 
 A single polyphonic trigger input generates and holds five random voltages, these can be uni or bi polar
-and with or without droop. Each output has it's own attenuverter. 
+and with or without droop. Each output has it's own attenuverter.
+
+### Duffy
+
+<img src="images/Duffy.png">
+
+A Utility module that was designed to sequentially add fifths to an incoming voct signal, with keeping
+in the original register. The design allows for the selectioon of jump size, 7 semitones is suggested
+as a starting value. The transposes require triggers to the up or down inputs.
 
 ### Next
 
