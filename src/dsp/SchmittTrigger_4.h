@@ -39,59 +39,49 @@ namespace sspo
     class SchmittTrigger_4
     {
     public:
-        void reset();
-        const float_4 process(float_4 triggers);
-        void setOnThreshold(float_4 thresholds);
-        void setOffThreshold(float_4 thresholds);
-        const float_4& isHigh();
+        void reset()
+        {
+            state = { 1.0f, 1.0f, 1.0f, 1.0f };
+        }
+        const float_4 process (float_4 triggers)
+        {
+            auto oldState = state;
+            state = simd::ifelse ((state == onState),
+                                  simd::ifelse (triggers <= offThreshold, 0.0f, state),
+                                  simd::ifelse (triggers >= onThreshold, 1.0f, state));
 
-    private:
-        float_4 state{1.0f, 1.0f, 1.0f, 1.0f};
-        float_4 result{1.0f, 1.0f, 1.0f, 1.0f};
-        const float_4 onState{1.0f, 1.0f, 1.0f, 1.0f};
-        float_4 offThreshold{0};
-        float_4 onThreshold{1.0f, 1.0f, 1.0f, 1.0f};
-    };
-
-    void SchmittTrigger_4::reset()
-    {
-        state = {1.0f, 1.0f, 1.0f, 1.0f};
-    }
-
-    void SchmittTrigger_4::setOnThreshold (float_4 thresholds)
-    {
-        onThreshold = thresholds;
-    }
-
-    void SchmittTrigger_4::setOffThreshold (float_4 thresholds)
-    {
-        offThreshold = thresholds;
-    }
-
-    const float_4& SchmittTrigger_4::isHigh()
-    {
-        return state;
-    }
-
-/// Updates the state of the Schmitt trigger given the triggers, returns 1.0
-/// when initially triggered
-/// \param triggers
-/// \return
-    const float_4 SchmittTrigger_4::process (float_4 triggers)
-    {
-        auto oldState = state;
-        state = simd::ifelse( (state == onState),
-                              simd::ifelse(triggers <= offThreshold, 0.0f, state) ,
-                              simd::ifelse(triggers >= onThreshold, 1.0f, state));
-
-        result = simd::ifelse(state - oldState == 1.0f, 1.0f, 0.0f);
-        auto sub = state - oldState;
+            result = simd::ifelse (state - oldState == 1.0f, 1.0f, 0.0f);
+            auto sub = state - oldState;
 #if 0
         printf("state %f %f %f %f%\n", state.s[0],state.s[1],state.s[2],state.s[3]);
         printf("oldState %f %f %f %f%\n", oldState.s[0],oldState.s[1],oldState.s[2],oldState.s[3]);
         printf("sub %f %f %f %f%\n", sub.s[0],sub.s[1],sub.s[2],sub.s[3]);
         printf("result %f %f %f %f%\n", result.s[0],result.s[1],result.s[2],result.s[3]);
 #endif
-        return result;
-    }
+            return result;
+        }
+
+        void setOnThreshold (float_4 thresholds)
+        {
+            onThreshold = thresholds;
+        }
+
+        void setOffThreshold (float_4 thresholds)
+        {
+            offThreshold = thresholds;
+        }
+
+        const float_4& isHigh()
+        {
+            return state;
+        }
+
+    private:
+        float_4 state{ 1.0f, 1.0f, 1.0f, 1.0f };
+        float_4 result{ 1.0f, 1.0f, 1.0f, 1.0f };
+        const float_4 onState{ 1.0f, 1.0f, 1.0f, 1.0f };
+        float_4 offThreshold{ 0 };
+        float_4 onThreshold{ 1.0f, 1.0f, 1.0f, 1.0f };
+    };
+
 } // namespace sspo

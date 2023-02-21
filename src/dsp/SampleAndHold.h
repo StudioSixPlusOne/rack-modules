@@ -52,16 +52,15 @@ namespace sspo
     template <typename T>
     void SampleAndHold<T>::setUseDroop (T droop)
     {
-        beta = simd::ifelse(droop == 1.0f, 0.9999999f, 1.0f);
-        offset = simd::ifelse(droop == 1.0f, 0.000000f, 0.0f);
+        beta = simd::ifelse (droop == 1.0f, 0.9999999f, 1.0f);
+        offset = simd::ifelse (droop == 1.0f, 0.000000f, 0.0f);
     }
 
     template <typename T>
     const T& SampleAndHold<T>::step (T in, T trigger)
     {
-        currentValue = simd::ifelse(trigger >= 1.0f, in, currentValue) * beta - offset;
+        currentValue = simd::ifelse (trigger >= 1.0f, in, currentValue) * beta - offset;
         return currentValue;
     }
-
 
 } // namespace sspo
