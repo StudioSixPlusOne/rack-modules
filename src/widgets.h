@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2020 Dave French <contact/dot/dave/dot/french3/at/googlemail/dot/com>
+ * Copyright (c) 2020, 2023 Dave French <contact/dot/dave/dot/french3/at/googlemail/dot/com>
  *
  *
  * This program is free software; you can redistribute it and/or
@@ -99,6 +99,27 @@ namespace sspo
         {
             setSvg (APP->window->loadSvg (asset::plugin (pluginInstance,
                                                          "res/SspoPort.svg")));
+        }
+    };
+
+    struct TwoWaySwitch : app::SvgSwitch
+    {
+        TwoWaySwitch()
+        {
+            shadow->opacity = 0.0;
+            addFrame (Svg::load (asset::plugin (pluginInstance, "res/SspoSwitch01.svg")));
+            addFrame (Svg::load (asset::plugin (pluginInstance, "res/SspoSwitch03.svg")));
+        }
+    };
+
+    struct ThreeWaySwitch : app::SvgSwitch
+    {
+        ThreeWaySwitch()
+        {
+            shadow->opacity = 0.0;
+            addFrame (Svg::load (asset::plugin (pluginInstance, "res/SspoSwitch01.svg")));
+            addFrame (Svg::load (asset::plugin (pluginInstance, "res/SspoSwitch02.svg")));
+            addFrame (Svg::load (asset::plugin (pluginInstance, "res/SspoSwitch02.svg")));
         }
     };
 

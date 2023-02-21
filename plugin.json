@@ -181,6 +181,17 @@
         "Mixer",
         "Polyphonic"
       ]
+    },
+    {
+      "slug": "Bose",
+      "name": "Bose",
+      "description": "Multi output random voltage generator, sample and hold with no input, steady or analog style drooping outputs",
+      "tags": [
+        "Polyphonic",
+        "sample and hold",
+        "noise",
+        "random"
+      ]
     }
   ]
 }
