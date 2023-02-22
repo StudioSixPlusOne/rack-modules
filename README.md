@@ -52,6 +52,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 
 [Duffy](#Duffy)
 
+[Farini](#Farini)
+
 [Next](#next)
 
 ### Wallenda
@@ -382,6 +384,10 @@ and with or without droop. Each output has it's own attenuverter.
 A Utility module that was designed to sequentially add fifths to an incoming voct signal, with keeping
 in the original register. The design allows for the selectioon of jump size, 7 semitones is suggested
 as a starting value. The transposes require triggers to the up or down inputs.
+
+### Farini
+
+<img src="images/Farini.png">
 
 ### Next
 

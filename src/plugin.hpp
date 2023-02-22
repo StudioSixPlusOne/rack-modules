@@ -24,4 +24,5 @@ extern Model* modelBascom;
 extern Model* modelMix;
 extern Model* modelBose;
 extern Model* modelDuffy;
+extern Model* modelFarini;
 //ADD EXTERNS

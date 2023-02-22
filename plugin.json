@@ -201,6 +201,15 @@
         "Polyphonic",
         "Utility"
       ]
+    },
+    {
+      "slug": "Farini",
+      "name": "Farini",
+      "description": "Multimode envelope generator and stereo vca, based on CEM3310 AND CEM3360 diy circuits.",
+      "tags": [
+        "Envelope generator",
+        "Voltage-controlled amplifier"
+      ]
     }
   ]
 }
