@@ -34,6 +34,8 @@ using namespace rack;
 
 // external tests
 // ADD EXTERN
+extern void testAdsr();
+        
 extern void testFarini();
 extern void testDuffy();
 extern void testSchmittTrigger_4();
@@ -104,7 +106,9 @@ int main (int argc, char** argv)
     }
 
     // run external tests defined above
-    // ADD NEWTEST
+        // ADD NEWTEST
+    testAdsr();
+        
     testFarini();
     testDuffy();
     testSchmittTrigger_4();
