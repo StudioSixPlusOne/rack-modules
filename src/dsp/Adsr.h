@@ -112,19 +112,23 @@ namespace sspo
                 currentLevels[i] = stageOffsets[currentStage[i]][i] + currentLevels[i] * stageScalars[currentStage[i]][i];
             }
 
+            //TODO this simd version needs more thinking
+            //            currentLevels = stageOffsets[currentStage] + currentLevels * stageScalars[currentStage];
+
             //check for stage updates
-            //todo make float_4
-            for (auto i = 0U; i < 4; ++i)
-            {
-                if (currentStage[i] == PRE_ATTACK_STAGE && currentLevels[i] < 0.0f)
-                    currentStage[i]++;
-                if (currentStage[i] == ATTACK_STAGE && currentLevels[i] >= 1.0f)
-                    currentStage[i]++;
-                if (currentStage[i] == DECAY_STAGE && currentLevels[i] <= sustainLevels[i])
-                    currentStage[i]++;
-                if (currentStage[i] == RELEASE_STAGE && currentLevels[i] <= 0.01f)
-                    currentStage[i]++;
-            }
+
+            currentStage = simd::ifelse ((currentStage == PRE_ATTACK_STAGE) & (currentLevels < 0.0f),
+                                         currentStage + 1,
+                                         currentStage);
+            currentStage = simd::ifelse ((currentStage == ATTACK_STAGE) & (currentLevels >= 1.0f),
+                                         currentStage + 1,
+                                         currentStage);
+            currentStage = simd::ifelse ((currentStage == DECAY_STAGE) & (currentLevels <= sustainLevels),
+                                         currentStage + 1,
+                                         currentStage);
+            currentStage = simd::ifelse ((currentStage == RELEASE_STAGE) & (currentLevels <= 0.01f),
+                                         currentStage + 1,
+                                         currentStage);
 
             return currentLevels;
         }

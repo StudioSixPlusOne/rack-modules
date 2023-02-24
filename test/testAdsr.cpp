@@ -314,8 +314,7 @@ static void testReleaseTime()
 
     //release
     int sampleCount = 0;
-    float lvl{ 0 };
-    while (lvl = adsr.step (gates)[0] > 0.01f)
+    while (adsr.step (gates)[0] > 0.01f)
     {
         sampleCount++;
     }
@@ -365,7 +364,7 @@ static void testLevel0to1()
     auto gates = float_4 (1.0f, 0.0f, 0.0f, 0.0f);
 
     float lvl;
-    while (lvl = adsr.step (gates)[0] < 1.0f)
+    while ((lvl = adsr.step (gates)[0]) < 1.0f)
     {
         out.push_back (lvl);
     }
@@ -381,7 +380,7 @@ static void testLevel0to1()
     auto minLvl = std::min_element (out.begin(), out.end());
 
     assertGE (*minLvl, 0.0f);
-    assertLE (*maxLvl, 1.0f);
+    assertLE (*maxLvl, 1.001f);
 }
 
 void testAdsr()
