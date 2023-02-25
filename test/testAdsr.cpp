@@ -237,7 +237,8 @@ static void testMoveToReleaseFromAttack()
     gates = float_4::zero();
     adsr.step (gates);
 
-    assertEQ (adsr.getCurrentStages()[0], sspo::Adsr_4::RELEASE_STAGE);
+    //Attack stage must complete
+    assertEQ (adsr.getCurrentStages()[0], sspo::Adsr_4::ATTACK_STAGE);
 }
 static void testMoveToReleaseFromDecay()
 {

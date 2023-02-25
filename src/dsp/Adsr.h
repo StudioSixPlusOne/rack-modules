@@ -99,7 +99,10 @@ namespace sspo
                                          currentStage);
 
             //update gate off
-            currentStage = simd::ifelse (gateChanged == -1.0f, RELEASE_STAGE, currentStage);
+            currentStage = simd::ifelse ((gateChanged == -1.0f) & (currentStage != ATTACK_STAGE), RELEASE_STAGE, currentStage);
+            releasedDuringAttack = simd::ifelse ((gateChanged == -1.0f) & (currentStage == ATTACK_STAGE), 1.0f, releasedDuringAttack);
+            currentStage = simd::ifelse ((releasedDuringAttack == 1.0f) & (currentStage != ATTACK_STAGE), RELEASE_STAGE, currentStage);
+            releasedDuringAttack = simd::ifelse (currentStage == ATTACK_STAGE, releasedDuringAttack, 0.0f);
 
             lastGates = gates; //
 
@@ -140,6 +143,8 @@ namespace sspo
                             float sampleRate)
         {
             auto attackSamples = attackTimeS * sampleRate;
+
+#if 1
             stageScalars[ATTACK_STAGE] = simd::exp (
                 -simd::log ((1.0 + attackTco) / attackTco) / attackSamples);
             stageOffsets[ATTACK_STAGE] = (1.0f + attackTco) * (1.0f - stageScalars[ATTACK_STAGE]);
@@ -155,6 +160,7 @@ namespace sspo
             stageOffsets[RELEASE_STAGE] = releaseTco * (1.0f - stageScalars[RELEASE_STAGE]);
 
             sustainLevels = sustainLevel;
+#endif
         }
 
         const float_4& getCurrentStages()
@@ -177,9 +183,13 @@ namespace sspo
         float_4 lastGates{ 0 };
         float_4 currentLevels{ 0 };
         float_4 currentStage{ EOC_STAGE };
+        float_4 currentStageScalars{ 0 };
+        float_4 currentStageOffsets{ 0 };
         bool isResetOnTrigger = false;
-        std::array<float_4, NUM_STAGES> stageScalars;
-        std::array<float_4, NUM_STAGES> stageOffsets;
+        float_4 releasedDuringAttack{ 0 };
+        std::array<float_4, NUM_STAGES> stageScalars; //to remove
+        std::array<float_4, NUM_STAGES> stageOffsets; //to remove
+
         float_4 sustainLevels{ 0 };
         float attackTco{ 0 };
         float decayTco{ 0 };

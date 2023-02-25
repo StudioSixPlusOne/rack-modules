@@ -94,7 +94,7 @@ struct FariniWidget : ModuleWidget
         addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (30.975, 50.471)), module, Comp::DECAY_PARAM));
         addParam (createParamCentered<sspo::SmallKnob> (mm2px (Vec (17.434, 50.859)), module, Comp::DECAY_CV_PARAM));
         addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (30.975, 66.699)), module, Comp::SUSTAIN_PARAM));
-        addParam (createParamCentered<sspo::SmallKnob> (mm2px (Vec (17.434, 67.087)), module, Comp::SUSTAIN__CV_PARAM));
+        addParam (createParamCentered<sspo::SmallKnob> (mm2px (Vec (17.434, 67.087)), module, Comp::SUSTAIN_CV_PARAM));
         addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (30.975, 82.927)), module, Comp::RELEASE_PARAM));
         addParam (createParamCentered<sspo::SmallKnob> (mm2px (Vec (17.434, 83.314)), module, Comp::RELEASE_CV_PARAM));
 
@@ -136,6 +136,30 @@ struct FariniWidget : ModuleWidget
             module->configOutput (Comp::ENV_OUTPUT, "ENV");
         }
     }
+
+    struct UseWaveShapingMenuItem : MenuItem
+    {
+        Farini* module;
+        void onAction (const event::Action& e) override
+        {
+            module->params[Comp::USE_NLD_PARAM].setValue (! module->params[Comp::USE_NLD_PARAM].getValue());
+        }
+    };
+
+    void appendContextMenu (Menu* menu) override;
 };
+
+void FariniWidget::appendContextMenu (Menu* menu)
+{
+    auto* module = dynamic_cast<Farini*> (this->module);
+
+    menu->addChild (new MenuEntry);
+
+    auto useNldMenuItem = new UseWaveShapingMenuItem;
+    useNldMenuItem->module = module;
+    useNldMenuItem->text = "Waveshaping";
+    useNldMenuItem->rightText = CHECKMARK (module->params[Comp::USE_NLD_PARAM].getValue());
+    menu->addChild (useNldMenuItem);
+}
 
 Model* modelFarini = createModel<Farini, FariniWidget> ("Farini");

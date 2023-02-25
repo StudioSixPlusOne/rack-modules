@@ -25,6 +25,7 @@
 #include "../dsp/UtilityFilters.h"
 #include <memory>
 #include <vector>
+#include <array>
 
 #include "jansson.h"
 
@@ -97,8 +98,8 @@ public:
         //initialise dsp object
 
         sspo::AudioMath::defaultGenerator.seed (time (NULL));
-        dcOutFilters.resize (SIMD_MAX_CHANNELS);
-        divider.setDivisor (divisorRate);
+        for (auto& d : dividers)
+            d.setDivisor (divisorRate);
     }
 
     void step() override;
@@ -131,8 +132,8 @@ public:
     sspo::Upsampler<maxUpSampleRate, maxUpSampleQuality, float_4> upsampler;
     sspo::Decimator<maxUpSampleRate, maxUpSampleQuality, float_4> decimator;
     float_4 oversampleBuffer[maxUpSampleRate];
-    std::vector<sspo::BiQuad<float_4>> dcOutFilters;
-    ClockDivider divider;
+    std::array<sspo::BiQuad<float_4>, SIMD_MAX_CHANNELS> dcOutFilters;
+    std::array<ClockDivider, SIMD_MAX_CHANNELS> dividers;
 };
 
 template <class TBase>
@@ -155,7 +156,7 @@ inline void SLUGComp<TBase>::step()
         //
         auto in = TBase::inputs[MAIN_INPUT].template getPolyVoltageSimd<float_4> (c);
 
-        if (divider.process())
+        if (divider[c / 4].process())
         {
             // slower response stuff here
         }
