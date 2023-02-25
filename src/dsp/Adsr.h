@@ -120,7 +120,7 @@ namespace sspo
 
             //check for stage updates
 
-            currentStage = simd::ifelse ((currentStage == PRE_ATTACK_STAGE) & (currentLevels < 0.0f),
+            currentStage = simd::ifelse ((currentStage == PRE_ATTACK_STAGE) & (currentLevels <= 0.0f),
                                          currentStage + 1,
                                          currentStage);
             currentStage = simd::ifelse ((currentStage == ATTACK_STAGE) & (currentLevels >= 1.0f),
@@ -134,6 +134,13 @@ namespace sspo
                                          currentStage);
 
             return currentLevels;
+        }
+
+        void doRetriggers (float_4 triggers)
+        {
+            currentStage = simd::ifelse ((triggers >= 1.0f),
+                                         ATTACK_STAGE,
+                                         currentStage);
         }
 
         void setParameters (float_4 attackTimeS,

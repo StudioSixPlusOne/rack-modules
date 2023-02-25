@@ -167,6 +167,14 @@ public:
         NUM_LIGHTS
     };
 
+    enum modes
+    {
+        ADSR,
+        AD,
+        AR,
+        NUM_MODES
+    };
+
     static constexpr auto divisorRate = 20U;
     constexpr static float dcInFilterCutoff = 5.5f;
     static constexpr float minFreq = 0.0f;
@@ -219,17 +227,34 @@ inline void FariniComp<TBase>::step()
         // Read inputs
 
         attack += (TBase::inputs[ATTACK_INPUT].template getPolyVoltageSimd<float_4> (c)
-                   * 0.1f * TBase::params[ATTACK_CV_PARAM].getValue());
+                   * 0.1f * TBase::params[ATTACK_CV_PARAM].getValue())
+                  * 5.0f;
         attack = simd::fmax (0.0f, attack);
         decay += (TBase::inputs[DECAY_INPUT].template getPolyVoltageSimd<float_4> (c)
-                  * 0.1f * TBase::params[DECAY_CV_PARAM].getValue());
+                  * 0.1f * TBase::params[DECAY_CV_PARAM].getValue())
+                 * 5.0f;
+        ;
         decay = simd::fmax (0.0f, decay);
         sustain += (TBase::inputs[SUSTAIN_INPUT].template getPolyVoltageSimd<float_4> (c)
                     * 0.1f * TBase::params[SUSTAIN_CV_PARAM].getValue());
         sustain = simd::fmax (0.0f, sustain);
         release += (TBase::inputs[RELEASE_INPUT].template getPolyVoltageSimd<float_4> (c)
-                    * 0.1f * TBase::params[RELEASE_CV_PARAM].getValue());
+                    * 0.1f * TBase::params[RELEASE_CV_PARAM].getValue())
+                   * 10.0f;
+        ;
         release = simd::fmax (0.0f, release);
+
+        if (mode == AD)
+        {
+            sustain = float_4::zero();
+            release = decay;
+        }
+
+        if (mode == AR)
+        {
+            sustain = float_4 (1.0f, 1.0f, 1.0f, 1.0f);
+            decay = release;
+        }
 
         auto left = TBase::inputs[LEFT_INPUT].template getPolyVoltageSimd<float_4> (c);
         auto right = TBase::inputs[RIGHT_INPUT].template getPolyVoltageSimd<float_4> (c);
@@ -239,10 +264,18 @@ inline void FariniComp<TBase>::step()
         gates = cycle ? lastEocGates[c / 4] : gates;
         gates = simd::ifelse (gates > 1.0f, 1.0f, 0.0f);
 
+        auto leftChannels = TBase::inputs[LEFT_INPUT].getChannels();
+        auto rightChannels = TBase::inputs[RIGHT_INPUT].getChannels();
+
         if (dividers[c / 4].process())
         {
             // set parameters as these are slow to set
             adsrs[c / 4].setResetOnTrigger (resetOnTrigger);
+            if (retrig)
+            {
+                adsrs[c / 4].doRetriggers (triggers);
+            }
+
             adsrs[c / 4].setParameters (attack, decay, sustain, release, sampleRate);
         }
 
@@ -281,22 +314,29 @@ inline void FariniComp<TBase>::step()
 
         //only oversample if needed
         // set the upsample rate if NLD used, else 0
-        upSampleRate = useNLD ? 3 : 0;
-        upsamplerL.setOverSample (upSampleRate);
+        upSampleRate = useNLD && (leftChannels || rightChannels) ? 2 : 0;
 
         if (upSampleRate > 1)
         {
-            upsamplerL.process (leftOut * 0.1f, oversampleBufferL);
-            for (auto i = 0; i < upSampleRate; ++i)
-                oversampleBufferL[i] = WaveShaper::nld.process (oversampleBufferL[i], 7); //atan 5
-            decimatorL.setOverSample (upSampleRate);
-            leftOut = decimatorL.process (oversampleBufferL) * 10.0f;
+            if (leftChannels)
+            {
+                upsamplerL.setOverSample (upSampleRate);
+                upsamplerL.process (leftOut * 0.1f, oversampleBufferL);
+                for (auto i = 0; i < upSampleRate; ++i)
+                    oversampleBufferL[i] = WaveShaper::nld.process (oversampleBufferL[i], 7); //atan 5
+                decimatorL.setOverSample (upSampleRate);
+                leftOut = decimatorL.process (oversampleBufferL) * 10.0f;
+            }
 
-            upsamplerR.process (rightOut * 0.1f, oversampleBufferR);
-            for (auto i = 0; i < upSampleRate; ++i)
-                oversampleBufferR[i] = WaveShaper::nld.process (oversampleBufferR[i], 7); //atan 5
-            decimatorR.setOverSample (upSampleRate);
-            rightOut = decimatorR.process (oversampleBufferR) * 10.0f;
+            if (rightChannels)
+            {
+                upsamplerR.setOverSample (upSampleRate);
+                upsamplerR.process (rightOut * 0.1f, oversampleBufferR);
+                for (auto i = 0; i < upSampleRate; ++i)
+                    oversampleBufferR[i] = WaveShaper::nld.process (oversampleBufferR[i], 7); //atan 5
+                decimatorR.setOverSample (upSampleRate);
+                rightOut = decimatorR.process (oversampleBufferR) * 10.0f;
+            }
         }
 
         //        float_4 out = dcOutFilters[c / 4].process (in);
@@ -357,7 +397,7 @@ IComposite::Config FariniDescription<TBase>::getParam (int i)
             break;
 
         case FariniComp<TBase>::ATTACK_PARAM:
-            ret = { 0.0f, 1.0f, 0.5f, "ATTACK", " ", 0.0f, 1.0f, 0.0f };
+            ret = { 0.0f, 5.0f, 0.5f, "ATTACK", " ", 0.0f, 1.0f, 0.0f };
             break;
 
         case FariniComp<TBase>::ATTACK_CV_PARAM:
@@ -365,7 +405,7 @@ IComposite::Config FariniDescription<TBase>::getParam (int i)
             break;
 
         case FariniComp<TBase>::DECAY_PARAM:
-            ret = { 0.0f, 1.0f, 0.5f, "DECAY", " ", 0.0f, 1.0f, 0.0f };
+            ret = { 0.0f, 10.0f, 0.5f, "DECAY", " ", 0.0f, 1.0f, 0.0f };
             break;
 
         case FariniComp<TBase>::DECAY_CV_PARAM:
@@ -381,11 +421,15 @@ IComposite::Config FariniDescription<TBase>::getParam (int i)
             break;
 
         case FariniComp<TBase>::RELEASE_PARAM:
-            ret = { 0.0f, 1.0f, 0.5f, "RELEASE", " ", 0.0f, 1.0f, 0.0f };
+            ret = { 0.0f, 10.0f, 0.5f, "RELEASE", " ", 0.0f, 1.0f, 0.0f };
             break;
 
         case FariniComp<TBase>::RELEASE_CV_PARAM:
             ret = { 0.0f, 1.0f, 0.5f, "RELEASE_CV", " ", 0.0f, 1.0f, 0.0f };
+            break;
+
+        case FariniComp<TBase>::USE_NLD_PARAM:
+            ret = { 0.0f, 1.0f, 0.0f, "Waveshape", " ", 0.0f, 1.0f, 0.0f };
             break;
 
         default:
