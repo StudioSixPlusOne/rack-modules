@@ -52,6 +52,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 
 [Duffy](#Duffy)
 
+[Farini](#Farini)
+
 [Next](#next)
 
 ### Wallenda
@@ -382,6 +384,25 @@ and with or without droop. Each output has it's own attenuverter.
 A Utility module that was designed to sequentially add fifths to an incoming voct signal, with keeping
 in the original register. The design allows for the selectioon of jump size, 7 semitones is suggested
 as a starting value. The transposes require triggers to the up or down inputs.
+
+### Farini
+
+<img src="images/Farini.png">
+
+A fully featured voltage controlled envelope generator, with stereo vca.
+This module is based on two modules in my DIY synth, the timing curves have been
+modeled after the CEM3310 design. The Vca has optional shaping available in the 
+context menu, recorded from
+VCA's I have built, a different variation on left and right channels.
+
+ - Selectable ADSR, AD & AR shapes
+ - Retrig mode, when selected restarts attack stage at current level.
+ - Reset, Quickly reset to zero before attack stage, only included for emulations
+ - Cycle, endlessly cycle, when the envelope is complete it is triggered.
+ - Cv controllable with attenuators for all stages
+ - Gate outputs for each stage
+ - End Of Cycle gate output
+
 
 ### Next
 

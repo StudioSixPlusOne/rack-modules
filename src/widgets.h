@@ -119,7 +119,7 @@ namespace sspo
             shadow->opacity = 0.0;
             addFrame (Svg::load (asset::plugin (pluginInstance, "res/SspoSwitch01.svg")));
             addFrame (Svg::load (asset::plugin (pluginInstance, "res/SspoSwitch02.svg")));
-            addFrame (Svg::load (asset::plugin (pluginInstance, "res/SspoSwitch02.svg")));
+            addFrame (Svg::load (asset::plugin (pluginInstance, "res/SspoSwitch03.svg")));
         }
     };
 

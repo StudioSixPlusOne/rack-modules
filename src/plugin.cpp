@@ -25,5 +25,6 @@ void init (::rack::Plugin* p)
     p->addModel (modelMix);
     p->addModel (modelBose);
     p->addModel (modelDuffy);
+    p->addModel (modelFarini);
     // ADD ADDMODEL
 }

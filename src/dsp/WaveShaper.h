@@ -40,6 +40,10 @@ extern std::array<float, 4096> DiodeFeedbackOneAndOneShape;
 extern std::array<float, 4096> DiodeFeedbackOneAndTwoShape;
 extern std::array<float, 4096> DiodeFeedbackOneAndThreeShape;
 
+extern std::array<float, 4096> Vca1;
+extern std::array<float, 4096> Vca2;
+extern std::array<float, 4096> Vca3;
+
 using float_4 = ::rack::simd::float_4;
 
 namespace sspo
@@ -236,6 +240,17 @@ namespace sspo
             };
 
             static Nld nld;
+
+            class Vca : public WaveShapers
+            {
+            public:
+                Vca()
+                {
+                    addShape (&Vca1, "VCA 1");
+                    addShape (&Vca2, "VCA 2");
+                    addShape (&Vca3, "VCA 3");
+                }
+            };
 
         } // namespace WaveShaper
     } // namespace AudioMath
