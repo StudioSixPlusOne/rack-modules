@@ -227,22 +227,25 @@ inline void FariniComp<TBase>::step()
         // Read inputs
 
         attack += (TBase::inputs[ATTACK_INPUT].template getPolyVoltageSimd<float_4> (c)
-                   * 0.1f * TBase::params[ATTACK_CV_PARAM].getValue())
-                  * 5.0f;
-        attack = simd::fmax (0.0f, attack);
+                   * 0.1f * attackCv);
+
+        //        attack = simd::fmax (0.0f, attack);
+        attack = attack * 10.0f - 5.0f;
+
         decay += (TBase::inputs[DECAY_INPUT].template getPolyVoltageSimd<float_4> (c)
-                  * 0.1f * TBase::params[DECAY_CV_PARAM].getValue())
-                 * 5.0f;
+                  * 0.1f * decayCV);
         ;
         decay = simd::fmax (0.0f, decay);
+        decay = decay * 10.0f - 5.0f;
+
         sustain += (TBase::inputs[SUSTAIN_INPUT].template getPolyVoltageSimd<float_4> (c)
-                    * 0.1f * TBase::params[SUSTAIN_CV_PARAM].getValue());
+                    * 0.1f * sustainCV);
         sustain = simd::fmax (0.0f, sustain);
         release += (TBase::inputs[RELEASE_INPUT].template getPolyVoltageSimd<float_4> (c)
-                    * 0.1f * TBase::params[RELEASE_CV_PARAM].getValue())
-                   * 10.0f;
+                    * 0.1f * releaseCV);
         ;
-        release = simd::fmax (0.0f, release);
+        //release = simd::fmax (0.0f, release);
+        release = release * 10.0f - 5.0f;
 
         if (mode == AD)
         {
@@ -276,7 +279,7 @@ inline void FariniComp<TBase>::step()
                 adsrs[c / 4].doRetriggers (triggers);
             }
 
-            adsrs[c / 4].setParameters (attack, decay, sustain, release, sampleRate);
+            adsrs[c / 4].setParameters (5.0f * simd::pow (2.0f, attack), 5.0f * simd::pow (2.0f, decay), sustain, 5.0f * simd::pow (2.0f, release), sampleRate);
         }
 
         auto levels = adsrs[c / 4].step (gates);
@@ -375,8 +378,8 @@ int FariniDescription<TBase>::getNumParams()
 template <class TBase>
 IComposite::Config FariniDescription<TBase>::getParam (int i)
 {
-    auto freqBase = static_cast<float> (std::pow (2, 10.0f));
-    auto freqMul = static_cast<float> (dsp::FREQ_C4 / std::pow (2, 5.f));
+    auto timeBase = static_cast<float> (std::pow (2, 10.0f));
+    auto timeMul = static_cast<float> (5.0f / std::pow (2, 5.f));
     IComposite::Config ret = { 0.0f, 1.0f, 0.0f, "Name", "unit", 0.0f, 1.0f, 0.0f };
     switch (i)
     {
@@ -397,7 +400,7 @@ IComposite::Config FariniDescription<TBase>::getParam (int i)
             break;
 
         case FariniComp<TBase>::ATTACK_PARAM:
-            ret = { 0.0f, 5.0f, 0.5f, "ATTACK", " ", 0.0f, 1.0f, 0.0f };
+            ret = { -0.7f, 0.9f, 0.5f, "ATTACK", " Seconds", timeBase, timeMul, 0.0f };
             break;
 
         case FariniComp<TBase>::ATTACK_CV_PARAM:
@@ -405,7 +408,7 @@ IComposite::Config FariniDescription<TBase>::getParam (int i)
             break;
 
         case FariniComp<TBase>::DECAY_PARAM:
-            ret = { 0.0f, 10.0f, 0.5f, "DECAY", " ", 0.0f, 1.0f, 0.0f };
+            ret = { -0.7f, 0.9f, 0.5f, "DECAY", " Seconds", timeBase, timeMul, 0.0f };
             break;
 
         case FariniComp<TBase>::DECAY_CV_PARAM:
@@ -421,7 +424,7 @@ IComposite::Config FariniDescription<TBase>::getParam (int i)
             break;
 
         case FariniComp<TBase>::RELEASE_PARAM:
-            ret = { 0.0f, 10.0f, 0.5f, "RELEASE", " ", 0.0f, 1.0f, 0.0f };
+            ret = { -0.7f, 0.9f, 0.5f, "RELEASE", " Seconds", timeBase, timeMul, 0.0f };
             break;
 
         case FariniComp<TBase>::RELEASE_CV_PARAM:
