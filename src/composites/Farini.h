@@ -23,7 +23,7 @@
 
 #include "IComposite.h"
 #include "../dsp/UtilityFilters.h"
-#include "WaveShaper.h"
+#include "../dsp/WaveShaper.h"
 #include <memory>
 #include <vector>
 #include <array>
@@ -197,6 +197,7 @@ public:
     std::array<sspo::Adsr_4, SIMD_MAX_CHANNELS> adsrs;
     std::array<ClockDivider, SIMD_MAX_CHANNELS> dividers;
     std::array<float_4, SIMD_MAX_CHANNELS> lastEocGates{ 0.0f };
+    sspo::AudioMath::WaveShaper::Vca vca;
 };
 
 template <class TBase>
@@ -326,7 +327,7 @@ inline void FariniComp<TBase>::step()
                 upsamplerL.setOverSample (upSampleRate);
                 upsamplerL.process (leftOut * 0.1f, oversampleBufferL);
                 for (auto i = 0; i < upSampleRate; ++i)
-                    oversampleBufferL[i] = WaveShaper::nld.process (oversampleBufferL[i], 7); //atan 5
+                    oversampleBufferL[i] = vca.process (oversampleBufferL[i], 0); //vca 1
                 decimatorL.setOverSample (upSampleRate);
                 leftOut = decimatorL.process (oversampleBufferL) * 10.0f;
             }
@@ -336,7 +337,7 @@ inline void FariniComp<TBase>::step()
                 upsamplerR.setOverSample (upSampleRate);
                 upsamplerR.process (rightOut * 0.1f, oversampleBufferR);
                 for (auto i = 0; i < upSampleRate; ++i)
-                    oversampleBufferR[i] = WaveShaper::nld.process (oversampleBufferR[i], 7); //atan 5
+                    oversampleBufferR[i] = vca.process (oversampleBufferR[i], 1); //vca 2
                 decimatorR.setOverSample (upSampleRate);
                 rightOut = decimatorR.process (oversampleBufferR) * 10.0f;
             }
