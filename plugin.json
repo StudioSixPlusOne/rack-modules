@@ -210,6 +210,16 @@
         "Envelope generator",
         "Voltage-controlled amplifier"
       ]
+    },
+    {
+      "slug": "LalaStereo",
+      "name": "LalaStereo",
+      "description": "Stereo two way crossover",
+      "tags": [
+        "Filter",
+        "Polyphonic",
+        "Utility"
+      ]
     }
   ]
 }

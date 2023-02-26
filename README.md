@@ -54,6 +54,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 
 [Farini](#Farini)
 
+[LalaStereo](#LalaStereo)
+
 [Next](#next)
 
 ### Wallenda
@@ -403,6 +405,10 @@ VCA's I have built, a different variation on left and right channels.
  - Gate outputs for each stage
  - End Of Cycle gate output
 
+
+### LalaStereo
+
+<img src="images/LalaStereo.png">
 
 ### Next
 
