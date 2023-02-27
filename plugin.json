@@ -177,6 +177,7 @@
       "slug": "Mix",
       "name": "Mix",
       "description": "A simple 5 channel mixer with non linear characters",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#Mix",
       "tags": [
         "Mixer",
         "Polyphonic"
@@ -186,6 +187,7 @@
       "slug": "Bose",
       "name": "Bose",
       "description": "Multi output random voltage generator, sample and hold with no input, steady or analog style drooping outputs",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#Bose",
       "tags": [
         "Polyphonic",
         "sample and hold",
@@ -197,6 +199,7 @@
       "slug": "Duffy",
       "name": "Duffy",
       "description": "Transposes incoming voct, the amount increased by a set number of semitones, can be used to traverse the circle of fifths",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#Duffy",
       "tags": [
         "Polyphonic",
         "Utility"

@@ -86,7 +86,7 @@ struct LalaStereoWidget : ModuleWidget
         addChild (createWidget<ScrewSilver> (Vec (box.size.x - 1 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
         addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (15.198, 28.962)), module, Comp::FREQ_PARAM));
-        addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (15.198, 41.774)), module, Comp::FREQ_CV_PARAM));
+        addParam (createParamCentered<sspo::Knob> (mm2px (Vec (15.198, 41.774)), module, Comp::FREQ_CV_PARAM));
 
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (15.198, 52.668)), module, Comp::FREQ_CV_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.62, 69.806)), module, Comp::LEFT_INPUT));
