@@ -156,8 +156,10 @@ inline void LaLaComp<TBase>::step()
         auto lowOut = lpFilters[c / 4].process (in);
         lowOut = sspo::voltageSaturate (lowOut);
         auto highOut = hpFilters[c / 4].process (in);
-
         highOut = sspo::voltageSaturate (highOut);
+
+        lowOut = rack::simd::ifelse ((movemask (lowOut == lowOut) != 0xF), float_4 (0.0f), lowOut);
+        highOut = rack::simd::ifelse ((movemask (highOut == highOut) != 0xF), float_4 (0.0f), highOut);
 
         lowOut.store (TBase::outputs[LOW_OUTPUT].getVoltages (c));
         highOut.store (TBase::outputs[HIGH_OUTPUT].getVoltages (c));

@@ -179,6 +179,10 @@ inline void LalaStereoComp<TBase>::step()
 
         highOut = sspo::voltageSaturate (highOut);
 
+        //simd'ed out = std::isfinite (out) ? out : 0;
+        lowOut = rack::simd::ifelse ((movemask (lowOut == lowOut) != 0xF), float_4 (0.0f), lowOut);
+        highOut = rack::simd::ifelse ((movemask (highOut == highOut) != 0xF), float_4 (0.0f), highOut);
+
         lowOut.store (TBase::outputs[LEFT_LOW_OUTPUT].getVoltages (c));
         highOut.store (TBase::outputs[LEFT_HIGH_OUTPUT].getVoltages (c));
     }
@@ -196,8 +200,10 @@ inline void LalaStereoComp<TBase>::step()
         auto lowOut = lpFiltersR[c / 4].process (in);
         lowOut = sspo::voltageSaturate (lowOut);
         auto highOut = hpFiltersR[c / 4].process (in);
-
         highOut = sspo::voltageSaturate (highOut);
+
+        lowOut = rack::simd::ifelse ((movemask (lowOut == lowOut) != 0xF), float_4 (0.0f), lowOut);
+        highOut = rack::simd::ifelse ((movemask (highOut == highOut) != 0xF), float_4 (0.0f), highOut);
 
         lowOut.store (TBase::outputs[RIGHT_LOW_OUTPUT].getVoltages (c));
         highOut.store (TBase::outputs[RIGHT_HIGH_OUTPUT].getVoltages (c));
@@ -225,11 +231,11 @@ IComposite::Config LalaStereoDescription<TBase>::getParam (int i)
     switch (i)
     {
         case LalaStereoComp<TBase>::FREQ_PARAM:
-            ret = { 0.0f, 1.0f, 0.5f, "FREQ", " ", 0.0f, 1.0f, 0.0f };
+            ret = { 0.0f, 1.125f, 0.5f, "Frequency", " Hz", freqBase, freqMul };
             break;
 
         case LalaStereoComp<TBase>::FREQ_CV_PARAM:
-            ret = { 0.0f, 1.0f, 0.5f, "FREQ_CV", " ", 0.0f, 1.0f, 0.0f };
+            ret = { -1.0f, 1.0f, 0.0f, "Frequency CV", " ", 0.0f, 1.0f, 0.0f };
             break;
 
         default:
