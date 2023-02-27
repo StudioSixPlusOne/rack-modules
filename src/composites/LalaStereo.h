@@ -176,8 +176,11 @@ inline void LalaStereoComp<TBase>::step()
         auto lowOut = lpFiltersL[c / 4].process (in);
         lowOut = sspo::voltageSaturate (lowOut);
         auto highOut = hpFiltersL[c / 4].process (in);
-
         highOut = sspo::voltageSaturate (highOut);
+
+        //simd'ed out = std::isfinite (out) ? out : 0;
+        lowOut = rack::simd::ifelse ((movemask (lowOut == lowOut) != 0xF), float_4 (0.0f), lowOut);
+        highOut = rack::simd::ifelse ((movemask (highOut == highOut) != 0xF), float_4 (0.0f), highOut);
 
         lowOut.store (TBase::outputs[LEFT_LOW_OUTPUT].getVoltages (c));
         highOut.store (TBase::outputs[LEFT_HIGH_OUTPUT].getVoltages (c));
@@ -196,8 +199,10 @@ inline void LalaStereoComp<TBase>::step()
         auto lowOut = lpFiltersR[c / 4].process (in);
         lowOut = sspo::voltageSaturate (lowOut);
         auto highOut = hpFiltersR[c / 4].process (in);
-
         highOut = sspo::voltageSaturate (highOut);
+
+        lowOut = rack::simd::ifelse ((movemask (lowOut == lowOut) != 0xF), float_4 (0.0f), lowOut);
+        highOut = rack::simd::ifelse ((movemask (highOut == highOut) != 0xF), float_4 (0.0f), highOut);
 
         lowOut.store (TBase::outputs[RIGHT_LOW_OUTPUT].getVoltages (c));
         highOut.store (TBase::outputs[RIGHT_HIGH_OUTPUT].getVoltages (c));
