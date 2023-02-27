@@ -54,6 +54,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 
 [Farini](#Farini)
 
+[LalaStereo](#LalaStereo)
+
 [Next](#next)
 
 ### Wallenda
@@ -170,7 +172,7 @@ tyrant.
 
 ### Lala
 
-<img src="images/Lala.png">
+<img src="images/Lala.png"> <img src="images/LalaStereo.png">
 
 A cascadable two way crossover, used for splitting audio frequency bands, for multiband processing
 
@@ -187,7 +189,7 @@ A cascadable two way crossover, used for splitting audio frequency bands, for mu
 
 <img  src="images/Zazel.png">
 
-<img align="left" src="images/Zazel.png">
+
 
 
 
@@ -391,18 +393,21 @@ as a starting value. The transposes require triggers to the up or down inputs.
 
 A fully featured voltage controlled envelope generator, with stereo vca.
 This module is based on two modules in my DIY synth, the timing curves have been
-modeled after the CEM3310 design. The Vca has optional shaping available in the 
+modeled after the CEM3310 design. The Vca has optional shaping available in the
 context menu, recorded from
 VCA's I have built, a different variation on left and right channels.
 
- - Selectable ADSR, AD & AR shapes
- - Retrig mode, when selected restarts attack stage at current level.
- - Reset, Quickly reset to zero before attack stage, only included for emulations
- - Cycle, endlessly cycle, when the envelope is complete it is triggered.
- - Cv controllable with attenuators for all stages
- - Gate outputs for each stage
- - End Of Cycle gate output
+- Selectable ADSR, AD & AR shapes
+- Retrig mode, when selected restarts attack stage at current level.
+- Reset, Quickly reset to zero before attack stage, only included for emulations
+- Cycle, endlessly cycle, when the envelope is complete it is triggered.
+- Cv controllable with attenuators for all stages
+- Gate outputs for each stage
+- End Of Cycle gate output
 
+### LalaStereo
+
+<img src="images/LalaStereo.png">
 
 ### Next
 

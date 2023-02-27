@@ -25,4 +25,5 @@ extern Model* modelMix;
 extern Model* modelBose;
 extern Model* modelDuffy;
 extern Model* modelFarini;
+extern Model* modelLalaStereo;
 //ADD EXTERNS
