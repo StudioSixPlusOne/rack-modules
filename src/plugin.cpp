@@ -27,5 +27,6 @@ void init (::rack::Plugin* p)
     p->addModel (modelDuffy);
     p->addModel (modelFarini);
     p->addModel (modelLalaStereo);
+    p->addModel (modelThru);
     // ADD ADDMODEL
 }

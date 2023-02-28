@@ -209,6 +209,7 @@
       "slug": "Farini",
       "name": "Farini",
       "description": "Multimode envelope generator and stereo vca, based on CEM3310 AND CEM3360 diy circuits.",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#Farini",
       "tags": [
         "Envelope generator",
         "Voltage-controlled amplifier"
@@ -218,9 +219,20 @@
       "slug": "LalaStereo",
       "name": "LalaStereo",
       "description": "Stereo two way crossover",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#Lala",
       "tags": [
         "Filter",
         "Polyphonic",
+        "Utility"
+      ]
+    },
+    {
+      "slug": "Thru",
+      "name": "Thru",
+      "description": "Thru module with assignable labels",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#Thru",
+      "tags": [
+        "Multiple",
         "Utility"
       ]
     }

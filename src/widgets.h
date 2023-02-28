@@ -179,4 +179,14 @@ namespace sspo
         }
     };
 
+    inline NVGcolor green()
+    {
+        return nvgRGB (0x00, 128, 0x00);
+    }
+
+    inline NVGcolor ledDisplayGreen()
+    {
+        return nvgRGB (0x00, 200, 0x00);
+    }
+
 } // namespace sspo
