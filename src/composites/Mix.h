@@ -191,11 +191,6 @@ inline void MixComp<TBase>::step()
         in += TBase::inputs[FIVE_INPUT].template getPolyVoltageSimd<float_4> (c)
               * TBase::params[FIVE_PARAM].getValue();
 
-        if (divider.process())
-        {
-            // slower response stuff here
-        }
-
         //process audio
         //only oversample if needed
 
@@ -219,6 +214,7 @@ inline void MixComp<TBase>::step()
             in *= TBase::params[MAIN_PARAM].getValue();
         }
 
+        //NO dc out filter, so cv can pass
         float_4 out = in; //dcOutFilters[c / 4].process (in);
 
         //simd'ed out = std::isfinite (out) ? out : 0;
