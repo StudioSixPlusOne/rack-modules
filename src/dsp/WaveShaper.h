@@ -216,6 +216,9 @@ namespace sspo
                     addShape (&DiodeFeedbackRedGreenShape, "Green Red Led");
                     addShape (&DiodeFeedbackOneAndTwoShape, "1 and 2 Diode");
                     addShape (&DiodeFeedbackOneAndThreeShape, "1 and 3 Diode");
+                    addShape (&Vca1, "Vca 1");
+                    addShape (&Vca2, "Vca 2");
+                    addShape (&Vca3, "Vca 3");
                 };
 
                 float linearShaper (float x) { return x; }
