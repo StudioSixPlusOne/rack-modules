@@ -58,6 +58,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 
 [Thru](#Thru)
 
+[PatchNotes](#PatchNotes)
+
 [Next](#next)
 
 ### Wallenda
@@ -407,16 +409,18 @@ VCA's I have built, a different variation on left and right channels.
 - Gate outputs for each stage
 - End Of Cycle gate output
 
-### LalaStereo
-
-<img src="images/LalaStereo.png">
-
 ### Thru
 
 <img src="images/Thru.png">
 
 Thru is a collection of 1 in 1 out Mults, each with it's own editable label.
 This can be used to label in's and out's on subsections and selections.
+
+### PatchNotes
+
+<img src="images/PatchNotes.png">
+
+A Slimline patch note module, with nostalgic display.
 
 ### Next
 

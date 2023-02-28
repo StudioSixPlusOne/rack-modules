@@ -235,6 +235,15 @@
         "Multiple",
         "Utility"
       ]
+    },
+    {
+      "slug": "PatchNotes",
+      "name": "PatchNotes",
+      "description": "Slimline text area for making patch notes",
+      "manualUrl": "https://github.com/StudioSixPlusOne/rack-modules/blob/master/README.md#PatchNotes",
+      "tags": [
+        "Utility"
+      ]
     }
   ]
 }
