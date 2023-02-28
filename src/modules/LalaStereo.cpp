@@ -78,7 +78,7 @@ struct LalaStereoWidget : ModuleWidget
         setModule (module);
         std::shared_ptr<IComposite> icomp = Comp::getDescription();
         box.size = Vec (10 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-        SqHelper::setPanel (this, "res/LalaStereo.svg");
+        SqHelper::setPanel (this, "res/LalaStereo2.svg");
 
         addChild (createWidget<ScrewSilver> (Vec (0, 0)));
         addChild (createWidget<ScrewSilver> (Vec (box.size.x - 1 * RACK_GRID_WIDTH, 0)));
