@@ -27,4 +27,5 @@ extern Model* modelDuffy;
 extern Model* modelFarini;
 extern Model* modelLalaStereo;
 extern Model* modelThru;
+extern Model* modelPatchNotes;
 //ADD EXTERNS
