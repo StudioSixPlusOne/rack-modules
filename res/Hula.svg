@@ -5,7 +5,7 @@
    viewBox="0 0 30.479999 128.5"
    version="1.1"
    id="svg821"
-   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   inkscape:version="1.2.2 (b0a84865, 2022-12-01)"
    sodipodi:docname="Hula.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -312,9 +312,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.56"
-     inkscape:cx="61.914063"
-     inkscape:cy="344.14063"
+     inkscape:zoom="1.28"
+     inkscape:cx="76.953125"
+     inkscape:cy="297.26562"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -327,9 +327,9 @@
      inkscape:snap-others="false"
      inkscape:snap-nodes="true"
      inkscape:window-width="1920"
-     inkscape:window-height="1017"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-height="1027"
+     inkscape:window-x="1440"
+     inkscape:window-y="25"
      inkscape:window-maximized="1"
      inkscape:snap-global="true"
      inkscape:showpageshadow="false"
@@ -372,12 +372,28 @@
        height="128.50943"
        x="-0.010335271"
        y="168.50136" />
+    <rect
+       style="fill:#4d4d4d;stroke-width:0.413845"
+       id="rect779"
+       width="28.318684"
+       height="40.204266"
+       x="1.0335287"
+       y="184.15237"
+       ry="3.5399981" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.52778px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
        x="11.90625"
        y="195.13542"
        id="text861" />
+    <rect
+       style="fill:#4d4d4d;stroke-width:0.264583"
+       id="rect608"
+       width="28.318684"
+       height="16.433105"
+       x="1.0335287"
+       y="230.6774"
+       ry="1.4469401" />
     <path
        inkscape:connector-curvature="0"
        id="path25999"
@@ -415,6 +431,14 @@
          id="path2114"
          transform="matrix(0.22774839,0,0,0.24565989,-37.726138,80.539021)" />
     </g>
+    <rect
+       style="fill:#4d4d4d;stroke-width:0.264583"
+       id="rect502"
+       width="28.318684"
+       height="16.433105"
+       x="1.0335287"
+       y="254.48958"
+       ry="1.4469401" />
     <path
        inkscape:connector-curvature="0"
        id="path1050"
