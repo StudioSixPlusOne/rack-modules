@@ -34,6 +34,7 @@ using namespace rack;
 
 // external tests
 // ADD EXTERN
+extern void testThru();
 extern void testLalaStereo();
 extern void testAdsr();
 extern void testFarini();
@@ -107,6 +108,7 @@ int main (int argc, char** argv)
 
     // run external tests defined above
     // ADD NEWTEST
+    testThru();
     testLalaStereo();
     testAdsr();
     testFarini();
