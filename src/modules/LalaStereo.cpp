@@ -75,6 +75,9 @@ struct LalaStereoWidget : ModuleWidget
 {
     LalaStereoWidget (LalaStereo* module)
     {
+
+
+
         setModule (module);
         std::shared_ptr<IComposite> icomp = Comp::getDescription();
         box.size = Vec (10 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);

@@ -58,6 +58,14 @@ namespace sspo
             decayTco = expf (-4.95);
             releaseTco = decayTco;
 
+            for (auto& ss : stageScalars)
+                ss = float_4::zero();
+
+            for (auto& so : stageOffsets)
+                so = float_4::zero();
+
+            resetTriggerOnMask = float_4::zero();
+
             stageScalars[SUSTAIN_STAGE] = float_4 (1.0f);
             stageOffsets[SUSTAIN_STAGE] = float_4::zero();
 
@@ -74,8 +82,8 @@ namespace sspo
 
         void reset()
         {
-            currentLevels = float_4::zero();
-            currentStage = float_4 (EOC_STAGE);
+            currentLevels = float_4 (0, 0, 0, 0);
+            currentStage = float_4 (EOC_STAGE, EOC_STAGE, EOC_STAGE, EOC_STAGE);
             setParameters (float_4 (0.005f),
                            float_4 (0.2f),
                            float_4 (0.5f),

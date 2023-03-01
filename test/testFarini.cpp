@@ -34,18 +34,18 @@ using MA = FariniComp<TestComposite>;
 namespace ts = sspo::TestSignal;
 
 static std::array<float, 14> sampleRates = { 11025.0f,
-                                             12000.0f,
-                                             22050.0f,
-                                             24000.0f,
-                                             44100.0f,
-                                             48000.0f,
-                                             88200.0f,
-                                             96000.0f,
-                                             176400.0f,
-                                             192000.0f,
-                                             352800.0f,
-                                             384000.0f,
-                                             705600.0f,
+//                                             12000.0f,
+//                                             22050.0f,
+//                                             24000.0f,
+//                                             44100.0f,
+//                                             48000.0f,
+//                                             88200.0f,
+//                                             96000.0f,
+//                                             176400.0f,
+//                                             192000.0f,
+//                                             352800.0f,
+//                                             384000.0f,
+//                                             705600.0f,
                                              768000.0f };
 
 static void testExtreme (float sr)

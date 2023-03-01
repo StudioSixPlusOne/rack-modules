@@ -182,6 +182,13 @@ void HulaComp<TBase>::init()
 
     for (auto& p : phases)
         p = float_4 (rand01(), rand01(), rand01(), rand01());
+
+    for (auto& d : decimators)
+        d.setQuality(1);
+
+    for (auto& os : oversampleBuffers)
+        for (auto& o : os)
+            o = float_4::zero();
 }
 
 template <class TBase>
@@ -228,7 +235,7 @@ inline void HulaComp<TBase>::step()
 
         decimators[c / 4].setOverSample (oversampleCount);
 
-        float_4 processed;
+        float_4 processed = float_4::zero();
 
         if (oversampleCount > 1)
         {
