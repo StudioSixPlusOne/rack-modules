@@ -109,39 +109,39 @@ int main (int argc, char** argv)
 
     // run external tests defined above
     // ADD NEWTEST
-    testPatchNotes();
-    testThru();
-    testLalaStereo();
-    testAdsr();
-    testFarini();
-    testDuffy();
-    testSchmittTrigger_4();
-    testSampleAndHold();
-    testBose();
-    testMix();
-    testBascom();
-    testWaveShaper();
-    testHula();
-    testAmburgh();
-    testSynthFilter();
-    testSynthFilterII();
-    testTriggerSequencer();
-    testIverson();
-    testLala();
-    testEva();
-    testZazel();
-    //    testEasing();
-    testSaturator();
-    testEmpty();
-    testTestSignal();
-    testAudioMath();
-    testCircularBuffer();
-    testLookupTable();
-    testAnalyzer();
+    testPatchNotes(); //valgrind ok
+    testThru(); //valgrind ok
+    testLalaStereo(); //valgrind ok
+    testAdsr(); //valgrind ok
+    testFarini(); //valgrind ok
+    testDuffy(); //valgrind ok
+    testSchmittTrigger_4(); //volgrind ok
+    testSampleAndHold(); //valgrind ok
+    testBose(); //valgrind ok
+    testMix(); //valgrind ok
+    testBascom(); //valgrind ok
+    testWaveShaper(); //valgrind ok
+    testHula(); //valgrind Fail
+    testAmburgh(); //valgrind ok
+    testSynthFilter(); //valgrind ok
+    testSynthFilterII(); //valgrind ok
+    testTriggerSequencer(); //valgrind ok
+    testIverson(); //valgrid ok
+    testLala(); //valgrind ok
+    testEva(); //valgrind ok
+    testZazel(); //valgrind ok
+    //    //    testEasing();
+    testSaturator(); //valgrind ok
+    testEmpty(); //valgrind ok
+    testTestSignal(); //valgring ok
+    testAudioMath(); //valgrind ok
+    testCircularBuffer(); //valgring ok
+    testLookupTable(); //valgring ok
+    testAnalyzer(); //valgring ok
     //    testPolyShiftRegister();
     //    testKSDelay();
-    testCombFilter();
-    testMaccomo();
+    testCombFilter(); //Fails Vailgrind
+    testMaccomo(); //valgrin
     testUtilityFilter();
 
     printf ("Tests passed.\n");

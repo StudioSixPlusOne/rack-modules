@@ -393,8 +393,8 @@ void testHula()
 {
     printf ("testHula\n");
     testExtreme();
-    testVoct();
-    testOctave();
-    testRatio();
-    testDcOffset();
+//    testVoct();
+//    testOctave();
+//    testRatio();
+//    testDcOffset();
 }

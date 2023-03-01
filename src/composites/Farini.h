@@ -196,7 +196,7 @@ public:
     std::array<sspo::BiQuad<float_4>, SIMD_MAX_CHANNELS> dcOutFilters;
     std::array<sspo::Adsr_4, SIMD_MAX_CHANNELS> adsrs;
     std::array<ClockDivider, SIMD_MAX_CHANNELS> dividers;
-    std::array<float_4, SIMD_MAX_CHANNELS> lastEocGates{ 0.0f };
+    std::array<float_4, SIMD_MAX_CHANNELS> lastEocGates{ 0.0f, 0.0f, 0.0f, 0.0f };
     sspo::AudioMath::WaveShaper::Vca vca;
 };
 
