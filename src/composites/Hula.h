@@ -184,7 +184,7 @@ void HulaComp<TBase>::init()
         p = float_4 (rand01(), rand01(), rand01(), rand01());
 
     for (auto& d : decimators)
-        d.setQuality(1);
+        d.setQuality (1);
 
     for (auto& os : oversampleBuffers)
         for (auto& o : os)
