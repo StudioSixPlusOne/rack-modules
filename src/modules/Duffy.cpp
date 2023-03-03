@@ -42,7 +42,6 @@ struct Duffy : Module
         configBypass (Comp::ONE_INPUT, Comp::ONE_OUTPUT);
         configBypass (Comp::TWO_INPUT, Comp::TWO_OUTPUT);
         configBypass (Comp::THREE_INPUT, Comp::THREE_OUTPUT);
-        configBypass (Comp::FOUR_INPUT, Comp::FOUR_OUTPUT);
         onSampleRateChange();
         ma->init();
     }
@@ -114,15 +113,14 @@ struct DuffyWidget : ModuleWidget
 
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.729, 20.96)), module, Comp::DOWN_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (23.232, 21.167)), module, Comp::UP_INPUT));
-        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.729, 57.92)), module, Comp::ONE_INPUT));
-        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.729, 74.589)), module, Comp::TWO_INPUT));
-        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.729, 91.257)), module, Comp::THREE_INPUT));
-        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.729, 107.926)), module, Comp::FOUR_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (23.232, 59.167)), module, Comp::RESET_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.729, 74.589)), module, Comp::ONE_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.729, 91.257)), module, Comp::TWO_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.729, 107.926)), module, Comp::THREE_INPUT));
 
-        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (24.167, 57.92)), module, Comp::ONE_OUTPUT));
-        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (24.167, 74.589)), module, Comp::TWO_OUTPUT));
-        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (24.167, 91.257)), module, Comp::THREE_OUTPUT));
-        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (24.167, 107.926)), module, Comp::FOUR_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (24.167, 74.589)), module, Comp::ONE_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (24.167, 91.257)), module, Comp::TWO_OUTPUT));
+        addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (24.167, 107.926)), module, Comp::THREE_OUTPUT));
 
         // mm2px(Vec(9.866, 8.697))
         addChild (createWidget<Widget> (mm2px (Vec (19.234, 35.158))));
@@ -130,15 +128,14 @@ struct DuffyWidget : ModuleWidget
         if (module)
         {
             module->configInput (Comp::DOWN_INPUT, "Down");
+            module->configInput (Comp::RESET_INPUT, "Reset");
             module->configInput (Comp::UP_INPUT, "Up");
-            module->configInput (Comp::ONE_INPUT, "Onw");
+            module->configInput (Comp::ONE_INPUT, "One");
             module->configInput (Comp::TWO_INPUT, "Two");
             module->configInput (Comp::THREE_INPUT, "Three");
-            module->configInput (Comp::FOUR_INPUT, "Four");
-            module->configOutput (Comp::ONE_OUTPUT, "Onw");
+            module->configOutput (Comp::ONE_OUTPUT, "One");
             module->configOutput (Comp::TWO_OUTPUT, "Two");
             module->configOutput (Comp::THREE_OUTPUT, "Three");
-            module->configOutput (Comp::FOUR_OUTPUT, "Four");
         }
     }
 };

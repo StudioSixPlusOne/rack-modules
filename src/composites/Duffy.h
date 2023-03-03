@@ -115,7 +115,7 @@ public:
         ONE_INPUT,
         TWO_INPUT,
         THREE_INPUT,
-        FOUR_INPUT,
+        RESET_INPUT,
         NUM_INPUTS
     };
     enum OutputId
@@ -123,7 +123,6 @@ public:
         ONE_OUTPUT,
         TWO_OUTPUT,
         THREE_OUTPUT,
-        FOUR_OUTPUT,
         NUM_OUTPUTS
     };
     enum LightId
@@ -137,11 +136,18 @@ public:
 
     dsp::SchmittTrigger upTrigger;
     dsp::SchmittTrigger downTrigger;
+    dsp::SchmittTrigger resetTrigger;
 };
 
 template <class TBase>
 inline void DuffyComp<TBase>::step()
 {
+    //check reset
+    if (resetTrigger.process (TBase::inputs[RESET_INPUT].getVoltage()))
+    {
+        currentTranspose = 0;
+    }
+
     //check if up down pressed
     if (downTrigger.process (TBase::inputs[DOWN_INPUT].getVoltage()))
     {
@@ -165,7 +171,8 @@ inline void DuffyComp<TBase>::step()
 
     auto voctOffset = currentTranspose * semitoneVoltage;
 
-    for (auto i = 0U; i < 4; ++i)
+    constexpr int numPorts = 3;
+    for (auto i = 0U; i < numPorts; ++i)
     {
         //loop over poly channels, using float_4. so 4 channels
         auto channels = TBase::inputs[ONE_INPUT + i].getChannels();

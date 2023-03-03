@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="run in rack" type="CLionNativeAppRunConfigurationType" PROGRAM_PARAMS="-d" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="rack-modules" TARGET_NAME="Makefile" CONFIG_NAME="Makefile" version="1" RUN_PATH="$PROJECT_DIR$/../../Rack">
+  <configuration default="false" name="run in rack" type="CLionNativeAppRunConfigurationType" PROGRAM_PARAMS="-d" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="StudioSixPlusOne" TARGET_NAME="plugin" CONFIG_NAME="Debug" version="1" RUN_PATH="$PROJECT_DIR$/../../Rack">
     <method v="2" />
   </configuration>
 </component>
