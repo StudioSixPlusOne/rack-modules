@@ -113,7 +113,7 @@ struct DuffyWidget : ModuleWidget
 
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.729, 20.96)), module, Comp::DOWN_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (23.232, 21.167)), module, Comp::UP_INPUT));
-        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (23.232, 59.167)), module, Comp::RESET_INPUT));
+        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (23.232, 55.42)), module, Comp::RESET_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.729, 74.589)), module, Comp::ONE_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.729, 91.257)), module, Comp::TWO_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (7.729, 107.926)), module, Comp::THREE_INPUT));
