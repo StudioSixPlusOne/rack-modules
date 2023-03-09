@@ -1,0 +1,210 @@
+{
+  "modules": [
+    {
+      "id": 5869288711343859,
+      "plugin": "StudioSixPlusOne",
+      "model": "Farini",
+      "version": "2.0.900-nightly-65fb10d",
+      "params": [
+        {
+          "value": 1.0,
+          "id": 0
+        },
+        {
+          "value": 0.0,
+          "id": 1
+        },
+        {
+          "value": 0.0,
+          "id": 2
+        },
+        {
+          "value": 0.0,
+          "id": 3
+        },
+        {
+          "value": -0.69999998807907104,
+          "id": 4
+        },
+        {
+          "value": 0.5,
+          "id": 5
+        },
+        {
+          "value": -0.69999998807907104,
+          "id": 6
+        },
+        {
+          "value": 0.5,
+          "id": 7
+        },
+        {
+          "value": 0.5,
+          "id": 8
+        },
+        {
+          "value": 0.5,
+          "id": 9
+        },
+        {
+          "value": 0.5,
+          "id": 10
+        },
+        {
+          "value": 0.5,
+          "id": 11
+        },
+        {
+          "value": 0.0,
+          "id": 12
+        }
+      ],
+      "leftModuleId": 1188424204813434,
+      "rightModuleId": 8469277449315212,
+      "data": {
+        "runDataFromJson": 1
+      },
+      "pos": [
+        -105,
+        1
+      ]
+    },
+    {
+      "id": 4463676778638160,
+      "plugin": "StudioSixPlusOne",
+      "model": "PatchNotes",
+      "version": "2.0.900-nightly-65fb10d",
+      "params": [],
+      "rightModuleId": 3810609977991103,
+      "data": {
+        "runDataFromJson": 1,
+        "NoteText": "Red    Audio          Blue   Gates Triggers Yellow Pitch          Green  Modulation         ---------------------Clock.                   The ratio on Hula can be used to adjust the bpm, with octaves controlling the divisor, so +1 octave = 1/8, +2 = 1/16.        -                  The Length of the trigger can be adjusted via the attack length on Farini."
+      },
+      "pos": [
+        -127,
+        1
+      ]
+    },
+    {
+      "id": 1188424204813434,
+      "plugin": "StudioSixPlusOne",
+      "model": "Hula",
+      "version": "2.0.900-nightly-65fb10d",
+      "params": [
+        {
+          "value": 0.0,
+          "id": 0
+        },
+        {
+          "value": 0.0,
+          "id": 1
+        },
+        {
+          "value": 0.0,
+          "id": 2
+        },
+        {
+          "value": 0.0,
+          "id": 3
+        },
+        {
+          "value": 0.52771085500717163,
+          "id": 4
+        },
+        {
+          "value": 1.0,
+          "id": 5
+        },
+        {
+          "value": 1.0,
+          "id": 6
+        },
+        {
+          "value": 2.0,
+          "id": 7
+        },
+        {
+          "value": 0.0,
+          "id": 8
+        },
+        {
+          "value": 1.0,
+          "id": 9
+        }
+      ],
+      "leftModuleId": 3810609977991103,
+      "rightModuleId": 5869288711343859,
+      "pos": [
+        -111,
+        1
+      ]
+    },
+    {
+      "id": 8469277449315212,
+      "plugin": "StudioSixPlusOne",
+      "model": "Thru",
+      "version": "2.0.900-nightly-65fb10d",
+      "params": [],
+      "leftModuleId": 5869288711343859,
+      "data": {
+        "runDataFromJson": 1,
+        "label0": "Clock",
+        "label1": "",
+        "label2": "",
+        "label3": "",
+        "label4": ""
+      },
+      "pos": [
+        -95,
+        1
+      ]
+    },
+    {
+      "id": 3810609977991103,
+      "plugin": "StudioSixPlusOne",
+      "model": "Thru",
+      "version": "2.0.900-nightly-65fb10d",
+      "params": [],
+      "leftModuleId": 4463676778638160,
+      "rightModuleId": 1188424204813434,
+      "data": {
+        "runDataFromJson": 1,
+        "label0": "BPM",
+        "label1": "",
+        "label2": "",
+        "label3": "",
+        "label4": ""
+      },
+      "pos": [
+        -117,
+        1
+      ]
+    }
+  ],
+  "cables": [
+    {
+      "id": 1299574739453726,
+      "outputModuleId": 1188424204813434,
+      "outputId": 0,
+      "inputModuleId": 5869288711343859,
+      "inputId": 7,
+      "color": "#3695ef"
+    },
+    {
+      "id": 6003520424714596,
+      "outputModuleId": 3810609977991103,
+      "outputId": 0,
+      "inputModuleId": 1188424204813434,
+      "inputId": 0,
+      "color": "#00b56e"
+    },
+    {
+      "id": 7007572635067541,
+      "outputModuleId": 5869288711343859,
+      "outputId": 0,
+      "inputModuleId": 8469277449315212,
+      "inputId": 0,
+      "color": "#3695ef"
+    }
+  ]
+}
