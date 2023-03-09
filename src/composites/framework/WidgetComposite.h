@@ -33,7 +33,7 @@ using Light = ::rack::engine::Light;
 using Module = ::rack::engine::Module;
 
 /**
- * Base class for composites embedable in a VCV Widget
+ * Base class for composites embeddable in a VCV Widget
  * This is used for "real" implementations
  */
 class WidgetComposite
@@ -49,15 +49,17 @@ public:
     {
     }
     virtual ~WidgetComposite() {}
+
     virtual void step(){};
+
     float engineGetSampleRate()
     {
-        return ::rack::engine::Engine().getSampleRate();
+        return APP->engine->getSampleRate();
     }
 
     float engineGetSampleTime()
     {
-        return ::rack::engine::Engine().getSampleTime();
+        return APP->engine->getSampleTime();
     }
     //protected:
     std::vector<Input>& inputs;
