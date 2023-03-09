@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2020 Dave French <contact/dot/dave/dot/french3/at/googlemail/dot/com>
+ * Copyright (c) 2020, 2023 Dave French <contact/dot/dave/dot/french3/at/googlemail/dot/com>
  *
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,9 @@
  */
 #pragma once
 #include "componentlibrary.hpp"
+#include "ui/Slider.hpp"
+#include <string>
+#include "dsp/WaveShaper.h"
 
 namespace sspo
 {
@@ -88,7 +91,6 @@ namespace sspo
             setSvg (APP->window->loadSvg (asset::plugin (pluginInstance,
                                                          "res/SspoKnob.svg")));
         }
-
     };
 
     struct PJ301MPort : app::SvgPort
@@ -99,4 +101,92 @@ namespace sspo
                                                          "res/SspoPort.svg")));
         }
     };
+
+    struct TwoWaySwitch : app::SvgSwitch
+    {
+        TwoWaySwitch()
+        {
+            shadow->opacity = 0.0;
+            addFrame (Svg::load (asset::plugin (pluginInstance, "res/SspoSwitch01.svg")));
+            addFrame (Svg::load (asset::plugin (pluginInstance, "res/SspoSwitch03.svg")));
+        }
+    };
+
+    struct ThreeWaySwitch : app::SvgSwitch
+    {
+        ThreeWaySwitch()
+        {
+            shadow->opacity = 0.0;
+            addFrame (Svg::load (asset::plugin (pluginInstance, "res/SspoSwitch01.svg")));
+            addFrame (Svg::load (asset::plugin (pluginInstance, "res/SspoSwitch02.svg")));
+            addFrame (Svg::load (asset::plugin (pluginInstance, "res/SspoSwitch03.svg")));
+        }
+    };
+
+    struct IntSlider : ui::Slider
+    {
+        void draw (const DrawArgs& args) override
+        {
+            BNDwidgetState state = BND_DEFAULT;
+            if (APP->event->hoveredWidget == this)
+                state = BND_HOVER;
+            if (APP->event->draggedWidget == this)
+                state = BND_ACTIVE;
+
+            float progress = quantity ? quantity->getScaledValue() : 0.0f;
+            std::string text = quantity ? quantity->getLabel() + " : " : "";
+            text += quantity ? std::to_string (int (quantity->getValue())) : "";
+
+            bndSlider (args.vg,
+                       0.0,
+                       0.0,
+                       box.size.x,
+                       box.size.y,
+                       BND_CORNER_NONE,
+                       state,
+                       progress,
+                       text.c_str(),
+                       NULL);
+        }
+    };
+
+    struct NldSlider : ui::Slider
+    {
+        void draw (const DrawArgs& args) override
+        {
+            BNDwidgetState state = BND_DEFAULT;
+            if (APP->event->hoveredWidget == this)
+                state = BND_HOVER;
+            if (APP->event->draggedWidget == this)
+                state = BND_ACTIVE;
+
+            float progress = quantity ? quantity->getScaledValue() : 0.0f;
+            std::string text = quantity ? quantity->getLabel() + " : " : "";
+            text += quantity
+                        ? sspo::AudioMath::WaveShaper::nld.getShapeName (int (quantity->getValue()))
+                        : "";
+
+            bndSlider (args.vg,
+                       0.0,
+                       0.0,
+                       box.size.x,
+                       box.size.y,
+                       BND_CORNER_NONE,
+                       state,
+                       progress,
+                       text.c_str(),
+                       NULL);
+        }
+    };
+
+    inline NVGcolor green()
+    {
+        return nvgRGB (0x00, 128, 0x00);
+    }
+
+    inline NVGcolor ledDisplayGreen()
+    {
+        return nvgRGB (0x00, 200, 0x00);
+    }
+
 } // namespace sspo

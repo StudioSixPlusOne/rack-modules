@@ -95,7 +95,8 @@ public:
         {
             f.setUseNonLinearProcessing (true);
             f.setType (sspo::MoogLadderFilter<float>::types()[0]);
-            f.nonLinearProcess = [] (float in, float drive) { return std::tanh (in * drive); };
+            f.nonLinearProcess = [] (float in, float drive)
+            { return std::tanh (in * drive); };
         }
 
         sspo::AudioMath::defaultGenerator.seed (time (NULL));

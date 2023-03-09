@@ -28,6 +28,7 @@
 #include <vector>
 #include <memory>
 #include <time.h>
+#include "dsp/digital.hpp"
 
 using namespace sspo::AudioMath;
 

@@ -36,6 +36,8 @@ struct Hula : Module
     }
 };
 
+// *************** UI
+
 struct HulaWidget : ModuleWidget
 {
     HulaWidget (Hula* module)
@@ -64,6 +66,77 @@ struct HulaWidget : ModuleWidget
 
         addOutput (createOutputCentered<sspo::PJ301MPort> (mm2px (Vec (25.188, 112.865)), module, Comp::MAIN_OUTPUT));
     }
+
+    struct DefaultTuningMenuItem : MenuItem
+    {
+        Hula* module;
+        float tuning;
+        void onAction (const event::Action& e) override
+        {
+            module->params[Comp::DEFAULT_TUNING_PARAM].setValue (tuning);
+        }
+    };
+
+    void appendContextMenu (Menu* menu) override;
 };
+
+void HulaWidget::appendContextMenu (Menu* menu)
+{
+    auto* module = dynamic_cast<Hula*> (this->module);
+
+    menu->addChild (new MenuEntry);
+
+    auto* dcOffsetSlider = new ui::Slider;
+    dcOffsetSlider->quantity = module->getParamQuantity (Comp::DC_OFFSET_PARAM);
+    dcOffsetSlider->box.size.x = 200.0f;
+    menu->addChild (dcOffsetSlider);
+
+    auto* scaleSlider = new ui::Slider;
+    scaleSlider->quantity = module->getParamQuantity (Comp::SCALE_PARAM);
+    scaleSlider->box.size.x = 200.0f;
+    menu->addChild (scaleSlider);
+
+    auto* unisonSlider = new sspo::IntSlider;
+    unisonSlider->quantity = module->getParamQuantity (Comp::UNISON_PARAM);
+    unisonSlider->box.size.x = 200.0f;
+    menu->addChild (unisonSlider);
+
+    auto* oversampleSlider = new sspo::IntSlider;
+    oversampleSlider->quantity = module->getParamQuantity (Comp::OVERSAMPLE_PARAM);
+    oversampleSlider->box.size.x = 200.0f;
+    menu->addChild (oversampleSlider);
+
+    //Default tuning
+
+    menu->addChild (new MenuEntry);
+
+    MenuLabel* durationLabel = new MenuLabel();
+    durationLabel->text = "Default Tuning";
+    menu->addChild (durationLabel);
+
+    DefaultTuningMenuItem* tuningAudioMenuItem = new DefaultTuningMenuItem;
+    tuningAudioMenuItem->tuning = dsp::FREQ_C4;
+    tuningAudioMenuItem->text = "Audio C4";
+    tuningAudioMenuItem->module = module;
+    tuningAudioMenuItem->rightText = CHECKMARK (module->hula->params[Comp::DEFAULT_TUNING_PARAM].getValue()
+                                                == dsp::FREQ_C4);
+    menu->addChild (tuningAudioMenuItem);
+
+    DefaultTuningMenuItem* tuningLfoMenuItem = new DefaultTuningMenuItem;
+    tuningLfoMenuItem->tuning = 2.0f;
+    tuningLfoMenuItem->text = "Clock / Lfo 2hz";
+    tuningLfoMenuItem->module = module;
+    tuningLfoMenuItem->rightText = CHECKMARK (module->hula->params[Comp::DEFAULT_TUNING_PARAM].getValue()
+                                              == 2.0f);
+    menu->addChild (tuningLfoMenuItem);
+
+    DefaultTuningMenuItem* tuningSlowLfoMenuItem = new DefaultTuningMenuItem;
+    tuningSlowLfoMenuItem->tuning = 0.125f;
+    tuningSlowLfoMenuItem->text = "Slow Lfo 0.125hz";
+    tuningSlowLfoMenuItem->module = module;
+    tuningSlowLfoMenuItem->rightText = CHECKMARK (module->hula->params[Comp::DEFAULT_TUNING_PARAM].getValue()
+                                                  == 0.125f);
+    menu->addChild (tuningSlowLfoMenuItem);
+}
 
 Model* modelHula = createModel<Hula, HulaWidget> ("Hula");

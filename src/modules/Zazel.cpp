@@ -323,9 +323,9 @@ struct ParameterSelectWidget : Widget
     ParameterSelectWidget()
     {
         // moved constructor initialization to draw()
-//        box.size = mm2px (Vec (30.408, 14.084));
-//        font = APP->window->loadFont (asset::system ("res/fonts/ShareTechMono-Regular.ttf"));
-//        txtColor = nvgRGBA (0xf0, 0xf0, 0xf0, 0xff);
+        //        box.size = mm2px (Vec (30.408, 14.084));
+        //        font = APP->window->loadFont (asset::system ("res/fonts/ShareTechMono-Regular.ttf"));
+        //        txtColor = nvgRGBA (0xf0, 0xf0, 0xf0, 0xff);
     }
 
     void setModule (Zazel* module)
@@ -367,7 +367,7 @@ struct ParameterSelectWidget : Widget
         ParamWidget* touchedParam = APP->scene->rack->getTouchedParam(); // touchedParam;
         if (learning && touchedParam)
         {
-            APP->scene->rack->setTouchedParam(nullptr);
+            APP->scene->rack->setTouchedParam (nullptr);
             RequestedParamId rpi;
             rpi.moduleid = touchedParam->getParamQuantity()->module->id;
             rpi.paramid = touchedParam->getParamQuantity()->paramId;

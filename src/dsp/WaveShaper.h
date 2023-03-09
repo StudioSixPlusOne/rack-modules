@@ -40,6 +40,10 @@ extern std::array<float, 4096> DiodeFeedbackOneAndOneShape;
 extern std::array<float, 4096> DiodeFeedbackOneAndTwoShape;
 extern std::array<float, 4096> DiodeFeedbackOneAndThreeShape;
 
+extern std::array<float, 4096> Vca1;
+extern std::array<float, 4096> Vca2;
+extern std::array<float, 4096> Vca3;
+
 using float_4 = ::rack::simd::float_4;
 
 namespace sspo
@@ -137,6 +141,10 @@ namespace sspo
                 {
                     return WaveShaper::process (shapes[definitionIndex].table, x);
                 }
+                std::string getShapeName (int i)
+                {
+                    return shapes[i].name;
+                }
 
                 float_4 process (const float_4 in, const int definitionIndex)
                 {
@@ -203,11 +211,14 @@ namespace sspo
                     addShape (&arctanOneShape, "atan 1.0");
                     addShape (&arctanTwoShape, "atan 2.0");
                     addShape (&arctanFiveShape, "atan 5.0");
-                    addShape (&ThroughShape, "sampled passthrough");
-                    addShape (&DiodeFeedbackOneAndOneShape, "Ona and One Diode");
+                    addShape (&ThroughShape, "TL074");
+                    addShape (&DiodeFeedbackOneAndOneShape, "1 and 1 Diode");
                     addShape (&DiodeFeedbackRedGreenShape, "Green Red Led");
-                    addShape (&DiodeFeedbackOneAndTwoShape, "One and Two Diode");
-                    addShape (&DiodeFeedbackOneAndThreeShape, "One and Three Diode");
+                    addShape (&DiodeFeedbackOneAndTwoShape, "1 and 2 Diode");
+                    addShape (&DiodeFeedbackOneAndThreeShape, "1 and 3 Diode");
+                    addShape (&Vca1, "Vca 1");
+                    addShape (&Vca2, "Vca 2");
+                    addShape (&Vca3, "Vca 3");
                 };
 
                 float linearShaper (float x) { return x; }
@@ -232,6 +243,17 @@ namespace sspo
             };
 
             static Nld nld;
+
+            class Vca : public WaveShapers
+            {
+            public:
+                Vca()
+                {
+                    addShape (&Vca1, "VCA 1");
+                    addShape (&Vca2, "VCA 2");
+                    addShape (&Vca3, "VCA 3");
+                }
+            };
 
         } // namespace WaveShaper
     } // namespace AudioMath

@@ -21,6 +21,11 @@ extern Model* modelHula;
 extern Model* modelAmburgh;
 extern Model* modelBascomExpander;
 extern Model* modelBascom;
-
-
-
+extern Model* modelMix;
+extern Model* modelBose;
+extern Model* modelDuffy;
+extern Model* modelFarini;
+extern Model* modelLalaStereo;
+extern Model* modelThru;
+extern Model* modelPatchNotes;
+//ADD EXTERNS

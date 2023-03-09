@@ -21,8 +21,8 @@
 
 // An empty test, can be used as a template
 
-#include "digital.hpp"
-#include "filter.hpp"
+#include "dsp/digital.hpp"
+#include "dsp/filter.hpp"
 #include "TestComposite.h"
 #include "asserts.h"
 #include "KSDelay.h"

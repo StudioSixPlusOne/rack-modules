@@ -29,8 +29,8 @@ SOFTWARE.
 
 #include "common.hpp"
 #include "random.hpp"
-#include "filter.hpp"
-#include "digital.hpp"
+#include "dsp/filter.hpp"
+//#include "digital.hpp"
 #include "math.hpp"
 
 struct Light
@@ -47,8 +47,8 @@ struct Light
     }
 
     void setSmoothBrightness (float brightness, float time)
-	{
-	}
+    {
+    }
 };
 
 static const int PORT_MAX_CHANNELS = 16;
@@ -56,7 +56,8 @@ static const int PORT_MAX_CHANNELS = 16;
 struct alignas (32) Port
 {
     /** Voltage of the port. */
-    union {
+    union
+    {
         /** Unstable API. Use getVoltage() and setVoltage() instead. */
         float voltages[PORT_MAX_CHANNELS] = {};
         /** DEPRECATED. Unstable API. Use getVoltage() and setVoltage() instead. */
@@ -64,7 +65,8 @@ struct alignas (32) Port
         // TODO: get rid of this
         float value;
     };
-    union {
+    union
+    {
         /** Number of polyphonic channels
 		Unstable API. Use set/getChannels() instead.
 		May be 0 to PORT_MAX_CHANNELS.

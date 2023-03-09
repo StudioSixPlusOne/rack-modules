@@ -22,7 +22,6 @@
 #include "plugin.hpp"
 #include "widgets.h"
 
-
 typedef unsigned char uint8_t;
 //typedef unsigned int uint16_t;
 //
@@ -318,7 +317,7 @@ struct Zilah : Module
     void process (const ProcessArgs& args) override
     {
         midi::Message msg;
-        while (midiInputQueue.tryPop(&msg, args.frame)) //-1 placeholder
+        while (midiInputQueue.tryPop (&msg, args.frame)) //-1 placeholder
         {
             switch (msg.getStatus())
             {

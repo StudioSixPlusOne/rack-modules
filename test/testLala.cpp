@@ -25,7 +25,7 @@
 #include "LaLa.h"
 #include "TestComposite.h"
 #include "asserts.h"
-#include "digital.hpp"
+#include "dsp/digital.hpp"
 #include "math.hpp"
 #include "testSignal.h"
 

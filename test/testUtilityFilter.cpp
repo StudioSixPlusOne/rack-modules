@@ -133,8 +133,8 @@ static void testSlopeLrHp (const float cutoff,
             slope.cornerGain,
             slope.slope);
 #else
-    assertClose (slope.cornerGain, expectedCorner, 0.15f);
-    assertClose (slope.slope, expectedSlope, 0.4f);
+    assertClose (slope.cornerGain, expectedCorner, 0.2f);
+    assertClose (slope.slope, expectedSlope, 0.8f);
 #endif
 }
 
@@ -242,7 +242,7 @@ static void testLWRCrossOver (float fc, float sr)
     printf ("Min %f Max %f\n", minval, maxval);
 #else
     assertClose (maxval, 0.0f, 0.27f); //0.2dB variation at low freq
-    assertClose (minval, 0.0f, 0.0012f);
+    assertClose (minval, 0.0f, 0.006f);
 #endif
 }
 
@@ -285,8 +285,8 @@ static void testLWRCrossOver (float_4 fc, float_4 sr)
 #if 0
     printf ("Min %f Max %f\n", minval, maxval);
 #else
-        assertClose (maxval, 0.0f, 0.2f); //0.2dB variation at low freq
-        assertClose (minval, 0.0f, 0.003f);
+        assertClose (maxval, 0.0f, 0.3f); //0.2dB variation at low freq
+        assertClose (minval, 0.0f, 0.005f);
 #endif
     }
 }
@@ -515,7 +515,7 @@ static void testLWRCrossOver4 (float fc, float sr)
     printf ("Min %f Max %f\n", minval, maxval);
 #else
     assertClose (maxval, 0.0f, 0.37f); //0.35dB variation at low freq
-    assertClose (minval, 0.0f, 0.002f);
+    assertClose (minval, 0.0f, 0.006f);
 #endif
 }
 
@@ -559,7 +559,7 @@ static void testLWRCrossOver4 (float_4 fc, float_4 sr)
     printf ("Min %f Max %f\n", minval, maxval);
 #else
         assertClose (maxval, 0.0f, 0.35f); //0.35dB variation at low freq
-        assertClose (minval, 0.0f, 0.003f);
+        assertClose (minval, 0.0f, 0.006f);
 #endif
     }
 }

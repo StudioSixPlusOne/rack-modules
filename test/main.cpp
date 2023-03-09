@@ -33,6 +33,17 @@ using float_4 = rack::simd::float_4;
 using namespace rack;
 
 // external tests
+// ADD EXTERN
+extern void testPatchNotes();
+extern void testThru();
+extern void testLalaStereo();
+extern void testAdsr();
+extern void testFarini();
+extern void testDuffy();
+extern void testSchmittTrigger_4();
+extern void testSampleAndHold();
+extern void testBose();
+extern void testMix();
 extern void testSynthFilter();
 extern void testSynthFilterII();
 extern void testEva();
@@ -58,7 +69,6 @@ extern void testIverson();
 extern void testTriggerSequencer();
 extern void testWaveShaper();
 extern void testHula();
-
 
 //external performance tests
 extern void initPerf();
@@ -98,30 +108,40 @@ int main (int argc, char** argv)
     }
 
     // run external tests defined above
-
-    testBascom();
-    testWaveShaper();
-    testHula();
-    testAmburgh();
-    testSynthFilter();
-    testSynthFilterII();
-    testTriggerSequencer();
-    testIverson();
-    testLala();
-    testEva();
-    testZazel();
-    testEasing();
-    testSaturator();
-    testEmpty();
-    testTestSignal();
-    testAudioMath();
-    testCircularBuffer();
-    testLookupTable();
-    testAnalyzer();
-    testPolyShiftRegister();
-    testKSDelay();
-    testCombFilter();
-    testMaccomo();
+    // ADD NEWTEST
+    testPatchNotes(); //valgrind ok
+    testThru(); //valgrind ok
+    testLalaStereo(); //valgrind ok
+    testAdsr(); //valgrind ok
+    testFarini(); //valgrind ok
+    testDuffy(); //valgrind ok
+    testSchmittTrigger_4(); //volgrind ok
+    testSampleAndHold(); //valgrind ok
+    testBose(); //valgrind ok
+    testMix(); //valgrind ok
+    testBascom(); //valgrind ok
+    testWaveShaper(); //valgrind ok
+    testHula(); //valgrind Fail
+    testAmburgh(); //valgrind ok
+    testSynthFilter(); //valgrind ok
+    testSynthFilterII(); //valgrind ok
+    testTriggerSequencer(); //valgrind ok
+    testIverson(); //valgrid ok
+    testLala(); //valgrind ok
+    testEva(); //valgrind ok
+    testZazel(); //valgrind ok
+    //    //    testEasing();
+    testSaturator(); //valgrind ok
+    testEmpty(); //valgrind ok
+    testTestSignal(); //valgring ok
+    testAudioMath(); //valgrind ok
+    testCircularBuffer(); //valgring ok
+    testLookupTable(); //valgring ok
+    testAnalyzer(); //valgring ok
+    //    testPolyShiftRegister();
+    //    testKSDelay();
+    testCombFilter(); //Fails Vailgrind
+    testMaccomo(); //valgrin
     testUtilityFilter();
 
     printf ("Tests passed.\n");

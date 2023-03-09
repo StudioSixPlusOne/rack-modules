@@ -96,7 +96,8 @@ public:
             f.setType (sspo::MoogLadderFilter<float_4>::types()[0]);
             f.setUseOversample (true);
             float_4 asym = float_4 (1.0f);
-            f.nonLinearProcess = [asym] (float_4 in, float_4 drive) {
+            f.nonLinearProcess = [asym] (float_4 in, float_4 drive)
+            {
                 return rack::simd::ifelse (in > float_4 (0),
                                            (atan (drive * in) / atan (drive)),
                                            (atan ((drive * in) / asym) / atan (drive / asym)));
@@ -209,7 +210,7 @@ inline void AmburghComp<TBase>::step()
         auto out = filters[c / 4].process (in / 10.0f) * 10.0f;
 
         //simd'ed out = std::isfinite (out) ? out : 0;
-        out = simd::ifelse((movemask(out != out) == 0xF)  , float_4(0.0f), out);
+        out = simd::ifelse ((movemask (out != out) == 0xF), float_4 (0.0f), out);
 
         TBase::outputs[MAIN_OUTPUT].setVoltageSimd (out, c);
     }

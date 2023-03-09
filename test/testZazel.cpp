@@ -25,7 +25,7 @@
 #include "ExtremeTester.h"
 #include "Analyzer.h"
 #include "testSignal.h"
-#include "digital.hpp"
+#include "dsp/digital.hpp"
 #include "math.hpp"
 #include "Zazel.h"
 #include <assert.h>

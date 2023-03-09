@@ -66,9 +66,8 @@ namespace sspo
         inline bool areSame (const std::vector<T>& a, const std::vector<T>& b, const T delta = FLT_EPSILON)
         {
             return a.size() == b.size()
-                       ? std::equal (a.begin(), a.end(), b.begin(), [=] (const T& l, const T& r) -> bool {
-                             return areSame (l, r, delta);
-                         })
+                       ? std::equal (a.begin(), a.end(), b.begin(), [=] (const T& l, const T& r) -> bool
+                                     { return areSame (l, r, delta); })
                        : false;
         }
 
@@ -119,9 +118,9 @@ namespace sspo
         class ClockDivider
         {
         public:
-            void setDivisor(int d)
+            void setDivisor (int d)
             {
-                maxPhase = rack::math::clamp(d, 1, 128);
+                maxPhase = rack::math::clamp (d, 1, 128);
             }
 
             bool process()

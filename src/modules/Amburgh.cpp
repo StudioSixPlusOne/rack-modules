@@ -90,13 +90,13 @@ struct AmburghWidget : ModuleWidget
 
         if (module)
         {
-            module->configInput(Comp::VOCT_INPUT, "Voct");
-            module->configInput(Comp::RESONANCE_CV_INPUT, "Resonance");
-            module->configInput(Comp::DRIVE_CV_INPUT, "Drive");
-            module->configInput(Comp::MAIN_INPUT, "Main");
-            module->configInput(Comp::FREQ_CV_INPUT, "Freq");
+            module->configInput (Comp::VOCT_INPUT, "Voct");
+            module->configInput (Comp::RESONANCE_CV_INPUT, "Resonance");
+            module->configInput (Comp::DRIVE_CV_INPUT, "Drive");
+            module->configInput (Comp::MAIN_INPUT, "Main");
+            module->configInput (Comp::FREQ_CV_INPUT, "Freq");
 
-            module->configOutput(Comp::MAIN_OUTPUT, "Main");
+            module->configOutput (Comp::MAIN_OUTPUT, "Main");
         }
     }
 };

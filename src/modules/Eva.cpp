@@ -75,9 +75,9 @@ struct MixWidget : ModuleWidget
 
         if (module)
         {
-            module->configInput(Comp::MAIN_OUTPUT, "Attenuverter");
+            module->configInput (Comp::MAIN_OUTPUT, "Attenuverter");
 
-            module->configOutput(Comp::MAIN_OUTPUT, "Main");
+            module->configOutput (Comp::MAIN_OUTPUT, "Main");
         }
     }
 };

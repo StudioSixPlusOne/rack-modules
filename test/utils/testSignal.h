@@ -174,7 +174,7 @@ namespace sspo
             std::ifstream inStream{ filename };
             if (inStream)
             {
-                for (float x; inStream >> x;)
+                for (float x = 0; inStream >> x;)
                     ret.push_back (x);
             }
             return ret;

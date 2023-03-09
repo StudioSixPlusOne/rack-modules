@@ -1,0 +1,38 @@
+{
+  "plugin": "StudioSixPlusOne",
+  "model": "Mix",
+  "version": "2.0.900",
+  "params": [
+    {
+      "value": 1.0,
+      "id": 0
+    },
+    {
+      "value": 1.0,
+      "id": 1
+    },
+    {
+      "value": 1.0,
+      "id": 2
+    },
+    {
+      "value": 1.0,
+      "id": 3
+    },
+    {
+      "value": 1.0,
+      "id": 4
+    },
+    {
+      "value": 1.0,
+      "id": 5
+    },
+    {
+      "value": 13.079989433288574,
+      "id": 6
+    }
+  ],
+  "data": {
+    "runDataFromJson": 1
+  }
+}
