@@ -67,4 +67,10 @@ Added Iverson and Iverson Jr
     - offset and scale output
     - detune +- 2 cents
 - Mix, a simple five channel mixer
+- Bose, random voltage generator, noise and hold
+- Duffy Incremental transpose
+- Farini, VC Envelope Generator
+- StereoLala, dual crossover
+- PatchNotes, slimline text box
+- Thru 1-1 mult with labels
 
