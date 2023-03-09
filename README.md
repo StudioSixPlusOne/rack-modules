@@ -1,10 +1,6 @@
 # StudioSixPlusOne
 
-# Release for VCV rack v2.0
-
-This is the Studio 6 Plus 1 modules, updated to VCV Rack V2.0
-
-All modules have had a lick of virtual paint
+# Release  v2.1
 
 A collection of modules for [VCV Rack](https://github.com/VCVRack/Rack), a cross platform opensource, modular synth
 emulator software.

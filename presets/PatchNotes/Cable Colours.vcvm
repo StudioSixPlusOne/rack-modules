@@ -1,0 +1,10 @@
+{
+  "plugin": "StudioSixPlusOne",
+  "model": "PatchNotes",
+  "version": "2.0.900-nightly-65fb10d",
+  "params": [],
+  "data": {
+    "runDataFromJson": 1,
+    "NoteText": "Red    Audio          Blue   Gates Triggers Yellow Pitch          Green  Modulation"
+  }
+}

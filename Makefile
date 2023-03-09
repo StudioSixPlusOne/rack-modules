@@ -30,7 +30,7 @@ SOURCES += $(wildcard src/dsp/WaveShapes/*.cpp)
 
 # Add files to the ZIP package when running `make dist`
 # The compiled plugin and "plugin.json" are automatically added.
-DISTRIBUTABLES += res presets
+DISTRIBUTABLES += res presets selections
 DISTRIBUTABLES += $(wildcard LICENSE*)
 
 # If RACK_DIR is not defined when calling the Makefile, default to two directories above
