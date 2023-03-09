@@ -51,8 +51,9 @@ namespace sspo
                                   simd::ifelse (triggers >= onThreshold, 1.0f, state));
 
             result = simd::ifelse (state - oldState == 1.0f, 1.0f, 0.0f);
-            auto sub = state - oldState;
 #if 0
+            auto sub = state - oldState;
+
         printf("state %f %f %f %f%\n", state.s[0],state.s[1],state.s[2],state.s[3]);
         printf("oldState %f %f %f %f%\n", oldState.s[0],oldState.s[1],oldState.s[2],oldState.s[3]);
         printf("sub %f %f %f %f%\n", sub.s[0],sub.s[1],sub.s[2],sub.s[3]);

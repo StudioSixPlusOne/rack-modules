@@ -198,8 +198,6 @@ int BoseDescription<TBase>::getNumParams()
 template <class TBase>
 IComposite::Config BoseDescription<TBase>::getParam (int i)
 {
-    auto freqBase = static_cast<float> (std::pow (2, 10.0f));
-    auto freqMul = static_cast<float> (dsp::FREQ_C4 / std::pow (2, 5.f));
     IComposite::Config ret = { 0.0f, 1.0f, 0.0f, "Name", "unit", 0.0f, 1.0f, 0.0f };
     switch (i)
     {

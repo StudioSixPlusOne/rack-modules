@@ -184,7 +184,7 @@ inline void ThruComp<TBase>::step()
     for (auto i = 0U; i < 5; ++i)
     {
         int channels = TBase::inputs[ONE_INPUT + i].getChannels();
-        for (auto c = 0U; c < channels; c += 4)
+        for (auto c = 0; c < channels; c += 4)
         {
             auto in = TBase::inputs[ONE_INPUT + i].template getPolyVoltageSimd<float_4> (c);
             TBase::outputs[ONE_OUTPUT + i].setVoltageSimd (in, c);
@@ -202,8 +202,6 @@ int ThruDescription<TBase>::getNumParams()
 template <class TBase>
 IComposite::Config ThruDescription<TBase>::getParam (int i)
 {
-    auto freqBase = static_cast<float> (std::pow (2, 10.0f));
-    auto freqMul = static_cast<float> (dsp::FREQ_C4 / std::pow (2, 5.f));
     IComposite::Config ret = { 0.0f, 1.0f, 0.0f, "Name", "unit", 0.0f, 1.0f, 0.0f };
     switch (i)
     {
