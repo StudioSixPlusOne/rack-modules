@@ -118,7 +118,6 @@ namespace sspo
         class ClockDivider
         {
         public:
-
             void setDivisor (int d)
             {
                 maxPhase = rack::math::clamp (d, 1, 128);

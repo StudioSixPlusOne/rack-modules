@@ -32,9 +32,7 @@
 #include "simd/sse_mathfun.h"
 #include "simd/sse_mathfun_extension.h"
 
-
 #include <memory>
-
 
 namespace rack
 {
@@ -326,4 +324,3 @@ IComposite::Config HulaDescription<TBase>::getParam (int i)
     }
     return ret;
 }
-
