@@ -29,5 +29,7 @@ void init (::rack::Plugin* p)
     p->addModel (modelLalaStereo);
     p->addModel (modelThru);
     p->addModel (modelPatchNotes);
+    p->addModel(modelChaplin);
     // ADD ADDMODEL
+
 }

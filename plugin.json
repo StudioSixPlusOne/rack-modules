@@ -244,6 +244,18 @@
       "tags": [
         "Utility"
       ]
+    },
+    {
+      "slug": "Chaplin",
+      "name": "Chaplin",
+      "description": "Stereo delay with warmth, filter and external feedback path",
+      "tags": [
+        "polyphonic",
+        "dual",
+        "delay",
+        "filter",
+        "panning"
+      ]
     }
   ]
 }

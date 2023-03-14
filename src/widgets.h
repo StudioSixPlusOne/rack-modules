@@ -44,6 +44,15 @@ namespace sspo
         }
     };
 
+    struct ExtraLargeKnob : RoundKnob
+    {
+        ExtraLargeKnob()
+        {
+            setSvg (APP->window->loadSvg (asset::plugin (pluginInstance,
+                                                         "res/SspoExtraLargeKnob.svg")));
+        }
+    };
+
     struct Knob : RoundKnob
     {
         Knob()
@@ -120,6 +129,18 @@ namespace sspo
             addFrame (Svg::load (asset::plugin (pluginInstance, "res/SspoSwitch01.svg")));
             addFrame (Svg::load (asset::plugin (pluginInstance, "res/SspoSwitch02.svg")));
             addFrame (Svg::load (asset::plugin (pluginInstance, "res/SspoSwitch03.svg")));
+        }
+    };
+
+    struct FourWaySwitch : app::SvgSwitch
+    {
+        FourWaySwitch()
+        {
+            shadow->opacity = 0.0;
+            addFrame (Svg::load (asset::plugin (pluginInstance, "res/Sspo4WaySwitch01.svg")));
+            addFrame (Svg::load (asset::plugin (pluginInstance, "res/Sspo4WaySwitch02.svg")));
+            addFrame (Svg::load (asset::plugin (pluginInstance, "res/Sspo4WaySwitch03.svg")));
+            addFrame (Svg::load (asset::plugin (pluginInstance, "res/Sspo4WaySwitch04.svg")));
         }
     };
 

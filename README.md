@@ -56,6 +56,8 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 
 [PatchNotes](#PatchNotes)
 
+[Chaplin](#Chaplin)
+
 [Next](#next)
 
 ### Wallenda
@@ -417,6 +419,10 @@ This can be used to label in's and out's on subsections and selections.
 <img src="images/PatchNotes.png">
 
 A Slimline patch note module, with nostalgic display.
+
+### Chaplin
+
+<img src="images/Chaplin.png">
 
 ### Next
 
