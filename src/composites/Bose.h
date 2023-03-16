@@ -29,7 +29,7 @@
 
 #include "jansson.h"
 
-#include "SchmittTrigger_4.h"
+#include "SchmittTrigger.h"
 #include "SampleAndHold.h"
 
 using float_4 = ::rack::simd::float_4;
@@ -140,7 +140,7 @@ public:
     };
 
     static constexpr int SIMD_MAX_CHANNELS = 4;
-    std::array<sspo::SchmittTrigger_4, SIMD_MAX_CHANNELS> schmitts;
+    std::array<sspo::SchmittTrigger<float_4>, SIMD_MAX_CHANNELS> schmitts;
     std::array<std::array<sspo::SampleAndHold<float_4>, SIMD_MAX_CHANNELS>, 5> shs;
     std::array<float, 5> gains;
     float_4 nextRandom;

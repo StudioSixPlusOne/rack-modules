@@ -36,14 +36,15 @@ using float_4 = ::rack::simd::float_4;
 
 namespace sspo
 {
-    class SchmittTrigger_4
+    template <typename T>
+    class SchmittTrigger
     {
     public:
         void reset()
         {
-            state = { 1.0f, 1.0f, 1.0f, 1.0f };
+            state = T (1.0f);
         }
-        const float_4 process (float_4 triggers)
+        const T process (T triggers)
         {
             auto oldState = state;
             state = simd::ifelse ((state == onState),
@@ -62,27 +63,27 @@ namespace sspo
             return result;
         }
 
-        void setOnThreshold (float_4 thresholds)
+        void setOnThreshold (T thresholds)
         {
             onThreshold = thresholds;
         }
 
-        void setOffThreshold (float_4 thresholds)
+        void setOffThreshold (T thresholds)
         {
             offThreshold = thresholds;
         }
 
-        const float_4& isHigh()
+        const T& isHigh()
         {
             return state;
         }
 
     private:
-        float_4 state{ 1.0f, 1.0f, 1.0f, 1.0f };
-        float_4 result{ 1.0f, 1.0f, 1.0f, 1.0f };
-        const float_4 onState{ 1.0f, 1.0f, 1.0f, 1.0f };
-        float_4 offThreshold{ 0 };
-        float_4 onThreshold{ 1.0f, 1.0f, 1.0f, 1.0f };
+        T state = T (1.0f);
+        T result = T (1.0f);
+        const T onState = T (1.0f);
+        T offThreshold{ 0 };
+        T onThreshold = T (1.0f);
     };
 
 } // namespace sspo

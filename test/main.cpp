@@ -34,6 +34,7 @@ using namespace rack;
 
 // external tests
 // ADD EXTERN
+extern void testBpmDetector();
 extern void testChaplin();
 extern void testPatchNotes();
 extern void testThru();
@@ -41,7 +42,7 @@ extern void testLalaStereo();
 extern void testAdsr();
 extern void testFarini();
 extern void testDuffy();
-extern void testSchmittTrigger_4();
+extern void testSchmittTrigger();
 extern void testSampleAndHold();
 extern void testBose();
 extern void testMix();
@@ -110,14 +111,15 @@ int main (int argc, char** argv)
 
     // run external tests defined above
     // ADD NEWTEST
-    testChaplin();
+    //    testBpmDetector();testBpmDetector
+    //    testChaplin();testBpmDetector
+    testSchmittTrigger(); //volgrind ok
     testPatchNotes(); //valgrind ok
     testThru(); //valgrind ok
     testLalaStereo(); //valgrind ok
     testAdsr(); //valgrind ok
     testFarini(); //valgrind ok
     testDuffy(); //valgrind ok
-    testSchmittTrigger_4(); //volgrind ok
     testSampleAndHold(); //valgrind ok
     testBose(); //valgrind ok
     testMix(); //valgrind ok

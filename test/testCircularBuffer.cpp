@@ -28,31 +28,31 @@ using namespace sspo;
 
 static void testDefaultSize()
 {
-    CircularBuffer<float> c;
+    Sspo::CircularBuffer<float> c;
     assert (c.size() == 4096);
 }
 
 static void testConstructorSize()
 {
-    CircularBuffer<float> c (512);
+    Sspo::CircularBuffer<float> c (512);
     assert (c.size() == 512);
 }
 
 static void testSizePow2()
 {
-    CircularBuffer<double> c (6);
+    Sspo::CircularBuffer<double> c (6);
     assert (c.size() == 8);
 
-    CircularBuffer<int> d (500);
+    Sspo::CircularBuffer<int> d (500);
     assert (d.size() == 512);
 
-    CircularBuffer<long long> e (4000);
+    Sspo::CircularBuffer<long long> e (4000);
     assert (e.size() == 4096);
 }
 
 static void testResetEmpty()
 {
-    CircularBuffer<float> c;
+    Sspo::CircularBuffer<float> c;
     for (int i = 0; i < c.size(); ++i)
         c.writeBuffer (std::rand() * 0.5 + 1); // all non zero
     for (int i = 0; i < c.size(); ++i)
@@ -64,7 +64,7 @@ static void testResetEmpty()
 
 static void testReadZeroDelay()
 {
-    CircularBuffer<float> c;
+    Sspo::CircularBuffer<float> c;
     auto x = 0.7f;
     c.writeBuffer (x);
     assert (c.readBuffer (0) == x);
@@ -72,7 +72,7 @@ static void testReadZeroDelay()
 
 static void testReadIntSampleDelay()
 {
-    CircularBuffer<int> c;
+    Sspo::CircularBuffer<int> c;
     for (auto i = 0; i < 10; ++i)
         c.writeBuffer (i);
     for (auto i = 0; i < 10; ++i)
@@ -81,7 +81,7 @@ static void testReadIntSampleDelay()
 
 static void testReadFloatSampleDelay()
 {
-    CircularBuffer<float> c;
+    Sspo::CircularBuffer<float> c;
     c.writeBuffer (0.5f);
     c.writeBuffer (1.0f);
     assert (AudioMath::areSame (c.readBuffer (0.5f), 0.75f));
@@ -89,7 +89,7 @@ static void testReadFloatSampleDelay()
 
 static void testReadBufferWrap()
 {
-    CircularBuffer<int> c (8);
+    Sspo::CircularBuffer<int> c (8);
     for (auto i = 0; i < 10; ++i)
         c.writeBuffer (i);
     for (auto i = 0; i < 8; ++i)

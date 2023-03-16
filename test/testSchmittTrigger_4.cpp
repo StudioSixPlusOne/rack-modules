@@ -28,13 +28,23 @@
 #include "Analyzer.h"
 #include "testSignal.h"
 
-#include "SchmittTrigger_4.h"
+#include "SchmittTrigger.h"
 
 namespace ts = sspo::TestSignal;
 
 static void testConstructor()
 {
-    sspo::SchmittTrigger_4 st;
+    sspo::SchmittTrigger<float_4> st;
+    assertClose (st.isHigh().s[0], 1.0f, 0.001f);
+    assertClose (st.isHigh().s[1], 1.0f, 0.001f);
+    assertClose (st.isHigh().s[2], 1.0f, 0.001f);
+    assertClose (st.isHigh().s[3], 1.0f, 0.001f);
+}
+
+static void testReset4()
+{
+    sspo::SchmittTrigger<float_4> st;
+    st.reset();
     assertClose (st.isHigh().s[0], 1.0f, 0.001f);
     assertClose (st.isHigh().s[1], 1.0f, 0.001f);
     assertClose (st.isHigh().s[2], 1.0f, 0.001f);
@@ -43,20 +53,17 @@ static void testConstructor()
 
 static void testReset()
 {
-    sspo::SchmittTrigger_4 st;
+    sspo::SchmittTrigger<float> st;
     st.reset();
-    assertClose (st.isHigh().s[0], 1.0f, 0.001f);
-    assertClose (st.isHigh().s[1], 1.0f, 0.001f);
-    assertClose (st.isHigh().s[2], 1.0f, 0.001f);
-    assertClose (st.isHigh().s[3], 1.0f, 0.001f);
+    assertClose (st.isHigh(), 1.0f, 0.001f);
 }
 
-static void testFalseOnZero()
+static void testFalseOnZero4()
 {
-    sspo::SchmittTrigger_4 st;
-    float_4 testTriggers{0.0f, 1.0f, 0.0f, 1.0f};
+    sspo::SchmittTrigger<float_4> st;
+    float_4 testTriggers{ 0.0f, 1.0f, 0.0f, 1.0f };
 
-    float_4 result = st.process(testTriggers);
+    float_4 result = st.process (testTriggers);
 
     assertClose (st.isHigh().s[0], 0.0f, 0.001f);
     assertClose (st.isHigh().s[1], 1.0f, 0.001f);
@@ -69,24 +76,34 @@ static void testFalseOnZero()
     assertClose (result.s[3], 0.0f, 0.001f);
 }
 
-static void testTrueFirstOne()
+static void testFalseOnZero()
 {
+    sspo::SchmittTrigger<float> st;
 
-    printf("testTrueFirstOne\n");
-    sspo::SchmittTrigger_4 st;
+    auto result = st.process (1.0f);
+    assertClose (st.isHigh(), 1.0f, 0.001f);
+
+    result = st.process (0.0f);
+    assertClose (st.isHigh(), 0.0f, 0.001f);
+    assertClose (result, 0.0f, 0.001f);
+}
+
+static void testTrueFirstOne4()
+{
+    printf ("testTrueFirstOne4\n");
+    sspo::SchmittTrigger<float_4> st;
     //init all trig positions to zero
-    float_4 testTriggers0{0.0f, 0.0f, 0.0f, 0.0f};
-    st.process(testTriggers0);
+    float_4 testTriggers0{ 0.0f, 0.0f, 0.0f, 0.0f };
+    st.process (testTriggers0);
 
     assertClose (st.isHigh().s[0], 0.0f, 0.001f);
     assertClose (st.isHigh().s[1], 0.0f, 0.001f);
     assertClose (st.isHigh().s[2], 0.0f, 0.001f);
     assertClose (st.isHigh().s[3], 0.0f, 0.001f);
 
-
     //first triggers on 1 + 3
-    float_4 testTriggers1{0.0f, 1.0f, 0.0f, 1.0f};
-    float_4 result = st.process(testTriggers1);
+    float_4 testTriggers1{ 0.0f, 1.0f, 0.0f, 1.0f };
+    float_4 result = st.process (testTriggers1);
 
     assertClose (st.isHigh().s[0], 0.0f, 0.001f);
     assertClose (st.isHigh().s[1], 1.0f, 0.001f);
@@ -99,17 +116,35 @@ static void testTrueFirstOne()
     assertClose (result.s[3], 1.0f, 0.001f);
 }
 
-static void testFalseSecondOne()
+static void testTrueFirstOne()
 {
-    sspo::SchmittTrigger_4 st;
+    printf ("testTrueFirstOne4\n");
+    sspo::SchmittTrigger<float> st;
     //init all trig positions to zero
-    float_4 testTriggers0{0.0f, 0.0f, 0.0f, 0.0f};
-    st.process(testTriggers0);
+    float testTriggers0 = 0;
+    st.process (testTriggers0);
+
+    assertClose (st.isHigh(), 0.0f, 0.001f);
 
     //first triggers on 1 + 3
-    float_4 testTriggers1{0.0f, 1.0f, 0.0f, 1.0f};
-    st.process(testTriggers1);
-    float_4 result = st.process(testTriggers1);
+    float testTriggers1 = 1.0f;
+    auto result = st.process (testTriggers1);
+
+    assertClose (st.isHigh(), 1.0f, 0.001f);
+    assertClose (result, 1.0f, 0.001f);
+}
+
+static void testFalseSecondOne4()
+{
+    sspo::SchmittTrigger<float_4> st;
+    //init all trig positions to zero
+    float_4 testTriggers0{ 0.0f, 0.0f, 0.0f, 0.0f };
+    st.process (testTriggers0);
+
+    //first triggers on 1 + 3
+    float_4 testTriggers1{ 0.0f, 1.0f, 0.0f, 1.0f };
+    st.process (testTriggers1);
+    float_4 result = st.process (testTriggers1);
 
     assertClose (result.s[0], 0.0f, 0.001f);
     assertClose (result.s[1], 0.0f, 0.001f);
@@ -122,12 +157,36 @@ static void testFalseSecondOne()
     assertClose (st.isHigh().s[3], 1.0f, 0.001f);
 }
 
-void testSchmittTrigger_4()
+static void testFalseSecondOne()
 {
-    printf ("test SchmittTrigger_4\n");
+    sspo::SchmittTrigger<float> st;
+    //init all trig positions to zero
+    float testTriggers0 = 0;;
+    st.process (testTriggers0);
+
+    //first triggers on 1 + 3
+    float testTriggers1 = 1.0;
+    st.process (testTriggers1);
+    auto result = st.process (testTriggers1);
+
+    assertClose (result, 0.0f, 0.001f);
+    assertClose (st.isHigh(), 1.0f, 0.001f);
+
+}
+
+void testSchmittTrigger()
+{
+    printf ("test SchmittTrigger\n");
     testConstructor();
+    testReset4();
+    testFalseOnZero4();
+    testTrueFirstOne4();
+    testFalseSecondOne4();
+
     testReset();
     testFalseOnZero();
     testTrueFirstOne();
     testFalseSecondOne();
+
+
 }

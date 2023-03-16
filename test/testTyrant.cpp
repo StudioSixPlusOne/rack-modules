@@ -64,8 +64,8 @@ static void testShift()
     assertEQ (psr.currentChannels, 3);
     assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (0), 3.3f, FLT_EPSILON);
     //TODO disabled not sure if bug mac only
-//    assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (1), 1.5f, FLT_EPSILON);
-//    assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (2), 1.0f, FLT_EPSILON);
+    //    assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (1), 1.5f, FLT_EPSILON);
+    //    assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (2), 1.0f, FLT_EPSILON);
 }
 
 static void testShiftMonoCv (float triggerProbCv)
@@ -229,7 +229,7 @@ static void testShufflePolyCv()
             psr.step();
         }
         assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (0), 3.3f, 0.0001f);
-//        assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (2), 1.0f, 0.0001f);
+        //        assertClose (psr.outputs[psr.MAIN_OUTPUT].getVoltage (2), 1.0f, 0.0001f);
 
         if (psr.outputs[psr.MAIN_OUTPUT].getVoltage (1) != 1.5f)
             shuffleCount++;
@@ -438,6 +438,5 @@ void testPolyShiftRegister()
     testAccentZeroOffset();
     testAccentAPolyCv();
     testAccentBPolyCv();
-
     testExtreme();
 }
