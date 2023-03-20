@@ -111,6 +111,7 @@ int main (int argc, char** argv)
 
     // run external tests defined above
     // ADD NEWTEST
+    testCircularBuffer(); //valgring ok
     testBpmDetector();
     //    testChaplin();testBpmDetector
     testSchmittTrigger(); //volgrind ok
@@ -139,7 +140,6 @@ int main (int argc, char** argv)
     testEmpty(); //valgrind ok
     testTestSignal(); //valgring ok
     testAudioMath(); //valgrind ok
-    testCircularBuffer(); //valgring ok
     testLookupTable(); //valgring ok
     testAnalyzer(); //valgring ok
     //    testPolyShiftRegister();

@@ -96,6 +96,19 @@ static void testReadBufferWrap()
         assertEQ (c.readBuffer (i), 9 - i);
 }
 
+static void testReadFloat4SampleDelay()
+{
+    Sspo::CircularBuffer<float_4> c;
+    c.writeBuffer (float_4 (0.5f, 1.5f, 2.5f, 3.5f));
+    c.writeBuffer (float_4 (1.0f, 2.0f, 3.0f, 4.0f));
+
+    auto result = c.readBuffer (float_4 (0.5f, 0.0f, 1.0f, 0.5f));
+    assert (AudioMath::areSame (result[0], 0.75f));
+    assert (AudioMath::areSame (result[1], 2.0f));
+    assert (AudioMath::areSame (result[2], 2.5f));
+    assert (AudioMath::areSame (result[3], 3.75f));
+}
+
 void testCircularBuffer()
 {
     printf ("testCircularBuffer\n");
@@ -106,5 +119,6 @@ void testCircularBuffer()
     testReadZeroDelay();
     testReadIntSampleDelay();
     testReadFloatSampleDelay();
+    testReadFloat4SampleDelay();
     testReadBufferWrap();
 }

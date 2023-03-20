@@ -65,7 +65,7 @@ namespace Sspo
         {
             writeIndex++;
             writeIndex &= wrapBits;
-            buffer[writeIndex] = std::isnan (newValue) || std::isinf (newValue) ? 0 : newValue;
+            buffer[writeIndex] = rack::simd::ifelse (newValue != newValue, T (0.0f), newValue);
         }
 
         inline T readBuffer (const int delaySamples) const noexcept
@@ -77,10 +77,14 @@ namespace Sspo
         {
             auto y1 = readBuffer (static_cast<int> (delaySamples));
             auto y2 = readBuffer (static_cast<int> (delaySamples) + 1);
-            auto fract = delaySamples - static_cast<int> (delaySamples);
-            return sspo::AudioMath::linearInterpolate (y1, y2, fract);
+            auto fract = delaySamples - rack::simd::floor (delaySamples);
+            return sspo::AudioMath::linearInterpolate (y1, y2, T (fract));
         }
 
+        /// The simplest implementation when reading float_4
+        /// is to simply call the float function 4 times
+        /// \param delaySamples
+        /// \return
         inline T readBuffer (const float_4 delaySamples) const noexcept
         {
             float_4 result (0);
