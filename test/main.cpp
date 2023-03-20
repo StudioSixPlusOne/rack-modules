@@ -111,7 +111,7 @@ int main (int argc, char** argv)
 
     // run external tests defined above
     // ADD NEWTEST
-    //    testBpmDetector();testBpmDetector
+    testBpmDetector();
     //    testChaplin();testBpmDetector
     testSchmittTrigger(); //volgrind ok
     testPatchNotes(); //valgrind ok

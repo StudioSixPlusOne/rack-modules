@@ -45,7 +45,25 @@ namespace sspo
 
     class BpmDetector
     {
+    private:
+        static constexpr float DEFAULT_SAMPLE_DURATION = 0.5;
+        static constexpr int CLOCK_DURATION_HISTORY_SIZE = 8;
+
+        float sampleDuration = DEFAULT_SAMPLE_DURATION;
+        float lastSampleDuration = DEFAULT_SAMPLE_DURATION;
+        float durationSinceTrigger = 0;
+        int clocksSinceReset = 0;
+        Sspo::CircularBuffer<float> clockDurationHistory = Sspo::CircularBuffer<float> (CLOCK_DURATION_HISTORY_SIZE);
+        float clockHistorySum = 0.0f;
+        sspo::SchmittTrigger<float> schmittTrigger;
+        float averageCycleDuration = 0;
+
     public:
+        BpmDetector()
+        {
+            reset();
+        }
+
         void setSampleRate (float sr)
         {
             assert (sr > 0.0f);
@@ -62,20 +80,33 @@ namespace sspo
 
             //clear clocks since reset
             clocksSinceReset = 0;
+
+            durationSinceTrigger = 0;
+            averageCycleDuration = 0.0f;
         }
 
-        void step (float clock)
+        float process (float clock)
         {
-            //            auto trigger
+            durationSinceTrigger += sampleDuration;
+
+            auto triggered = schmittTrigger.process (clock);
+            if (triggered)
+            {
+                clocksSinceReset++;
+                //update average,
+                //take the oldest value, subtract from running total
+                auto oldHistory = clockDurationHistory.readBuffer (CLOCK_DURATION_HISTORY_SIZE - 1);
+                clockHistorySum -= oldHistory;
+                //add the new value to history
+                clockDurationHistory.writeBuffer (durationSinceTrigger);
+                //add new value to running total
+                clockHistorySum += durationSinceTrigger;
+
+                averageCycleDuration = clockHistorySum / float (std::min (CLOCK_DURATION_HISTORY_SIZE - 0, clocksSinceReset));
+                lastSampleDuration = clocksSinceReset < 1 ? lastSampleDuration : averageCycleDuration;
+                durationSinceTrigger = 0;
+            }
+            return lastSampleDuration;
         }
-
-    private:
-        static constexpr float DEFAULT_SAMPLE_DURATION = 1.0f / 44100.0f;
-        static constexpr int CLOCK_DURATION_HISTORY = 8;
-
-        float sampleDuration = DEFAULT_SAMPLE_DURATION;
-        int clocksSinceReset = 0;
-        Sspo::CircularBuffer<float> clockDurationHistory = Sspo::CircularBuffer<float> (CLOCK_DURATION_HISTORY);
-        float clockHistorySum = 0.0f;
     };
 } // namespace sspo

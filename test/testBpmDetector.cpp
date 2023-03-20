@@ -27,10 +27,13 @@
 #include "ExtremeTester.h"
 #include "Analyzer.h"
 #include "testSignal.h"
+#include "vcvSampleRates.h"
 
 #include "BpmDetector.h"
 
 namespace ts = sspo::TestSignal;
+
+auto bpms = { 66.4f, 90.4f, 100.0f, 118.0f, 123.0f, 128.4f, 137.6f, 145.9f, 180.5f, 200.7f, 300.1f };
 
 static void testConstructor()
 {
@@ -38,32 +41,157 @@ static void testConstructor()
     assertEQ (1, 1);
 }
 
-void testSteadyClock()
+void testSteadyClock (float BPM, float SAMPLE_RATE, int count)
 {
-    assert (false);
+    sspo::BpmDetector bmpDetector;
+
+    bmpDetector.setSampleRate (SAMPLE_RATE);
+
+    //make clock
+    auto clockSignal = sspo::TestSignal::makeClockTrigger (60.0f / BPM * SAMPLE_RATE, count);
+
+    //process
+    float result = 0;
+
+    for (auto cs : clockSignal)
+    {
+        result = bmpDetector.process (cs);
+    }
+
+    assertClose (result, 60.0f / BPM, 0.03f);
 }
 
-void testWobbleClock()
+void testSteadyClock()
 {
-    assert (false);
+    for (auto sr : Sspo::sampleRates)
+    {
+        for (auto bpm : bpms)
+        {
+            testSteadyClock (bpm, sr, 8);
+        }
+    }
+}
+
+void testSineClock (float BPM, float SAMPLE_RATE, int count)
+{
+    sspo::BpmDetector bmpDetector;
+
+    bmpDetector.setSampleRate (SAMPLE_RATE);
+
+    //make clock
+    auto clockSignal = sspo::TestSignal::makeSine ((BPM / 60.0f) * SAMPLE_RATE * count, (BPM / 60.0f), SAMPLE_RATE, 5.0f);
+
+    //process
+    float result = 0;
+
+    for (auto cs : clockSignal)
+    {
+        result = bmpDetector.process (cs);
+    }
+
+#if 0
+
+    printf ("Bmp %f, SR %f, Actual %f, Expected %f\n", BPM, SAMPLE_RATE, result, 60.0f / BPM);
+
+#endif
+    assertClose (result, 60.0f / BPM, 0.03f);
 }
 
 void testSineClock()
 {
-    assert (false);
+    for (auto sr : Sspo::sampleRates)
+    {
+        for (auto bpm : bpms)
+        {
+            testSineClock (bpm, sr, 8);
+        }
+    }
 }
 
 void testNewClockFirstTwoLeadingEdge()
 {
-    assert (false);
+    printf ("testNewClockFirstTwoLeadingEdge`n");
+    for (auto sr : Sspo::sampleRates)
+    {
+        for (auto bpm : bpms)
+        {
+            testSteadyClock (bpm, sr, 2);
+        }
+    }
 }
 
 void testSaneOutputWithNoHistory()
 {
-    assert (false);
+    sspo::BpmDetector bpmDetector;
+
+    auto result = bpmDetector.process (0.0f);
+
+    assertClose (result, 0.5f, 0.25f);
+}
+
+static void testSampleRateChange()
+{
+    float SAMPLE_RATE = 44100.0f;
+    float BPM = 127.34;
+    int count = 8;
+
+    sspo::BpmDetector bmpDetector;
+
+    bmpDetector.setSampleRate (SAMPLE_RATE);
+
+    //make clock
+    auto clockSignal = sspo::TestSignal::makeClockTrigger (60.0f / BPM * SAMPLE_RATE, count / 2);
+
+    //process
+    float result = 0;
+
+    for (auto cs : clockSignal)
+    {
+        result = bmpDetector.process (cs);
+    }
+
+    SAMPLE_RATE = 48000.0f;
+    clockSignal = sspo::TestSignal::makeClockTrigger (60.0f / BPM * SAMPLE_RATE, count / 2);
+    bmpDetector.setSampleRate (SAMPLE_RATE);
+
+    //process
+
+    for (auto cs : clockSignal)
+    {
+        result = bmpDetector.process (cs);
+    }
+
+    assertClose (result, 60.0f / BPM, 0.03f);
 }
 
 void testReset()
+{
+    float SAMPLE_RATE = 44100.0f;
+    float BPM = 99.63f;
+    int count = 8;
+
+    sspo::BpmDetector bmpDetector;
+
+    bmpDetector.setSampleRate (SAMPLE_RATE);
+
+    //make clock
+    auto clockSignal = sspo::TestSignal::makeClockTrigger (60.0f / BPM * SAMPLE_RATE, count / 2);
+
+    //process
+    float result = 0;
+
+    for (auto cs : clockSignal)
+    {
+        result = bmpDetector.process (cs);
+    }
+
+    bmpDetector.reset();
+    result = bmpDetector.process (0.0f);
+
+    assertClose (result, 60.0f / BPM, 0.03f);
+}
+
+void testWobbleClock()
 {
     assert (false);
 }
@@ -72,10 +200,11 @@ void testBpmDetector()
 {
     printf ("test BpmDetector\n");
     testSteadyClock();
-    testWobbleClock();
     testSineClock();
     testNewClockFirstTwoLeadingEdge();
     testSaneOutputWithNoHistory();
+    testSampleRateChange();
     testReset();
     testConstructor();
+    //    testWobbleClock();
 }
