@@ -26,6 +26,8 @@
 
 #include "AudioMath.h"
 
+using float_4 = ::rack::simd::float_4;
+
 namespace Sspo
 {
 
@@ -77,6 +79,16 @@ namespace Sspo
             auto y2 = readBuffer (static_cast<int> (delaySamples) + 1);
             auto fract = delaySamples - static_cast<int> (delaySamples);
             return sspo::AudioMath::linearInterpolate (y1, y2, fract);
+        }
+
+        inline T readBuffer (const float_4 delaySamples) const noexcept
+        {
+            float_4 result (0);
+            for (auto i = 0; i < 4; i++)
+            {
+                result[i] = readBuffer (delaySamples[i])[i];
+            }
+            return result;
         }
 
         int size()
