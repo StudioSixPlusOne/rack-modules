@@ -881,6 +881,12 @@ static void testButterworthHpSmid()
     }
 }
 
+static void testDcBlocker()
+{
+    sspo::DcBlocker<float> dcBlocker;
+
+}
+
 static void testButterworthLpSmid()
 {
     float_4 sr{ 44100, 44100, 44100, 44100 };

@@ -213,7 +213,7 @@ public:
     //
     std::vector<float> unisonTunings;
     std::vector<float> unisonLevels;
-    std::vector<Sspo::CircularBuffer<float>> buffers;
+    std::vector<sspo::CircularBuffer<float>> buffers;
     std::vector<rack::dsp::BiquadFilter> dcInFilters;
     std::vector<rack::dsp::BiquadFilter> dcOutFilters;
     std::vector<sspo::Compressor> limiters;

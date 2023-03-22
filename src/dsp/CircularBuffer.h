@@ -28,7 +28,7 @@
 
 using float_4 = ::rack::simd::float_4;
 
-namespace Sspo
+namespace sspo
 {
 
     template <typename T>
@@ -106,4 +106,4 @@ namespace Sspo
         unsigned int bufferLength{ 0 };
         unsigned int wrapBits{ 0 };
     };
-} // namespace Sspo
+} // namespace sspo

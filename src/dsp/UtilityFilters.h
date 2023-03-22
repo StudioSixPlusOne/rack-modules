@@ -187,6 +187,20 @@ namespace sspo
     };
 
     template <typename T>
+    struct DcBlocker : public BiQuad<T>
+    {
+        DcBlocker() : BiQuad<T>()
+        {
+            BiQuad<T>::setButterworthHp2 (T (44100.0f), T (5.5f));
+        }
+
+        void setSamplerate (T sr)
+        {
+            BiQuad<T>::setButterworthHp2 (T (sr, 5.5f));
+        }
+    };
+
+    template <typename T>
     struct LinkwitzRileyLP2
     {
         BiQuad<T> f1;

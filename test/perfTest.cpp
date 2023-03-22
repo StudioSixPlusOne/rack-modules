@@ -384,7 +384,7 @@ static void testLookupTable()
 
 static void testCircularBuffer()
 {
-    Sspo::CircularBuffer<float> c;
+    sspo::CircularBuffer<float> c;
 
     //initial run with inf and ana checks 0.297870
     MeasureTime<double>::run (
@@ -638,8 +638,9 @@ void perfTest()
     //  setup();
     assert (overheadInOut > 0);
     assert (overheadOutOnly > 0);
-    testWaveShaper();
-    testLookupTable();
+    testCircularBuffer();
+    //    testWaveShaper();
+    //    testLookupTable();
     //    test1();
     //    testUtilityFilters();
     //    testZazel();
@@ -647,7 +648,6 @@ void perfTest()
     //    testNoise (true);
     //    testNormal();
     //    testFastApprox();
-    //    testCircularBuffer();
     //    testHardLimiter();
     //    testKSDelay();
     //    testPolyShiftRegister();

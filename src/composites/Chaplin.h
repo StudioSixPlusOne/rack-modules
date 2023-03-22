@@ -124,13 +124,8 @@ public:
         DELAY_LEFT_PARAM,
         DELAY_PARAM,
         DELAY_RIGHT_PARAM,
-        FILTER_ACTIVE_PARAM,
         FILTER_LEFT_PARAM,
         FC_PARAM,
-        RESONANCE_PARAM,
-        TYPE_PARAM,
-        FC_CV_PARAM,
-        RESONANCE_CV_PARAM,
         FILTER_RIGHT_PARAM,
         NUM_PARAMS
     };
@@ -272,32 +267,12 @@ IComposite::Config ChaplinDescription<TBase>::getParam (int i)
             ret = { -1.0f, 1.0f, 0.0f, "DELAY_RIGHT", " ", 0.0f, 1.0f, 0.0f };
             break;
 
-        case ChaplinComp<TBase>::FILTER_ACTIVE_PARAM:
-            ret = { 0.0f, 1.0f, 1.0f, "FILTER_ACTIVE", " ", 0.0f, 1.0f, 0.0f };
-            break;
-
         case ChaplinComp<TBase>::FILTER_LEFT_PARAM:
             ret = { -1.0f, 1.0f, 0.0f, "FILTER_LEFT", " ", 0.0f, 1.0f, 0.0f };
             break;
 
         case ChaplinComp<TBase>::FC_PARAM:
-            ret = { 0.0f, 1.0f, 0.5f, "FC", " ", 0.0f, 1.0f, 0.0f };
-            break;
-
-        case ChaplinComp<TBase>::RESONANCE_PARAM:
-            ret = { 0.0f, 4.0f, 0.707f, "RESONANCE", " ", 0.0f, 1.0f, 0.0f };
-            break;
-
-        case ChaplinComp<TBase>::TYPE_PARAM:
-            ret = { 0.0f, 3.0f, 0.0f, "TYPE", " ", 0.0f, 1.0f, 0.0f };
-            break;
-
-        case ChaplinComp<TBase>::FC_CV_PARAM:
-            ret = { -1.0f, 1.0f, 0.0f, "FC_CV", " ", 0.0f, 1.0f, 0.0f };
-            break;
-
-        case ChaplinComp<TBase>::RESONANCE_CV_PARAM:
-            ret = { -1.0f, 1.0f, 0.0f, "RESONANCE_CV", " ", 0.0f, 1.0f, 0.0f };
+            ret = { -1.0, 1.0f, 0.0f, "CUTOFF", " ", 0.0f, 1.0f, 0.0f };
             break;
 
         case ChaplinComp<TBase>::FILTER_RIGHT_PARAM:

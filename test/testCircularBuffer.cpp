@@ -28,31 +28,31 @@ using namespace sspo;
 
 static void testDefaultSize()
 {
-    Sspo::CircularBuffer<float> c;
+    sspo::CircularBuffer<float> c;
     assert (c.size() == 4096);
 }
 
 static void testConstructorSize()
 {
-    Sspo::CircularBuffer<float> c (512);
+    sspo::CircularBuffer<float> c (512);
     assert (c.size() == 512);
 }
 
 static void testSizePow2()
 {
-    Sspo::CircularBuffer<double> c (6);
+    sspo::CircularBuffer<double> c (6);
     assert (c.size() == 8);
 
-    Sspo::CircularBuffer<int> d (500);
+    sspo::CircularBuffer<int> d (500);
     assert (d.size() == 512);
 
-    Sspo::CircularBuffer<long long> e (4000);
+    sspo::CircularBuffer<long long> e (4000);
     assert (e.size() == 4096);
 }
 
 static void testResetEmpty()
 {
-    Sspo::CircularBuffer<float> c;
+    sspo::CircularBuffer<float> c;
     for (int i = 0; i < c.size(); ++i)
         c.writeBuffer (std::rand() * 0.5 + 1); // all non zero
     for (int i = 0; i < c.size(); ++i)
@@ -64,7 +64,7 @@ static void testResetEmpty()
 
 static void testReadZeroDelay()
 {
-    Sspo::CircularBuffer<float> c;
+    sspo::CircularBuffer<float> c;
     auto x = 0.7f;
     c.writeBuffer (x);
     assert (c.readBuffer (0) == x);
@@ -72,7 +72,7 @@ static void testReadZeroDelay()
 
 static void testReadIntSampleDelay()
 {
-    Sspo::CircularBuffer<int> c;
+    sspo::CircularBuffer<int> c;
     for (auto i = 0; i < 10; ++i)
         c.writeBuffer (i);
     for (auto i = 0; i < 10; ++i)
@@ -81,7 +81,7 @@ static void testReadIntSampleDelay()
 
 static void testReadFloatSampleDelay()
 {
-    Sspo::CircularBuffer<float> c;
+    sspo::CircularBuffer<float> c;
     c.writeBuffer (0.5f);
     c.writeBuffer (1.0f);
     assert (AudioMath::areSame (c.readBuffer (0.5f), 0.75f));
@@ -89,7 +89,7 @@ static void testReadFloatSampleDelay()
 
 static void testReadBufferWrap()
 {
-    Sspo::CircularBuffer<int> c (8);
+    sspo::CircularBuffer<int> c (8);
     for (auto i = 0; i < 10; ++i)
         c.writeBuffer (i);
     for (auto i = 0; i < 8; ++i)
@@ -98,7 +98,7 @@ static void testReadBufferWrap()
 
 static void testReadFloat4SampleDelay()
 {
-    Sspo::CircularBuffer<float_4> c;
+    sspo::CircularBuffer<float_4> c;
     c.writeBuffer (float_4 (0.5f, 1.5f, 2.5f, 3.5f));
     c.writeBuffer (float_4 (1.0f, 2.0f, 3.0f, 4.0f));
 

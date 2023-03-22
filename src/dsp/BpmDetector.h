@@ -53,7 +53,7 @@ namespace sspo
         float lastSampleDuration = DEFAULT_SAMPLE_DURATION;
         float durationSinceTrigger = 0;
         int clocksSinceReset = 0;
-        Sspo::CircularBuffer<float> clockDurationHistory = Sspo::CircularBuffer<float> (CLOCK_DURATION_HISTORY_SIZE);
+        sspo::CircularBuffer<float> clockDurationHistory = sspo::CircularBuffer<float> (CLOCK_DURATION_HISTORY_SIZE);
         float clockHistorySum = 0.0f;
         sspo::SchmittTrigger<float> schmittTrigger;
         float averageCycleDuration = 0;

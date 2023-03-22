@@ -92,13 +92,9 @@ struct ChaplinWidget : ModuleWidget
         addParam (createParamCentered<sspo::SmallKnob> (mm2px (Vec (23.096, 49.691)), module, Comp::DELAY_LEFT_PARAM));
         addParam (createParamCentered<sspo::ExtraLargeKnob> (mm2px (Vec (39.024, 57.805)), module, Comp::DELAY_PARAM));
         addParam (createParamCentered<sspo::SmallKnob> (mm2px (Vec (23.096, 65.919)), module, Comp::DELAY_RIGHT_PARAM));
-        addParam (createParam<sspo::TwoWaySwitch> (mm2px (Vec (2.492, 75.077 - 1.5)), module, Comp::FILTER_ACTIVE_PARAM));
+
         addParam (createParamCentered<sspo::SmallKnob> (mm2px (Vec (23.096, 82.016)), module, Comp::FILTER_LEFT_PARAM));
-        addParam (createParamCentered<sspo::SmallKnob> (mm2px (Vec (36.106, 82.016)), module, Comp::FC_PARAM));
-        addParam (createParamCentered<sspo::SmallKnob> (mm2px (Vec (45.102, 82.016)), module, Comp::RESONANCE_PARAM));
-        addParam (createParamCentered<sspo::FourWaySwitch> (mm2px (Vec (54.097, 82.016 + 3)), module, Comp::TYPE_PARAM));
-        addParam (createParamCentered<sspo::SmallKnob> (mm2px (Vec (36.106, 89.892)), module, Comp::FC_CV_PARAM));
-        addParam (createParamCentered<sspo::SmallKnob> (mm2px (Vec (45.102, 89.892)), module, Comp::RESONANCE_CV_PARAM));
+        addParam (createParamCentered<sspo::LargeKnob> (mm2px (Vec (39.024, 90.016)), module, Comp::FC_PARAM));
         addParam (createParamCentered<sspo::SmallKnob> (mm2px (Vec (23.096, 98.243)), module, Comp::FILTER_RIGHT_PARAM));
 
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (10.669, 16.656)), module, Comp::LOOP_INPUT));
@@ -109,8 +105,6 @@ struct ChaplinWidget : ModuleWidget
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (10.669, 65.634)), module, Comp::DELAY_RIGHT_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (10.669, 81.731)), module, Comp::FILTER_LEFT_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (10.669, 97.959)), module, Comp::FILTER_RIGHT_INPUT));
-        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (36.002, 97.79)), module, Comp::FC_INPUT));
-        addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (44.998, 97.79)), module, Comp::RESONANCE_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (10.669, 112.023)), module, Comp::LEFT_INPUT));
         addInput (createInputCentered<sspo::PJ301MPort> (mm2px (Vec (23.096, 112.023)), module, Comp::RIGHT_INPUT));
 
@@ -127,8 +121,6 @@ struct ChaplinWidget : ModuleWidget
             module->configInput (Comp::DELAY_RIGHT_INPUT, "DELAY_RIGHT");
             module->configInput (Comp::FILTER_LEFT_INPUT, "FILTER_LEFT");
             module->configInput (Comp::FILTER_RIGHT_INPUT, "FILTER_RIGHT");
-            module->configInput (Comp::FC_INPUT, "FC");
-            module->configInput (Comp::RESONANCE_INPUT, "RESONANCE");
             module->configInput (Comp::LEFT_INPUT, "LEFT");
             module->configInput (Comp::RIGHT_INPUT, "RIGHT");
             module->configOutput (Comp::LEFT_OUTPUT, "LEFT");

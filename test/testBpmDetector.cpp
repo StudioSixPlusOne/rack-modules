@@ -63,7 +63,7 @@ void testSteadyClock (float BPM, float SAMPLE_RATE, int count)
 
 void testSteadyClock()
 {
-    for (auto sr : Sspo::sampleRates)
+    for (auto sr : sspo::sampleRates)
     {
         for (auto bpm : bpms)
         {
@@ -99,7 +99,7 @@ void testSineClock (float BPM, float SAMPLE_RATE, int count)
 
 void testSineClock()
 {
-    for (auto sr : Sspo::sampleRates)
+    for (auto sr : sspo::sampleRates)
     {
         for (auto bpm : bpms)
         {
@@ -111,7 +111,7 @@ void testSineClock()
 void testNewClockFirstTwoLeadingEdge()
 {
     printf ("testNewClockFirstTwoLeadingEdge`n");
-    for (auto sr : Sspo::sampleRates)
+    for (auto sr : sspo::sampleRates)
     {
         for (auto bpm : bpms)
         {
@@ -189,6 +189,7 @@ void testReset()
     result = bmpDetector.process (0.0f);
 
     assertClose (result, 60.0f / BPM, 0.03f);
+
 }
 
 void testWobbleClock()

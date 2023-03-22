@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Dave French <contact/dot/dave/dot/french3/at/googlemail/dot/com>
+ * Copyright (c) 2020, 2023 Dave French <contact/dot/dave/dot/french3/at/googlemail/dot/com>
  *
  *
  * This program is free software; you can redistribute it and/or

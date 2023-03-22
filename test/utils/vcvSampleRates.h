@@ -23,7 +23,7 @@
 
 #include <array>
 
-namespace Sspo
+namespace sspo
 {
     static std::array<float, 14> sampleRates = { 11025.0f,
                                                  12000.0f,

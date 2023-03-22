@@ -34,6 +34,8 @@ using namespace rack;
 
 // external tests
 // ADD EXTERN
+extern void testStereoAudioDelay();
+        
 extern void testBpmDetector();
 extern void testChaplin();
 extern void testPatchNotes();
@@ -110,7 +112,9 @@ int main (int argc, char** argv)
     }
 
     // run external tests defined above
-    // ADD NEWTEST
+        // ADD NEWTEST
+    testStereoAudioDelay();
+        
     testCircularBuffer(); //valgring ok
     testBpmDetector();
     //    testChaplin();testBpmDetector

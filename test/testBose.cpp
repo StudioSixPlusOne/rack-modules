@@ -57,7 +57,7 @@ static void testExtreme (float sr)
 
 static void testExtreme()
 {
-    for (auto sr : Sspo::sampleRates)
+    for (auto sr : sspo::sampleRates)
         testExtreme (sr);
 }
 
