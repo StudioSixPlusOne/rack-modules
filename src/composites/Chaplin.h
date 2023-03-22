@@ -23,6 +23,7 @@
 
 #include "IComposite.h"
 #include "../dsp/UtilityFilters.h"
+#include "StereoAudioDelay.h"
 #include <memory>
 #include <vector>
 #include <array>
@@ -89,6 +90,11 @@ public:
         // set samplerate on any dsp objects
         for (auto& dc : dcOutFilters)
             dc.setButterworthHp2 (sampleRate, dcInFilterCutoff);
+
+        for (auto& sad : stereoAudioDelays)
+        {
+            sad.setSampleRate(rate);
+        }
     }
 
     // must be called after setSampleRate
@@ -173,6 +179,8 @@ public:
     float_4 oversampleBuffer[maxUpSampleRate];
     std::array<sspo::BiQuad<float_4>, SIMD_MAX_CHANNELS> dcOutFilters;
     std::array<ClockDivider, SIMD_MAX_CHANNELS> dividers;
+
+    std::array<sspo::StereoAudioDelay<float_4>, SIMD_MAX_CHANNELS> stereoAudioDelays;
 };
 
 template <class TBase>
@@ -184,6 +192,9 @@ inline void ChaplinComp<TBase>::step()
 
     //read parameters as these are constant across all poly channels
 
+    auto delayParam = TBase::params[DELAY_PARAM].getValue();
+    auto feedbackParam = TBase::params[FEEDBACK_PARAM].getValue();
+
     //loop over poly channels, using float_4. so 4 channels
     for (auto c = 0; c < channels; c += 4)
     {
@@ -193,11 +204,15 @@ inline void ChaplinComp<TBase>::step()
         //            vcaGain = vcaGain + (TBase::inputs[VCA_CV_INPUT].template getPolyVoltageSimd<float_4> (c) * 0.1f * TBase::params[VCA_CV_ATTENUVERTER_PARAM].getValue());
         //        }
         //
-        auto in = TBase::inputs[LEFT_INPUT].template getPolyVoltageSimd<float_4> (c);
+        auto leftIn = TBase::inputs[LEFT_INPUT].template getPolyVoltageSimd<float_4> (c);
+        auto rightIn = TBase::inputs[RIGHT_INPUT].template getPolyVoltageSimd<float_4> (c);
 
         if (dividers[c / 4].process())
         {
             // slower response stuff here
+            stereoAudioDelays[c / 4].setDelayTimeSamples (sampleRate * delayParam,
+                                                          sampleRate * delayParam);
+            stereoAudioDelays[c / 4].setFeedback (feedbackParam);
         }
 
         //process audio
@@ -205,24 +220,25 @@ inline void ChaplinComp<TBase>::step()
 
         if (upSampleRate > 1)
         {
-            upsampler.process (in, oversampleBuffer);
+            upsampler.process (leftIn, oversampleBuffer);
             for (auto i = 0; i < upSampleRate; ++i)
                 oversampleBuffer[i] = 0.0f; //add processing
-            in = decimator.process (oversampleBuffer);
+            leftIn = decimator.process (oversampleBuffer);
         }
         else
         {
-            in = 0.0f; //add processing
+            auto in = stereoAudioDelays[c / 4].process (leftIn, rightIn); //add processing
+            leftIn = in.first;
         }
 
-        float_4 out = dcOutFilters[c / 4].process (in);
+        float_4 leftOut = dcOutFilters[c / 4].process (leftIn);
 
         //simd'ed out = std::isfinite (out) ? out : 0;
-        out = rack::simd::ifelse ((movemask (out == out) != 0xF), float_4 (0.0f), out);
+        leftOut = rack::simd::ifelse ((movemask (leftOut == leftOut) != 0xF), float_4 (0.0f), leftOut);
 
-        TBase::outputs[LEFT_OUTPUT].setVoltageSimd (out, c);
+        TBase::outputs[LEFT_OUTPUT].setVoltageSimd (leftOut, c);
     }
-    TBase::outputs[LEFT_OUTPUT].setChannels (channels);
+    TBase::outputs[LEFT_OUTPUT].setChannels (TBase::inputs[LEFT_INPUT].getChannels());
 }
 
 template <class TBase>

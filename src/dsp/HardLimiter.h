@@ -104,7 +104,7 @@ namespace sspo
         static constexpr int divFreq = 4;
         sspo::AudioMath::ClockDivider divider;
 
-        static constexpr T TC = T (-0.9996723408f); // { std::log (0.368f); } //capacitor discharge to 36.8%
+        const T TC = T (-0.9996723408f); // { std::log (0.368f); } //capacitor discharge to 36.8%
     };
 
     inline float saturate (float in, float max = 1.0f, float kneeWidth = 0.05)

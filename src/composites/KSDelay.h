@@ -116,8 +116,6 @@ public:
         for (auto& l : limiters)
         {
             l.setTimes (0.00f, 0.0025f);
-            l.setSampleRate (sampleRate);
-            l.threshold = -0.50f;
         }
 
         oscphases.resize (maxChannels);

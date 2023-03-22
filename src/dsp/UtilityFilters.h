@@ -196,7 +196,7 @@ namespace sspo
 
         void setSamplerate (T sr)
         {
-            BiQuad<T>::setButterworthHp2 (T (sr, 5.5f));
+            BiQuad<T>::setButterworthHp2 (T (sr), T (5.5f));
         }
     };
 
