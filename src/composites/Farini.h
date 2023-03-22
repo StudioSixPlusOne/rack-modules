@@ -401,7 +401,7 @@ IComposite::Config FariniDescription<TBase>::getParam (int i)
             break;
 
         case FariniComp<TBase>::ATTACK_PARAM:
-            ret = { -0.7f, 0.9f, 0.5f, "ATTACK", " Seconds", timeBase, timeMul, 0.0f };
+            ret = { -0.7f, 0.9f, 0.05f, "ATTACK", " Seconds", timeBase, timeMul, 0.0f };
             break;
 
         case FariniComp<TBase>::ATTACK_CV_PARAM:
@@ -409,7 +409,7 @@ IComposite::Config FariniDescription<TBase>::getParam (int i)
             break;
 
         case FariniComp<TBase>::DECAY_PARAM:
-            ret = { -0.7f, 0.9f, 0.5f, "DECAY", " Seconds", timeBase, timeMul, 0.0f };
+            ret = { -0.7f, 0.9f, 0.1f, "DECAY", " Seconds", timeBase, timeMul, 0.0f };
             break;
 
         case FariniComp<TBase>::DECAY_CV_PARAM:
