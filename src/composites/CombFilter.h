@@ -110,7 +110,7 @@ public:
     float samplePeriod = 1;
 
     std::vector<sspo::CircularBuffer<float>> buffers;
-    std::vector<sspo::Compressor> limiters;
+    std::vector<sspo::Compressor<float>> limiters;
     std::vector<dsp::RCFilter> dcOutFilters;
 
     void setSampleRate (float rate)

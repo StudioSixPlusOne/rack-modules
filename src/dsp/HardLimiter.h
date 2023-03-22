@@ -42,6 +42,7 @@ namespace sspo
     /// !A fixed parameter limiter
     /// Based on description given in Prikle, Designing Audio Effects 2nd
     ///
+    template <typename T>
     struct Compressor
     {
         Compressor()
@@ -55,57 +56,55 @@ namespace sspo
             releaseCoeff = simd::exp (TC / (sampleRate * releaseTimes));
         }
 
-        void setSampleRate (const float sr)
+        void setSampleRate (const T sr)
         {
             sampleRate = sr / divFreq;
             calcCoeffs();
         }
 
-        void setTimes (const float attack, const float release)
+        void setTimes (const T attack, const T release)
         {
             attackTime = attack;
             releaseTimes = release;
             calcCoeffs();
         }
-        float G = 0.0;
-        float process (const float in)
+        T G = T (0.0f);
+        T process (const T in)
         {
             if (divider.process())
             {
                 //envelope follower
-                auto rectIn = std::abs (in);
-                currentEnv = rectIn > lastEnv
-                                 ? attackCoeff * (lastEnv - rectIn) + rectIn
-                                 : releaseCoeff * (lastEnv - rectIn) + rectIn;
-                currentEnv = std::max (currentEnv, 0.00000000001f);
+                auto rectIn = simd::abs (in);
+                currentEnv = simd::ifelse (rectIn > lastEnv, attackCoeff * (lastEnv - rectIn) + rectIn, releaseCoeff * (lastEnv - rectIn) + rectIn);
+                currentEnv = simd::fmax (currentEnv, T (0.00000000001f));
                 lastEnv = currentEnv;
 
                 //            auto dn = 20.0f * lookup.log10 (currentEnv);
                 auto dn = 20.0f * simd::log10 (currentEnv);
                 //Hard knee compression
-                auto yndB = dn <= threshold ? dn : threshold + ((dn - threshold) / ratio);
+                auto yndB = simd::ifelse (dn <= threshold, dn, threshold + ((dn - threshold) / ratio));
                 auto gndB = yndB - dn;
-                G = simd::pow (10.0f, gndB / 20.0f);
+                G = simd::pow (T (10.0f), gndB / 20.0f);
             }
 
             return in * G;
         }
 
-        float attackTime{ 0.0001f };
-        float releaseTimes{ 0.025f };
-        float ratio{ 10.5f };
-        float threshold{ -0.0f }; //dB
+        T attackTime{ 0.0001f };
+        T releaseTimes{ 0.025f };
+        T ratio{ 10.5f };
+        T threshold{ -0.0f }; //dB
 
     private:
-        float attackCoeff{ 0.0f };
-        float releaseCoeff{ 0.0f };
-        float lastEnv{ 0.0f };
-        float currentEnv{ 0.0f };
-        float sampleRate{ 1.0f };
+        T attackCoeff{ 0.0f };
+        T releaseCoeff{ 0.0f };
+        T lastEnv{ 0.0f };
+        T currentEnv{ 0.0f };
+        T sampleRate{ 1.0f };
         static constexpr int divFreq = 4;
         sspo::AudioMath::ClockDivider divider;
 
-        static constexpr float TC{ -0.9996723408f }; // { std::log (0.368f); } //capacitor discharge to 36.8%
+        static constexpr T TC = T (-0.9996723408f); // { std::log (0.368f); } //capacitor discharge to 36.8%
     };
 
     inline float saturate (float in, float max = 1.0f, float kneeWidth = 0.05)
