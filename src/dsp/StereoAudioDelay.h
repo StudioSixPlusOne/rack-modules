@@ -170,6 +170,7 @@ namespace sspo
                 circularBuffers[i].writeBuffer (dry);
                 result.first = wet;
                 result = std::make_pair (result.second, result.first);
+                in = std::make_pair (in.second, in.first);
             }
 
             return result;

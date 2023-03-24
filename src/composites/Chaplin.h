@@ -88,7 +88,10 @@ public:
         maxFreq = std::min (rate / 2.0f, 20000.0f);
 
         // set samplerate on any dsp objects
-        for (auto& dc : dcOutFilters)
+        for (auto& dc : dcOutFiltersLeft)
+            dc.setButterworthHp2 (float_4 (sampleRate), float_4 (dcInFilterCutoff));
+
+        for (auto& dc : dcOutFiltersRight)
             dc.setButterworthHp2 (float_4 (sampleRate), float_4 (dcInFilterCutoff));
 
         for (auto& sad : stereoAudioDelays)
@@ -177,7 +180,8 @@ public:
     sspo::Upsampler<maxUpSampleRate, maxUpSampleQuality, float_4> upsampler;
     sspo::Decimator<maxUpSampleRate, maxUpSampleQuality, float_4> decimator;
     float_4 oversampleBuffer[maxUpSampleRate];
-    std::array<sspo::BiQuad<float_4>, SIMD_MAX_CHANNELS> dcOutFilters;
+    std::array<sspo::BiQuad<float_4>, SIMD_MAX_CHANNELS> dcOutFiltersLeft;
+    std::array<sspo::BiQuad<float_4>, SIMD_MAX_CHANNELS> dcOutFiltersRight;
     std::array<ClockDivider, SIMD_MAX_CHANNELS> dividers;
 
     std::array<sspo::StereoAudioDelay<float_4>, SIMD_MAX_CHANNELS> stereoAudioDelays;
@@ -231,16 +235,20 @@ inline void ChaplinComp<TBase>::step()
         {
             auto in = stereoAudioDelays[c / 4].process (leftIn * 0.2f, rightIn * 0.2f); //add processing
             leftIn = in.first;
+            rightIn = in.second;
         }
 
-        float_4 leftOut = leftIn; //= dcOutFilters[c / 4].process (leftIn);
+        float_4 leftOut = dcOutFiltersLeft[c / 4].process (leftIn);
+        float_4 rightOut = dcOutFiltersRight[c / 4].process (rightIn);
 
         //simd'ed out = std::isfinite (out) ? out : 0;
         //        leftOut = rack::simd::ifelse ((movemask (leftOut == leftOut) != 0xF), float_4 (0.0f), leftOut);
 
         TBase::outputs[LEFT_OUTPUT].setVoltageSimd (leftOut * 5.0f, c);
+        TBase::outputs[RIGHT_OUTPUT].setVoltageSimd (rightOut * 5.0f, c);
     }
-    TBase::outputs[LEFT_OUTPUT].setChannels (TBase::inputs[LEFT_INPUT].getChannels());
+    TBase::outputs[LEFT_OUTPUT].setChannels (channels);
+    TBase::outputs[RIGHT_OUTPUT].setChannels (channels);
 }
 
 template <class TBase>
