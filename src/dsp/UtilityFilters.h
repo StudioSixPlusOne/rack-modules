@@ -85,7 +85,7 @@ namespace sspo
         //-3db at fc 12dB/Octave slope 90 Degree phase at fc
         void setButterworthLp2 (const T sr, const T freq)
         {
-            T fc = rack::simd::ifelse (freq < sr * 0.5f, freq, freq * 0.95f);
+            T fc = rack::simd::clamp (freq, 5.0f, sr * 0.495);
             auto C = 1.0f / rack::simd::tan ((k_pi * fc) / sr);
             auto a0 = 1.0f / (1.0f + 1.414213562f * C + C * C);
 
@@ -98,7 +98,7 @@ namespace sspo
         //-3db at fc 12dB/Octave slope 90 Degree phase at fc
         void setButterworthHp2 (const T sr, const T freq)
         {
-            T fc = rack::simd::ifelse (freq < sr * 0.5f, freq, freq * 0.95f);
+            T fc = rack::simd::clamp (freq, 5.0f, sr * 0.495);
             auto C = rack::simd::tan ((k_pi * fc) / sr);
             auto a0 = 1.0f / (1.0f + 1.414213562f * C + C * C);
 

@@ -34,7 +34,7 @@ namespace ts = sspo::TestSignal;
 
 static void testConstructor()
 {
-    sspo::StereoAudioDelay testclass;
+    sspo::StereoAudioDelay<float> testclass;
     assertEQ (1, 1);
 }
 

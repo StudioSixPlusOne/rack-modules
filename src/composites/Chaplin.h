@@ -89,11 +89,11 @@ public:
 
         // set samplerate on any dsp objects
         for (auto& dc : dcOutFilters)
-            dc.setButterworthHp2 (sampleRate, dcInFilterCutoff);
+            dc.setButterworthHp2 (float_4 (sampleRate), float_4 (dcInFilterCutoff));
 
         for (auto& sad : stereoAudioDelays)
         {
-            sad.setSampleRate(rate);
+            sad.setSampleRate (rate);
         }
     }
 
@@ -162,7 +162,7 @@ public:
         NUM_LIGHTS
     };
 
-    static constexpr auto divisorRate = 4U;
+    static constexpr auto divisorRate = 19U;
     constexpr static float dcInFilterCutoff = 5.5f;
     static constexpr float minFreq = 0.0f;
     float maxFreq = 20000.0f;
@@ -194,6 +194,7 @@ inline void ChaplinComp<TBase>::step()
 
     auto delayParam = TBase::params[DELAY_PARAM].getValue();
     auto feedbackParam = TBase::params[FEEDBACK_PARAM].getValue();
+    auto filterCutoffParam = TBase::params[FC_PARAM].getValue();
 
     //loop over poly channels, using float_4. so 4 channels
     for (auto c = 0; c < channels; c += 4)
@@ -213,6 +214,7 @@ inline void ChaplinComp<TBase>::step()
             stereoAudioDelays[c / 4].setDelayTimeSamples (sampleRate * delayParam,
                                                           sampleRate * delayParam);
             stereoAudioDelays[c / 4].setFeedback (feedbackParam);
+            stereoAudioDelays[c / 4].setFilters (filterCutoffParam, filterCutoffParam);
         }
 
         //process audio
@@ -227,16 +229,16 @@ inline void ChaplinComp<TBase>::step()
         }
         else
         {
-            auto in = stereoAudioDelays[c / 4].process (leftIn, rightIn); //add processing
+            auto in = stereoAudioDelays[c / 4].process (leftIn * 0.2f, rightIn * 0.2f); //add processing
             leftIn = in.first;
         }
 
-        float_4 leftOut = dcOutFilters[c / 4].process (leftIn);
+        float_4 leftOut = leftIn; //= dcOutFilters[c / 4].process (leftIn);
 
         //simd'ed out = std::isfinite (out) ? out : 0;
-        leftOut = rack::simd::ifelse ((movemask (leftOut == leftOut) != 0xF), float_4 (0.0f), leftOut);
+        //        leftOut = rack::simd::ifelse ((movemask (leftOut == leftOut) != 0xF), float_4 (0.0f), leftOut);
 
-        TBase::outputs[LEFT_OUTPUT].setVoltageSimd (leftOut, c);
+        TBase::outputs[LEFT_OUTPUT].setVoltageSimd (leftOut * 5.0f, c);
     }
     TBase::outputs[LEFT_OUTPUT].setChannels (TBase::inputs[LEFT_INPUT].getChannels());
 }

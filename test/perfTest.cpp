@@ -405,7 +405,7 @@ static void testCircularBuffer()
 
 static void testHardLimiter()
 {
-    sspo::Compressor l;
+    sspo::Compressor<float> l;
     l.setSampleRate (44100);
 
     //initial run 8.30

@@ -879,12 +879,12 @@ static void testButterworthHpSmid()
         float_4 fc_4 = { fc, fc + 100.0f, fc + 250.0f, fc + 400.0f };
         testSlopeButterworthHp (fc_4, sr, -3, -12.0f);
     }
+    printf ("testButterworthHpSimd complete \n");
 }
 
 static void testDcBlocker()
 {
     sspo::DcBlocker<float> dcBlocker;
-
 }
 
 static void testButterworthLpSmid()

@@ -35,7 +35,7 @@ using namespace rack;
 // external tests
 // ADD EXTERN
 extern void testStereoAudioDelay();
-        
+
 extern void testBpmDetector();
 extern void testChaplin();
 extern void testPatchNotes();
@@ -112,9 +112,9 @@ int main (int argc, char** argv)
     }
 
     // run external tests defined above
-        // ADD NEWTEST
+    // ADD NEWTEST
+    testUtilityFilter();
     testStereoAudioDelay();
-        
     testCircularBuffer(); //valgring ok
     testBpmDetector();
     //    testChaplin();testBpmDetector
@@ -150,7 +150,6 @@ int main (int argc, char** argv)
     //    testKSDelay();
     testCombFilter(); //Fails Vailgrind
     testMaccomo(); //valgrin
-    testUtilityFilter();
 
     printf ("Tests passed.\n");
 }

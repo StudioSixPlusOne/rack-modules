@@ -68,7 +68,8 @@ namespace sspo
             {
                 circularBuffers[i].clear();
                 filters[i].clear();
-                cutoffs[i] = T (2000.0f);
+                setFilters (0.5f, 0.5f);
+                cutoffs[i] = T (0.5);
                 maxCutoff = simd::fmin (T (samplerate / 2.0f), T (20000.0f));
                 delaySamples[i] = T (2000.0f);
                 fbMode = FeedbackMode::stereo_mode;
@@ -90,34 +91,40 @@ namespace sspo
             for (auto i = 0; i < CHANNEL_COUNT; ++i)
             {
                 circularBuffers[i].reset (samplerate * MAX_DURATION);
-                dcBlockers->setSamplerate (sr);
+                dcBlockers[i].setSamplerate (sr);
+                limiters[i].setSampleRate (samplerate);
+                limiters[i].setTimes (0.001f, 0.02f);
+                limiters[i].threshold = -5.50f;
             }
         }
 
         /// Dj style filter -1 to 1, -1 0 = lpf, 0 1 hpf
-        /// deadspot -0.05 to 0.05
         /// \param leftCutoff
         /// \param rightCutoff
         void setFilters (T leftCutoff, T rightCutoff)
         {
+            cutoffs[0] = leftCutoff;
+            cutoffs[1] = rightCutoff;
             // calculate filter cutoff and modes
             // positive values = voct = leftCutoff * 10.0f -5.0f;
-            T positiveFrequency[CHANNEL_COUNT]{};
-            T negativeFrequency[CHANNEL_COUNT]{};
+            T positiveFrequency[CHANNEL_COUNT]{ 0 };
+            T negativeFrequency[CHANNEL_COUNT]{ 0 };
             positiveFrequency[0] = dsp::FREQ_C4 * rack::simd::pow (2.0f, leftCutoff * 10.0f - 5.0f);
             positiveFrequency[1] = dsp::FREQ_C4 * rack::simd::pow (2.0f, rightCutoff * 10.0f - 5.0f);
 
             // negative values 0 = +5, -1 = -1
             // negative values = voct = leftCuoff * -10.0f + 5.0f
 
-            negativeFrequency[0] = dsp::FREQ_C4 * rack::simd::pow (2.0f, leftCutoff * -10.0f + 5.0f);
-            negativeFrequency[1] = dsp::FREQ_C4 * rack::simd::pow (2.0f, rightCutoff * -10.0f + 5.0f);
+            negativeFrequency[0] = dsp::FREQ_C4 * rack::simd::pow (2.0f, (-1.0f - leftCutoff) * (-10.0f) - 5.0f);
+            negativeFrequency[1] = dsp::FREQ_C4 * rack::simd::pow (2.0f, (-1.0f - rightCutoff) * (-10.0f) - 5.0f);
             // note filters per channel can have different modes
             // set all as lp, and hp them merge coefficients
 
-            useLp[0] = leftCutoff < 0.0f;
-            useLp[1] = rightCutoff < 0.0f;
+            useLp[0] = leftCutoff <= 0.0f;
+            useLp[1] = rightCutoff <= 0.0f;
 
+            //todo
+#if 1
             for (auto i = 0; i < CHANNEL_COUNT; ++i)
             {
                 hpFilterCoefficients[i].setButterworthHp2 (samplerate, positiveFrequency[i]);
@@ -130,6 +137,12 @@ namespace sspo
                 filters[i].coeffs.c0 = simd::ifelse (useLp[i], lpFilterCoefficients[i].coeffs.c0, hpFilterCoefficients[i].coeffs.c0);
                 filters[i].coeffs.d0 = simd::ifelse (useLp[i], lpFilterCoefficients[i].coeffs.d0, hpFilterCoefficients[i].coeffs.d0);
             }
+#endif
+
+#if 0
+            filters[0].setButterworthLp2 (T (samplerate), positiveFrequency[0]);
+            filters[1].setLinkwitzRileyHp2 (samplerate, positiveFrequency[1]);
+#endif
         }
 
         void setDelayTimeSamples (T leftSamples, T rightSamples)
@@ -151,9 +164,9 @@ namespace sspo
             for (auto i = 0; i < 2; ++i)
             {
                 auto x = dcBlockers[i].process (in.first);
-                auto wet = circularBuffers[i].readBuffer (delaySamples[i]);
-                auto dry = left + wet * feedback;
-                dry = 5.0f * limiters[i].process (dry / 5.0f);
+                auto wet = filters[i].process (circularBuffers[i].readBuffer (delaySamples[i]));
+                auto dry = x + wet * feedback;
+                dry = limiters[i].process (dry);
                 circularBuffers[i].writeBuffer (dry);
                 result.first = wet;
                 result = std::make_pair (result.second, result.first);
@@ -166,10 +179,10 @@ namespace sspo
         static constexpr float MAX_DURATION = 5.0f;
         float samplerate = 44100.0f;
         static constexpr int CHANNEL_COUNT = 2;
-        sspo::CircularBuffer<T> circularBuffers[CHANNEL_COUNT];
-        sspo::BiQuad<T> filters[CHANNEL_COUNT];
-        sspo::BiQuad<T> hpFilterCoefficients[CHANNEL_COUNT];
-        sspo::BiQuad<T> lpFilterCoefficients[CHANNEL_COUNT];
+        std::array<sspo::CircularBuffer<T>, CHANNEL_COUNT> circularBuffers;
+        std::array<sspo::BiQuad<T>, CHANNEL_COUNT> filters;
+        std::array<sspo::BiQuad<T>, CHANNEL_COUNT> hpFilterCoefficients;
+        std::array<sspo::BiQuad<T>, CHANNEL_COUNT> lpFilterCoefficients;
         T cutoffs[CHANNEL_COUNT] = { T (2000.0f), T (2000.0f) };
         T useLp[CHANNEL_COUNT];
         T resonance = T (0.707f);
@@ -177,8 +190,8 @@ namespace sspo
         T maxCutoff = T (20000.0f);
         T delaySamples[CHANNEL_COUNT];
         T feedback;
-        sspo::DcBlocker<T> dcBlockers[CHANNEL_COUNT];
-        sspo::Compressor<T> limiters[CHANNEL_COUNT];
+        std::array<sspo::DcBlocker<T>, CHANNEL_COUNT> dcBlockers;
+        std::array<sspo::Compressor<T>, CHANNEL_COUNT> limiters;
 
         FeedbackMode fbMode;
         TimeChangeMode tcMode;
