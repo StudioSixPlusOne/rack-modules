@@ -215,7 +215,7 @@ inline void MixComp<TBase>::step()
         }
 
         //NO dc out filter, so cv can pass
-        float_4 out = in; //dcOutFilters[c / 4].process (in);
+        float_4 out = in; //dcOutFiltersLeft[c / 4].process (in);
 
         //simd'ed out = std::isfinite (out) ? out : 0;
         out = rack::simd::ifelse ((movemask (out == out) != 0xF), float_4 (0.0f), out);

@@ -343,7 +343,7 @@ inline void FariniComp<TBase>::step()
             }
         }
 
-        //        float_4 out = dcOutFilters[c / 4].process (in);
+        //        float_4 out = dcOutFiltersLeft[c / 4].process (in);
 
         //simd'ed out = std::isfinite (out) ? out : 0;
         //        out = rack::simd::ifelse ((movemask (out == out) != 0xF), float_4 (0.0f), out);
