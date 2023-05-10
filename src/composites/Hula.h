@@ -132,6 +132,7 @@ public:
 
     static constexpr int maxOversampleCount = 16;
     static constexpr int oversampleQuality = 1;
+    int lastOverSampleCount = 0;
 
     std::array<sspo::Decimator<maxOversampleCount, oversampleQuality, float_4>, SIMD_CHANNELS> decimators;
     std::array<std::array<float_4, maxOversampleCount>, SIMD_CHANNELS> oversampleBuffers;
@@ -206,6 +207,8 @@ inline void HulaComp<TBase>::step()
                              channels);
 
     int oversampleCount = std::max (TBase::params[OVERSAMPLE_PARAM].getValue(), 1.0f);
+    bool updateOverSampleCount = (oversampleCount != lastOverSampleCount);
+    lastOverSampleCount = oversampleCount;
 
     for (auto c = 0; c < channels; c += 4)
     {
@@ -233,7 +236,10 @@ inline void HulaComp<TBase>::step()
 
         phaseOffset += TBase::params[DEPTH_PARAM].getValue() * fmIn;
 
-        decimators[c / 4].setOverSample (oversampleCount);
+        if (updateOverSampleCount)
+        {
+            decimators[c / 4].setOverSample (oversampleCount);
+        }
 
         float_4 processed = float_4::zero();
 

@@ -122,6 +122,8 @@ namespace sspo
 
             useLp[0] = leftCutoff <= 0.0f;
             useLp[1] = rightCutoff <= 0.0f;
+            useFilter[0] = (leftCutoff > filterEnableThreshold) || (leftCutoff < -filterEnableThreshold);
+            useFilter[1] = (rightCutoff > filterEnableThreshold) || (rightCutoff < -filterEnableThreshold);
 
             //todo
 #if 1
@@ -164,7 +166,8 @@ namespace sspo
             for (auto i = 0; i < 2; ++i)
             {
                 auto x = dcBlockers[i].process (in.first);
-                auto wet = filters[i].process (circularBuffers[i].readBuffer (delaySamples[i]));
+                auto read = circularBuffers[i].readBuffer (delaySamples[i]);
+                auto wet = simd::ifelse (useFilter[i], filters[i].process (read), read);
                 auto dry = x + wet * feedback;
                 dry = limiters[i].process (dry);
                 circularBuffers[i].writeBuffer (dry);
@@ -180,12 +183,14 @@ namespace sspo
         static constexpr float MAX_DURATION = 5.0f;
         float samplerate = 44100.0f;
         static constexpr int CHANNEL_COUNT = 2;
+        const T filterEnableThreshold = 0.05;
         std::array<sspo::CircularBuffer<T>, CHANNEL_COUNT> circularBuffers;
         std::array<sspo::BiQuad<T>, CHANNEL_COUNT> filters;
         std::array<sspo::BiQuad<T>, CHANNEL_COUNT> hpFilterCoefficients;
         std::array<sspo::BiQuad<T>, CHANNEL_COUNT> lpFilterCoefficients;
         T cutoffs[CHANNEL_COUNT] = { T (2000.0f), T (2000.0f) };
         T useLp[CHANNEL_COUNT];
+        T useFilter[CHANNEL_COUNT];
         T resonance = T (0.707f);
         const T minCutoff = T (20.0F);
         T maxCutoff = T (20000.0f);

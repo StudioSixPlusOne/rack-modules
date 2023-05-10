@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
 project(StudioSixPlusOne)
 
-set(RACK_SDK_DIR /Users/curly/Documents/Development/Rack/)
+
+#set(RACK_SDK_DIR /Users/curly/Documents/Development/Rack/)
+set(RACK_SDK_DIR /home/curly/Rack/)
 
 set(PLUGIN_NAME ${PROJECT_NAME})
 set(ADDITIONAL_PLUGIN_DISTRIBUTABLES README.md)
