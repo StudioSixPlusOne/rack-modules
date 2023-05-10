@@ -202,12 +202,14 @@ inline void ChaplinComp<TBase>::step()
     auto filterLeftCvAttenuvert = TBase::params[FILTER_LEFT_PARAM].getValue();
     auto filterRightCvAttenuvert = TBase::params[FILTER_RIGHT_PARAM].getValue();
 
-    float_4 leftFilterCvConnected = TBase::inputs[FILTER_LEFT_INPUT].isConnected()
-                                        ? float_4 (1.0f)
-                                        : float_4 (0.0f);
-    float_4 rightFilterCvConnected = TBase::inputs[FILTER_RIGHT_INPUT].isConnected()
-                                         ? float_4 (1.0f)
-                                         : float_4 (0.0f);
+    auto leftFilterCvConnected = TBase::inputs[FILTER_LEFT_INPUT].isConnected()
+                                     ? float_4 (1.0f)
+                                     : float_4 (0.0f);
+    auto rightFilterCvConnected = TBase::inputs[FILTER_RIGHT_INPUT].isConnected()
+                                      ? float_4 (1.0f)
+                                      : float_4 (0.0f);
+
+    auto dryWetParam = TBase::params[DRY_WET_PARAM].getValue();
 
     //loop over poly channels, using float_4. so 4 channels
     for (auto c = 0; c < channels; c += 4)
@@ -220,6 +222,8 @@ inline void ChaplinComp<TBase>::step()
         //
         auto leftIn = TBase::inputs[LEFT_INPUT].template getPolyVoltageSimd<float_4> (c);
         auto rightIn = TBase::inputs[RIGHT_INPUT].template getPolyVoltageSimd<float_4> (c);
+        auto leftDry = leftIn;
+        auto rightDry = rightIn;
         auto filterCVLeftIn = simd::ifelse (leftFilterCvConnected == 1.0f,
                                             TBase::inputs[FILTER_LEFT_INPUT].template getPolyVoltageSimd<float_4> (c) / 5.0f,
                                             float_4 (1.0f));
@@ -259,6 +263,12 @@ inline void ChaplinComp<TBase>::step()
 
         //simd'ed out = std::isfinite (out) ? out : 0;
         //        leftOut = rack::simd::ifelse ((movemask (leftOut == leftOut) != 0xF), float_4 (0.0f), leftOut);
+
+        auto dryWet = dryWetParam + (TBase::inputs[DRY_WET_INPUT].template getPolyVoltageSimd<float_4> (c) / float_4(5.0f));
+        dryWet = simd::clamp (dryWet);
+
+        leftOut = linearInterpolate (leftDry * 0.2f, leftOut, float_4 (dryWet));
+        rightOut = linearInterpolate (rightDry * 0.2f, rightOut, float_4 (dryWet));
 
         TBase::outputs[LEFT_OUTPUT].setVoltageSimd (leftOut * 5.0f, c);
         TBase::outputs[RIGHT_OUTPUT].setVoltageSimd (rightOut * 5.0f, c);
