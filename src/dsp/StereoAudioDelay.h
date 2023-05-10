@@ -122,8 +122,8 @@ namespace sspo
 
             useLp[0] = leftCutoff <= 0.0f;
             useLp[1] = rightCutoff <= 0.0f;
-            useFilter[0] = (leftCutoff > filterEnableThreshold) || (leftCutoff < -filterEnableThreshold);
-            useFilter[1] = (rightCutoff > filterEnableThreshold) || (rightCutoff < -filterEnableThreshold);
+            useFilter[0] = (leftCutoff > filterEnableThreshold) | (leftCutoff < -filterEnableThreshold);
+            useFilter[1] = (rightCutoff > filterEnableThreshold) | (rightCutoff < -filterEnableThreshold);
 
             //todo
 #if 1

@@ -199,6 +199,15 @@ inline void ChaplinComp<TBase>::step()
     auto delayParam = TBase::params[DELAY_PARAM].getValue();
     auto feedbackParam = TBase::params[FEEDBACK_PARAM].getValue();
     auto filterCutoffParam = TBase::params[FC_PARAM].getValue();
+    auto filterLeftCvAttenuvert = TBase::params[FILTER_LEFT_PARAM].getValue();
+    auto filterRightCvAttenuvert = TBase::params[FILTER_RIGHT_PARAM].getValue();
+
+    float_4 leftFilterCvConnected = TBase::inputs[FILTER_LEFT_INPUT].isConnected()
+                                        ? float_4 (1.0f)
+                                        : float_4 (0.0f);
+    float_4 rightFilterCvConnected = TBase::inputs[FILTER_RIGHT_INPUT].isConnected()
+                                         ? float_4 (1.0f)
+                                         : float_4 (0.0f);
 
     //loop over poly channels, using float_4. so 4 channels
     for (auto c = 0; c < channels; c += 4)
@@ -211,6 +220,12 @@ inline void ChaplinComp<TBase>::step()
         //
         auto leftIn = TBase::inputs[LEFT_INPUT].template getPolyVoltageSimd<float_4> (c);
         auto rightIn = TBase::inputs[RIGHT_INPUT].template getPolyVoltageSimd<float_4> (c);
+        auto filterCVLeftIn = simd::ifelse (leftFilterCvConnected == 1.0f,
+                                            TBase::inputs[FILTER_LEFT_INPUT].template getPolyVoltageSimd<float_4> (c) / 5.0f,
+                                            float_4 (1.0f));
+        auto filterCVRightIn = simd::ifelse (rightFilterCvConnected == 1.0f,
+                                             TBase::inputs[FILTER_RIGHT_INPUT].template getPolyVoltageSimd<float_4> (c) / 5.0f,
+                                             float_4 (1.0f));
 
         if (dividers[c / 4].process())
         {
@@ -218,7 +233,8 @@ inline void ChaplinComp<TBase>::step()
             stereoAudioDelays[c / 4].setDelayTimeSamples (sampleRate * delayParam,
                                                           sampleRate * delayParam);
             stereoAudioDelays[c / 4].setFeedback (feedbackParam);
-            stereoAudioDelays[c / 4].setFilters (filterCutoffParam, filterCutoffParam);
+            stereoAudioDelays[c / 4].setFilters (filterCutoffParam + filterLeftCvAttenuvert * filterCVLeftIn,
+                                                 filterCutoffParam + filterRightCvAttenuvert * filterCVRightIn);
         }
 
         //process audio
