@@ -236,7 +236,7 @@ inline void ChaplinComp<TBase>::step()
             // slower response stuff here
             stereoAudioDelays[c / 4].setDelayTimeSamples (sampleRate * delayParam,
                                                           sampleRate * delayParam);
-            stereoAudioDelays[c / 4].setFeedback (feedbackParam);
+            stereoAudioDelays[c / 4].setFeedback (feedbackParam + TBase::inputs[FEEDBACK_INPUT].template getPolyVoltageSimd<float_4> (c));
             stereoAudioDelays[c / 4].setFilters (filterCutoffParam + filterLeftCvAttenuvert * filterCVLeftIn,
                                                  filterCutoffParam + filterRightCvAttenuvert * filterCVRightIn);
         }
@@ -264,7 +264,7 @@ inline void ChaplinComp<TBase>::step()
         //simd'ed out = std::isfinite (out) ? out : 0;
         //        leftOut = rack::simd::ifelse ((movemask (leftOut == leftOut) != 0xF), float_4 (0.0f), leftOut);
 
-        auto dryWet = dryWetParam + (TBase::inputs[DRY_WET_INPUT].template getPolyVoltageSimd<float_4> (c) / float_4(5.0f));
+        auto dryWet = dryWetParam + (TBase::inputs[DRY_WET_INPUT].template getPolyVoltageSimd<float_4> (c) / float_4 (5.0f));
         dryWet = simd::clamp (dryWet);
 
         leftOut = linearInterpolate (leftDry * 0.2f, leftOut, float_4 (dryWet));
