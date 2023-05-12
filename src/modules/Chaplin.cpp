@@ -158,21 +158,21 @@ void ChaplinWidget::appendContextMenu (Menu* menu)
     timeModeDefaultMenuItem->text = "Default";
     timeModeDefaultMenuItem->module = module;
     timeModeDefaultMenuItem->rightText = CHECKMARK (module->params[Comp::TIMEMODE_PARAM].getValue() == Comp::DEFAULT_TIMEMODE);
-    menu->addChild(timeModeDefaultMenuItem);
+    menu->addChild (timeModeDefaultMenuItem);
 
     TimeModeMenuItem* timeModeVoctMenuItem = new TimeModeMenuItem;
     timeModeVoctMenuItem->timeMode = Comp::TimeMode::VOCT_TIMEMODE;
     timeModeVoctMenuItem->text = "Voct";
     timeModeVoctMenuItem->module = module;
     timeModeVoctMenuItem->rightText = CHECKMARK (module->params[Comp::TIMEMODE_PARAM].getValue() == Comp::VOCT_TIMEMODE);
-    menu->addChild(timeModeVoctMenuItem);
+    menu->addChild (timeModeVoctMenuItem);
 
     TimeModeMenuItem* timeModeClockMenuItem = new TimeModeMenuItem;
     timeModeClockMenuItem->timeMode = Comp::TimeMode::CLOCK_TIMEMODE;
     timeModeClockMenuItem->text = "Clock";
     timeModeClockMenuItem->module = module;
     timeModeClockMenuItem->rightText = CHECKMARK (module->params[Comp::TIMEMODE_PARAM].getValue() == Comp::CLOCK_TIMEMODE);
-    menu->addChild(timeModeClockMenuItem);
+    menu->addChild (timeModeClockMenuItem);
 }
 
 Model* modelChaplin = createModel<Chaplin, ChaplinWidget> ("Chaplin");
