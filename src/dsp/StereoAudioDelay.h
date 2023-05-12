@@ -74,9 +74,7 @@ namespace sspo
                 delaySamples[i] = T (2000.0f);
                 fbMode = FeedbackMode::stereo_mode;
                 tcMode = TimeChangeMode::instant;
-                limiters[i].setTimes (0.00f, 0.0025f);
-                limiters[i].setSampleRate (samplerate);
-                limiters[i].threshold = -0.50f;
+                setSampleRate (samplerate);
             }
 
             feedback = T (0.5f);
@@ -94,7 +92,7 @@ namespace sspo
                 dcBlockers[i].setSamplerate (sr);
                 limiters[i].setSampleRate (samplerate);
                 limiters[i].setTimes (0.001f, 0.02f);
-                limiters[i].threshold = -5.50f;
+                limiters[i].threshold = -0.50f;
             }
         }
 

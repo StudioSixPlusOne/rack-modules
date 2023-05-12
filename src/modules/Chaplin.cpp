@@ -127,6 +127,52 @@ struct ChaplinWidget : ModuleWidget
             module->configOutput (Comp::RIGHT_OUTPUT, "RIGHT");
         }
     }
+
+    struct TimeModeMenuItem : MenuItem
+    {
+        Chaplin* module;
+        Comp::TimeMode timeMode;
+
+        void onAction (const event::Action& e) override
+        {
+            module->params[Comp::TIMEMODE_PARAM].setValue (timeMode);
+        }
+    };
+
+    void appendContextMenu (Menu* menu) override;
 };
+
+void ChaplinWidget::appendContextMenu (Menu* menu)
+{
+    // add timeMode selectiopn menu items
+    auto* module = dynamic_cast<Chaplin*> (this->module);
+
+    menu->addChild (new MenuEntry);
+
+    MenuLabel* timeModeLabel = new MenuLabel();
+    timeModeLabel->text = "Timing mode";
+    menu->addChild (timeModeLabel);
+
+    TimeModeMenuItem* timeModeDefaultMenuItem = new TimeModeMenuItem;
+    timeModeDefaultMenuItem->timeMode = Comp::TimeMode::DEFAULT_TIMEMODE;
+    timeModeDefaultMenuItem->text = "Default";
+    timeModeDefaultMenuItem->module = module;
+    timeModeDefaultMenuItem->rightText = CHECKMARK (module->params[Comp::TIMEMODE_PARAM].getValue() == Comp::DEFAULT_TIMEMODE);
+    menu->addChild(timeModeDefaultMenuItem);
+
+    TimeModeMenuItem* timeModeVoctMenuItem = new TimeModeMenuItem;
+    timeModeVoctMenuItem->timeMode = Comp::TimeMode::VOCT_TIMEMODE;
+    timeModeVoctMenuItem->text = "Voct";
+    timeModeVoctMenuItem->module = module;
+    timeModeVoctMenuItem->rightText = CHECKMARK (module->params[Comp::TIMEMODE_PARAM].getValue() == Comp::VOCT_TIMEMODE);
+    menu->addChild(timeModeVoctMenuItem);
+
+    TimeModeMenuItem* timeModeClockMenuItem = new TimeModeMenuItem;
+    timeModeClockMenuItem->timeMode = Comp::TimeMode::CLOCK_TIMEMODE;
+    timeModeClockMenuItem->text = "Clock";
+    timeModeClockMenuItem->module = module;
+    timeModeClockMenuItem->rightText = CHECKMARK (module->params[Comp::TIMEMODE_PARAM].getValue() == Comp::CLOCK_TIMEMODE);
+    menu->addChild(timeModeClockMenuItem);
+}
 
 Model* modelChaplin = createModel<Chaplin, ChaplinWidget> ("Chaplin");

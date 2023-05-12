@@ -27,6 +27,7 @@
 #include <memory>
 #include <vector>
 #include <array>
+#include "../dsp/BpmDetector.h"
 
 #include "jansson.h"
 
@@ -98,6 +99,8 @@ public:
         {
             sad.setSampleRate (rate);
         }
+
+        bpmDetector.setSampleRate (sampleRate);
     }
 
     // must be called after setSampleRate
@@ -136,6 +139,7 @@ public:
         FILTER_LEFT_PARAM,
         FC_PARAM,
         FILTER_RIGHT_PARAM,
+        TIMEMODE_PARAM,
         NUM_PARAMS
     };
     enum InputId
@@ -165,6 +169,64 @@ public:
         NUM_LIGHTS
     };
 
+    enum TimeMode
+    {
+        DEFAULT_TIMEMODE,
+        VOCT_TIMEMODE,
+        CLOCK_TIMEMODE,
+        NUM_TIMEMODE
+    };
+
+    std::pair<float_4, float_4> getDelayTime (int channel,
+                                              TimeMode mode,
+                                              float delayParamVal,
+                                              float leftDelayParamVal,
+                                              float rightDelayParamVal,
+                                              float_4 leftDelayCvVal,
+                                              float_4 rightDelayCvVal,
+                                              float_4 cvVal)
+    {
+        std::pair<float_4, float_4> delayTime{ 0.0f, 0.0f };
+        //calculate delaytime
+        auto leftCvTotal = delayParamVal + leftDelayParamVal * leftDelayCvVal + cvVal;
+        auto rightCvTotal = delayParamVal + rightDelayParamVal * rightDelayCvVal + cvVal;
+
+        switch (mode)
+        {
+            case DEFAULT_TIMEMODE:
+            {
+                delayTime.first = simd::rcp (2.0f * simd::pow (2.0f, leftCvTotal));
+                delayTime.second = simd::rcp (2.0f * simd::pow (2.0f, rightCvTotal));
+            }
+            break;
+            case VOCT_TIMEMODE:
+            {
+                delayTime.first = simd::rcp (dsp::FREQ_C4 * simd::pow (2.0f, leftCvTotal));
+                delayTime.second = simd::rcp (dsp::FREQ_C4 * simd::pow (2.0f, rightCvTotal));
+            }
+            break;
+            case CLOCK_TIMEMODE:
+            {
+                //                delayTime.first = clockDuration;
+                //                delayTime.second = delayTime.first;
+                // delay time know now works as clock clockScale / divider
+
+                auto clockScale = delayParamVal > 0
+                                      ? simd::pow (2, simd::floor (delayParamVal))
+                                      : simd::rcp (simd::pow (2, simd::floor (-1.0f * delayParamVal)));
+
+                auto leftoffset = simd::rcp (2.0f * simd::pow (2.0f, leftDelayCvVal * leftDelayParamVal));
+                auto rightoffset = simd::rcp (2.0f * simd::pow (2.0f, rightDelayCvVal * rightDelayParamVal));
+                delayTime.first = clockScale * clockDuration + leftoffset;
+                delayTime.second = clockScale * clockDuration + rightoffset;
+            }
+            break;
+            default:
+                delayTime = std::make_pair (float_4 (0), float_4 (0));
+        }
+        return delayTime;
+    }
+
     static constexpr auto divisorRate = 19U;
     constexpr static float dcInFilterCutoff = 5.5f;
     static constexpr float minFreq = 0.0f;
@@ -183,6 +245,8 @@ public:
     std::array<sspo::BiQuad<float_4>, SIMD_MAX_CHANNELS> dcOutFiltersLeft;
     std::array<sspo::BiQuad<float_4>, SIMD_MAX_CHANNELS> dcOutFiltersRight;
     std::array<ClockDivider, SIMD_MAX_CHANNELS> dividers;
+    sspo::BpmDetector bpmDetector;
+    float clockDuration = 0.0f;
 
     std::array<sspo::StereoAudioDelay<float_4>, SIMD_MAX_CHANNELS> stereoAudioDelays;
 };
@@ -196,7 +260,6 @@ inline void ChaplinComp<TBase>::step()
 
     //read parameters as these are constant across all poly channels
 
-    auto delayParam = TBase::params[DELAY_PARAM].getValue();
     auto feedbackParam = TBase::params[FEEDBACK_PARAM].getValue();
     auto filterCutoffParam = TBase::params[FC_PARAM].getValue();
     auto filterLeftCvAttenuvert = TBase::params[FILTER_LEFT_PARAM].getValue();
@@ -209,7 +272,19 @@ inline void ChaplinComp<TBase>::step()
                                       ? float_4 (1.0f)
                                       : float_4 (0.0f);
 
+    auto leftDelayCvConnected = TBase::inputs[DELAY_LEFT_INPUT].isConnected()
+                                    ? float_4 (1.0f)
+                                    : float_4 (0.0f);
+
+    auto rightDelayCvConnected = TBase::inputs[DELAY_RIGHT_INPUT].isConnected()
+                                     ? float_4 (1.0f)
+                                     : float_4 (0.0f);
+
     auto dryWetParam = TBase::params[DRY_WET_PARAM].getValue();
+
+    //get clock every frame to calculate bpm
+
+    clockDuration = bpmDetector.process (TBase::inputs[CLOCK_INPUT].getPolyVoltage (0));
 
     //loop over poly channels, using float_4. so 4 channels
     for (auto c = 0; c < channels; c += 4)
@@ -224,19 +299,38 @@ inline void ChaplinComp<TBase>::step()
         auto rightIn = TBase::inputs[RIGHT_INPUT].template getPolyVoltageSimd<float_4> (c);
         auto leftDry = leftIn;
         auto rightDry = rightIn;
-        auto filterCVLeftIn = simd::ifelse (leftFilterCvConnected == 1.0f,
-                                            TBase::inputs[FILTER_LEFT_INPUT].template getPolyVoltageSimd<float_4> (c) / 5.0f,
-                                            float_4 (1.0f));
-        auto filterCVRightIn = simd::ifelse (rightFilterCvConnected == 1.0f,
-                                             TBase::inputs[FILTER_RIGHT_INPUT].template getPolyVoltageSimd<float_4> (c) / 5.0f,
-                                             float_4 (1.0f));
 
         if (dividers[c / 4].process())
         {
             // slower response stuff here
-            stereoAudioDelays[c / 4].setDelayTimeSamples (sampleRate * delayParam,
-                                                          sampleRate * delayParam);
+
+            auto delayCVLeftIn = simd::ifelse (leftDelayCvConnected == 1.0f,
+                                               TBase::inputs[DELAY_LEFT_INPUT].template getPolyVoltageSimd<float_4> (c),
+                                               float_4 (5.0f));
+            auto delayCVRightIn = simd::ifelse (rightDelayCvConnected == 1.0f,
+                                                TBase::inputs[DELAY_RIGHT_INPUT].template getPolyVoltageSimd<float_4> (c),
+                                                float_4 (5.0f));
+
+            auto delayTime = getDelayTime (c / 4,
+                                           TimeMode (TBase::params[ChaplinComp<TBase>::TIMEMODE_PARAM].getValue()),
+                                           TBase::params[DELAY_PARAM].getValue(),
+                                           TBase::params[DELAY_LEFT_PARAM].getValue(),
+                                           TBase::params[DELAY_RIGHT_PARAM].getValue(),
+                                           delayCVLeftIn,
+                                           delayCVRightIn,
+                                           TBase::inputs[CLOCK_INPUT].template getPolyVoltageSimd<float_4> (c));
+
+            stereoAudioDelays[c / 4].setDelayTimeSamples (sampleRate * delayTime.first,
+                                                          sampleRate * delayTime.second);
             stereoAudioDelays[c / 4].setFeedback (feedbackParam + TBase::inputs[FEEDBACK_INPUT].template getPolyVoltageSimd<float_4> (c));
+
+            auto filterCVLeftIn = simd::ifelse (leftFilterCvConnected == 1.0f,
+                                                TBase::inputs[FILTER_LEFT_INPUT].template getPolyVoltageSimd<float_4> (c) / 5.0f,
+                                                float_4 (1.0f));
+            auto filterCVRightIn = simd::ifelse (rightFilterCvConnected == 1.0f,
+                                                 TBase::inputs[FILTER_RIGHT_INPUT].template getPolyVoltageSimd<float_4> (c) / 5.0f,
+                                                 float_4 (1.0f));
+
             stereoAudioDelays[c / 4].setFilters (filterCutoffParam + filterLeftCvAttenuvert * filterCVLeftIn,
                                                  filterCutoffParam + filterRightCvAttenuvert * filterCVRightIn);
         }
@@ -286,8 +380,6 @@ int ChaplinDescription<TBase>::getNumParams()
 template <class TBase>
 IComposite::Config ChaplinDescription<TBase>::getParam (int i)
 {
-    auto freqBase = static_cast<float> (std::pow (2, 10.0f));
-    auto freqMul = static_cast<float> (dsp::FREQ_C4 / std::pow (2, 5.f));
     IComposite::Config ret = { 0.0f, 1.0f, 0.0f, "Name", "unit", 0.0f, 1.0f, 0.0f };
     switch (i)
     {
@@ -304,7 +396,7 @@ IComposite::Config ChaplinDescription<TBase>::getParam (int i)
             break;
 
         case ChaplinComp<TBase>::FEEDBACK_PARAM:
-            ret = { 0.0f, 1.0f, 0.5f, "FEEDBACK", " ", 0.0f, 1.0f, 0.0f };
+            ret = { 0.0f, 1.25f, 0.5f, "FEEDBACK", " ", 0.0f, 1.0f, 0.0f };
             break;
 
         case ChaplinComp<TBase>::DELAY_LEFT_PARAM:
@@ -312,7 +404,7 @@ IComposite::Config ChaplinDescription<TBase>::getParam (int i)
             break;
 
         case ChaplinComp<TBase>::DELAY_PARAM:
-            ret = { -1.0f, 1.0f, 0.0f, "DELAY", " ", 0.0f, 1.0f, 0.0f };
+            ret = { -5.0f, 5.0f, 0.0f, "DELAY", " ", 0.0f, 1.0f, 0.0f };
             break;
 
         case ChaplinComp<TBase>::DELAY_RIGHT_PARAM:
@@ -329,6 +421,10 @@ IComposite::Config ChaplinDescription<TBase>::getParam (int i)
 
         case ChaplinComp<TBase>::FILTER_RIGHT_PARAM:
             ret = { -1.0f, 1.0f, 0.0f, "FILTER_RIGHT", " ", 0.0f, 1.0f, 0.0f };
+            break;
+
+        case ChaplinComp<TBase>::TIMEMODE_PARAM:
+            ret = { 0, ChaplinComp<TBase>::NUM_TIMEMODE, 0.0f, "TIMEMODE", " ", 0.0f, 1.0f, 0.0f };
             break;
 
         default:
