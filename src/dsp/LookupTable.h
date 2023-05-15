@@ -65,39 +65,39 @@ namespace sspo
                 T fraction = ((x / source.interval) - source.minX / source.interval) - index;
                 return linearInterpolate (static_cast<T> (source.table[index]), static_cast<T> (source.table[index + 1]), fraction);
             }
-
+#if 1
             // original take using slow vector access to read from table
             // perf.exe reports 23% of 1% usage
-            //            template <typename T>
-            //            inline float_4 process (Table<T>& source,  float_4 x)
-            //            {
-            //                assert (source.table.size() != 0 && "Lookup table empty");
-            //                assert (source.minX != source.maxX && "Lookup table min equal max");
-            //                assert (source.interval != 0 && "Lookup interval 0");
-            //
-            //                //x = rack::simd::clamp(x, float_4(source.minX), float_4(source.maxX));
-            //                //assert(x >= source.minX && "Lookuptable index too low");
-            //                //assert(x <= source.maxX && "Lookuptable index too greate");
-            //
-            //                float_4 index = rack::simd::floor((x / source.interval) - source.minX / source.interval);
-            //                //index = simd::clamp(index, float_4(0), float_4(source.table.size() - 1.0f));
-            //
-            //                float_4 fraction = ((x / source.interval) - source.minX / source.interval) - index;
-            //                float_4 lower = float_4 (source.table[index[0]],
-            //                                         source.table[index[1]],
-            //                                         source.table[index[2]],
-            //                                         source.table[index[3]]);
-            //                float_4 upper = float_4 (source.table[index[0] + 1],
-            //                                         source.table[index[1] + 1],
-            //                                         source.table[index[2] + 1],
-            //                                         source.table[index[3] + 1]);
-            //                return  linearInterpolate (lower, upper, fraction);
-            //
-            //            }
+            template <typename T>
+            inline float_4 process (Table<T>& source, float_4 x)
+            {
+                //                assert (source.table.size() != 0 && "Lookup table empty");
+                //                assert (source.minX != source.maxX && "Lookup table min equal max");
+                //                assert (source.interval != 0 && "Lookup interval 0");
 
-            // second attempt without creating new float_4;
-            // member float_4 are used, this makes Lookup tables no reentrant
-            // a separate instance is require for each module instance
+                //x = rack::simd::clamp(x, float_4(source.minX), float_4(source.maxX));
+                //assert(x >= source.minX && "Lookuptable index too low");
+                //assert(x <= source.maxX && "Lookuptable index too greate");
+
+                float_4 indexFull = (x / source.interval) - source.minX / source.interval;
+                auto index = simd::floor (indexFull);
+                //index = simd::clamp(index, float_4(0), float_4(source.table.size() - 1.0f));
+                auto indexPlusOne = index + 1.0f;
+
+                float_4 fraction = indexFull - index;
+                float_4 lower = float_4 (source.table[index[0]],
+                                         source.table[index[1]],
+                                         source.table[index[2]],
+                                         source.table[index[3]]);
+                float_4 upper = float_4 (source.table[indexPlusOne[0]],
+                                         source.table[indexPlusOne[1]],
+                                         source.table[indexPlusOne[2]],
+                                         source.table[indexPlusOne[3]]);
+                return linearInterpolate (lower, upper, fraction);
+            }
+#endif
+#if 0
+
             // dont use lookup.xxx() for simd
             // perf.exe reports 23% of 1% usage
 
@@ -119,7 +119,7 @@ namespace sspo
                 auto index = rack::simd::floor (indexFull);
                 auto fraction = (indexFull) -index;
 
-                auto indexPlus1 = index + 1;
+                auto indexPlus1 = index + 1.0f;
 
                 return {
                     linearInterpolate (source.table[index[0]], source.table[indexPlus1[0]], fraction[0]),
@@ -128,9 +128,10 @@ namespace sspo
                     linearInterpolate (source.table[index[3]], source.table[indexPlus1[3]], fraction[3])
                 };
             }
+#endif
 
             template <typename T>
-            inline Table<T> makeTable (const T min, const T max, const T interval, std::function<T (const T x)> funct)
+            inline constexpr Table<T> makeTable (const T min, const T max, const T interval, std::function<T (const T x)> funct)
             {
                 assert (min < max);
                 assert (interval > 0);

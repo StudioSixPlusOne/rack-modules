@@ -169,8 +169,8 @@ void HulaComp<TBase>::setSampleRate (float rate)
 template <class TBase>
 void HulaComp<TBase>::init()
 {
-    // set random detune, += 3 cent;
-    auto detuneLimit = 2.0f; //cents
+    // set random detune, += 1 cent;
+    auto detuneLimit = 1.0f; //cents
     for (auto& f : fineTuneVocts)
         f = float_4 ((rand01() * 2.0f - 1.0f) * detuneLimit / (12.0f * 100.0f),
                      (rand01() * 2.0f - 1.0f) * detuneLimit / (12.0f * 100.0f),
@@ -220,16 +220,16 @@ inline void HulaComp<TBase>::step()
 
         //phase offset as fm is implemented as phase modulation
         float_4 phaseOffset = TBase::params[FEEDBACK_PARAM].getValue() * 0.053f * (lastOuts[c / 4]);
-        if (TBase::inputs[FEEDBACK_CV_INPUT].isConnected())
-        {
-            phaseOffset *= feedbackFilters[c / 4].process (simd::abs (TBase::inputs[FEEDBACK_CV_INPUT].template getPolyVoltageSimd<float_4> (c) * 0.1f));
-        }
+
+        phaseOffset *= simd::ifelse (TBase::inputs[FEEDBACK_CV_INPUT].isConnected(),
+                                     feedbackFilters[c / 4].process (simd::abs (TBase::inputs[FEEDBACK_CV_INPUT].template getPolyVoltageSimd<float_4> (c) * 0.1f)),
+                                     1.0f);
+
         float_4 fmIn = TBase::inputs[FM_INPUT].template getPolyVoltageSimd<float_4> (c) * 0.2f; // scale from +-5 to +=1
 
-        if (TBase::inputs[DEPTH_CV_INPUT].isConnected())
-        {
-            fmIn *= depthFilters[c / 4].process (simd::abs (TBase::inputs[DEPTH_CV_INPUT].template getPolyVoltageSimd<float_4> (c) * 0.1f));
-        }
+        fmIn *= simd::ifelse (TBase::inputs[DEPTH_CV_INPUT].isConnected(),
+                              depthFilters[c / 4].process (simd::abs (TBase::inputs[DEPTH_CV_INPUT].template getPolyVoltageSimd<float_4> (c) * 0.1f)),
+                              1.0f);
 
         phaseOffset += TBase::params[DEPTH_PARAM].getValue() * fmIn;
 
@@ -244,7 +244,7 @@ inline void HulaComp<TBase>::step()
                 //generate oversampled signal
                 phases[c / 4] += phaseInc;
                 phases[c / 4] = simd::ifelse (phases[c / 4] > float_4 (1.0f),
-                                              phases[c / 4] - simd::trunc (phases[c / 4]),
+                                              phases[c / 4] - 1.0f, //simd::trunc (phases[c / 4]),
                                               phases[c / 4]);
                 oversampleBuffers[c / 4][i] = lookup.hulaSin4 ((phases[c / 4] + phaseOffset) * k_2pi);
             }
@@ -255,7 +255,7 @@ inline void HulaComp<TBase>::step()
         {
             phases[c / 4] += phaseInc;
             phases[c / 4] = simd::ifelse (phases[c / 4] > float_4 (1.0f),
-                                          phases[c / 4] - simd::trunc (phases[c / 4]),
+                                          phases[c / 4] - 1.0f, // simd::trunc (phases[c / 4]),
                                           phases[c / 4]);
             processed = lookup.hulaSin4 ((phases[c / 4] + phaseOffset) * k_2pi);
         }
