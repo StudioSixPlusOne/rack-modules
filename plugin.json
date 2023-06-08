@@ -246,8 +246,8 @@
       ]
     },
     {
-      "slug": "MARSBasicCombFilter",
-      "name": "MARS_Basic_Comb_Filter",
+      "slug": "MARSCombFilterv1",
+      "name": "MARS Comb Filter v1",
       "description": "Building Block for Make A Rev",
       "tags": []
     }

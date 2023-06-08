@@ -99,4 +99,4 @@ struct MARS_Basic_Comb_FilterWidget : ModuleWidget
     }
 };
 
-Model* modelMARS_Basic_Comb_Filter = createModel<MARS_Basic_Comb_Filter, MARS_Basic_Comb_FilterWidget> ("MARSBasicCombFilter");
+Model* modelMARS_Basic_Comb_Filter = createModel<MARS_Basic_Comb_Filter, MARS_Basic_Comb_FilterWidget> ("MARSCombFilterv1");

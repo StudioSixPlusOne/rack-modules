@@ -61,9 +61,9 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 
 [PatchNotes](#PatchNotes)
 
-# Make a Reverb Submodules (MARS)
+[MARS Make a Reverb Submodules](#MARS Make a Reverb Submodules)
 
-[MARS_Basic_Comb_Filter](#MARS_Basic_Comb_Filter)
+[MARS Comb Filter v1](#MARS_Comb_Filter_v1)
 
 [Next](#next)
 
@@ -427,9 +427,23 @@ This can be used to label in's and out's on subsections and selections.
 
 A Slimline patch note module, with nostalgic display.
 
-### MARS_Basic_Comb_Filter
+### MARS Make a Reverb Submodules
 
-<img src="images/MARS_Basic_Comb_Filter.png">
+A collection of modules for experimenting with reverb algorithms.
+These were developed while reading "Designing audio effect plugins in c++" pirkle
+
+The modules are simple building blocks that can be placed together to form
+reverbs, these are intentionally very clean processing, with no input or output
+sanitation, as such if allowed these modules may emmit voltages outside the
+VCV standards including inf and nan.
+
+This collection of modules can be identified by the blue grey colour panels
+
+### MARS Comb Filterv1
+
+<img src="images/MARS_Comb_Filter_v1.png">
+
+A very simple comb filter, this is present to make early reverb experiments.
 
 ### Next
 
