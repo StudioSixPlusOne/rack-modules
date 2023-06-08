@@ -42,7 +42,6 @@ extern double overheadOutOnly;
 #include "simd/sse_mathfun.h"
 #include "simd/sse_mathfun_extension.h"
 
-
 #include "MeasureTime.h"
 #include "TestComposite.h"
 
@@ -276,7 +275,6 @@ static void testWaveShaper()
         1);
 }
 
-
 static void testLookupTable()
 {
     MeasureTime<float>::run (
@@ -386,7 +384,7 @@ static void testLookupTable()
 
 static void testCircularBuffer()
 {
-    CircularBuffer<float> c;
+    sspo::CircularBuffer<float> c;
 
     //initial run with inf and ana checks 0.297870
     MeasureTime<double>::run (
