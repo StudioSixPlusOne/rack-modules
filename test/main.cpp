@@ -34,6 +34,7 @@ using namespace rack;
 
 // external tests
 // ADD EXTERN
+extern void testMARS_Basic_Comb_Filter();
 extern void testPatchNotes();
 extern void testThru();
 extern void testLalaStereo();
@@ -109,6 +110,8 @@ int main (int argc, char** argv)
 
     // run external tests defined above
     // ADD NEWTEST
+    testMARS_Basic_Comb_Filter();
+
     testPatchNotes(); //valgrind ok
     testThru(); //valgrind ok
     testLalaStereo(); //valgrind ok

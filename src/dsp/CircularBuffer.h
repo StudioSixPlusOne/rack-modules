@@ -26,64 +26,68 @@
 
 #include "AudioMath.h"
 
-template <typename T>
-class CircularBuffer
+namespace sspo
 {
-public:
-    CircularBuffer()
-    {
-        reset (4096);
-    }
-    CircularBuffer (const unsigned int minBufferSize)
-    {
-        reset (minBufferSize);
-    }
 
-    void reset (const unsigned int minBufferSize)
+    template <typename T>
+    class CircularBuffer
     {
-        writeIndex = 0;
-        bufferLength = static_cast<unsigned int> (std::pow (2, std::ceil (std::log (minBufferSize) / std::log (2))));
-        wrapBits = bufferLength - 1;
-        buffer.reset (new T[bufferLength]);
-        clear();
-    }
-
-    void clear()
-    {
-        for (auto i = 0; i < static_cast<int> (bufferLength); ++i)
+    public:
+        CircularBuffer()
         {
-            buffer[i] = 0;
+            reset (4096);
         }
-    }
+        CircularBuffer (const unsigned int minBufferSize)
+        {
+            reset (minBufferSize);
+        }
 
-    inline void writeBuffer (const T newValue) noexcept
-    {
-        writeIndex++;
-        writeIndex &= wrapBits;
-        buffer[writeIndex] = std::isnan (newValue) || std::isinf (newValue) ? 0 : newValue;
-    }
+        void reset (const unsigned int minBufferSize)
+        {
+            writeIndex = 0;
+            bufferLength = static_cast<unsigned int> (std::pow (2, std::ceil (std::log (minBufferSize) / std::log (2))));
+            wrapBits = bufferLength - 1;
+            buffer.reset (new T[bufferLength]);
+            clear();
+        }
 
-    inline T readBuffer (const int delaySamples) const noexcept
-    {
-        return buffer[(writeIndex - delaySamples) & wrapBits];
-    }
+        void clear()
+        {
+            for (auto i = 0; i < static_cast<int> (bufferLength); ++i)
+            {
+                buffer[i] = 0;
+            }
+        }
 
-    inline T readBuffer (const float delaySamples) const noexcept
-    {
-        auto y1 = readBuffer (static_cast<int> (delaySamples));
-        auto y2 = readBuffer (static_cast<int> (delaySamples) + 1);
-        auto fract = delaySamples - static_cast<int> (delaySamples);
-        return sspo::AudioMath::linearInterpolate (y1, y2, fract);
-    }
+        inline void writeBuffer (const T newValue) noexcept
+        {
+            writeIndex++;
+            writeIndex &= wrapBits;
+            buffer[writeIndex] = std::isnan (newValue) || std::isinf (newValue) ? 0 : newValue;
+        }
 
-    int size()
-    {
-        return static_cast<int> (bufferLength);
-    }
+        inline T readBuffer (const int delaySamples) const noexcept
+        {
+            return buffer[(writeIndex - delaySamples) & wrapBits];
+        }
 
-private:
-    std::unique_ptr<T[]> buffer{ nullptr };
-    unsigned int writeIndex{ 0 };
-    unsigned int bufferLength{ 0 };
-    unsigned int wrapBits{ 0 };
-};
+        inline T readBuffer (const float delaySamples) const noexcept
+        {
+            auto y1 = readBuffer (static_cast<int> (delaySamples));
+            auto y2 = readBuffer (static_cast<int> (delaySamples) + 1);
+            auto fract = delaySamples - static_cast<int> (delaySamples);
+            return sspo::AudioMath::linearInterpolate (y1, y2, fract);
+        }
+
+        int size()
+        {
+            return static_cast<int> (bufferLength);
+        }
+
+    private:
+        std::unique_ptr<T[]> buffer{ nullptr };
+        unsigned int writeIndex{ 0 };
+        unsigned int bufferLength{ 0 };
+        unsigned int wrapBits{ 0 };
+    };
+} // namespace sspo

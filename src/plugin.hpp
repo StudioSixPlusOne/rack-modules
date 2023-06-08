@@ -28,4 +28,6 @@ extern Model* modelFarini;
 extern Model* modelLalaStereo;
 extern Model* modelThru;
 extern Model* modelPatchNotes;
+
+extern Model* modelMARS_Basic_Comb_Filter;
 //ADD EXTERNS

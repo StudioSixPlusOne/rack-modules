@@ -1,6 +1,11 @@
 # StudioSixPlusOne
 
-# Release  v2.1
+# MakeAReverb
+
+This is an experimental branch, containing a collection of prototype modules to allow to construction
+of various reverb topologies.
+
+# Introduction
 
 A collection of modules for [VCV Rack](https://github.com/VCVRack/Rack), a cross platform opensource, modular synth
 emulator software.
@@ -55,6 +60,10 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 [Thru](#Thru)
 
 [PatchNotes](#PatchNotes)
+
+# Make a Reverb Submodules (MARS)
+
+[MARS_Basic_Comb_Filter](#MARS_Basic_Comb_Filter)
 
 [Next](#next)
 
@@ -417,6 +426,10 @@ This can be used to label in's and out's on subsections and selections.
 <img src="images/PatchNotes.png">
 
 A Slimline patch note module, with nostalgic display.
+
+### MARS_Basic_Comb_Filter
+
+<img src="images/MARS_Basic_Comb_Filter.png">
 
 ### Next
 
