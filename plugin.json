@@ -250,6 +250,18 @@
       "name": "MARS Comb Filter v1",
       "description": "Building Block for Make A Rev",
       "tags": []
+    },
+    {
+      "slug": "MARSAllPassResonatorV1",
+      "name": "MARSAllPassResonatorV1",
+      "description": "A Delaying All Pass Reverberator, for use with MARS Make A Reverb modules",
+      "tags": []
+    },
+    {
+      "slug": "MARSImpulse",
+      "name": "MARSImpulse",
+      "description": "Impulse generator, used when measuring impulse responses",
+      "tags": []
     }
   ]
 }

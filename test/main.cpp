@@ -34,8 +34,9 @@ using namespace rack;
 
 // external tests
 // ADD EXTERN
+extern void testMARSImpulse();
+extern void testMARSAllPassResonatorV1();
 extern void testReverb();
-        
 extern void testMARS_Basic_Comb_Filter();
 extern void testPatchNotes();
 extern void testThru();
@@ -111,9 +112,13 @@ int main (int argc, char** argv)
     }
 
     // run external tests defined above
-        // ADD NEWTEST
+    // ADD NEWTEST
+    testMARSImpulse();
+
+    testMARSAllPassResonatorV1();
+
     testReverb();
-        
+
     testMARS_Basic_Comb_Filter();
 
     testPatchNotes(); //valgrind ok

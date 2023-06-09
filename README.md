@@ -65,6 +65,10 @@ Instructions can be found in the VCV manual https://vcvrack.com/manual/Building#
 
 [MARS Comb Filter v1](#MARS_Comb_Filter_v1)
 
+[MARSAllPassResonatorV1](#MARSAllPassResonatorV1)
+
+[MARSImpulse](#MARSImpulse)
+
 [Next](#next)
 
 ### Wallenda
@@ -444,6 +448,19 @@ This collection of modules can be identified by the blue grey colour panels
 <img src="images/MARS_Comb_Filter_v1.png">
 
 A very simple comb filter, this is present to make early reverb experiments.
+
+### MARSAllPassResonatorV1
+
+<img src="images/MARSAllPassResonatorV1.png">
+
+A very simple delaying all-pass reverberator, this is present to make early reverb experiments.
+
+### MARSImpulse
+
+<img src="images/MARSImpulse.png">
+
+Generate an impulse, a signal with a single sample with a voltage, followed by 0V.
+This is used for measuring impulse responses
 
 ### Next
 
