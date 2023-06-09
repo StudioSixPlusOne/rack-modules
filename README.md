@@ -439,7 +439,7 @@ VCV standards including inf and nan.
 
 This collection of modules can be identified by the blue grey colour panels
 
-### MARS Comb Filterv1
+### MARS Comb Filter v1
 
 <img src="images/MARS_Comb_Filter_v1.png">
 

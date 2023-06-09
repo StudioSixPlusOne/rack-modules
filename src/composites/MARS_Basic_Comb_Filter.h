@@ -24,6 +24,7 @@
 #include "IComposite.h"
 #include "../dsp/UtilityFilters.h"
 #include "CircularBuffer.h"
+#include "Reverb.h"
 #include <memory>
 #include <vector>
 #include <array>
@@ -88,8 +89,10 @@ public:
 
         // set samplerate on any dsp objects
 
-        //set max length for delay line
-        delayLine.reset (sampleRate * maxDelayTimemSec * 0.001f);
+        for (auto &cf : combFilters)
+        {
+            cf.setSampleRate(rate);
+        }
     }
 
     // must be called after setSampleRate
@@ -138,7 +141,7 @@ public:
     static constexpr auto maxDelayTimemSec = 1000.0f;
     float sampleRate = 1.0f;
     float sampleTime = 1.0f;
-    sspo::CircularBuffer<float> delayLine;
+    std::array<sspo::Reverb::CombFilter<float>, 16> combFilters;
 };
 
 template <class TBase>
@@ -146,18 +149,25 @@ inline void MARS_Basic_Comb_FilterComp<TBase>::step()
 {
     //read parameters as these are constant
 
-    auto delayTimeSamples = sampleRate * TBase::params[DELAYTIME_PARAM].getValue() * 0.001f;
+    auto delayTime = TBase::params[DELAYTIME_PARAM].getValue();
     auto feedback = TBase::params[FEEDBACK_PARAM].getValue();
 
-    //Monophonic
+    auto channels = TBase::inputs[MAIN_INPUT].getChannels();
 
-    auto in = TBase::inputs[MAIN_INPUT].getVoltage();
-    auto y = delayLine.readBuffer ((delayTimeSamples));
-    delayLine.writeBuffer (in + y * feedback);
+    for (auto c = 0; c < channels; ++c)
+    {
+        combFilters[c].setParameters (feedback, delayTime);
 
-    TBase::outputs[MAIN_OUTPUT].setVoltage (y);
+        //Monophonic
 
-    TBase::outputs[MAIN_OUTPUT].setChannels (1);
+        auto in = TBase::inputs[MAIN_INPUT].getVoltage();
+        auto y = combFilters[c].step (in);
+        y = std::isfinite (y) ? y : 0;
+
+        TBase::outputs[MAIN_OUTPUT].setVoltage (y, c);
+    }
+
+    TBase::outputs[MAIN_OUTPUT].setChannels (channels);
 }
 
 template <class TBase>
