@@ -77,7 +77,7 @@ struct MARSAllPassResonatorV1Widget : ModuleWidget
         setModule (module);
         std::shared_ptr<IComposite> icomp = Comp::getDescription();
         box.size = Vec (10 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-        SqHelper::setPanel (this, "res/MARSAllPassResonatorV1.svg");
+        SqHelper::setPanel (this, "res/MARS_AllPassResonatorV1.svg");
 
         addChild (createWidget<ScrewSilver> (Vec (RACK_GRID_WIDTH, 0)));
         addChild (createWidget<ScrewSilver> (Vec (box.size.x - 2 * RACK_GRID_WIDTH, 0)));

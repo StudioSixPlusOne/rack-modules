@@ -114,13 +114,9 @@ int main (int argc, char** argv)
     // run external tests defined above
     // ADD NEWTEST
     testMARSImpulse();
-
     testMARSAllPassResonatorV1();
-
     testReverb();
-
     testMARS_Basic_Comb_Filter();
-
     testPatchNotes(); //valgrind ok
     testThru(); //valgrind ok
     testLalaStereo(); //valgrind ok
