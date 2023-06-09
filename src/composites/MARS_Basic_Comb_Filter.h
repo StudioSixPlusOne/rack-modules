@@ -89,9 +89,9 @@ public:
 
         // set samplerate on any dsp objects
 
-        for (auto &cf : combFilters)
+        for (auto& cf : combFilters)
         {
-            cf.setSampleRate(rate);
+            cf.setSampleRate (rate);
         }
     }
 

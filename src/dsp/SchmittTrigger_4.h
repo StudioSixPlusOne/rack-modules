@@ -42,10 +42,10 @@ namespace sspo
     public:
         void reset()
         {
-            state = T(1.0f);
-            result = T(1.0f);
-            offThreshold = T(0);
-            onThreshold = T(1);
+            state = T (1.0f);
+            result = T (1.0f);
+            offThreshold = T (0);
+            onThreshold = T (1);
         }
         const T process (T triggers)
         {
@@ -82,11 +82,11 @@ namespace sspo
         }
 
     private:
-        T state= T (1.0);
-        T result= T (1.0);
-        const T onState= T (1.0);
-        T offThreshold= T (0.0);
-        T onThreshold= T (1.0);
+        T state = T (1.0);
+        T result = T (1.0);
+        const T onState = T (1.0);
+        T offThreshold = T (0.0);
+        T onThreshold = T (1.0);
     };
 
     using SchmittTrigger_4 = sspo::SchmittTrigger<float_4>;
