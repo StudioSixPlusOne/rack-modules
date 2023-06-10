@@ -156,7 +156,7 @@ inline void MARS_Basic_Comb_FilterComp<TBase>::step()
 
     for (auto c = 0; c < channels; ++c)
     {
-        combFilters[c].setParameters (feedback, delayTime);
+        combFilters[c].setParameters (feedback, delayTime * 0.001f);
 
         //Monophonic
 
