@@ -289,6 +289,7 @@ Iverson comes in two versions: a 16 step and an 8 step (Iverson Jr).
         - Additional sliders are assigned to the Alt probability controls.
 - The factory presents for Launchpad Mk3
     - Grid Only
+    - The mapping requires "Factory Custom Mode 3" to be active. By default it is loaded into slot 3 ("User" button) of the Launchpad.
 - The factory presents for the Launchpad Mk2
     - Iverson Jr - kindly provided by TroubledMind
         - Grid
